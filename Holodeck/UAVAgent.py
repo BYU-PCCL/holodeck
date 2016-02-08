@@ -7,9 +7,9 @@ class UAVAgent(SimulatorAgent):
         print "Initialized"
 
     class UAVCommandBuilder(CommandBuilder):
-        def __init__(self, agent):
-            super(self.__class__, self).__init__(agent, type="UAVCommand")
-            self.type = "UAVCommand"
+        def __init__(self, agent, commandType='UAVCommand'):
+            super(self.__class__, self).__init__(agent, commandType)
+            self.type = commandType
 
         def setLocalRotation(self, roll, pitch, yaw):
             self.update({

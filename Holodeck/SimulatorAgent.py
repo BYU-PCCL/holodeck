@@ -18,7 +18,7 @@ class SimulatorAgent(object):
     def sendCommand(self, type, command):
         message = {
             "type": type,
-            "json": json.dumps(command)
+            "commandjson": json.dumps(command)
         }
 
         return self.sendString(json.dumps(message))
