@@ -4,7 +4,6 @@ from CommandBuilder import CommandBuilder
 class UAVAgent(SimulatorAgent):
     def __init__(self, hostname="localhost", port=8989, agentName="DefaultFlyingAgent"):
         super(UAVAgent, self).__init__(hostname, port, agentName)
-        print "Initialized"
 
     class UAVCommandBuilder(CommandBuilder):
         def __init__(self, agent, commandType='UAVCommand'):

@@ -2,6 +2,8 @@ import zmq
 import json
 import threading
 from collections import defaultdict
+import time
+from CommandBuilder import CommandBuilder
 
 class SimulatorAgent(object):
     def __init__(self, hostname="localhost", port=8989, agentName="DefaultAgent"):
@@ -9,16 +11,54 @@ class SimulatorAgent(object):
         self.socket = self.context.socket(zmq.DEALER)
         self.socket.setsockopt(zmq.IDENTITY, agentName.encode("ascii"))
         self.socket.connect("tcp://" + hostname + ":" + str(port))
+        self.socket.setsockopt(zmq.SNDTIMEO, 500)
         self.delegates = defaultdict(list)
 
         self.isListening = True
         self.thread = threading.Thread(target=self.listen)
         self.thread.start()
 
+    class WorldCommandBuilder(CommandBuilder):
+        def __init__(self, agent, commandType='SimulatorCommand'):
+           super(self.__class__, self).__init__(agent, commandType)
+           self.type = commandType
+
+        def setAllowedTicksBetweenCommands(self, ticks):
+            self.update({
+                "AllowedTicksBetweenCommands": ticks
+            })
+
+            return self
+
+        def setLocalTranslation(self,seconds):
+            self.update({
+                "TimeDeltaBetweenTicks": seconds
+            })
+
+            return self
+
+    def waitFor(self, type):
+        class context:
+            isWaiting = True
+
+        def wait(command):
+            context.isWaiting = False
+
+
+        self.subscribe(type, wait)
+
+        while(context.isWaiting):
+            self.sendCommand("WaitFor" + type, None)
+            time.sleep(1)
+
+        self.unsubscribe(type, wait)
+
+        return self
+
     def sendCommand(self, type, command):
         message = {
-            "type": type,
-            "commandjson": json.dumps(command)
+            "CommandType": type,
+            "CommandJSON": json.dumps(command) if command else ""
         }
 
         return self.sendString(json.dumps(message))
@@ -38,10 +78,12 @@ class SimulatorAgent(object):
         while self.isListening:
             message = self.receive(False)
             if message is not None:
-                message['type'] = 'Raw' + message['type']
+                message['type'] = message['type']
                 self.publish(message)
 
     def kill(self):
+        self.socket.setsockopt(zmq.LINGER, 0)
+        self.socket.close()
         self.isListening = False
         self.thread.join()
 
@@ -54,3 +96,7 @@ class SimulatorAgent(object):
     def publish(self, message):
         for function in self.delegates[message['type']]:
             function(message['data'])
+
+    def worldCommand(self):
+        command = SimulatorAgent.WorldCommandBuilder(self)
+        return command
