@@ -3,10 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="9f7c0e04-82bd-4ba1-bf7b-c0bdfb0ddd42" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Holodeck/AndroidAgent.py" afterPath="$PROJECT_DIR$/Holodeck/AndroidAgent.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Holodeck/SimulatorAgent.py" afterPath="$PROJECT_DIR$/Holodeck/SimulatorAgent.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Holodeck/UAVAgent.py" afterPath="$PROJECT_DIR$/Holodeck/UAVAgent.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Holodeck/__init__.py" afterPath="$PROJECT_DIR$/Holodeck/__init__.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example.py" afterPath="$PROJECT_DIR$/example.py" />
     </list>
     <ignored path="Positronix.iws" />
@@ -76,11 +72,11 @@
       <file leaf-file-name="example.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/example.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.11525424">
-              <caret line="4" column="26" selection-start-line="4" selection-start-column="26" selection-end-line="4" selection-end-column="26" />
+            <state vertical-scroll-proportion="0.23050848">
+              <caret line="17" column="47" selection-start-line="17" selection-start-column="47" selection-end-line="17" selection-end-column="47" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1455044633618" expanded="true" signature="1155:1933" placeholder="..." />
+                <marker date="1455044807968" expanded="true" signature="1227:2069" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -517,7 +513,13 @@
       <option name="project" value="LOCAL" />
       <updated>1454972189839</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Improved API and examples">
+      <created>1455044718111</created>
+      <option name="number" value="00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1455044718111</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -559,7 +561,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="improved file structure and added listening" />
     <MESSAGE value="added android commands" />
-    <option name="LAST_COMMIT_MESSAGE" value="added android commands" />
+    <MESSAGE value="Improved API and examples" />
+    <option name="LAST_COMMIT_MESSAGE" value="Improved API and examples" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -608,7 +611,7 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <marker date="1455044633618" expanded="true" signature="1155:1933" placeholder="..." />
+            <marker date="1455044807968" expanded="true" signature="1227:2069" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -763,26 +766,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider editor-type-id="MultiMarkdownFxPreviewEditor">
-        <state />
-      </provider>
-      <provider editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-      <provider selected="true" editor-type-id="split-provider[text-editor;MultiMarkdownPreviewEditor]">
-        <state split_layout="FIRST">
-          <first_editor vertical-scroll-proportion="0.0">
-            <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-            <folding />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Holodeck/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -831,13 +814,33 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider editor-type-id="MultiMarkdownFxPreviewEditor">
+        <state />
+      </provider>
+      <provider editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+      <provider selected="true" editor-type-id="split-provider[text-editor;MultiMarkdownPreviewEditor]">
+        <state split_layout="FIRST">
+          <first_editor vertical-scroll-proportion="0.0">
+            <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/example.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.11525424">
-          <caret line="4" column="26" selection-start-line="4" selection-start-column="26" selection-end-line="4" selection-end-column="26" />
+        <state vertical-scroll-proportion="0.23050848">
+          <caret line="17" column="47" selection-start-line="17" selection-start-column="47" selection-end-line="17" selection-end-column="47" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <marker date="1455044633618" expanded="true" signature="1155:1933" placeholder="..." />
+            <marker date="1455044807968" expanded="true" signature="1227:2069" placeholder="..." />
           </folding>
         </state>
       </provider>

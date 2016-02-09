@@ -16,10 +16,14 @@ if __name__ == "__main__":
 
         for _ in range(10):
             print "Commanding the arms forward"
-            agent.command().setBoneConstraint("upperarm_l", 0, 0, 0, 1, 100000).setBoneConstraint("upperarm_r", 0, 0, 0, 1, 100000).send()
+            agent.command().setBoneConstraint("upperarm_l", 0, 0, 0, 1, 100000)\
+                .setBoneConstraint("upperarm_r", 0, 0, 0, 1, 100000)\
+                .send()
             time.sleep(1)
             print "Commanding the arms backward"
-            agent.command().setBoneConstraint("upperarm_l", 0, -40, 70, 1, 100000).setBoneConstraint("upperarm_r", 0, -40, 70, 1, 100000).send()
+            agent.command().setBoneConstraint("upperarm_l", 0, -40, 70, 1, 100000)\
+                .setBoneConstraint("upperarm_r", 0, -40, 70, 1, 100000)\
+                .send()
             time.sleep(1)
 
         print "Killing the Android"
@@ -34,7 +38,9 @@ if __name__ == "__main__":
 
         # Note: this command will affect ALL agents in the world
         print "Setting the simulator to not pause at all after a command"
-        agent.worldCommand().setAllowedTicksBetweenCommands(0).send()
+        agent.worldCommand()\
+            .setAllowedTicksBetweenCommands(0)\
+            .send()
 
         def onCamera(data):
             print data
@@ -44,7 +50,9 @@ if __name__ == "__main__":
 
         for _ in range(10):
             print "Commanding the UAV to rotate"
-            agent.command().setLocalRotation(5,5,5).send()
+            agent.command()\
+                .setLocalRotation(5,5,5)\
+                .send()
             time.sleep(1)
 
         print "Killing the UAV"
