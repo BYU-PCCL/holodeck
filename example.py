@@ -12,7 +12,7 @@ if __name__ == "__main__":
         # Note: this command will affect ALL agents in the world
         print "Setting the simulator to pause every 1 frame after a command"
         agent.worldCommand().setAllowedTicksBetweenCommands(1).send()
-
+        agent.configure().setCollisionsVisible(True).send()
 
         for _ in range(10):
             print "Commanding the arms forward"
