@@ -12,7 +12,7 @@ if __name__ == "__main__":
         # Note: this command will affect ALL agents in the world
         print "Setting the simulator to pause every 1 frame after a command"
         agent.worldCommand().setAllowedTicksBetweenCommands(1).send()
-        agent.configure().setCollisionsVisible(True).send()
+        agent.configure().setCollisionsVisible(False).send()
 
         for _ in range(10):
             print "Commanding the arms forward"
@@ -35,7 +35,6 @@ if __name__ == "__main__":
         print "Starting and waiting for UAV to connect..."
         agent = Holodeck.UAVAgent(hostname="localhost", port=8989, agentName="UAV").waitFor("Connect")
         print "Connected to UAV."
-
         # Note: this command will affect ALL agents in the world
         print "Setting the simulator to not pause at all after a command"
         agent.worldCommand()\
