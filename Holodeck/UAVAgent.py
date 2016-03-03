@@ -28,6 +28,17 @@ class UAVAgent(SimulatorAgent):
 
             return self
 
+    class UAVConfigurationBuilder(CommandBuilder):
+        def __init__(self, agent, commandType='UAVConfiguration'):
+            super(self.__class__, self).__init__(agent, commandType)
+            self.type = commandType
+
+            return self
+
     def command(self):
         command = UAVAgent.UAVCommandBuilder(self)
         return command
+
+    def configure(self):
+        configuration = UAVAgent.UAVConfigurationBuilder(self)
+        return configuration
