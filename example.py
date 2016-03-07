@@ -14,6 +14,12 @@ if __name__ == "__main__":
         agent.worldCommand().setAllowedTicksBetweenCommands(1).send()
         agent.configure().setCollisionsVisible(False).send()
 
+        def onCamera(data):
+            print data
+
+        # Subscribe the function onCamera to the CameraSensorArray2D sensor messages
+        agent.subscribe("CameraSensorArray2D", onCamera)
+
         for _ in range(10):
             print "Commanding the arms forward"
             agent.command().setBoneConstraint("upperarm_l", 0, 0, 0, 1, 100000)\
