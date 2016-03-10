@@ -11,14 +11,20 @@ if __name__ == "__main__":
 
         # Note: this command will affect ALL agents in the world
         print "Setting the simulator to pause every 1 frame after a command"
-        agent.worldCommand().setAllowedTicksBetweenCommands(1).send()
+        agent.worldCommand().setAllowedTicksBetweenCommands(0).send()
         agent.configure().setCollisionsVisible(False).send()
 
         def onCamera(data):
             print data
 
+        def onHit(data):
+            print data
+
         # Subscribe the function onCamera to the CameraSensorArray2D sensor messages
         agent.subscribe("CameraSensorArray2D", onCamera)
+
+        # Subscribe the function onHit to the PressureSensor messages
+        agent.subscribe("PressureSensor", onHit)
 
         for _ in range(10):
             print "Commanding the arms forward"
