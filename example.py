@@ -20,11 +20,17 @@ if __name__ == "__main__":
         def onHit(data):
             print data
 
+        def onRelativePosition(data):
+            print data
+
         # Subscribe the function onCamera to the CameraSensorArray2D sensor messages
         agent.subscribe("CameraSensorArray2D", onCamera)
 
         # Subscribe the function onHit to the PressureSensor messages
         agent.subscribe("PressureSensor", onHit)
+
+        # Subscribe the function onRelativePosition to the PressureSensor messages
+        agent.subscribe("RelativeSkeletalPositionSensor", onRelativePosition)
 
         for _ in range(10):
             print "Commanding the arms forward"
