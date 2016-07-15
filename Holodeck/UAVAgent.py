@@ -1,5 +1,5 @@
-from SimulatorAgent import SimulatorAgent
-from CommandBuilder import CommandBuilder
+from .SimulatorAgent import SimulatorAgent
+from .CommandBuilder import CommandBuilder
 
 class UAVAgent(SimulatorAgent):
     def __init__(self, hostname="localhost", port=8989, agentName="DefaultFlyingAgent"):

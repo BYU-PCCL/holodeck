@@ -3,7 +3,7 @@ import json
 import threading
 from collections import defaultdict
 import time
-from CommandBuilder import CommandBuilder
+from .CommandBuilder import CommandBuilder
 
 class SimulatorAgent(object):
     def __init__(self, hostname="localhost", port=8989, agentName="DefaultAgent"):
@@ -64,12 +64,14 @@ class SimulatorAgent(object):
         return self.sendString(json.dumps(message))
 
     def sendString(self, string):
-        return self.socket.send_string(string.encode("ascii"))
+        #print(string)
+        #print(type(string))
+        return self.socket.send_string(string)#.encode("ascii"))
 
     def receive(self, blocking=True):
         try:
             data = self.socket.recv(flags=zmq.NOBLOCK if not blocking else None)
-            return json.loads(data)
+            return json.loads(data.decode())
 
         except zmq.Again as e:
             return None
