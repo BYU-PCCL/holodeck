@@ -1,26 +1,30 @@
 from .SimulatorAgent import SimulatorAgent
 from .CommandBuilder import CommandBuilder
+from collections import defaultdict
 
 class AndroidAgent(SimulatorAgent):
-    def __init__(self, hostname="localhost", port=8989, agentName="DefaultFlyingAgent"):
+    def __init__(self, hostname="localhost", port=8989, agentName="DefaultFlyingAgent",
+                 global_state_sensors={}):
         super(AndroidAgent, self).__init__(hostname, port, agentName)
+
+        self.current_state = defaultdict(None)
+        self.global_state_sensors = set(global_state_sensors)
+
+        # Subscribe the function for sensor messages
+        for sensor in self.global_state_sensors:
+            self.subscribe(sensor, self._onGlobalStateeSensor)
 
     class AndroidCommandBuilder(CommandBuilder):
         def __init__(self, agent, commandType='AndroidCommand'):
             super(self.__class__, self).__init__(agent, commandType)
             self.type = commandType
 
-        def setBoneConstraint(self, bone, x, y, z, w, force):
-            self.append('BoneConstraints', {
-                "Bone": bone,
-                "X": x,
-                "Y": y,
-                "Z": z,
-                "W": w,
-                "Force": force
-            })
-
+        def setJointRotationAndForce(self, boneConstraintVector):
+            self.update({'ConstraintVector': boneConstraintVector})
             return self
+
+        def getJointRotationAndForceSpace(self):
+            return (127)
 
     class AndroidConfigurationBuilder(CommandBuilder):
         def __init__(self, agent, commandType='AndroidConfiguration'):
@@ -41,3 +45,10 @@ class AndroidAgent(SimulatorAgent):
     def configure(self):
         configuration = AndroidAgent.AndroidConfigurationBuilder(self)
         return configuration
+
+    def _onGlobalStateeSensor(self, data, type):
+        self.current_state[type] = data
+
+        if set(self.current_state.keys()) == self.global_state_sensors:
+            self.publish({'type': 'State',
+                          'data': self.current_state})

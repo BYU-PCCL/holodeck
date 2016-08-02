@@ -41,9 +41,8 @@ class SimulatorAgent(object):
         class context:
             isWaiting = True
 
-        def wait(command):
+        def wait(command, type):
             context.isWaiting = False
-
 
         self.subscribe(type, wait)
 
@@ -60,7 +59,6 @@ class SimulatorAgent(object):
             "CommandType": type,
             "CommandJSON": json.dumps(command) if command else ""
         }
-
         return self.sendString(json.dumps(message))
 
     def sendString(self, string):
@@ -97,7 +95,7 @@ class SimulatorAgent(object):
 
     def publish(self, message):
         for function in self.delegates[message['type']]:
-            function(message['data'])
+            function(message['data'], message['type'])
 
     def worldCommand(self):
         command = SimulatorAgent.WorldCommandBuilder(self)
