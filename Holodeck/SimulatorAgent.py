@@ -37,6 +37,13 @@ class SimulatorAgent(object):
 
             return self
 
+        def restartLevel(self):
+            self.update({
+                "Restart": True
+            })
+
+            return self
+
     def waitFor(self, type):
         class context:
             isWaiting = True

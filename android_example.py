@@ -19,16 +19,23 @@ if __name__ == "__main__":
 
         # Note: this command will affect ALL agents in the world
         print("Setting the simulator to pause every 1 frame after a command")
-        agent.worldCommand().setAllowedTicksBetweenCommands(0).send()
+        agent.worldCommand().setAllowedTicksBetweenCommands(1).send()\
+        #agent.worldCommand().restartLevel().send()
         agent.configure().setCollisionsVisible(False).send()
 
         def onState(data, type=None):
             #print("i just got your state message")
+            print("Message from " + type)
             print(data)
 
-        agent.subscribe('State', onState)
+        #agent.subscribe('State', onState)
+        agent.subscribe('CameraSensorArray2D', onState)
+        agent.subscribe("PressureSensor",onState)
+        agent.subscribe("JointRotationSensor",onState)
+        agent.subscribe("RelativeSkeletalPositionSensor",onState)
+        agent.subscribe("IMUSensor",onState)
 
-        for i in range(1000):
+        for i in range(100):
             command = [0, 0, 0, 1,              # head           s1, tw, s2
                        0, 1,                    # neck_01        s1,   ,
                        0, 0, 1,                 # spine_02       s1, tw,
@@ -82,8 +89,6 @@ if __name__ == "__main__":
             agent.command().setJointRotationAndForce(command).send()
 
             time.sleep(.1)
-
-
 
         print("Killing the Android")
         agent.kill()
