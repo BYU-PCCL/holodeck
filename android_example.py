@@ -20,8 +20,11 @@ if __name__ == "__main__":
         # Note: this command will affect ALL agents in the world
         print("Setting the simulator to pause every 1 frame after a command")
         agent.worldCommand().setAllowedTicksBetweenCommands(1).send()\
-        #agent.worldCommand().restartLevel().send()
         agent.configure().setCollisionsVisible(False).send()
+        
+        #some other example world commands
+        #agent.worldCommand().restartLevel().send()
+        #agent.worldCommand().loadLevel("MyNextLevel").send()
 
         def onState(data, type=None):
             #print("i just got your state message")
@@ -35,7 +38,7 @@ if __name__ == "__main__":
         agent.subscribe("RelativeSkeletalPositionSensor",onState)
         agent.subscribe("IMUSensor",onState)
 
-        for i in range(100):
+        for i in range(1000):
             command = [0, 0, 0, 1,              # head           s1, tw, s2
                        0, 1,                    # neck_01        s1,   ,
                        0, 0, 1,                 # spine_02       s1, tw,

@@ -44,6 +44,13 @@ class SimulatorAgent(object):
 
             return self
 
+        def loadLevel(self, level):
+            self.update({
+                "LoadLevel": level
+            })
+
+            return self
+
     def waitFor(self, type):
         class context:
             isWaiting = True
