@@ -1,13 +1,12 @@
 import Holodeck
 import time
-import threading
 import math
-import random as r
-import json
 
 if __name__ == "__main__":
 
-    def android():
+    def main():
+
+        #initialize agent
         print("Starting and waiting for Android to connect...")
         agent = Holodeck.AndroidAgent.AndroidAgent(hostname="localhost", port=8989, agentName="AndroidBlueprint",
                                                    global_state_sensors={"CameraSensorArray2D",
@@ -17,29 +16,33 @@ if __name__ == "__main__":
                                                                          "IMUSensor"}).waitFor("Connect")
         print("Connected to Android.")
 
-        # Note: this command will affect ALL agents in the world
-        print("Setting the simulator to pause every 1 frame after a command")
-        agent.worldCommand().setAllowedTicksBetweenCommands(1).send()
+        #set any agent or world settings
         agent.configure().setCollisionsVisible(False).send()
-        
-        #some other example world commands
-        #agent.worldCommand().restartLevel().send()
-        #agent.worldCommand().loadLevel("MyNextLevel").send()
+        #set allowedticks to 1 to have least possible time passed between states
+        agent.worldCommand().setAllowedTicksBetweenCommands(1).send()
 
-        def onState(data, type=None):
-            #print("i just got your state message")
-            print("Message from " + type)
-            print(data)
+        for i in xrange(20):
 
-        #agent.subscribe('State', onState)
-        agent.subscribe('CameraSensorArray2D', onState)
-        agent.subscribe("PressureSensor",onState)
-        agent.subscribe("JointRotationSensor",onState)
-        agent.subscribe("RelativeSkeletalPositionSensor",onState)
-        agent.subscribe("IMUSensor",onState)
+          #get state
+          output = agent.getNextState()
 
-        for i in range(1000):
-            command = [0, 0, 0, 1,              # head           s1, tw, s2
+          print("------   State " + str(i) + "   ------")
+          print("Joint Rotation Sensor:")
+          print(output["JointRotationSensor"])
+          print("RelativeSkeletalPositionSensor:")
+          print(output["RelativeSkeletalPositionSensor"])
+          print("IMUSensor:")
+          print(output["IMUSensor"])
+          print("PressureSensor:")
+          print(output["PressureSensor"])
+          print("Printing CameraSensorArray2D images to file . . .")
+          with open("lefteye.jpg", "wb") as f:
+            f.write(output["CameraSensorArray2D"][0])
+          with open("righteye.jpg", "wb") as f:
+            f.write(output["CameraSensorArray2D"][0])
+
+          #respond to state
+          command = [0, 0, 0, 1,              # head           s1, tw, s2
                        0, 1,                    # neck_01        s1,   ,
                        0, 0, 1,                 # spine_02       s1, tw,
                        0, 0, 0, 1,              # spine_01       s1, tw, s2
@@ -89,12 +92,10 @@ if __name__ == "__main__":
                        0, 0, 1,                 # ball_r         s1, tw,
                        ]
 
-            agent.command().setJointRotationAndForce(command).send()
-
-            time.sleep(.1)
+          agent.command().setJointRotationAndForce(command).send()
 
         print("Killing the Android")
         agent.kill()
         print("Android killed.")
 
-    android()
+    main()
