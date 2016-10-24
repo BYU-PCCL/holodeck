@@ -39,7 +39,10 @@ if __name__ == "__main__":
           with open("lefteye.jpg", "wb") as f:
             f.write(output["CameraSensorArray2D"][0])
           with open("righteye.jpg", "wb") as f:
-            f.write(output["CameraSensorArray2D"][0])
+            f.write(output["CameraSensorArray2D"][1])
+
+
+          time.sleep(0.2)
 
           #respond to state
           command = [0, 0, 0, 1,              # head           s1, tw, s2
