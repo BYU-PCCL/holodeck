@@ -23,12 +23,11 @@ class SphereRobotAgent(SimulatorAgent):
             super(self.__class__, self).__init__(agent, commandType)
             self.type = commandType
 
-        def moveForward(self, value):
-            self.update({"Forward": value})
-            return self
-
-        def moveRight(self, value):
-            self.update({"Right": value})
+        def move(self, forward, right):
+            self.update({
+                "Forward": forward,
+                "Right": right
+                })
             return self
 
     def command(self):

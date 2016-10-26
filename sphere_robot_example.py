@@ -43,21 +43,20 @@ if __name__ == "__main__":
           if "Terminal" in output:
             print "Terminal: " + str(output["Terminal"])
 
-          #agent.command().moveForward(1).send()
-          command = ""
-          command = str(raw_input()).strip()
-          print(command)
-          if command == "f":
-            agent.command().moveForward(2).send()
-          elif command == "r":
-            agent.command().moveRight(2).send()
-          elif command == "l":
-            agent.command().moveRight(-2).send()
-          else:
-            print("Invalid command")
+          # command = ""
+          # command = str(raw_input()).strip()
+          # print(command)
+          # if command == "f":
+          #   agent.command().move(2,0).send()
+          # elif command == "r":
+          #   agent.command().move(0,2).send()
+          # elif command == "l":
+          #   agent.command().move(0,-2).send()
+          # else:
+          #   print("Invalid command")
 
-          #time.sleep(1)
-
+          agent.command().move(2,0).send()
+ 
         print("Killing the SphereRobot")
         agent.kill()
         print("SphereRobot killed.")
