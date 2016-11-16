@@ -78,7 +78,11 @@ class SimulatorAgent(object):
     def sendString(self, string):
         #print(string)
         #print(type(string))
-        return self.socket.send_string(string)#.encode("ascii"))
+        try:
+            return self.socket.send_string(string)#.encode("ascii"))
+        except zmq.ZMQError:
+            print "Error in sendString"
+            return None
 
     def receive(self, blocking=True):
         try:

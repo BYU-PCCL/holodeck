@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
         #agent.subscribe('State', onState)
 
-        for i in range(300):
+        for i in range(180):
 
           output = agent.getNextState()
           print("---------- State " + str(i) + " ----------")
@@ -43,19 +43,9 @@ if __name__ == "__main__":
           if "Terminal" in output:
             print "Terminal: " + str(output["Terminal"])
 
-          # command = ""
-          # command = str(raw_input()).strip()
-          # print(command)
-          # if command == "f":
-          #   agent.command().move(2,0).send()
-          # elif command == "r":
-          #   agent.command().move(0,2).send()
-          # elif command == "l":
-          #   agent.command().move(0,-2).send()
-          # else:
-          #   print("Invalid command")
-
-          agent.command().move(2,0).send()
+          agent.command().move(1,1).send()
+          if i > 150:
+            agent.command().move(0,0).send()
  
         print("Killing the SphereRobot")
         agent.kill()
