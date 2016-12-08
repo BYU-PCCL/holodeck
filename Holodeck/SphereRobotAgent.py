@@ -42,11 +42,16 @@ class SphereRobotAgent(SimulatorAgent):
                           'data': self.current_state})
 
     def getNextState(self):
-        """Returns the most recent readings from sensors as the current state."""
+        """Returns the most recent readings from sensors as the current state.
+        If all the sensor don't come in during the alloted time, an exception is thrown."""
 
-        #wait for all sensors to come in. Add way to get out when a sensor fails to arrive?
+        #wait for all sensors to come in. If time is exceeded, throw exception
+        count = 0
         while set(self.loading_state.keys()) != self.global_state_sensors:
             time.sleep(.05)
+            count += .05
+            if count > 4:
+                raise Exception()
 
         #load in current state
         self.current_state = self.loading_state

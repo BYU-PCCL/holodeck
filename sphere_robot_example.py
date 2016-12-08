@@ -28,9 +28,16 @@ if __name__ == "__main__":
 
         #agent.subscribe('State', onState)
 
-        for i in range(180):
+        i = 0
+        while True:
+          
+          try:
+            output = agent.getNextState()
+          except:
+            print "Missing sensor in getNextState. Sending new command"
+            agent.command().move(0,0).send()
+            continue
 
-          output = agent.getNextState()
           print("---------- State " + str(i) + " ----------")
           if "CameraSensorArray2D" in output and len(output["CameraSensorArray2D"]) > 0:
             print "Saving robot image..."
@@ -44,11 +51,11 @@ if __name__ == "__main__":
             print "Terminal: " + str(output["Terminal"])
 
           agent.command().move(1,1).send()
-          if i > 150:
-            agent.command().move(0,0).send()
+
+          i += 1
  
         print("Killing the SphereRobot")
         agent.kill()
-        print("SphereRobot killed.")
+        print("SphereRobot killed.") 
 
     sphereRobot()
