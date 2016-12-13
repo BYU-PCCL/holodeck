@@ -13,10 +13,15 @@ class SimulatorAgent(object):
         self.socket.connect("tcp://" + hostname + ":" + str(port))
         self.socket.setsockopt(zmq.SNDTIMEO, 500)
         self.delegates = defaultdict(list)
+        self._action_space = None
+        self._state_space = None
 
         self.isListening = True
         self.thread = threading.Thread(target=self.listen)
         self.thread.start()
+
+        self._action_dim = None
+        self._state_dim = None
 
     class WorldCommandBuilder(CommandBuilder):
         def __init__(self, agent, commandType='SimulatorCommand'):
@@ -76,12 +81,12 @@ class SimulatorAgent(object):
         return self.sendString(json.dumps(message))
 
     def sendString(self, string):
-        #print(string)
-        #print(type(string))
+        # print(string)
+        # print(type(string))
         try:
             return self.socket.send_string(string)#.encode("ascii"))
         except zmq.ZMQError:
-            print "Error in sendString"
+            print("Error in sendString")
             return None
 
     def receive(self, blocking=True):
@@ -118,3 +123,15 @@ class SimulatorAgent(object):
     def worldCommand(self):
         command = SimulatorAgent.WorldCommandBuilder(self)
         return command
+
+    def get_action_space_dim(self):
+        pass
+
+    def get_state_space_dim(self):
+        pass
+
+    def get_action_space_dim(self):
+        return self._action_dim
+
+    def get_state_space_dim(self):
+        return self._state_dim
