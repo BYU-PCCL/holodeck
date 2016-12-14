@@ -18,7 +18,7 @@ def main(run_type):
 
 		#randomly act
 		count = 0
-		while count < 10:
+		while count < 15:
 			count += 1
 			rand_int = r.randint(0,action_dim[1]-1)
 			action = np.array([0 for x in xrange(action_dim[1])])

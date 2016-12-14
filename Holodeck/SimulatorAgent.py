@@ -151,7 +151,7 @@ class SimulatorAgent(object):
 	def get_state_space_dim(self):
 		return self._state_dim
 
-	def get_next_state(self):
+	def get_state(self):
 		return self.current_state
 
 	def act(self):

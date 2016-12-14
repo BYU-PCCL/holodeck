@@ -38,8 +38,6 @@ class SphereRobotAgent(SimulatorAgent):
         for i in xrange(len(action[0])):
             if action[0][i] == 1:
                 self.command().move(movements[i][0], movements[i][1]).send()
-        state = self.get_next_state()
-        return state
 
 class UAVAgent(SimulatorAgent):
     def __init__(self, hostname="localhost", port=8989, agentName="DefaultFlyingAgent"):
@@ -140,5 +138,3 @@ class AndroidAgent(SimulatorAgent):
 
     def act(self,action):
         self.command().setJointRotationAndForce(list(action[0])).send()
-        state = self.get_next_state()
-        return state

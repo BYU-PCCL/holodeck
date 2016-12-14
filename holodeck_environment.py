@@ -34,13 +34,16 @@ class HolodeckEnvironment:
     def get_state_dim(self):
         return self.AGENT.get_state_space_dim()
 
+    def reset(self):
+        self.AGENT.worldCommand().restartLevel().send()
+
     def act(self, action):
         assert action.shape == self.get_action_dim()
 
         self.AGENT.act(action)
 
-        #TO DO: convert state to numpy arrays
-        state = self.AGENT.get_next_state()
+        #TO DO: convert returned state to numpy arrays
+        state = self.AGENT.get_state()
         output = {}
 
         if "CameraSensorArray2D" in state:
@@ -87,6 +90,3 @@ class HolodeckEnvironment:
             output["Terminal"] = state["Terminal"]
 
         return output
-
-    def reset(self):
-        pass
