@@ -90,7 +90,7 @@ class UAVAgent(SimulatorAgent):
         return configuration
 
     def act(self,action):
-        raise Exception("Not yet implemented the act function")
+        raise Exception("Not yet implemented the act function for UAV")
 
 
 
@@ -139,56 +139,6 @@ class AndroidAgent(SimulatorAgent):
         return configuration
 
     def act(self,action):
-        self.command().setJointRotationAndForce(action).send()
-
-    # def get_next_state(self):
-    #     """Returns the most recent readings from sensors as the current state."""
-
-    #     #wait for all sensors to come in. Add way to get out when a sensor fails to arrive?
-    #     while set(self.loading_state.keys()) != self.global_state_sensors:
-    #         time.sleep(.05)
-
-    #     #load in current state
-    #     self.current_state = self.loading_state
-    #     self.loading_state = defaultdict(None)
-
-    #     output = {}
-
-    #     if "CameraSensorArray2D" in self.current_state:
-    #         camera_arr = []
-    #         sensor = json.loads(self.current_state["CameraSensorArray2D"])
-    #         for obj in sensor:
-    #             for camera,base64_image in obj.items():
-    #                 img = base64.b64decode(base64_image)
-    #                 camera_arr.append(img)
-    #         output["CameraSensorArray2D"] = camera_arr
-
-    #     if "PressureSensor" in self.current_state:
-    #         pressure_readings = json.loads(self.current_state["PressureSensor"])
-    #         output["PressureSensor"] = self.current_state["PressureSensor"]
-
-    #     if "RelativeSkeletalPositionSensor" in self.current_state:
-    #         skel_arr = []
-    #         skeletal_positions = json.loads(self.current_state["RelativeSkeletalPositionSensor"])
-    #         for obj in skeletal_positions:
-    #             skel_arr.append(obj["Quaternion"]["X"])
-    #             skel_arr.append(obj["Quaternion"]["Y"])
-    #             skel_arr.append(obj["Quaternion"]["Z"])
-    #             skel_arr.append(obj["Quaternion"]["W"])
-    #         output["RelativeSkeletalPositionSensor"] = skel_arr
-
-    #     if "JointRotationSensor" in self.current_state:
-    #         joint_arr = []
-    #         joint_rotations = json.loads(self.current_state["JointRotationSensor"])
-    #         for obj in joint_rotations:
-    #             joint_arr.append(obj)
-    #         output["JointRotationSensor"] = joint_arr
-
-    #     if "IMUSensor" in self.current_state:
-    #         imu_arr = []
-    #         imu_readings = json.loads(self.current_state["JointRotationSensor"])
-    #         for obj in imu_readings:
-    #             imu_arr.append(obj)
-    #         output["IMUSensor"] = imu_arr
-
-    #     return output
+        self.command().setJointRotationAndForce(list(action[0])).send()
+        state = self.get_next_state()
+        return state
