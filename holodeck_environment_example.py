@@ -49,7 +49,7 @@ def main(run_type):
 			action = np.reshape(action,[1,-1])
 			state = env.act(action)
 
-			print "Step: " + str(count)
+			print("Step: " + str(count))
 			print("State keys: " + str(state.keys()))
 			print(state)
 			time.sleep(.5)
