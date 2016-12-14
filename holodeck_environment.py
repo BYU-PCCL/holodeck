@@ -1,7 +1,9 @@
 import Holodeck.holodeck_agents as ha
+import numpy as np
+
 class HolodeckEnvironment:
 
-    def __init__(self, agent_type, hostname="localhost", port=8989, agent_name="DefaultAgent"):
+    def __init__(self, agent_type, hostname="localhost", port=8989, agent_name="DefaultAgent",global_state_sensors={}):
         """
 
         :param agent_type: str()
@@ -14,7 +16,12 @@ class HolodeckEnvironment:
             agent = agents[agent_type]
         else:
             raise KeyError(agent_type + " is not a valid agent type")
-        self.AGENT = agents[agent_type](hostname=hostname, port=port, agentName=agent_name)
+        self.AGENT = agents[agent_type](hostname=hostname, port=port, agentName=agent_name,global_state_sensors=global_state_sensors)
+        self.agent_type = agent_type
+
+        #default have simulator to pause every 1 frame
+        self.AGENT.worldCommand().setAllowedTicksBetweenCommands(1).send()
+
         # self.HOSTNAME = hostname
         # self.PORT = port
         # self.AGENT_NAME = agent_name
@@ -26,7 +33,11 @@ class HolodeckEnvironment:
         return self.AGENT.get_state_space_dim()
 
     def act(self, action):
-        assert action.shape == np.array(self.get_action_dim())
+        #TO DO: convert states to numpy arrays
+        assert action.shape == self.get_action_dim()
+
+        self.AGENT.act(action)
+        return self.AGENT.get_next_state()
 
     def reset(self):
         pass

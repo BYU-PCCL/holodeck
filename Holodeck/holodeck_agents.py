@@ -8,15 +8,14 @@ import time
 class SphereRobotAgent(SimulatorAgent):
     def __init__(self, hostname="localhost", port=8989, agentName="DefaultFlyingAgent",
                  global_state_sensors={}):
-        super(SphereRobotAgent, self).__init__(hostname, port, agentName)
+        super(SphereRobotAgent, self).__init__(hostname, port, agentName,global_state_sensors)
 
-        self.loading_state = defaultdict(None)
-        self.current_state = defaultdict(None)
-        self.global_state_sensors = set(global_state_sensors)
-
-        # Subscribe the function for sensor messages
-        for sensor in self.global_state_sensors:
-            self.subscribe(sensor, self._onGlobalStateSensor)
+        self._IMG_HEIGHT = 256
+        self._IMG_WIDTH = 256
+        self._IMG_CHANNELS = 3
+        self._NUM_SENSORS = 3
+        self._action_dim = (1,8)
+        self._state_dim = ([self._IMG_HEIGHT, self._IMG_WIDTH, self._IMG_CHANNELS], [1, self._NUM_SENSORS])
 
     class SphereRobotBuilder(CommandBuilder):
         def __init__(self, agent, commandType='SphereRobotCommand'):
@@ -34,59 +33,22 @@ class SphereRobotAgent(SimulatorAgent):
         command = SphereRobotAgent.SphereRobotBuilder(self)
         return command
 
-    def _onGlobalStateSensor(self, data, type):
-        self.loading_state[type] = data
-
-        if set(self.loading_state.keys()) == self.global_state_sensors:
-            self.publish({'type': 'State',
-                          'data': self.current_state})
-
-    def getNextState(self):
-        """Returns the most recent readings from sensors as the current state.
-        If all the sensor don't come in during the alloted time, an exception is thrown."""
-
-        #wait for all sensors to come in. If time is exceeded, throw exception
-        count = 0
-        while set(self.loading_state.keys()) != self.global_state_sensors:
-            time.sleep(.05)
-            count += .05
-            if count > 4:
-                raise Exception()
-
-        #load in current state
-        self.current_state = self.loading_state
-        self.loading_state = defaultdict(None)
-
-        output = {}
-
-        if "CameraSensorArray2D" in self.current_state:
-            camera_arr = []
-            sensor = json.loads(self.current_state["CameraSensorArray2D"])
-            for obj in sensor:
-                for camera,base64_image in obj.items():
-                    img = base64.b64decode(base64_image)
-                    camera_arr.append(img)
-            output["CameraSensorArray2D"] = camera_arr
-
-        if "Score" in self.current_state:
-            output["Score"] = self.current_state["Score"]
-
-        if "Terminal" in self.current_state:
-            output["Terminal"] = self.current_state["Terminal"]
-
-
-        return output
-
-
+    def act(self,action):
+        movements = [(1,0),(-1,0),(0,1),(0,-1),(1,1),(-1,-1),(1,-1),(-1,1)]
+        for i in xrange(len(action[0])):
+            if action[0][i] == 1:
+                self.command().move(movements[i][0], movements[i][1]).send()
+        state = self.get_next_state()
+        return state
 
 class UAVAgent(SimulatorAgent):
     def __init__(self, hostname="localhost", port=8989, agentName="DefaultFlyingAgent"):
-        super(UAVAgent, self).__init__(hostname, port, agentName)
+        super(UAVAgent, self).__init__(hostname, port, agentName,global_state_sensors)
         self._IMG_HEIGHT = 256
         self._IMG_WIDTH = 256
         self._IMG_CHANNELS = 3
         self._NUM_SENSORS = 4
-        self._action_dim = [4]
+        self._action_dim = (1,4)
         self._state_dim = ([self._IMG_HEIGHT, self._IMG_WIDTH, self._IMG_CHANNELS], [1, self._NUM_SENSORS])
 
     class UAVCommandBuilder(CommandBuilder):
@@ -127,20 +89,22 @@ class UAVAgent(SimulatorAgent):
         configuration = UAVAgent.UAVConfigurationBuilder(self)
         return configuration
 
+    def act(self,action):
+        raise Exception("Not yet implemented the act function")
+
 
 
 class AndroidAgent(SimulatorAgent):
     def __init__(self, hostname="localhost", port=8989, agentName="DefaultFlyingAgent",
                  global_state_sensors={}):
-        super(AndroidAgent, self).__init__(hostname, port, agentName)
+        super(AndroidAgent, self).__init__(hostname, port, agentName,global_state_sensors)
 
-        self.loading_state = defaultdict(None)
-        self.current_state = defaultdict(None)
-        self.global_state_sensors = set(global_state_sensors)
-
-        # Subscribe the function for sensor messages
-        for sensor in self.global_state_sensors:
-            self.subscribe(sensor, self._onGlobalStateSensor)
+        self._IMG_HEIGHT = 256
+        self._IMG_WIDTH = 256
+        self._IMG_CHANNELS = 3
+        self._NUM_SENSORS = 5
+        self._action_dim = (1,127)
+        self._state_dim = ([self._IMG_HEIGHT, self._IMG_WIDTH, self._IMG_CHANNELS], [1, self._NUM_SENSORS])
 
     class AndroidCommandBuilder(CommandBuilder):
         def __init__(self, agent, commandType='AndroidCommand'):
@@ -174,61 +138,57 @@ class AndroidAgent(SimulatorAgent):
         configuration = AndroidAgent.AndroidConfigurationBuilder(self)
         return configuration
 
-    def _onGlobalStateSensor(self, data, type):
-        self.loading_state[type] = data
+    def act(self,action):
+        self.command().setJointRotationAndForce(action).send()
 
-        if set(self.loading_state.keys()) == self.global_state_sensors:
-            self.publish({'type': 'State',
-                          'data': self.current_state})
+    # def get_next_state(self):
+    #     """Returns the most recent readings from sensors as the current state."""
 
-    def getNextState(self):
-        """Returns the most recent readings from sensors as the current state."""
+    #     #wait for all sensors to come in. Add way to get out when a sensor fails to arrive?
+    #     while set(self.loading_state.keys()) != self.global_state_sensors:
+    #         time.sleep(.05)
 
-        #wait for all sensors to come in. Add way to get out when a sensor fails to arrive?
-        while set(self.loading_state.keys()) != self.global_state_sensors:
-            time.sleep(.05)
+    #     #load in current state
+    #     self.current_state = self.loading_state
+    #     self.loading_state = defaultdict(None)
 
-        #load in current state
-        self.current_state = self.loading_state
-        self.loading_state = defaultdict(None)
+    #     output = {}
 
-        output = {}
+    #     if "CameraSensorArray2D" in self.current_state:
+    #         camera_arr = []
+    #         sensor = json.loads(self.current_state["CameraSensorArray2D"])
+    #         for obj in sensor:
+    #             for camera,base64_image in obj.items():
+    #                 img = base64.b64decode(base64_image)
+    #                 camera_arr.append(img)
+    #         output["CameraSensorArray2D"] = camera_arr
 
-        if "CameraSensorArray2D" in self.current_state:
-            camera_arr = []
-            sensor = json.loads(self.current_state["CameraSensorArray2D"])
-            for obj in sensor:
-                for camera,base64_image in obj.items():
-                    img = base64.b64decode(base64_image)
-                    camera_arr.append(img)
-            output["CameraSensorArray2D"] = camera_arr
+    #     if "PressureSensor" in self.current_state:
+    #         pressure_readings = json.loads(self.current_state["PressureSensor"])
+    #         output["PressureSensor"] = self.current_state["PressureSensor"]
 
-        if "PressureSensor" in self.current_state:
-            pressure_readings = json.loads(self.current_state["PressureSensor"])
-            output["PressureSensor"] = self.current_state["PressureSensor"]
+    #     if "RelativeSkeletalPositionSensor" in self.current_state:
+    #         skel_arr = []
+    #         skeletal_positions = json.loads(self.current_state["RelativeSkeletalPositionSensor"])
+    #         for obj in skeletal_positions:
+    #             skel_arr.append(obj["Quaternion"]["X"])
+    #             skel_arr.append(obj["Quaternion"]["Y"])
+    #             skel_arr.append(obj["Quaternion"]["Z"])
+    #             skel_arr.append(obj["Quaternion"]["W"])
+    #         output["RelativeSkeletalPositionSensor"] = skel_arr
 
-        if "RelativeSkeletalPositionSensor" in self.current_state:
-            skel_arr = []
-            skeletal_positions = json.loads(self.current_state["RelativeSkeletalPositionSensor"])
-            for obj in skeletal_positions:
-                skel_arr.append(obj["Quaternion"]["X"])
-                skel_arr.append(obj["Quaternion"]["Y"])
-                skel_arr.append(obj["Quaternion"]["Z"])
-                skel_arr.append(obj["Quaternion"]["W"])
-            output["RelativeSkeletalPositionSensor"] = skel_arr
+    #     if "JointRotationSensor" in self.current_state:
+    #         joint_arr = []
+    #         joint_rotations = json.loads(self.current_state["JointRotationSensor"])
+    #         for obj in joint_rotations:
+    #             joint_arr.append(obj)
+    #         output["JointRotationSensor"] = joint_arr
 
-        if "JointRotationSensor" in self.current_state:
-            joint_arr = []
-            joint_rotations = json.loads(self.current_state["JointRotationSensor"])
-            for obj in joint_rotations:
-                joint_arr.append(obj)
-            output["JointRotationSensor"] = joint_arr
+    #     if "IMUSensor" in self.current_state:
+    #         imu_arr = []
+    #         imu_readings = json.loads(self.current_state["JointRotationSensor"])
+    #         for obj in imu_readings:
+    #             imu_arr.append(obj)
+    #         output["IMUSensor"] = imu_arr
 
-        if "IMUSensor" in self.current_state:
-            imu_arr = []
-            imu_readings = json.loads(self.current_state["JointRotationSensor"])
-            for obj in imu_readings:
-                imu_arr.append(obj)
-            output["IMUSensor"] = imu_arr
-
-        return output
+    #     return output
