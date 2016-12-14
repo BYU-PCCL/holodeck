@@ -35,13 +35,13 @@ class SphereRobotAgent(SimulatorAgent):
 
     def act(self,action):
         movements = [(1,0),(-1,0),(0,1),(0,-1),(1,1),(-1,-1),(1,-1),(-1,1)]
-        for i in xrange(len(action[0])):
+        for i in range(len(action[0])):
             if action[0][i] == 1:
                 self.command().move(movements[i][0], movements[i][1]).send()
 
 class UAVAgent(SimulatorAgent):
-    def __init__(self, hostname="localhost", port=8989, agentName="DefaultFlyingAgent"):
-        super(UAVAgent, self).__init__(hostname, port, agentName,global_state_sensors)
+    def __init__(self, hostname="localhost", port=8989, agentName="DefaultFlyingAgent", global_state_sensors={}):
+        super(UAVAgent, self).__init__(hostname, port, agentName, global_state_sensors)
         self._IMG_HEIGHT = 256
         self._IMG_WIDTH = 256
         self._IMG_CHANNELS = 3
@@ -54,23 +54,15 @@ class UAVAgent(SimulatorAgent):
             super(self.__class__, self).__init__(agent, commandType)
             self.type = commandType
 
-        def setLocalRotation(self, roll, pitch, yaw):
+        def set(self, roll, pitch, yaw, altitude):
             self.update({
-                "localRoll": roll,
-                "localPitch": pitch,
-                "localYaw": yaw
+                "Roll": roll,
+                "Pitch": pitch,
+                "YawRate": yaw,
+                "Altitude": altitude
             })
-
             return self
 
-        def setLocalTranslation(self, x, y, z):
-            self.update({
-                "x": x,
-                "y": y,
-                "z": z
-            })
-
-            return self
 
     class UAVConfigurationBuilder(CommandBuilder):
         def __init__(self, agent, commandType='UAVConfiguration'):
@@ -88,7 +80,8 @@ class UAVAgent(SimulatorAgent):
         return configuration
 
     def act(self,action):
-        raise Exception("Not yet implemented the act function for UAV")
+        self.command().set(action[0][0], action[0][1], action[0][2], action[0][3]).send()
+        return None
 
 
 

@@ -18,7 +18,7 @@ class HolodeckEnvironment:
             agent = agents[agent_type]
         else:
             raise KeyError(agent_type + " is not a valid agent type")
-        self.AGENT = agents[agent_type](hostname=hostname, port=port, agentName=agent_name,global_state_sensors=global_state_sensors)
+        self.AGENT = agents[agent_type](hostname=hostname, port=port, agentName=agent_name,global_state_sensors=global_state_sensors).waitFor("Connect")
         self.agent_type = agent_type
 
         #default have simulator to pause every 1 frame

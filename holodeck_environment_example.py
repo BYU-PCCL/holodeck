@@ -9,50 +9,50 @@ import holodeck_environment as HolodeckEnvironment
 
 def main(run_type):
 
-	if run_type == "SPHERE":
-		print("Connecting to SphereRobot")
-		env = HolodeckEnvironment.HolodeckEnvironment("SPHERE",agent_name="BB-8",global_state_sensors={"CameraSensorArray2D","Score","Terminal"})
+    if run_type == "SPHERE":
+        print("Connecting to SphereRobot")
+        env = HolodeckEnvironment.HolodeckEnvironment("SPHERE",agent_name="BB-8",global_state_sensors={"CameraSensorArray2D","Score","Terminal"})
 
-		action_dim = env.get_action_dim()
-		state_dim = env.get_state_dim()
+        action_dim = env.get_action_dim()
+        state_dim = env.get_state_dim()
 
-		#randomly act
-		count = 0
-		while count < 15:
-			count += 1
-			rand_int = r.randint(0,action_dim[1]-1)
-			action = np.array([0 for x in xrange(action_dim[1])])
-			action = np.reshape(action,[1,-1])
-			action[0][rand_int] = 1
-			
-			state = env.act(action)
-			print "Step: " + str(count)
-			if "Score" in state:
-				print("Score: " + state["Score"])
-			time.sleep(1)
+        #randomly act
+        count = 0
+        while count < 15:
+            count += 1
+            rand_int = r.randint(0,action_dim[1]-1)
+            action = np.array([0 for x in range(action_dim[1])])
+            action = np.reshape(action,[1,-1])
+            action[0][rand_int] = 1
 
-	elif run_type == "UAV":
-		pass
+            state = env.act(action)
+            print ("Step: " + str(count))
+            if "Score" in state:
+                print("Score: " + state["Score"])
+            time.sleep(1)
 
-	elif run_type == "ANDROID":
-		env = HolodeckEnvironment.HolodeckEnvironment("ANDROID",agent_name="AndroidBlueprint",
-			global_state_sensors={"CameraSensorArray2D","PressureSensor","JointRotationSensor","RelativeSkeletalPositionSensor","IMUSensor"})
+    elif run_type == "UAV":
+        pass
 
-		action_dim = env.get_action_dim()
-		state_dim = env.get_state_dim()
+    elif run_type == "ANDROID":
+        env = HolodeckEnvironment.HolodeckEnvironment("ANDROID",agent_name="AndroidBlueprint",
+            global_state_sensors={"CameraSensorArray2D","PressureSensor","JointRotationSensor","RelativeSkeletalPositionSensor","IMUSensor"})
 
-		count = 0
-		while count < 100:
-			count += 1
-			#action = np.array([r.random() for x in xrange(action_dim[1])])
-			action = np.array([0, 0, 0, 1,0, 1,0, 0, 1, 0, 0, 0, 1, 0, 0, math.sin(count/10), 1,0, 1,0, 0, 0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,0, 0, math.sin(count/10), 1,0, 1,0, 0, 0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 0, 1,-.5, 1,-1, 0, 1,0, 0, 1,1, 0, 0, 1,-.5, 1,-1, 0, 1,0, 0, 1,])
-			action = np.reshape(action,[1,-1])
-			state = env.act(action)
+        action_dim = env.get_action_dim()
+        state_dim = env.get_state_dim()
 
-			print("Step: " + str(count))
-			print("State keys: " + str(state.keys()))
-			print(state)
-			time.sleep(.5)
+        count = 0
+        while count < 100:
+            count += 1
+            #action = np.array([r.random() for x in xrange(action_dim[1])])
+            action = np.array([0, 0, 0, 1,0, 1,0, 0, 1, 0, 0, 0, 1, 0, 0, math.sin(count/10), 1,0, 1,0, 0, 0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,0, 0, math.sin(count/10), 1,0, 1,0, 0, 0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 0, 1,-.5, 1,-1, 0, 1,0, 0, 1,1, 0, 0, 1,-.5, 1,-1, 0, 1,0, 0, 1,])
+            action = np.reshape(action,[1,-1])
+            state = env.act(action)
+
+            print("Step: " + str(count))
+            print("State keys: " + str(state.keys()))
+            print(state)
+            time.sleep(.5)
 
 if __name__ == "__main__":
-	main("SPHERE")
+    main("SPHERE")
