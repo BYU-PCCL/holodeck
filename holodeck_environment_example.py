@@ -27,6 +27,8 @@ def main(run_type):
 
             state = env.act(action)
             print ("Step: " + str(count))
+            print(state)
+            print(state.shape)
             if "Score" in state:
                 print("Score: " + state["Score"])
             time.sleep(1)
@@ -50,9 +52,9 @@ def main(run_type):
             state = env.act(action)
 
             print("Step: " + str(count))
-            print("State keys: " + str(state.keys()))
+            #print("State keys: " + str(state.keys()))
             print(state)
-            time.sleep(.5)
+            time.sleep(.2)
 
 if __name__ == "__main__":
-    main("SPHERE")
+    main("ANDROID")
