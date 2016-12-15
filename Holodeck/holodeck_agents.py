@@ -56,10 +56,10 @@ class UAVAgent(SimulatorAgent):
 
         def set(self, roll, pitch, yaw, altitude):
             self.update({
-                "Roll": roll,
-                "Pitch": pitch,
-                "YawRate": yaw,
-                "Altitude": altitude
+                "Roll": str(roll),
+                "Pitch": str(pitch),
+                "YawRate": str(yaw),
+                "Altitude": str(altitude)
             })
             return self
 

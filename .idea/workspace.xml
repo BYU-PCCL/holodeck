@@ -2,14 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9f7c0e04-82bd-4ba1-bf7b-c0bdfb0ddd42" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Holodeck/UAVtest.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/Positronix.iml" afterPath="$PROJECT_DIR$/.idea/Positronix.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Holodeck/SimulatorAgent.py" afterPath="$PROJECT_DIR$/Holodeck/SimulatorAgent.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Holodeck/UAVtest.py" afterPath="$PROJECT_DIR$/Holodeck/UAVtest.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Holodeck/holodeck_agents.py" afterPath="$PROJECT_DIR$/Holodeck/holodeck_agents.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/holodeck_environment.py" afterPath="$PROJECT_DIR$/holodeck_environment.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/holodeck_environment_example.py" afterPath="$PROJECT_DIR$/holodeck_environment_example.py" />
     </list>
     <ignored path="Positronix.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -42,17 +37,17 @@
         <entry file="file://$PROJECT_DIR$/holodeck_environment.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="289">
-              <caret line="20" column="144" lean-forward="false" selection-start-line="20" selection-start-column="144" selection-end-line="20" selection-end-column="144" />
+              <caret line="20" column="91" lean-forward="true" selection-start-line="20" selection-start-column="91" selection-end-line="20" selection-end-column="91" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UAVtest.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="UAVtest.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Holodeck/UAVtest.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="16" column="24" lean-forward="true" selection-start-line="16" selection-start-column="24" selection-end-line="16" selection-end-column="24" />
+            <state relative-caret-position="340">
+              <caret line="20" column="10" lean-forward="true" selection-start-line="20" selection-start-column="10" selection-end-line="20" selection-end-column="10" />
               <folding>
                 <element signature="e#0#52#0" expanded="true" />
               </folding>
@@ -63,7 +58,7 @@
       <file leaf-file-name="SimulatorAgent.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Holodeck/SimulatorAgent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="476">
+            <state relative-caret-position="272">
               <caret line="33" column="0" lean-forward="false" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
               <folding />
             </state>
@@ -124,11 +119,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="holodeck_agents.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="holodeck_agents.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Holodeck/holodeck_agents.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="59" column="31" lean-forward="true" selection-start-line="59" selection-start-column="31" selection-end-line="59" selection-end-column="31" />
+            <state relative-caret-position="285">
+              <caret line="81" column="25" lean-forward="false" selection-start-line="81" selection-start-column="25" selection-end-line="81" selection-end-column="25" />
               <folding>
                 <element signature="e#0#42#0" expanded="true" />
               </folding>
@@ -175,11 +170,11 @@
         <option value="$PROJECT_DIR$/getNextStep_example.py" />
         <option value="$PROJECT_DIR$/sphere_robot_example.py" />
         <option value="$PROJECT_DIR$/holodeck_agents.py" />
-        <option value="$PROJECT_DIR$/Holodeck/holodeck_agents.py" />
         <option value="$PROJECT_DIR$/holodeck_environment_example.py" />
         <option value="$PROJECT_DIR$/Holodeck/SimulatorAgent.py" />
         <option value="$PROJECT_DIR$/holodeck_environment.py" />
         <option value="$PROJECT_DIR$/Holodeck/UAVtest.py" />
+        <option value="$PROJECT_DIR$/Holodeck/holodeck_agents.py" />
       </list>
     </option>
   </component>
@@ -295,24 +290,6 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
     </configuration>
-    <configuration default="false" name="AndroidAgent" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Holodeck" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Positronix" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Holodeck/AndroidAgent.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
     <configuration default="false" name="android_example" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -363,6 +340,24 @@
       <module name="Positronix" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/holodeck_environment_example.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="holodeck_agents" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Holodeck" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Positronix" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Holodeck/holodeck_agents.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -510,18 +505,18 @@
     </configuration>
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Python.AndroidCommands" />
-      <item index="1" class="java.lang.String" itemvalue="Python.AndroidAgent" />
-      <item index="2" class="java.lang.String" itemvalue="Python.android_example" />
-      <item index="3" class="java.lang.String" itemvalue="Python.UAVtest" />
-      <item index="4" class="java.lang.String" itemvalue="Python.holodeck_environment_example" />
+      <item index="1" class="java.lang.String" itemvalue="Python.android_example" />
+      <item index="2" class="java.lang.String" itemvalue="Python.UAVtest" />
+      <item index="3" class="java.lang.String" itemvalue="Python.holodeck_environment_example" />
+      <item index="4" class="java.lang.String" itemvalue="Python.holodeck_agents" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python.UAVtest" />
-        <item index="1" class="java.lang.String" itemvalue="Python.holodeck_environment_example" />
-        <item index="2" class="java.lang.String" itemvalue="Python.android_example" />
-        <item index="3" class="java.lang.String" itemvalue="Python.AndroidCommands" />
-        <item index="4" class="java.lang.String" itemvalue="Python.AndroidAgent" />
+        <item index="1" class="java.lang.String" itemvalue="Python.holodeck_agents" />
+        <item index="2" class="java.lang.String" itemvalue="Python.holodeck_environment_example" />
+        <item index="3" class="java.lang.String" itemvalue="Python.android_example" />
+        <item index="4" class="java.lang.String" itemvalue="Python.AndroidCommands" />
       </list>
     </recent_temporary>
   </component>
@@ -803,32 +798,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Holodeck/holodeck_agents.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="59" column="31" lean-forward="true" selection-start-line="59" selection-start-column="31" selection-end-line="59" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#42#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Holodeck/SimulatorAgent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="476">
-          <caret line="33" column="0" lean-forward="false" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/holodeck_environment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="20" column="144" lean-forward="false" selection-start-line="20" selection-start-column="144" selection-end-line="20" selection-end-column="144" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/sphere_robot_example.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="256">
@@ -836,6 +805,14 @@
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Holodeck/SimulatorAgent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="33" column="0" lean-forward="false" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -849,12 +826,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/holodeck_environment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="20" column="91" lean-forward="true" selection-start-line="20" selection-start-column="91" selection-end-line="20" selection-end-column="91" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Holodeck/UAVtest.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="16" column="24" lean-forward="true" selection-start-line="16" selection-start-column="24" selection-end-line="16" selection-end-column="24" />
+        <state relative-caret-position="340">
+          <caret line="20" column="10" lean-forward="true" selection-start-line="20" selection-start-column="10" selection-end-line="20" selection-end-column="10" />
           <folding>
             <element signature="e#0#52#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Holodeck/holodeck_agents.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="81" column="25" lean-forward="false" selection-start-line="81" selection-start-column="25" selection-end-line="81" selection-end-column="25" />
+          <folding>
+            <element signature="e#0#42#0" expanded="true" />
           </folding>
         </state>
       </provider>
