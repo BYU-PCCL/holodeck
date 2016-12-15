@@ -39,6 +39,7 @@ class SphereRobotAgent(SimulatorAgent):
             if action[0][i] == 1:
                 self.command().move(movements[i][0], movements[i][1]).send()
 
+
 class UAVAgent(SimulatorAgent):
     def __init__(self, hostname="localhost", port=8989, agentName="DefaultFlyingAgent", global_state_sensors={}):
         super(UAVAgent, self).__init__(hostname, port, agentName, global_state_sensors)
