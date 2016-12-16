@@ -1,1 +1,4 @@
 *.pyc
+*.xml
+*.xmi
+.idea/

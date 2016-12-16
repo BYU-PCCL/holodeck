@@ -1,0 +1,8 @@
+TO DO:
+Certain agents can only have certain sensors
+Reward and terminal should always be returned
+Make project PEP8 compliant
+Add messages on initialize:
+    Window Size
+    What agent to spawn
+Edit code so that there is only ever one holodeck controller and pawn, and make it so name doesn't matter
