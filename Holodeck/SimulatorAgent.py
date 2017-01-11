@@ -3,128 +3,72 @@ import json
 import threading
 from collections import defaultdict
 import time
-from .CommandBuilder import CommandBuilder
+import numpy as np
+import base64
+
 
 class SimulatorAgent(object):
-    def __init__(self, hostname="localhost", port=8989, agentName="DefaultAgent",global_state_sensors={}):
+    def __init__(self, hostname="localhost", port=8989, agentName="DefaultAgent", height=256, width=256):
+        self.resolution = [height, width, 3]
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.DEALER)
         self.socket.setsockopt(zmq.IDENTITY, agentName.encode("ascii"))
         self.socket.connect("tcp://" + hostname + ":" + str(port))
         self.socket.setsockopt(zmq.SNDTIMEO, 500)
         self.delegates = defaultdict(list)
-        self._action_space = None
-        self._state_space = None
 
-        self.isListening = True
-        self.thread = threading.Thread(target=self.listen)
+        self.is_listening = True
+        self.thread = threading.Thread(target=self.__listen__)
         self.thread.start()
 
-        self._action_dim = None
-        self._state_dim = None
+        self.state_locks = {}
+        self.state = {}
 
-        self.loading_state = defaultdict(None)
-        self.current_state = defaultdict(None)
-        self.global_state_sensors = set(global_state_sensors)
-
-        # Subscribe the function for sensor messages
-        for sensor in self.global_state_sensors:
-            self.subscribe(sensor, self._onGlobalStateSensor)
-
-
-
-    def _onGlobalStateSensor(self, data, type):
-        self.loading_state[type] = data
-
-        if set(self.loading_state.keys()) == self.global_state_sensors:
-            self.current_state = self.loading_state
-            self.loading_state = defaultdict(None)
-
-    class WorldCommandBuilder(CommandBuilder):
-        def __init__(self, agent, commandType='SimulatorCommand'):
-           super(self.__class__, self).__init__(agent, commandType)
-           self.type = commandType
-
-        def setAllowedTicksBetweenCommands(self, ticks):
-            self.update({
-                "AllowedTicksBetweenCommands": ticks
-            })
-
-            return self
-
-        def setLocalTranslation(self,seconds):
-            self.update({
-                "TimeDeltaBetweenTicks": seconds
-            })
-
-            return self
-
-        def restartLevel(self):
-            self.update({
-                "Restart": True
-            })
-
-            return self
-
-        def loadLevel(self, level):
-            self.update({
-                "LoadLevel": level
-            })
-
-            return self
-
-    def waitFor(self, type):
+    def wait_for_connect(self):
         class context:
             isWaiting = True
 
         def wait(command, type):
             context.isWaiting = False
 
-        self.subscribe(type, wait)
+        self.subscribe('Connect', wait)
 
-        while(context.isWaiting):
-            self.sendCommand("WaitFor" + type, None)
+        while context.isWaiting:
+            self.send_command("WaitForConnect", None)
             time.sleep(1)
 
-        self.unsubscribe(type, wait)
+        self.unsubscribe('Connect', wait)
 
         return self
 
-    def sendCommand(self, type, command):
-        message = {
-            "CommandType": type,
-            "CommandJSON": json.dumps(command) if command else ""
-        }
-        return self.sendString(json.dumps(message))
-
-    def sendString(self, string):
-        # print(string)
-        # print(type(string))
+    def send_command(self, type, command):
         try:
-            return self.socket.send_string(string)#.encode("ascii"))
+            message = json.dumps({
+                "CommandType": type,
+                "CommandJSON": json.dumps(command) if command else ""
+            })
+            return self.socket.send_string(message)
         except zmq.ZMQError:
             print("Error in sendString")
             return None
 
-    def receive(self, blocking=True):
+    def __receive__(self, blocking=True):
         try:
             data = self.socket.recv(flags=zmq.NOBLOCK if not blocking else None)
             return json.loads(data.decode())
-
         except zmq.Again as e:
             return None
 
-    def listen(self):
-        while self.isListening:
-            message = self.receive(False)
+    def __listen__(self):
+        while self.is_listening:
+            message = self.__receive__(False)
             if message is not None:
-                message['type'] = message['type']
-                self.publish(message)
+                self.__publish__(message)
 
     def kill(self):
         self.socket.setsockopt(zmq.LINGER, 0)
         self.socket.close()
-        self.isListening = False
+        self.is_listening = False
         self.thread.join()
 
     def subscribe(self, type, function):
@@ -133,28 +77,117 @@ class SimulatorAgent(object):
     def unsubscribe(self, type, function):
         self.delegates[type].remove(function)
 
-    def publish(self, message):
+    def __publish__(self, message):
+        if len(self.delegates[message['type']]) != 0:
+            processed_message = self.__preprocess__(message['data'], message['type'])
+
         for function in self.delegates[message['type']]:
-            function(message['data'], message['type'])
+            function(processed_message, message['type'])
 
-    def worldCommand(self):
-        command = SimulatorAgent.WorldCommandBuilder(self)
-        return command
+    def __preprocess__(self, data, type):
+        if type == 'PrimaryPlayerCamera':
+            hex_data = bytes.fromhex(data[1:-1])
+            return np.fromstring(hex_data, dtype=np.uint8).reshape(self.resolution)
 
-    def get_action_space_dim(self):
-        pass
+        elif type == 'CameraSensorArray2D':
+            sensor = json.loads(data)
+            images = []
+            for obj in sensor:
+                for camera, base64_image in obj.items():
+                    img = base64.b64decode(base64_image)
 
-    def get_state_space_dim(self):
-        pass
+                    np_img = np.fromstring(img, dtype=np.uint8)
+                    images.append(np_img)
+            return images
 
-    def get_action_space_dim(self):
-        return self._action_dim
+        elif type == 'RelativeSkeletalPositionSensor':
+            skeletal_positions = json.loads(data)
+            positions = []
+            for obj in skeletal_positions:
+                positions += [obj["Quaternion"]["X"]. obj["Quaternion"]["Y"], obj["Quaternion"]["Z"], obj["Quaternion"]["W"]]
 
-    def get_state_space_dim(self):
-        return self._state_dim
+            return positions
 
-    def get_state(self):
-        return self.current_state
+        elif type == 'JointRotationSensor' or type == 'IMUSensor':
+            return json.loads(data)
 
-    def act(self):
-        raise Exception("Don't forget to implement act for your Holodeck agent")
+        return data
+
+    def __store_state__(self, data, type):
+        self.state[type] = data
+        self.state_locks[type].release()
+
+    def act(self, action, sensors):
+        for sensor in sensors:
+            self.state_locks[sensor] = threading.Semaphore(1)
+            self.state_locks[sensor].acquire()
+            self.subscribe(sensor, self.__store_state__)
+
+        self.__act__(action)
+        response = []
+        for sensor in sensors:
+            self.state_locks[sensor].acquire()
+            self.unsubscribe(sensor, self.__store_state__)
+            response.append(self.state[sensor])
+
+        return response
+
+    def get_action_dim(self):
+        raise NotImplementedError()
+
+    def __act__(self, action):
+        raise NotImplementedError()
+
+
+class UAVAgent(SimulatorAgent):
+    def get_action_dim(self):
+        return tuple([4])
+
+    def __act__(self, action):
+        self.send_command('UAVCommand', {
+            "Roll": action[0][0],
+            "Pitch": action[0][1],
+            "YawRate": action[0][2],
+            "Altitude": action[0][3]
+        })
+
+
+class ContinuousSphereAgent(SimulatorAgent):
+    def get_action_dim(self):
+        return tuple([2])
+
+    def __act__(self, action):
+        self.send_command('SphereRobotCommand', {
+            "Forward": action[0],
+            "Right": action[1]
+        })
+
+
+class DiscreteSphereAgent(SimulatorAgent):
+    def get_action_dim(self):
+        return tuple([4])
+
+    def __act__(self, action):
+        actions = [(10, 0), (-10, 0), (0, 90), (0, -90)]
+        to_act = None
+        for i, j in enumerate(action):
+            if j == 1:
+                to_act = actions[i]
+
+        if to_act is None:
+            raise RuntimeError("Action must be one-hot")
+
+        self.send_command('SphereRobotCommand', {
+            "Forward": to_act[0],
+            "Right": to_act[1]
+        })
+
+
+class AndroidAgent(SimulatorAgent):
+    def get_action_dim(self):
+        return tuple([127])
+
+    def __act__(self, action):
+        self.send_command('SphereRobotCommand', {
+            "ConstraintVector": action
+        })
