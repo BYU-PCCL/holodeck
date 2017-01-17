@@ -1,4 +1,5 @@
 import zmq
+from gym import spaces
 import json
 import threading
 from collections import defaultdict
@@ -8,21 +9,27 @@ import base64
 
 
 class SimulatorAgent(object):
+    class TimeoutError(Exception):
+        pass
+    
     def __init__(self, hostname="localhost", port=8989, agentName="DefaultAgent", height=256, width=256):
         self.resolution = [height, width, 3]
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.DEALER)
         self.socket.setsockopt(zmq.IDENTITY, agentName.encode("ascii"))
         self.socket.connect("tcp://" + hostname + ":" + str(port))
-        self.socket.setsockopt(zmq.SNDTIMEO, 500)
+        self.socket.setsockopt(zmq.SNDTIMEO, 1000)
+        self.socket.setsockopt(zmq.RCVTIMEO, 1000)
         self.delegates = defaultdict(list)
 
         self.is_listening = True
         self.thread = threading.Thread(target=self.__listen__)
+        self.thread.daemon = True
         self.thread.start()
 
         self.state_locks = {}
         self.state = {}
+        self.last_receive_error = None
 
     def wait_for_connect(self):
         class context:
@@ -36,6 +43,7 @@ class SimulatorAgent(object):
         while context.isWaiting:
             self.send_command("WaitForConnect", None)
             time.sleep(1)
+        
 
         self.unsubscribe('Connect', wait)
 
@@ -54,14 +62,14 @@ class SimulatorAgent(object):
 
     def __receive__(self, blocking=True):
         try:
-            data = self.socket.recv(flags=zmq.NOBLOCK if not blocking else None)
+            data = self.socket.recv(flags=0 if blocking else zmq.NOBLOCK)
             return json.loads(data.decode())
         except zmq.Again as e:
-            return None
+            self.__on_receive_error__(e)
 
     def __listen__(self):
         while self.is_listening:
-            message = self.__receive__(False)
+            message = self.__receive__(True)
             if message is not None:
                 self.__publish__(message)
 
@@ -86,9 +94,9 @@ class SimulatorAgent(object):
 
     def __preprocess__(self, data, type):
         if type == 'PrimaryPlayerCamera':
-            hex_data = bytes.fromhex(data[1:-1])
-            return np.fromstring(hex_data, dtype=np.uint8).reshape(self.resolution)
-
+            hex_data = bytearray.fromhex(data[1:-1])
+            return np.frombuffer(hex_data, dtype=np.uint8).reshape(self.resolution)
+            
         elif type == 'CameraSensorArray2D':
             sensor = json.loads(data)
             images = []
@@ -113,26 +121,40 @@ class SimulatorAgent(object):
 
         return data
 
+    def __on_receive_error__(self, error):
+        self.last_receive_error = error
+        for sensor, lock in self.state_locks.items():
+            lock.release()
+
     def __store_state__(self, data, type):
         self.state[type] = data
         self.state_locks[type].release()
 
     def act(self, action, sensors):
-        for sensor in sensors:
-            self.state_locks[sensor] = threading.Semaphore(1)
-            self.state_locks[sensor].acquire()
-            self.subscribe(sensor, self.__store_state__)
+        while True:
+            self.last_receive_error = None
 
-        self.__act__(action)
-        response = []
-        for sensor in sensors:
-            self.state_locks[sensor].acquire()
-            self.unsubscribe(sensor, self.__store_state__)
-            response.append(self.state[sensor])
+            for sensor in sensors:
+                self.state_locks[sensor] = threading.Semaphore(1)
+                self.state_locks[sensor].acquire()
+                self.subscribe(sensor, self.__store_state__)
 
+            self.__act__(action)
+            
+            response = []
+            for sensor in sensors:
+                self.state_locks[sensor].acquire()
+                self.unsubscribe(sensor, self.__store_state__)
+                if sensor in self.state:
+                    response.append(self.state[sensor])
+                
+            if self.last_receive_error is None:
+                break
+            
         return response
 
-    def get_action_dim(self):
+    @property
+    def action_space(self):
         raise NotImplementedError()
 
     def __act__(self, action):
@@ -140,21 +162,23 @@ class SimulatorAgent(object):
 
 
 class UAVAgent(SimulatorAgent):
-    def get_action_dim(self):
-        return tuple([4])
+    @property
+    def action_space(self):
+        return spaces.Box(-100, 100, shape=[4])
 
     def __act__(self, action):
         self.send_command('UAVCommand', {
-            "Roll": action[0][0],
-            "Pitch": action[0][1],
-            "YawRate": action[0][2],
-            "Altitude": action[0][3]
+            "Roll": str(action[0]),
+            "Pitch": str(action[1]),
+            "YawRate": str(action[2]),
+            "Altitude": str(action[3])
         })
 
 
 class ContinuousSphereAgent(SimulatorAgent):
-    def get_action_dim(self):
-        return tuple([2])
+    @property
+    def action_space(self):
+        return spaces.Box(-100, 100, shape=[2])
 
     def __act__(self, action):
         self.send_command('SphereRobotCommand', {
@@ -164,8 +188,9 @@ class ContinuousSphereAgent(SimulatorAgent):
 
 
 class DiscreteSphereAgent(SimulatorAgent):
-    def get_action_dim(self):
-        return tuple([4])
+    @property
+    def action_space(self):
+        return spaces.Discrete(4)
 
     def __act__(self, action):
         actions = [(10, 0), (-10, 0), (0, 90), (0, -90)]
@@ -184,8 +209,9 @@ class DiscreteSphereAgent(SimulatorAgent):
 
 
 class AndroidAgent(SimulatorAgent):
-    def get_action_dim(self):
-        return tuple([127])
+    @property
+    def action_space(self):
+        return spaces.Box(-1000, 1000, shape=[127])
 
     def __act__(self, action):
         self.send_command('SphereRobotCommand', {
