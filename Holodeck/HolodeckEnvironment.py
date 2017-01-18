@@ -57,7 +57,8 @@ class HolodeckEnvironment(object):
         pass
 
     def step(self, action):
-        assert action.shape == self.action_space.sample().shape, (action.shape, self.action_space.sample().shape)
+        # note: this assert currently doesn't work with discrete sphere robot because it's a one hot vector
+        # assert action.shape == self.action_space.sample().shape, (action.shape, self.action_space.sample().shape)
 
         self.frames += 1
 
@@ -66,7 +67,6 @@ class HolodeckEnvironment(object):
         reward = response[1]
 
         return response[2:], reward, terminal, None
-
 
 
 class HolodeckUAVEnvironment(HolodeckEnvironment):
@@ -78,7 +78,6 @@ class HolodeckUAVEnvironment(HolodeckEnvironment):
     @property
     def observation_space(self):
         return spaces.Box(0, 255, shape=self.resolution)
-
 
 class HolodeckUAVMazeWorld(HolodeckEnvironment):
     def __init__(self, agent_name="UAV0", verbose=False, resolution=(32, 32)):
@@ -92,6 +91,7 @@ class HolodeckUAVMazeWorld(HolodeckEnvironment):
         return spaces.Box(0, 255, shape=self.resolution)
 
 
+
 class HolodeckContinuousSphereEnvironment(HolodeckEnvironment):
     def __init__(self, agent_name="sphere0", verbose=False):
         super(HolodeckContinuousSphereEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,
@@ -101,6 +101,19 @@ class HolodeckContinuousSphereEnvironment(HolodeckEnvironment):
     @property
     def observation_space(self):
         return spaces.Box(0, 255, shape=self.resolution)
+
+class HolodeckContinuousSphereMazeWorld(HolodeckEnvironment):
+    def __init__(self, agent_name="sphere0", verbose=False, resolution=(32,32)):
+        super(HolodeckContinuousSphereMazeWorld, self).__init__(agent_name=agent_name, verbose=verbose,task_key="MazeWorld_sphere",
+                                                                    height=resolution[0],width=resolution[1],
+                                                                  agent_type=Holodeck.SimulatorAgent.ContinuousSphereAgent)
+        self.state_sensors = ['PrimaryPlayerCamera']
+
+    @property
+    def observation_space(self):
+        return spaces.Box(0, 255, shape=self.resolution)
+
+
 
 
 class HolodeckDiscreteSphereEnvironment(HolodeckEnvironment):
@@ -112,6 +125,19 @@ class HolodeckDiscreteSphereEnvironment(HolodeckEnvironment):
     @property
     def observation_space(self):
         return spaces.Box(0, 255, shape=self.resolution)
+
+class HolodeckDiscreteSphereMazeWorld(HolodeckEnvironment):
+    def __init__(self, agent_name="sphere0", verbose=False,resolution=(32,32)):
+        super(HolodeckDiscreteSphereMazeWorld, self).__init__(agent_name=agent_name, verbose=verbose,task_key="MazeWorld_sphere",
+                                                                    height=resolution[0],width=resolution[1],
+                                                                agent_type=Holodeck.SimulatorAgent.DiscreteSphereAgent)
+        self.state_sensors = ['PrimaryPlayerCamera']
+
+    @property
+    def observation_space(self):
+        return spaces.Box(0, 255, shape=self.resolution)
+
+
 
 
 class HolodeckAndroidEnvironment(HolodeckEnvironment):
