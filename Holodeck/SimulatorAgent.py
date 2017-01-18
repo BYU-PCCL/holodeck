@@ -182,8 +182,8 @@ class ContinuousSphereAgent(SimulatorAgent):
 
     def __act__(self, action):
         self.send_command('SphereRobotCommand', {
-            "Forward": action[0],
-            "Right": action[1]
+            "Forward": str(action[0]),
+            "Right": str(action[1])
         })
 
 
@@ -203,8 +203,8 @@ class DiscreteSphereAgent(SimulatorAgent):
             raise RuntimeError("Action must be one-hot")
 
         self.send_command('SphereRobotCommand', {
-            "Forward": to_act[0],
-            "Right": to_act[1]
+            "Forward": str(to_act[0]),
+            "Right": str(to_act[1])
         })
 
 

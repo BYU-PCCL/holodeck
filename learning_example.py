@@ -7,6 +7,7 @@ from scipy import stats
 from Holodeck.HolodeckEnvironment import *
 
 env = HolodeckUAVMazeWorld()
+# env = HolodeckContinuousSphereMazeWorld()
 
 TAU = 0.01
 GAMMA = .99
