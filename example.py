@@ -3,6 +3,7 @@ from tqdm import tqdm
 import random
 from Holodeck.HolodeckEnvironment import *
 import time
+import math
 
 
 def uav_example():
@@ -60,11 +61,23 @@ def discrete_sphere_example():
 
         env.reset()
 
+def android_example():
+    print("Connecting to android environment")
+    env = HolodeckAndroidExampleWorldEnvironment(verbose=True,resolution=(256,256))
+    print("Connected")
+
+    for j in xrange(10):
+        for i in tqdm(range(100)):
+            command = [0, 0, 0, 1,0, 1,0, 0, 1,0, 0, 0, 1,0, 0, math.sin(i/10), 1,0, 1,0, 0, 0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,0, 0, math.sin(i/10), 1,0, 1,0, 0, 0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 0, 1,-.5, 1,-1, 0, 1,0, 0, 1,1, 0, 0, 1,-.5, 1,-1, 0, 1,0, 0, 1]
+            state,reward,terminal, _ = env.step(command)
+
+        env.reset()
+
 
 if __name__ == "__main__":
     uav_example()
     #continuous_sphere_example()
     #discrete_sphere_example()
+    #android_example()
     print("Finished")
-
 

@@ -16,7 +16,8 @@ class HolodeckEnvironment(object):
         task_map = {
              "TrainStation_UAV": "./worlds/TrainStation_UAV_v1.02/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
              "MazeWorld_UAV": "./worlds/MazeWorld_UAV_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
-             "MazeWorld_sphere": "./worlds/MazeWorld_sphere_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck"
+             "MazeWorld_sphere": "./worlds/MazeWorld_sphere_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
+             "ExampleWorld_android": "./worlds/ExampleWorld_android_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck"
         }
         
         if self.verbose:
@@ -138,15 +139,28 @@ class HolodeckDiscreteSphereMazeWorld(HolodeckEnvironment):
         return spaces.Box(0, 255, shape=self.resolution)
 
 
-
-
 class HolodeckAndroidEnvironment(HolodeckEnvironment):
     def __init__(self, agent_name="android0", verbose=False):
         super(HolodeckAndroidEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,
                                                          agent_type=Holodeck.SimulatorAgent.AndroidAgent)
 
         # self.agent.send_command('AndroidConfiguration', {"AreCollisionsVisible": True})
-        self.state_sensors = ['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor', 'RelativeSkeletalPositionSensor']
+        # self.state_sensors = ['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor', 'RelativeSkeletalPositionSensor']
+        self.state_sensors = ['PrimaryPlayerCamera']
+
+    @property
+    def observation_space(self):
+        return spaces.Box(0, 255, shape=self.resolution)
+
+class HolodeckAndroidExampleWorldEnvironment(HolodeckEnvironment):
+    def __init__(self, agent_name="android0", verbose=False,resolution=(32,32)):
+        super(HolodeckAndroidExampleWorldEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,task_key="ExampleWorld_android",
+                                                                    height=resolution[0],width=resolution[1],
+                                                                    agent_type=Holodeck.SimulatorAgent.AndroidAgent)
+
+        # self.agent.send_command('AndroidConfiguration', {"AreCollisionsVisible": True})
+        # self.state_sensors = ['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor', 'RelativeSkeletalPositionSensor']
+        self.state_sensors = ['PrimaryPlayerCamera']
 
     @property
     def observation_space(self):

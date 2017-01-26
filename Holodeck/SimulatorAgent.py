@@ -214,6 +214,7 @@ class AndroidAgent(SimulatorAgent):
         return spaces.Box(-1000, 1000, shape=[127])
 
     def __act__(self, action):
-        self.send_command('SphereRobotCommand', {
+        action = map(str,action)
+        self.send_command('AndroidCommand', {
             "ConstraintVector": action
         })
