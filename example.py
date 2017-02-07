@@ -70,6 +70,11 @@ def android_example():
         for i in tqdm(range(100)):
             command = [0, 0, 0, 1,0, 1,0, 0, 1,0, 0, 0, 1,0, 0, math.sin(i/10), 1,0, 1,0, 0, 0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,0, 0, math.sin(i/10), 1,0, 1,0, 0, 0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 0, 1,-.5, 1,-1, 0, 1,0, 0, 1,1, 0, 0, 1,-.5, 1,-1, 0, 1,0, 0, 1]
             state,reward,terminal, _ = env.step(command)
+            # print("Player Camera: " + state[0])
+            # print("IMU: " + str(state[1]))
+            # print("Joint Rotation: " + str(state[2]))
+            # print("Skeletal Position Sensor: " + str(state[2]))
+
 
         env.reset()
 

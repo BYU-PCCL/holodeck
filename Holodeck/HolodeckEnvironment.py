@@ -160,7 +160,7 @@ class HolodeckAndroidExampleWorldEnvironment(HolodeckEnvironment):
 
         # self.agent.send_command('AndroidConfiguration', {"AreCollisionsVisible": True})
         # self.state_sensors = ['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor', 'RelativeSkeletalPositionSensor']
-        self.state_sensors = ['PrimaryPlayerCamera']
+        self.state_sensors = ['PrimaryPlayerCamera','IMUSensor','JointRotationSensor','RelativeSkeletalPositionSensor']
 
     @property
     def observation_space(self):

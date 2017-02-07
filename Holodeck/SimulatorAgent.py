@@ -112,7 +112,7 @@ class SimulatorAgent(object):
             skeletal_positions = json.loads(data)
             positions = []
             for obj in skeletal_positions:
-                positions += [obj["Quaternion"]["X"]. obj["Quaternion"]["Y"], obj["Quaternion"]["Z"], obj["Quaternion"]["W"]]
+                positions += [obj["Quaternion"]["X"], obj["Quaternion"]["Y"], obj["Quaternion"]["Z"], obj["Quaternion"]["W"]]
 
             return positions
 
