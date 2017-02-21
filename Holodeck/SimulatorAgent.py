@@ -12,8 +12,8 @@ class SimulatorAgent(object):
     class TimeoutError(Exception):
         pass
     
-    def __init__(self, hostname="localhost", port=8989, agentName="DefaultAgent", height=256, width=256):
-        self.resolution = [height, width, 3]
+    def __init__(self, hostname="localhost", port=8989, agentName="DefaultAgent", height=256, width=256,grayscale=False):
+        self.resolution = [height, width, 1 if grayscale else 3]
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.DEALER)
         self.socket.setsockopt(zmq.IDENTITY, agentName.encode("ascii"))

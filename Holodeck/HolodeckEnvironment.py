@@ -7,8 +7,9 @@ import os
 
 class HolodeckEnvironment(object):
 
-    def __init__(self, agent_type, agent_name, task_key=None, height=256, width=256, verbose=False):
-        self.resolution = (height, width, 3)
+    def __init__(self, agent_type, agent_name, task_key=None, height=256, width=256, verbose=False, grayscale=False):
+        self.resolution = (height, width, 1 if grayscale else 3)
+        self.grayscale = grayscale
         self.verbose = verbose
         self.state_sensors = []
         self.frames = 0
@@ -34,7 +35,7 @@ class HolodeckEnvironment(object):
         if self.verbose:
             print "process registered for exit"
         
-        self.agent = agent_type(hostname='localhost', port=8989, agentName=agent_name, height=height, width=width)
+        self.agent = agent_type(hostname='localhost', port=8989, agentName=agent_name, height=height, width=width,grayscale=grayscale)
         self.agent.wait_for_connect()
 
     def __on_exit__(self):
@@ -71,9 +72,9 @@ class HolodeckEnvironment(object):
 
 
 class HolodeckUAVEnvironment(HolodeckEnvironment):
-    def __init__(self, agent_name="UAV0", verbose=False):
+    def __init__(self, agent_name="UAV0", verbose=False,grayscale=False):
         super(HolodeckUAVEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,
-                                                     agent_type=Holodeck.SimulatorAgent.UAVAgent)
+                                                     agent_type=Holodeck.SimulatorAgent.UAVAgent, grayscale=grayscale)
         self.state_sensors = ['PrimaryPlayerCamera']
 
     @property
@@ -81,10 +82,10 @@ class HolodeckUAVEnvironment(HolodeckEnvironment):
         return spaces.Box(0, 255, shape=self.resolution)
 
 class HolodeckUAVMazeWorld(HolodeckEnvironment):
-    def __init__(self, agent_name="UAV0", verbose=False, resolution=(32, 32)):
+    def __init__(self, agent_name="UAV0", verbose=False, resolution=(32, 32),grayscale=False):
         super(HolodeckUAVMazeWorld, self).__init__(agent_name=agent_name, verbose=verbose, task_key="MazeWorld_UAV",
                                                      height=resolution[0], width=resolution[1],
-                                                     agent_type=Holodeck.SimulatorAgent.UAVAgent)
+                                                     agent_type=Holodeck.SimulatorAgent.UAVAgent,grayscale=grayscale)
         self.state_sensors = ['PrimaryPlayerCamera']
 
     @property
@@ -94,9 +95,9 @@ class HolodeckUAVMazeWorld(HolodeckEnvironment):
 
 
 class HolodeckContinuousSphereEnvironment(HolodeckEnvironment):
-    def __init__(self, agent_name="sphere0", verbose=False):
+    def __init__(self, agent_name="sphere0", verbose=False,grayscale=False):
         super(HolodeckContinuousSphereEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,
-                                                                  agent_type=Holodeck.SimulatorAgent.ContinuousSphereAgent)
+                                                                  agent_type=Holodeck.SimulatorAgent.ContinuousSphereAgent, grayscale=grayscale)
         self.state_sensors = ['PrimaryPlayerCamera']
 
     @property
@@ -104,10 +105,10 @@ class HolodeckContinuousSphereEnvironment(HolodeckEnvironment):
         return spaces.Box(0, 255, shape=self.resolution)
 
 class HolodeckContinuousSphereMazeWorld(HolodeckEnvironment):
-    def __init__(self, agent_name="sphere0", verbose=False, resolution=(32,32)):
+    def __init__(self, agent_name="sphere0", verbose=False, resolution=(32,32),grayscale=False):
         super(HolodeckContinuousSphereMazeWorld, self).__init__(agent_name=agent_name, verbose=verbose,task_key="MazeWorld_sphere",
                                                                     height=resolution[0],width=resolution[1],
-                                                                  agent_type=Holodeck.SimulatorAgent.ContinuousSphereAgent)
+                                                                  agent_type=Holodeck.SimulatorAgent.ContinuousSphereAgent,grayscale=grayscale)
         self.state_sensors = ['PrimaryPlayerCamera']
 
     @property
@@ -118,9 +119,9 @@ class HolodeckContinuousSphereMazeWorld(HolodeckEnvironment):
 
 
 class HolodeckDiscreteSphereEnvironment(HolodeckEnvironment):
-    def __init__(self, agent_name="sphere0", verbose=False):
+    def __init__(self, agent_name="sphere0", verbose=False,grayscale=False):
         super(HolodeckDiscreteSphereEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,
-                                                                agent_type=Holodeck.SimulatorAgent.DiscreteSphereAgent)
+                                                                agent_type=Holodeck.SimulatorAgent.DiscreteSphereAgent,grayscale=grayscale)
         self.state_sensors = ['PrimaryPlayerCamera']
 
     @property
@@ -128,10 +129,10 @@ class HolodeckDiscreteSphereEnvironment(HolodeckEnvironment):
         return spaces.Box(0, 255, shape=self.resolution)
 
 class HolodeckDiscreteSphereMazeWorld(HolodeckEnvironment):
-    def __init__(self, agent_name="sphere0", verbose=False,resolution=(32,32)):
+    def __init__(self, agent_name="sphere0", verbose=False,resolution=(32,32),grayscale=False):
         super(HolodeckDiscreteSphereMazeWorld, self).__init__(agent_name=agent_name, verbose=verbose,task_key="MazeWorld_sphere",
                                                                     height=resolution[0],width=resolution[1],
-                                                                agent_type=Holodeck.SimulatorAgent.DiscreteSphereAgent)
+                                                                agent_type=Holodeck.SimulatorAgent.DiscreteSphereAgent,grayscale=grayscale)
         self.state_sensors = ['PrimaryPlayerCamera']
 
     @property
@@ -140,9 +141,9 @@ class HolodeckDiscreteSphereMazeWorld(HolodeckEnvironment):
 
 
 class HolodeckAndroidEnvironment(HolodeckEnvironment):
-    def __init__(self, agent_name="android0", verbose=False):
+    def __init__(self, agent_name="android0", verbose=False,grayscale=False):
         super(HolodeckAndroidEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,
-                                                         agent_type=Holodeck.SimulatorAgent.AndroidAgent)
+                                                         agent_type=Holodeck.SimulatorAgent.AndroidAgent,grayscale=grayscale)
 
         # self.agent.send_command('AndroidConfiguration', {"AreCollisionsVisible": True})
         # self.state_sensors = ['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor', 'RelativeSkeletalPositionSensor']
@@ -153,10 +154,10 @@ class HolodeckAndroidEnvironment(HolodeckEnvironment):
         return spaces.Box(0, 255, shape=self.resolution)
 
 class HolodeckAndroidExampleWorldEnvironment(HolodeckEnvironment):
-    def __init__(self, agent_name="android0", verbose=False,resolution=(32,32)):
+    def __init__(self, agent_name="android0", verbose=False,resolution=(32,32),grayscale=False):
         super(HolodeckAndroidExampleWorldEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,task_key="ExampleWorld_android",
                                                                     height=resolution[0],width=resolution[1],
-                                                                    agent_type=Holodeck.SimulatorAgent.AndroidAgent)
+                                                                    agent_type=Holodeck.SimulatorAgent.AndroidAgent,grayscale=grayscale)
 
         # self.agent.send_command('AndroidConfiguration', {"AreCollisionsVisible": True})
         # self.state_sensors = ['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor', 'RelativeSkeletalPositionSensor']
