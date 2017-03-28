@@ -17,6 +17,7 @@ class HolodeckEnvironment(object):
         task_map = {
              "TrainStation_UAV": "./worlds/TrainStation_UAV_v1.02/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
              "MazeWorld_UAV": "./worlds/MazeWorld_UAV_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
+             "ForestWorld_UAV": "./worlds/ForestWorld_UAV_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
              "MazeWorld_sphere": "./worlds/MazeWorld_sphere_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
              "ExampleWorld_android": "./worlds/ExampleWorld_android_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck"
         }
@@ -92,6 +93,17 @@ class HolodeckUAVMazeWorld(HolodeckEnvironment):
     def observation_space(self):
         return spaces.Box(0, 255, shape=self.resolution)
 
+class HolodeckUAVForestWorld(HolodeckEnvironment):
+    def __init__(self, agent_name="UAV0", verbose=False, resolution=(32, 32),grayscale=False):
+        super(HolodeckUAVForestWorld, self).__init__(agent_name=agent_name, verbose=verbose, task_key="ForestWorld_UAV",
+                                                     height=resolution[0], width=resolution[1],
+                                                     agent_type=Holodeck.SimulatorAgent.UAVAgent,grayscale=grayscale)
+        self.state_sensors = ['PrimaryPlayerCamera',"OrientationSensor"]
+
+    @property
+    def observation_space(self):
+        return spaces.Box(0, 255, shape=self.resolution)
+
 
 
 class HolodeckContinuousSphereEnvironment(HolodeckEnvironment):
@@ -113,7 +125,7 @@ class HolodeckContinuousSphereMazeWorld(HolodeckEnvironment):
 
     @property
     def observation_space(self):
-        return spaces.Box(0, 255, shape=self.resolution)
+        return spaces.Box(-1, 1, shape=self.resolution)
 
 
 

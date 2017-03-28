@@ -119,6 +119,9 @@ class SimulatorAgent(object):
         elif type == 'JointRotationSensor' or type == 'IMUSensor':
             return json.loads(data)
 
+        elif type == "OrientationSensor":
+            return np.array(data.split(',')).astype(np.float32).reshape([3, 3]).T
+
         return data
 
     def __on_receive_error__(self, error):
@@ -164,7 +167,7 @@ class SimulatorAgent(object):
 class UAVAgent(SimulatorAgent):
     @property
     def action_space(self):
-        return spaces.Box(-100, 100, shape=[4])
+        return spaces.Box(-1, 3.5, shape=[4])
 
     def __act__(self, action):
         self.send_command('UAVCommand', {
@@ -178,7 +181,8 @@ class UAVAgent(SimulatorAgent):
 class ContinuousSphereAgent(SimulatorAgent):
     @property
     def action_space(self):
-        return spaces.Box(-100, 100, shape=[2])
+        #return spaces.Box(-1, 1, shape=[2])
+        return spaces.Box(np.array([-1,-.25]),np.array([1,.25]))
 
     def __act__(self, action):
         self.send_command('SphereRobotCommand', {
