@@ -199,9 +199,10 @@ class DiscreteSphereAgent(SimulatorAgent):
     def __act__(self, action):
         actions = [(10, 0), (-10, 0), (0, 90), (0, -90)]
         to_act = None
-        for i, j in enumerate(action):
-            if j == 1:
-                to_act = actions[i]
+        # for i, j in enumerate(action):
+        #     if j == 1:
+        #         to_act = actions[i]
+        to_act = actions[action]
 
         if to_act is None:
             raise RuntimeError("Action must be one-hot")

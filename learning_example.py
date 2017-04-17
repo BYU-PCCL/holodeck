@@ -6,8 +6,8 @@ import numpy as np
 from scipy import stats
 from Holodeck.HolodeckEnvironment import *
 
-env = HolodeckUAVMazeWorld()
-# env = HolodeckContinuousSphereMazeWorld()
+#env = HolodeckUAVMazeWorld(grayscale=False)
+env = HolodeckContinuousSphereMazeWorld(grayscale=True)
 
 TAU = 0.01
 GAMMA = .99
@@ -36,9 +36,9 @@ class Noise:
     def josh(self, mu, sigma):
         return stats.truncnorm.rvs((-1 - mu) / sigma, (1 - mu) / sigma, loc=mu, scale=sigma, size=len(self.state))
 
-    def ou(self, theta, sigma):
-        self.state -= theta * self.state - sigma * np.random.randn(len(self.state))
-        return self.state
+    def ou(self, mean, theta=.2, sigma=.15):
+        self.state += -theta * (self.state - mean) - sigma * np.random.randn(len(self.state))
+        return self.state.copy()
 
 
 def actor_network(state, outer_scope, reuse=False):
@@ -153,7 +153,7 @@ for episode in tqdm(range(1000)):
     for step in tqdm(range(MAX_EPISODE_LENGTH)):
         action = sess.run(train_actor_output, feed_dict={state_placeholder: [env_state]})[0]
 
-        action = action if testing else np.clip(action, -1, 1) + eta_noise.ou(theta=.15, sigma=.2)
+        action = action if testing else np.clip(action, -1, 1) + eta_noise.ou(mean=action,theta=.15, sigma=.2)
         env.render()
 
         assert action.shape == env.action_space.sample().shape, (action.shape, env.action_space.sample().shape)
