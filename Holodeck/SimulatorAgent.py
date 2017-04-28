@@ -11,8 +11,9 @@ import base64
 class SimulatorAgent(object):
     class TimeoutError(Exception):
         pass
-    
-    def __init__(self, hostname="localhost", port=8989, agentName="DefaultAgent", height=256, width=256,grayscale=False):
+
+    def __init__(self, hostname="localhost", port=8989, agentName="DefaultAgent", height=256, width=256,
+                 grayscale=False):
         self.resolution = [height, width, 1 if grayscale else 3]
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.DEALER)
@@ -43,7 +44,6 @@ class SimulatorAgent(object):
         while context.isWaiting:
             self.send_command("WaitForConnect", None)
             time.sleep(1)
-        
 
         self.unsubscribe('Connect', wait)
 
@@ -96,28 +96,33 @@ class SimulatorAgent(object):
         if type == 'PrimaryPlayerCamera':
             hex_data = bytearray.fromhex(data[1:-1])
             return np.frombuffer(hex_data, dtype=np.uint8).reshape(self.resolution)
-            
+
         elif type == 'CameraSensorArray2D':
             sensor = json.loads(data)
             images = []
             for obj in sensor:
-                for camera, base64_image in obj.items():
-                    img = base64.b64decode(base64_image)
-
-                    np_img = np.fromstring(img, dtype=np.uint8)
-                    images.append(np_img)
+                for camera, byte_array in obj.items():
+                    hex_data = bytearray.fromhex(byte_array)
+                    images.append(np.frombuffer(hex_data, dtype=np.uint8).reshape([256, 256, 3]))
+                    # img = base64.b64decode(base64_image)
+                    #
+                    # np_img = np.fromstring(img, dtype=np.uint8)
+                    # images.append(np_img)
             return images
 
         elif type == 'RelativeSkeletalPositionSensor':
             skeletal_positions = json.loads(data)
-            positions = []
-            for obj in skeletal_positions:
-                positions += [obj["Quaternion"]["X"], obj["Quaternion"]["Y"], obj["Quaternion"]["Z"], obj["Quaternion"]["W"]]
+            positions = np.empty([67, 4])
+            for i, obj in enumerate(skeletal_positions):
+                positions[i][0] = obj["Quaternion"]["X"]
+                positions[i][1] = obj["Quaternion"]["Y"]
+                positions[i][2] = obj["Quaternion"]["Z"]
+                positions[i][3] = obj["Quaternion"]["W"]
 
             return positions
 
         elif type == 'JointRotationSensor' or type == 'IMUSensor':
-            return json.loads(data)
+            return np.array(json.loads(data))
 
         elif type == "OrientationSensor":
             return np.array(data.split(',')).astype(np.float32).reshape([3, 3]).T
@@ -143,17 +148,17 @@ class SimulatorAgent(object):
                 self.subscribe(sensor, self.__store_state__)
 
             self.__act__(action)
-            
+
             response = []
             for sensor in sensors:
                 self.state_locks[sensor].acquire()
                 self.unsubscribe(sensor, self.__store_state__)
                 if sensor in self.state:
                     response.append(self.state[sensor])
-                
+
             if self.last_receive_error is None:
                 break
-            
+
         return response
 
     @property
@@ -181,8 +186,8 @@ class UAVAgent(SimulatorAgent):
 class ContinuousSphereAgent(SimulatorAgent):
     @property
     def action_space(self):
-        #return spaces.Box(-1, 1, shape=[2])
-        return spaces.Box(np.array([-1,-.25]),np.array([1,.25]))
+        # return spaces.Box(-1, 1, shape=[2])
+        return spaces.Box(np.array([-1, -.25]), np.array([1, .25]))
 
     def __act__(self, action):
         self.send_command('SphereRobotCommand', {
@@ -219,7 +224,7 @@ class AndroidAgent(SimulatorAgent):
         return spaces.Box(-1000, 1000, shape=[127])
 
     def __act__(self, action):
-        action = map(str,action)
+        action = map(str, action)
         self.send_command('AndroidCommand', {
             "ConstraintVector": action
         })
