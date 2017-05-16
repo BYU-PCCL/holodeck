@@ -9,11 +9,11 @@ import os
 class HolodeckEnvironment(object):
     def __init__(self, agent_type, agent_name, task_key=None, height=256, width=256, verbose=False,
                  grayscale=False, hostname="localhost", start_world=True):
-        self.resolution = (height, width, 1 if grayscale else 3)
-        self.grayscale = grayscale
-        self.verbose = verbose
-        self.state_sensors = []
-        self.frames = 0
+        self._resolution = (height, width, 1 if grayscale else 3)
+        self._grayscale = grayscale
+        self._verbose = verbose
+        self._state_sensors = ["Reward", "Terminal"]
+        self._frames = 0
 
         task_map = {
             "TrainStation_UAV": "./worlds/TrainStation_UAV_v1.02/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
@@ -24,7 +24,7 @@ class HolodeckEnvironment(object):
                                      "Binaries/Linux/Holodeck")
         }
 
-        if self.verbose:
+        if self._verbose:
             print "starting process"
 
         if start_world:
@@ -33,12 +33,12 @@ class HolodeckEnvironment(object):
                                                   stdout=open(os.devnull, 'w') if not verbose else None,
                                                   stderr=open(os.devnull, 'w') if not verbose else None)
 
-        if self.verbose:
+        if self._verbose:
             print "process started"
 
         atexit.register(self.__on_exit__)
 
-        if self.verbose:
+        if self._verbose:
             print "process registered for exit"
 
         self.agent = agent_type(hostname=hostname, port=8989, agentName=agent_name, height=height, width=width,
@@ -72,11 +72,17 @@ class HolodeckEnvironment(object):
 
         self.frames += 1
 
-        response = self.agent.act(action, ['Terminal', 'Reward'] + self.state_sensors)
+        response = self.agent.act(action, self._state_sensors)
         terminal = False if response[0] == "False".decode('latin1') else True
         reward = response[1]
 
         return response[2:], reward, terminal, None
+
+    def add_state_sensors(self, sensors):
+        if type(sensors) == str:
+            self._state_sensors.append(sensors)
+        elif type(sensors) == list:
+            self._state_sensors += sensors
 
 
 class HolodeckUAVEnvironment(HolodeckEnvironment):
@@ -87,7 +93,7 @@ class HolodeckUAVEnvironment(HolodeckEnvironment):
 
     @property
     def observation_space(self):
-        return spaces.Box(0, 255, shape=self.resolution)
+        return spaces.Box(0, 255, shape=self._resolution)
 
 
 class HolodeckUAVMazeWorld(HolodeckEnvironment):
@@ -97,11 +103,11 @@ class HolodeckUAVMazeWorld(HolodeckEnvironment):
                                                    height=resolution[0], width=resolution[1],
                                                    agent_type=Holodeck.SimulatorAgent.UAVAgent, grayscale=grayscale,
                                                    hostname=hostname, start_world=start_world)
-        self.state_sensors = ['PrimaryPlayerCamera', "OrientationSensor"]
+        self.add_state_sensors(['PrimaryPlayerCamera', "OrientationSensor"])
 
     @property
     def observation_space(self):
-        return spaces.Box(0, 255, shape=self.resolution)
+        return spaces.Box(0, 255, shape=self._resolution)
 
 
 class HolodeckUAVForestWorld(HolodeckEnvironment):
@@ -111,11 +117,11 @@ class HolodeckUAVForestWorld(HolodeckEnvironment):
                                                      height=resolution[0], width=resolution[1],
                                                      agent_type=Holodeck.SimulatorAgent.UAVAgent, grayscale=grayscale,
                                                      hostname=hostname, start_world=start_world)
-        self.state_sensors = ['PrimaryPlayerCamera', "OrientationSensor"]
+        self.add_state_sensors(['PrimaryPlayerCamera', "OrientationSensor"])
 
     @property
     def observation_space(self):
-        return spaces.Box(0, 255, shape=self.resolution)
+        return spaces.Box(0, 255, shape=self._resolution)
 
 
 class HolodeckContinuousSphereEnvironment(HolodeckEnvironment):
@@ -123,11 +129,11 @@ class HolodeckContinuousSphereEnvironment(HolodeckEnvironment):
         super(HolodeckContinuousSphereEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,
                                                                   agent_type=Holodeck.SimulatorAgent.ContinuousSphereAgent,
                                                                   grayscale=grayscale)
-        self.state_sensors = ['PrimaryPlayerCamera']
+        self.add_state_sensors(['PrimaryPlayerCamera'])
 
     @property
     def observation_space(self):
-        return spaces.Box(0, 255, shape=self.resolution)
+        return spaces.Box(0, 255, shape=self._resolution)
 
 
 class HolodeckContinuousSphereMazeWorld(HolodeckEnvironment):
@@ -139,11 +145,11 @@ class HolodeckContinuousSphereMazeWorld(HolodeckEnvironment):
                                                                 agent_type=Holodeck.SimulatorAgent.ContinuousSphereAgent,
                                                                 grayscale=grayscale,
                                                                 hostname=hostname, start_world=start_world)
-        self.state_sensors = ['PrimaryPlayerCamera']
+        self.add_state_sensors(['PrimaryPlayerCamera'])
 
     @property
     def observation_space(self):
-        return spaces.Box(-1, 1, shape=self.resolution)
+        return spaces.Box(-1, 1, shape=self._resolution)
 
 
 class HolodeckDiscreteSphereEnvironment(HolodeckEnvironment):
@@ -152,11 +158,11 @@ class HolodeckDiscreteSphereEnvironment(HolodeckEnvironment):
                                                                 agent_type=Holodeck.SimulatorAgent.DiscreteSphereAgent,
                                                                 grayscale=grayscale,
                                                                 hostname=hostname, start_world=start_world)
-        self.state_sensors = ['PrimaryPlayerCamera']
+        self.add_state_sensors(['PrimaryPlayerCamera'])
 
     @property
     def observation_space(self):
-        return spaces.Box(0, 255, shape=self.resolution)
+        return spaces.Box(0, 255, shape=self._resolution)
 
 
 class HolodeckDiscreteSphereMazeWorld(HolodeckEnvironment):
@@ -168,11 +174,11 @@ class HolodeckDiscreteSphereMazeWorld(HolodeckEnvironment):
                                                               agent_type=Holodeck.SimulatorAgent.DiscreteSphereAgent,
                                                               grayscale=grayscale,
                                                               hostname=hostname, start_world=start_world)
-        self.state_sensors = ['PrimaryPlayerCamera']
+        self.add_state_sensors(['PrimaryPlayerCamera'])
 
     @property
     def observation_space(self):
-        return spaces.Box(0, 255, shape=self.resolution)
+        return spaces.Box(0, 255, shape=self._resolution)
 
 
 class HolodeckAndroidEnvironment(HolodeckEnvironment):
@@ -184,11 +190,11 @@ class HolodeckAndroidEnvironment(HolodeckEnvironment):
 
         # self.agent.send_command('AndroidConfiguration', {"AreCollisionsVisible": True})
         # self.state_sensors = ['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor', 'RelativeSkeletalPositionSensor']
-        self.state_sensors = ['PrimaryPlayerCamera']
+        self.add_state_sensors(['PrimaryPlayerCamera'])
 
     @property
     def observation_space(self):
-        return spaces.Box(0, 255, shape=self.resolution)
+        return spaces.Box(0, 255, shape=self._resolution)
 
 
 class HolodeckAndroidExampleWorldEnvironment(HolodeckEnvironment):
@@ -204,9 +210,9 @@ class HolodeckAndroidExampleWorldEnvironment(HolodeckEnvironment):
         # self.agent.send_command('AndroidConfiguration', {"AreCollisionsVisible": True})
         # self.state_sensors = ['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor',
         # 'RelativeSkeletalPositionSensor']
-        self.state_sensors = ['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor',
-                              'RelativeSkeletalPositionSensor']
+        self.add_state_sensors(['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor',
+                               'RelativeSkeletalPositionSensor'])
 
     @property
     def observation_space(self):
-        return spaces.Box(0, 255, shape=self.resolution)
+        return spaces.Box(0, 255, shape=self._resolution)

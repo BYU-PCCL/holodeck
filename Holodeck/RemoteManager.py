@@ -3,8 +3,8 @@ import getpass
 import subprocess
 import os
 
-class RemoteManager():
 
+class RemoteManager():
 
 	def __init__(self,connections):
 		#connections is array of tuples of type (username, hostname)

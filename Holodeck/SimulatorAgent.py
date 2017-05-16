@@ -1,11 +1,9 @@
-import zmq
 from gym import spaces
 import json
 import threading
 from collections import defaultdict
 import time
 import numpy as np
-import base64
 
 
 class SimulatorAgent(object):
