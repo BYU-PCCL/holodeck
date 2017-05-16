@@ -5,6 +5,8 @@ import subprocess
 import atexit
 import os
 
+from HolodeckClient import HolodeckClient
+
 
 class HolodeckEnvironment(object):
     def __init__(self, agent_type, agent_name, task_key=None, height=256, width=256, verbose=False,
@@ -14,6 +16,7 @@ class HolodeckEnvironment(object):
         self._verbose = verbose
         self._state_sensors = ["Reward", "Terminal"]
         self._frames = 0
+        self._client = HolodeckClient()
 
         task_map = {
             "TrainStation_UAV": "./worlds/TrainStation_UAV_v1.02/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
@@ -41,9 +44,9 @@ class HolodeckEnvironment(object):
         if self._verbose:
             print "process registered for exit"
 
-        self.agent = agent_type(hostname=hostname, port=8989, agentName=agent_name, height=height, width=width,
-                                grayscale=grayscale)
-        self.agent.wait_for_connect()
+        self._agent = agent_type(hostname=hostname, port=8989, agentName=agent_name, height=height, width=width,
+                                 grayscale=grayscale)
+        self._agent.wait_for_connect()
 
     def __on_exit__(self):
         if hasattr(self, 'world_process'):
@@ -51,7 +54,7 @@ class HolodeckEnvironment(object):
 
     @property
     def action_space(self):
-        return self.agent.action_space
+        return self._agent.action_space
 
     @property
     def observation_space(self):
@@ -59,7 +62,7 @@ class HolodeckEnvironment(object):
 
     def reset(self):
         self.frames = 0
-        self.agent.send_command('SimulatorCommand', {'Restart': True})
+        self._agent.send_command('SimulatorCommand', {'Restart': True})
 
         return self.step(self.action_space.sample())[0]
 
@@ -72,11 +75,24 @@ class HolodeckEnvironment(object):
 
         self.frames += 1
 
-        response = self.agent.act(action, self._state_sensors)
-        terminal = False if response[0] == "False".decode('latin1') else True
-        reward = response[1]
+        # act
+        self._agent.act(action, self._client)
 
-        return response[2:], reward, terminal, None
+        # TODO: Ensure that responses are only received after acting
+
+        # get responses
+        result = []
+        reward = None
+        terminal = None
+        for sensor in self._state_sensors:
+            if sensor == "Reward":
+                reward = self._client.get_sensor(self._agent.name, sensor)
+            elif sensor == "Terminal":
+                terminal = self._client.get_sensor(self._agent.name, sensor)
+            else:
+                result.append(self._client.get_sensor(self._agent.name, sensor))
+
+        return result, reward, terminal, None
 
     def add_state_sensors(self, sensors):
         if type(sensors) == str:

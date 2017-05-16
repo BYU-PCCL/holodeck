@@ -39,10 +39,75 @@ class HolodeckClient:
     def __posix_init__(self):
         # Do the necessary imports
         # TODO
-        pass
+        raise NotImplementedError()
 
     def acquire(self):
         self._get_semaphore_fn(self._semaphore2)
 
     def release(self):
         self._release_semaphore_fn(self._semaphore1)
+
+    def start(self):
+        # TODO
+        raise NotImplementedError()
+
+    def kill(self):
+        # TODO
+        raise NotImplementedError()
+
+    def subscribe_sensor(self, agent_name, sensor_key, size):
+        # TODO
+        raise NotImplementedError()
+
+    def set_sensor(self, agent_name, sensor_key, data):
+        # TODO
+        raise NotImplementedError()
+
+    def get_sensor(self, agent_name, sensor_key):
+        return self._sensors.get(agent_name, sensor_key)
+
+    def get_sensor_data(self):
+        # TODO
+        raise NotImplementedError()
+
+    def get_sensor_mapping(self):
+        # TODO
+        raise NotImplementedError()
+
+    def subscribe_command(self, agent_name, command_key, size):
+        # TODO
+        raise NotImplementedError()
+
+    def set_command(self, agent_name, command_key, data):
+        # TODO
+        raise NotImplementedError()
+
+    def get_command(self, agent_name, command_key):
+        return self._commands.get(agent_name, command_key)
+
+    def get_command_data(self):
+        # TODO
+        raise NotImplementedError()
+
+    def get_command_mapping(self):
+        # TODO
+        raise NotImplementedError()
+
+    def subscribe_setting(self, agent_name, setting_key, size):
+        # TODO
+        raise NotImplementedError()
+
+    def set_setting(self, agent_name, setting_key, data):
+        # TODO
+        raise NotImplementedError()
+
+    def get_setting(self, agent_name, setting_key):
+        return self._settings.get(agent_name, setting_key)
+
+    def get_setting_data(self):
+        # TODO
+        raise NotImplementedError()
+
+    def get_setting_mapping(self):
+        # TODO
+        raise NotImplementedError()

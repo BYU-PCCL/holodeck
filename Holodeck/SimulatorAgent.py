@@ -13,151 +13,22 @@ class SimulatorAgent(object):
     def __init__(self, hostname="localhost", port=8989, agentName="DefaultAgent", height=256, width=256,
                  grayscale=False):
         self.resolution = [height, width, 1 if grayscale else 3]
-        self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.DEALER)
-        self.socket.setsockopt(zmq.IDENTITY, agentName.encode("ascii"))
-        self.socket.connect("tcp://" + hostname + ":" + str(port))
-        self.socket.setsockopt(zmq.SNDTIMEO, 1000)
-        self.socket.setsockopt(zmq.RCVTIMEO, 1000)
-        self.delegates = defaultdict(list)
-
-        self.is_listening = True
-        self.thread = threading.Thread(target=self.__listen__)
-        self.thread.daemon = True
-        self.thread.start()
 
         self.state_locks = {}
         self.state = {}
         self.last_receive_error = None
 
-    def wait_for_connect(self):
-        class context:
-            isWaiting = True
-
-        def wait(command, type):
-            context.isWaiting = False
-
-        self.subscribe('Connect', wait)
-
-        while context.isWaiting:
-            self.send_command("WaitForConnect", None)
-            time.sleep(1)
-
-        self.unsubscribe('Connect', wait)
-
-        return self
-
     def send_command(self, type, command):
-        try:
-            message = json.dumps({
-                "CommandType": type,
-                "CommandJSON": json.dumps(command) if command else ""
-            })
-            return self.socket.send_string(message)
-        except zmq.ZMQError:
-            print("Error in sendString")
-            return None
-
-    def __receive__(self, blocking=True):
-        try:
-            data = self.socket.recv(flags=0 if blocking else zmq.NOBLOCK)
-            return json.loads(data.decode())
-        except zmq.Again as e:
-            self.__on_receive_error__(e)
-
-    def __listen__(self):
-        while self.is_listening:
-            message = self.__receive__(True)
-            if message is not None:
-                self.__publish__(message)
-
-    def kill(self):
-        self.socket.setsockopt(zmq.LINGER, 0)
-        self.socket.close()
-        self.is_listening = False
-        self.thread.join()
+        raise NotImplementedError()
 
     def subscribe(self, type, function):
-        self.delegates[type].append(function)
+        raise NotImplementedError()
 
     def unsubscribe(self, type, function):
-        self.delegates[type].remove(function)
-
-    def __publish__(self, message):
-        if len(self.delegates[message['type']]) != 0:
-            processed_message = self.__preprocess__(message['data'], message['type'])
-
-        for function in self.delegates[message['type']]:
-            function(processed_message, message['type'])
-
-    def __preprocess__(self, data, type):
-        if type == 'PrimaryPlayerCamera':
-            hex_data = bytearray.fromhex(data[1:-1])
-            return np.frombuffer(hex_data, dtype=np.uint8).reshape(self.resolution)
-
-        elif type == 'CameraSensorArray2D':
-            sensor = json.loads(data)
-            images = []
-            for obj in sensor:
-                for camera, byte_array in obj.items():
-                    hex_data = bytearray.fromhex(byte_array)
-                    images.append(np.frombuffer(hex_data, dtype=np.uint8).reshape([256, 256, 3]))
-                    # img = base64.b64decode(base64_image)
-                    #
-                    # np_img = np.fromstring(img, dtype=np.uint8)
-                    # images.append(np_img)
-            return images
-
-        elif type == 'RelativeSkeletalPositionSensor':
-            skeletal_positions = json.loads(data)
-            positions = np.empty([67, 4])
-            for i, obj in enumerate(skeletal_positions):
-                positions[i][0] = obj["Quaternion"]["X"]
-                positions[i][1] = obj["Quaternion"]["Y"]
-                positions[i][2] = obj["Quaternion"]["Z"]
-                positions[i][3] = obj["Quaternion"]["W"]
-
-            return positions
-
-        elif type == 'JointRotationSensor' or type == 'IMUSensor':
-            return np.array(json.loads(data))
-
-        elif type == "OrientationSensor":
-            return np.array(data.split(',')).astype(np.float32).reshape([3, 3]).T
-
-        return data
-
-    def __on_receive_error__(self, error):
-        self.last_receive_error = error
-        for sensor, lock in self.state_locks.items():
-            lock.release()
-
-    def __store_state__(self, data, type):
-        self.state[type] = data
-        self.state_locks[type].release()
+        raise NotImplementedError()
 
     def act(self, action, sensors):
-        while True:
-            self.last_receive_error = None
-
-            for sensor in sensors:
-                self.state_locks[sensor] = threading.Semaphore(1)
-                self.state_locks[sensor].acquire()
-                self.subscribe(sensor, self.__store_state__)
-
-            self.__act__(action)
-
-            response = []
-            for sensor in sensors:
-                self.state_locks[sensor].acquire()
-                self.unsubscribe(sensor, self.__store_state__)
-                if sensor in self.state:
-                    response.append(self.state[sensor])
-
-            if self.last_receive_error is None:
-                break
-
-        return response
+        raise NotImplementedError()
 
     @property
     def action_space(self):
