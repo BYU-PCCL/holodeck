@@ -16,11 +16,13 @@ class HolodeckSharedMemory:
         self._subscribed_items = {}
 
     def clear(self):
-        pass
+        raise NotImplementedError()
 
     def contains_key(self, agent_name, key):
         self.__update_subscribed_dict__()
         dict_key = agent_name + "/" + key
+        print "Looking for key:", dict_key
+        print self._subscribed_items
         return dict_key in self._subscribed_items and self._subscribed_items[dict_key] is not None
 
     def get(self, agent_name, key):
@@ -74,13 +76,36 @@ class HolodeckSharedMemory:
         return
 
     def subscribe(self, agent_name, key, size):
-        pass
+        self.__update_subscribed_dict__()
+
+        map_key = agent_name + "/" + key
+
+        if map_key in self._subscribed_items and self._subscribed_items[map_key] is not None:
+            # If the size is wrong...
+            info = self._subscribed_items[map_key]
+            if info[3] != size:
+                raise RuntimeError("Size for sensor is not the same!")
+            # Otherwise everything is fine, just
+            return
+
+        # Update the data SubscriberInfo
+        info = [agent_name, key, self._mem_last_index, self._mem_last_index + size, size]
+        self._mem_last_index += size;
+
+        # Write the information to the map file
+        self._map_pointer.seek(self._map_current_length)
+        to_write = " ".join(map(str, info)) + '\n\0'
+        self._map_pointer.write(to_write)
+        self._map_current_length += len(to_write)
+
+        # Add it to the map
+        self._subscribed_items[info[0] + "/" + info[1]] = info
 
     def set(self, agent_name, key, data):
-        pass
+        raise NotImplementedError()
 
     def get_data(self):
-        pass
+        raise NotImplementedError()
 
     def get_mapping(self):
         results = []
@@ -100,6 +125,7 @@ class HolodeckSharedMemory:
         return length
 
     def __update_subscribed_dict__(self):
+        # TODO: Update self._mem_last_index
         new_length = self.__get_length__()
         if new_length == self._map_current_length:
             return

@@ -10,13 +10,14 @@ class SimulatorAgent(object):
     class TimeoutError(Exception):
         pass
 
-    def __init__(self, hostname="localhost", port=8989, agentName="DefaultAgent", height=256, width=256,
+    def __init__(self, hostname="localhost", port=8989, name="DefaultAgent", height=256, width=256,
                  grayscale=False):
         self.resolution = [height, width, 1 if grayscale else 3]
 
         self.state_locks = {}
         self.state = {}
         self.last_receive_error = None
+        self.name = name
 
     def send_command(self, type, command):
         raise NotImplementedError()
@@ -28,7 +29,8 @@ class SimulatorAgent(object):
         raise NotImplementedError()
 
     def act(self, action, sensors):
-        raise NotImplementedError()
+        print "Act not implemented"
+        # raise NotImplementedError()
 
     @property
     def action_space(self):

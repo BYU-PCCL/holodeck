@@ -56,58 +56,46 @@ class HolodeckClient:
         raise NotImplementedError()
 
     def subscribe_sensor(self, agent_name, sensor_key, size):
-        # TODO
-        raise NotImplementedError()
+        self._sensors.subscribe(agent_name, sensor_key, size)
 
     def set_sensor(self, agent_name, sensor_key, data):
-        # TODO
-        raise NotImplementedError()
+        self._sensors.set(agent_name, sensor_key, data)
 
     def get_sensor(self, agent_name, sensor_key):
         return self._sensors.get(agent_name, sensor_key)
 
     def get_sensor_data(self):
-        # TODO
-        raise NotImplementedError()
+        self._sensors.get_data()
 
     def get_sensor_mapping(self):
-        # TODO
-        raise NotImplementedError()
+        self._sensors.get_mapping()
 
     def subscribe_command(self, agent_name, command_key, size):
-        # TODO
-        raise NotImplementedError()
+        self._sensors.subscribe(agent_name, command_key, size)
 
     def set_command(self, agent_name, command_key, data):
-        # TODO
-        raise NotImplementedError()
+        self._sensors.set(agent_name, command_key, data)
 
     def get_command(self, agent_name, command_key):
         return self._commands.get(agent_name, command_key)
 
     def get_command_data(self):
-        # TODO
-        raise NotImplementedError()
+        self._commands.get_data()
 
     def get_command_mapping(self):
-        # TODO
-        raise NotImplementedError()
+        self._commands.get_mapping()
 
     def subscribe_setting(self, agent_name, setting_key, size):
-        # TODO
-        raise NotImplementedError()
+        self._sensors.subscribe(agent_name, setting_key, size)
 
     def set_setting(self, agent_name, setting_key, data):
-        # TODO
-        raise NotImplementedError()
+        self._commands.set(agent_name, setting_key, data)
 
     def get_setting(self, agent_name, setting_key):
         return self._settings.get(agent_name, setting_key)
 
     def get_setting_data(self):
-        # TODO
-        raise NotImplementedError()
+        self._settings.get_data()
 
     def get_setting_mapping(self):
-        # TODO
-        raise NotImplementedError()
+        self._settings.get_mapping()

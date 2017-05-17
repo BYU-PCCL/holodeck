@@ -74,15 +74,16 @@ def android_example():
             # print("IMU: " + str(state[1]))
             # print("Joint Rotation: " + str(state[2]))
             # print("Skeletal Position Sensor: " + str(state[2]))
+            time.sleep(1)
 
 
         env.reset()
 
 
 if __name__ == "__main__":
-    uav_example()
-    #continuous_sphere_example()
-    #discrete_sphere_example()
-    #android_example()
+    # uav_example()
+    # continuous_sphere_example()
+    # discrete_sphere_example()
+    android_example()
     print("Finished")
 
