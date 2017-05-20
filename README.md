@@ -111,6 +111,8 @@ This stops the android from twitching unexpectedly.
         ]"""
 
 
+The following code is best viewed in edit mode to maintain proper spacing:
+
  command = [0, 0, 0, 1,              # head           s1, tw, s2
                        0, 1,                    # neck_01        s1,   ,
                        0, 0, 1,                 # spine_02       s1, tw,
@@ -160,6 +162,14 @@ This stops the android from twitching unexpectedly.
                        -1, 0, 1,                # foot_r         s1,   , s2
                        0, 0, 1,                 # ball_r         s1, tw,
                        ]
+
+So what does this ^^^ all mean? When spaced properly, there should be three columns and 43 rows. The first column is the actual input, and the second two columns (the commented ones) represent what those control inputs mean. The second column represents which joint is being controlled, and the third column represents what axis is controlled by each input.
+
+In the first column, you will find between 2 and 4 floats. The floats should be between -1 and 1. The last float in the first column represents the amount of effort used by the android to move the joint to the desired destination. The desired destination is determined by the other floats in the column. For example, if one row looked like this:
+
+1, 0, 0.5,                 # thumb_01_l     s1,   , s2
+
+Then that tells the android to move the thumb_01_l joint to its maximum swing_1 and it's middle swing_2 with half of its maximum effort. The android cannot twist its thumb, so there is no "tw." 
 
 TO DO:
 Certain agents can only have certain sensors
