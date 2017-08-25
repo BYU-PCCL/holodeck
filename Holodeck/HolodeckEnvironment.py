@@ -7,6 +7,7 @@ import os
 import time
 
 from HolodeckClient import HolodeckClient
+from HolodeckSensors import HolodeckSensor
 
 
 class HolodeckEnvironment(object):
@@ -15,9 +16,10 @@ class HolodeckEnvironment(object):
         self._resolution = (height, width, 1 if grayscale else 3)
         self._grayscale = grayscale
         self._verbose = verbose
-        self._state_sensors = ["Reward", "Terminal"]
+        self._state_sensors = [HolodeckSensor.TERMINAL, HolodeckSensor.REWARD]
         self._frames = 0
         self.height, self.width = height, width
+        self._sensor_sizes = {}
 
         if start_world:
             if os.name == "posix":
@@ -32,8 +34,10 @@ class HolodeckEnvironment(object):
                                  grayscale=grayscale)
 
         # TODO: Make sure this waits for the Holodeck binary to start up...
-        time.sleep(10)
+        time.sleep(1)
         self._client = HolodeckClient()
+        for sensor in self._state_sensors:
+            self._client.subscribe_sensor(agent_name, HolodeckSensor.name(sensor), HolodeckSensor.size(sensor))
 
     def __linux_start_process__(self, task_key):
         task_map = {
@@ -127,12 +131,12 @@ class HolodeckEnvironment(object):
         reward = None
         terminal = None
         for sensor in self._state_sensors:
-            if sensor == "Reward":
-                reward = self._client.get_sensor(self._agent.name, sensor)
-            elif sensor == "Terminal":
-                terminal = self._client.get_sensor(self._agent.name, sensor)
+            if sensor == HolodeckSensor.REWARD:
+                reward = self._client.get_sensor(self._agent.name, HolodeckSensor.name(sensor))
+            elif sensor == HolodeckSensor.TERMINAL:
+                terminal = self._client.get_sensor(self._agent.name, HolodeckSensor.name(sensor))
             else:
-                result.append(self._client.get_sensor(self._agent.name, sensor))
+                result.append(self._client.get_sensor(self._agent.name, HolodeckSensor.name(sensor)))
 
         if self._verbose:
             print "Releasing semaphore"
@@ -145,10 +149,13 @@ class HolodeckEnvironment(object):
         return result, reward, terminal, None
 
     def add_state_sensors(self, sensors):
-        if type(sensors) == str:
+        if type(sensors) == list:
+            for sensor in sensors:
+                self.add_state_sensors(sensor)
+        else:
+            self._client.subscribe_sensor(self._agent.name, HolodeckSensor.name(sensors), HolodeckSensor.size(sensors))
             self._state_sensors.append(sensors)
-        elif type(sensors) == list:
-            self._state_sensors += sensors
+
 
 
 class HolodeckUAVEnvironment(HolodeckEnvironment):

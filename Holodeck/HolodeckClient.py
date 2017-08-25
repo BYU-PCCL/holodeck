@@ -10,9 +10,7 @@ class HolodeckClient:
         self._semaphore1 = None
         self._semaphore2 = None
 
-        self._sensors = HolodeckSharedMemory("SENSORS", 33177600, 10000)
-        self._commands = HolodeckSharedMemory("COMMANDS", 10000, 10000)
-        self._settings = HolodeckSharedMemory("SETTINGS", 10000, 10000)
+        self._sensors = dict()
 
         if os.name == "nt":
             self.__windows_init__()
@@ -56,46 +54,24 @@ class HolodeckClient:
         raise NotImplementedError()
 
     def subscribe_sensor(self, agent_name, sensor_key, size):
-        self._sensors.subscribe(agent_name, sensor_key, size)
+        key = agent_name + "/" + sensor_key
+        self._sensors[key] = HolodeckSharedMemory(key, size)
 
     def set_sensor(self, agent_name, sensor_key, data):
-        self._sensors.set(agent_name, sensor_key, data)
+        print "set_sensor not implemented"
+        # self._sensors.set(agent_name, sensor_key, data)
 
     def get_sensor(self, agent_name, sensor_key):
-        return self._sensors.get(agent_name, sensor_key)
-
-    def get_sensor_data(self):
-        self._sensors.get_data()
-
-    def get_sensor_mapping(self):
-        self._sensors.get_mapping()
+        return self._sensors[agent_name + "/" + sensor_key].data
 
     def subscribe_command(self, agent_name, command_key, size):
-        self._sensors.subscribe(agent_name, command_key, size)
+        print "subscribe command not implemented"
+        # self._sensors.subscribe(agent_name, command_key, size)
 
     def set_command(self, agent_name, command_key, data):
-        self._sensors.set(agent_name, command_key, data)
+        print "set command not implemented"
+        # self._sensors.set(agent_name, command_key, data)
 
     def get_command(self, agent_name, command_key):
-        return self._commands.get(agent_name, command_key)
-
-    def get_command_data(self):
-        self._commands.get_data()
-
-    def get_command_mapping(self):
-        self._commands.get_mapping()
-
-    def subscribe_setting(self, agent_name, setting_key, size):
-        self._sensors.subscribe(agent_name, setting_key, size)
-
-    def set_setting(self, agent_name, setting_key, data):
-        self._commands.set(agent_name, setting_key, data)
-
-    def get_setting(self, agent_name, setting_key):
-        return self._settings.get(agent_name, setting_key)
-
-    def get_setting_data(self):
-        self._settings.get_data()
-
-    def get_setting_mapping(self):
-        self._settings.get_mapping()
+        print "get command not implemented"
+        # return self._commands.get(agent_name, command_key)

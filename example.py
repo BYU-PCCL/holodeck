@@ -2,6 +2,7 @@ import numpy as np
 from tqdm import tqdm
 import random
 from Holodeck.HolodeckEnvironment import *
+from Holodeck.HolodeckSensors import HolodeckSensor
 import time
 import math
 
@@ -61,6 +62,7 @@ def discrete_sphere_example():
 
         env.reset()
 
+
 def android_example():
     print("Connecting to android environment")
     env = HolodeckAndroidExampleWorldEnvironment(verbose=True,resolution=(256,256))
@@ -76,6 +78,27 @@ def android_example():
             # print("Skeletal Position Sensor: " + str(state[2]))
             time.sleep(1)
 
+        env.reset()
+
+
+def editor_example():
+    print("Connecting to android environment")
+    env = HolodeckEnvironment(agent_name="android0", verbose=False, height=64, width=64, grayscale=False,
+                              start_world=False, agent_type = Holodeck.SimulatorAgent.AndroidAgent)
+    env.add_state_sensors([HolodeckSensor.PRIMARY_PLAYER_CAMERA])
+
+    print("Connected")
+
+    for j in xrange(10):
+        for i in tqdm(range(1000)):
+            command = [0, 0, 0, 1,0, 1,0, 0, 1,0, 0, 0, 1,0, 0, math.sin(i/10), 1,0, 1,0, 0, 0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,0, 0, math.sin(i/10), 1,0, 1,0, 0, 0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 1,0, 1,0, 1,1, 0, 0, 1,-.5, 1,-1, 0, 1,0, 0, 1,1, 0, 0, 1,-.5, 1,-1, 0, 1,0, 0, 1]
+            state, reward, terminal, _ = env.step(command)
+            print reward, terminal, len(state)
+            # print("Player Camera: " + state[0])
+            # print("IMU: " + str(state[1]))
+            # print("Joint Rotation: " + str(state[2]))
+            # print("Skeletal Position Sensor: " + str(state[2]))
+            # time.sleep(1)
 
         env.reset()
 
@@ -84,6 +107,7 @@ if __name__ == "__main__":
     # uav_example()
     # continuous_sphere_example()
     # discrete_sphere_example()
-    android_example()
+    # android_example()
+    editor_example()
     print("Finished")
 
