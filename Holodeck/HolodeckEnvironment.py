@@ -38,7 +38,6 @@ class HolodeckEnvironment(object):
 
         # TODO: Make sure this waits for the Holodeck binary to start up...
         self._client.acquire()
-        print "Acquired"
 
     def __linux_start_process__(self, task_key):
         task_map = {
@@ -86,11 +85,10 @@ class HolodeckEnvironment(object):
         raise NotImplementedError()
 
     def reset(self):
-        print "Resetting"
         self._reset_ptr[0] = True
         self._client.release()
         self._client.acquire()
-        print "Reset"
+        return self._get_state()
 
     def render(self):
         pass
@@ -105,6 +103,9 @@ class HolodeckEnvironment(object):
         self._client.release()
         self._client.acquire()
 
+        return self._get_state()
+
+    def _get_state(self):
         result = []
         reward = None
         terminal = None
