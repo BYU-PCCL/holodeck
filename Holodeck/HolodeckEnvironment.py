@@ -37,7 +37,8 @@ class HolodeckEnvironment(object):
         self.add_state_sensors([HolodeckSensor.TERMINAL, HolodeckSensor.REWARD])
 
         # TODO: Make sure this waits for the Holodeck binary to start up...
-        time.sleep(1)
+        self._client.acquire()
+        print "Acquired"
 
     def __linux_start_process__(self, task_key):
         task_map = {
@@ -85,9 +86,11 @@ class HolodeckEnvironment(object):
         raise NotImplementedError()
 
     def reset(self):
-        self._client.acquire()
+        print "Resetting"
         self._reset_ptr[0] = True
         self._client.release()
+        self._client.acquire()
+        print "Reset"
 
     def render(self):
         pass
@@ -96,9 +99,11 @@ class HolodeckEnvironment(object):
         # note: this assert currently doesn't work with discrete sphere robot because it's a one hot vector
         # assert action.shape == self.action_space.sample().shape, (action.shape, self.action_space.sample().shape)
         # self.frames += 1
-        self._client.acquire()
 
         self._agent.act(action)
+
+        self._client.release()
+        self._client.acquire()
 
         result = []
         reward = None
@@ -111,7 +116,6 @@ class HolodeckEnvironment(object):
             else:
                 result.append(self._sensor_map[sensor])
 
-        self._client.release()
         return result, reward, terminal, None
 
     def add_state_sensors(self, sensors):
