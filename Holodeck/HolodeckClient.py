@@ -11,6 +11,8 @@ class HolodeckClient:
         self._semaphore2 = None
 
         self._sensors = dict()
+        self._agents = dict()
+        self._settings = dict()
 
         if os.name == "nt":
             self.__windows_init__()
@@ -45,33 +47,17 @@ class HolodeckClient:
     def release(self):
         self._release_semaphore_fn(self._semaphore1)
 
-    def start(self):
-        # TODO
-        raise NotImplementedError()
-
-    def kill(self):
-        # TODO
-        raise NotImplementedError()
-
-    def subscribe_sensor(self, agent_name, sensor_key, size):
+    def subscribe_sensor(self, agent_name, sensor_key, shape, dtype):
         key = agent_name + "/" + sensor_key
-        self._sensors[key] = HolodeckSharedMemory(key, size)
-
-    def set_sensor(self, agent_name, sensor_key, data):
-        print "set_sensor not implemented"
-        # self._sensors.set(agent_name, sensor_key, data)
+        self._sensors[key] = HolodeckSharedMemory(key, shape, dtype)
 
     def get_sensor(self, agent_name, sensor_key):
-        return self._sensors[agent_name + "/" + sensor_key].data
+        return self._sensors[agent_name + "/" + sensor_key].np_array
 
-    def subscribe_command(self, agent_name, command_key, size):
-        print "subscribe command not implemented"
-        # self._sensors.subscribe(agent_name, command_key, size)
+    def subscribe_command(self, agent_name, shape):
+        self._agents[agent_name] = HolodeckSharedMemory(agent_name, shape)
+        return self._agents[agent_name].np_array
 
-    def set_command(self, agent_name, command_key, data):
-        print "set command not implemented"
-        # self._sensors.set(agent_name, command_key, data)
-
-    def get_command(self, agent_name, command_key):
-        print "get command not implemented"
-        # return self._commands.get(agent_name, command_key)
+    def subscribe_setting(self, setting_name, shape, dtype):
+        self._settings[setting_name] = HolodeckSharedMemory(setting_name, shape, dtype)
+        return self._settings[setting_name].np_array

@@ -1,25 +1,24 @@
-import Holodeck.SimulatorAgent
+import Holodeck.HolodeckAgents
 from gym import spaces
 from multiprocessing import Process
 import subprocess
 import atexit
 import os
 import time
+import numpy as np
 
 from HolodeckClient import HolodeckClient
 from HolodeckSensors import HolodeckSensor
 
 
 class HolodeckEnvironment(object):
-    def __init__(self, agent_type, agent_name, task_key=None, height=256, width=256, verbose=False,
-                 grayscale=False, hostname="localhost", start_world=True):
-        self._resolution = (height, width, 1 if grayscale else 3)
-        self._grayscale = grayscale
-        self._verbose = verbose
-        self._state_sensors = [HolodeckSensor.TERMINAL, HolodeckSensor.REWARD]
-        self._frames = 0
-        self.height, self.width = height, width
-        self._sensor_sizes = {}
+    def __init__(self, agent_type, agent_name, task_key=None, height=256, width=256, start_world=True):
+        self._state_sensors = []
+        self._height = height
+        self._width = width
+        self._client = HolodeckClient()
+        self._agent = agent_type(client=self._client, name=agent_name)
+        self._sensor_map = dict()
 
         if start_world:
             if os.name == "posix":
@@ -30,14 +29,15 @@ class HolodeckEnvironment(object):
                 print "Unknown platform:", os.name
                 raise NotImplementedError()
 
-        self._agent = agent_type(hostname=hostname, port=8989, name=agent_name, height=height, width=width,
-                                 grayscale=grayscale)
+        # Subscribe settings
+        self._reset_ptr = self._client.subscribe_setting("RESET", [1], np.bool)
+        self._reset_ptr[0] = False
+
+        # Subscribe sensors
+        self.add_state_sensors([HolodeckSensor.TERMINAL, HolodeckSensor.REWARD])
 
         # TODO: Make sure this waits for the Holodeck binary to start up...
         time.sleep(1)
-        self._client = HolodeckClient()
-        for sensor in self._state_sensors:
-            self._client.subscribe_sensor(agent_name, HolodeckSensor.name(sensor), HolodeckSensor.size(sensor))
 
     def __linux_start_process__(self, task_key):
         task_map = {
@@ -48,20 +48,12 @@ class HolodeckEnvironment(object):
             "ExampleWorld_android": ("./worlds/ExampleWorld_android_v1.00/LinuxNoEditor/Holodeck/"
                                      "Binaries/Linux/Holodeck")
         }
-        if self._verbose:
-            print "starting process"
 
-        self.world_process = subprocess.Popen([task_map[task_key], '-opengl4', '-SILENT', '-LOG=MyLog.txt',
-                                               '-ResX=' + str(self.width), " -ResY=" + str(self.height)],
-                                              stdout=open(os.devnull, 'w') if not self._verbose else None,
-                                              stderr=open(os.devnull, 'w') if not self._verbose else None)
-        if self._verbose:
-            print "process started"
-
+        self._world_process = subprocess.Popen([task_map[task_key], '-opengl4', '-SILENT', '-LOG=MyLog.txt',
+                                                '-ResX=' + str(self._width), " -ResY=" + str(self._height)],
+                                               stdout=open(os.devnull, 'w'),
+                                               stderr=open(os.devnull, 'w'))
         atexit.register(self.__on_exit__)
-
-        if self._verbose:
-            print "process registered for exit"
 
     def __windows_start_process__(self, task_key):
         task_map = {
@@ -72,24 +64,16 @@ class HolodeckEnvironment(object):
             "ExampleWorld_android": ("./worlds/ExampleWorld_android_v1.00/WindowsNoEditor/Holodeck/"
                                      "Binaries/Win64/Holodeck.exe")
         }
-        if self._verbose:
-            print "starting process"
 
-        self.world_process = subprocess.Popen([task_map[task_key], '-SILENT', '-LOG=MyLog.txt',
-                                               '-ResX=' + str(self.width), " -ResY=" + str(self.height)],
-                                              stdout=open(os.devnull, 'w') if not self._verbose else None,
-                                              stderr=open(os.devnull, 'w') if not self._verbose else None)
-        if self._verbose:
-            print "process started"
-
+        self._world_process = subprocess.Popen([task_map[task_key], '-SILENT', '-LOG=MyLog.txt',
+                                                '-ResX=' + str(self._width), " -ResY=" + str(self._height)],
+                                               stdout=open(os.devnull, 'w'),
+                                               stderr=open(os.devnull, 'w'))
         atexit.register(self.__on_exit__)
 
-        if self._verbose:
-            print "process registered for exit"
-
     def __on_exit__(self):
-        if hasattr(self, 'world_process'):
-            self.world_process.kill()
+        if hasattr(self, '_world_process'):
+            self._world_process.kill()
 
     @property
     def action_space(self):
@@ -97,13 +81,13 @@ class HolodeckEnvironment(object):
 
     @property
     def observation_space(self):
+        # TODO(joshgreaves) : Implement this
         raise NotImplementedError()
 
     def reset(self):
-        self.frames = 0
-        self._agent.send_command('SimulatorCommand', {'Restart': True})
-
-        return self.step(self.action_space.sample())[0]
+        self._client.acquire()
+        self._reset_ptr[0] = True
+        self._client.release()
 
     def render(self):
         pass
@@ -112,40 +96,22 @@ class HolodeckEnvironment(object):
         # note: this assert currently doesn't work with discrete sphere robot because it's a one hot vector
         # assert action.shape == self.action_space.sample().shape, (action.shape, self.action_space.sample().shape)
         # self.frames += 1
-        if self._verbose:
-            print "Acquiring semaphore"
         self._client.acquire()
 
-        if self._verbose:
-            print "Acting"
-        # act
-        self._agent.act(action, self._client)
-
-        # TODO: Ensure that responses are only received after acting
-
-        # get responses
-        if self._verbose:
-            print "Getting Responses"
+        self._agent.act(action)
 
         result = []
         reward = None
         terminal = None
         for sensor in self._state_sensors:
             if sensor == HolodeckSensor.REWARD:
-                reward = self._client.get_sensor(self._agent.name, HolodeckSensor.name(sensor))
+                reward = self._sensor_map[sensor]
             elif sensor == HolodeckSensor.TERMINAL:
-                terminal = self._client.get_sensor(self._agent.name, HolodeckSensor.name(sensor))
+                terminal = self._sensor_map[sensor]
             else:
-                result.append(self._client.get_sensor(self._agent.name, HolodeckSensor.name(sensor)))
-
-        if self._verbose:
-            print "Releasing semaphore"
+                result.append(self._sensor_map[sensor])
 
         self._client.release()
-
-        if self._verbose:
-            print "Returning"
-
         return result, reward, terminal, None
 
     def add_state_sensors(self, sensors):
@@ -153,141 +119,9 @@ class HolodeckEnvironment(object):
             for sensor in sensors:
                 self.add_state_sensors(sensor)
         else:
-            self._client.subscribe_sensor(self._agent.name, HolodeckSensor.name(sensors), HolodeckSensor.size(sensors))
+            self._client.subscribe_sensor(self._agent.name,
+                                          HolodeckSensor.name(sensors),
+                                          HolodeckSensor.shape(sensors),
+                                          HolodeckSensor.dtype(sensors))
             self._state_sensors.append(sensors)
-
-
-
-class HolodeckUAVEnvironment(HolodeckEnvironment):
-    def __init__(self, agent_name="UAV0", verbose=False, grayscale=False):
-        super(HolodeckUAVEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,
-                                                     agent_type=Holodeck.SimulatorAgent.UAVAgent, grayscale=grayscale)
-        self.state_sensors = ['PrimaryPlayerCamera']
-
-    @property
-    def observation_space(self):
-        return spaces.Box(0, 255, shape=self._resolution)
-
-
-class HolodeckUAVMazeWorld(HolodeckEnvironment):
-    def __init__(self, agent_name="UAV0", verbose=False, resolution=(32, 32), grayscale=False, hostname="localhost",
-                 start_world=True):
-        super(HolodeckUAVMazeWorld, self).__init__(agent_name=agent_name, verbose=verbose, task_key="MazeWorld_UAV",
-                                                   height=resolution[0], width=resolution[1],
-                                                   agent_type=Holodeck.SimulatorAgent.UAVAgent, grayscale=grayscale,
-                                                   hostname=hostname, start_world=start_world)
-        self.add_state_sensors(['PrimaryPlayerCamera', "OrientationSensor"])
-
-    @property
-    def observation_space(self):
-        return spaces.Box(0, 255, shape=self._resolution)
-
-
-class HolodeckUAVForestWorld(HolodeckEnvironment):
-    def __init__(self, agent_name="UAV0", verbose=False, resolution=(32, 32), grayscale=False, hostname="localhost",
-                 start_world=True):
-        super(HolodeckUAVForestWorld, self).__init__(agent_name=agent_name, verbose=verbose, task_key="ForestWorld_UAV",
-                                                     height=resolution[0], width=resolution[1],
-                                                     agent_type=Holodeck.SimulatorAgent.UAVAgent, grayscale=grayscale,
-                                                     hostname=hostname, start_world=start_world)
-        self.add_state_sensors(['PrimaryPlayerCamera', "OrientationSensor"])
-
-    @property
-    def observation_space(self):
-        return spaces.Box(0, 255, shape=self._resolution)
-
-
-class HolodeckContinuousSphereEnvironment(HolodeckEnvironment):
-    def __init__(self, agent_name="sphere0", verbose=False, grayscale=False):
-        super(HolodeckContinuousSphereEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,
-                                                                  agent_type=Holodeck.SimulatorAgent.ContinuousSphereAgent,
-                                                                  grayscale=grayscale)
-        self.add_state_sensors(['PrimaryPlayerCamera'])
-
-    @property
-    def observation_space(self):
-        return spaces.Box(0, 255, shape=self._resolution)
-
-
-class HolodeckContinuousSphereMazeWorld(HolodeckEnvironment):
-    def __init__(self, agent_name="sphere0", verbose=False, resolution=(32, 32), grayscale=False, hostname="localhost",
-                 start_world=True):
-        super(HolodeckContinuousSphereMazeWorld, self).__init__(agent_name=agent_name, verbose=verbose,
-                                                                task_key="MazeWorld_sphere",
-                                                                height=resolution[0], width=resolution[1],
-                                                                agent_type=Holodeck.SimulatorAgent.ContinuousSphereAgent,
-                                                                grayscale=grayscale,
-                                                                hostname=hostname, start_world=start_world)
-        self.add_state_sensors(['PrimaryPlayerCamera'])
-
-    @property
-    def observation_space(self):
-        return spaces.Box(-1, 1, shape=self._resolution)
-
-
-class HolodeckDiscreteSphereEnvironment(HolodeckEnvironment):
-    def __init__(self, agent_name="sphere0", verbose=False, grayscale=False, hostname="localhost", start_world=True):
-        super(HolodeckDiscreteSphereEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,
-                                                                agent_type=Holodeck.SimulatorAgent.DiscreteSphereAgent,
-                                                                grayscale=grayscale,
-                                                                hostname=hostname, start_world=start_world)
-        self.add_state_sensors(['PrimaryPlayerCamera'])
-
-    @property
-    def observation_space(self):
-        return spaces.Box(0, 255, shape=self._resolution)
-
-
-class HolodeckDiscreteSphereMazeWorld(HolodeckEnvironment):
-    def __init__(self, agent_name="sphere0", verbose=False, resolution=(32, 32), grayscale=False, hostname="localhost",
-                 start_world=True):
-        super(HolodeckDiscreteSphereMazeWorld, self).__init__(agent_name=agent_name, verbose=verbose,
-                                                              task_key="MazeWorld_sphere",
-                                                              height=resolution[0], width=resolution[1],
-                                                              agent_type=Holodeck.SimulatorAgent.DiscreteSphereAgent,
-                                                              grayscale=grayscale,
-                                                              hostname=hostname, start_world=start_world)
-        self.add_state_sensors(['PrimaryPlayerCamera'])
-
-    @property
-    def observation_space(self):
-        return spaces.Box(0, 255, shape=self._resolution)
-
-
-class HolodeckAndroidEnvironment(HolodeckEnvironment):
-    def __init__(self, agent_name="android0", verbose=False, grayscale=False, hostname="localhost", start_world=True):
-        super(HolodeckAndroidEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,
-                                                         agent_type=Holodeck.SimulatorAgent.AndroidAgent,
-                                                         grayscale=grayscale,
-                                                         hostname=hostname, start_world=start_world)
-
-        # self.agent.send_command('AndroidConfiguration', {"AreCollisionsVisible": True})
-        # self.state_sensors = ['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor', 'RelativeSkeletalPositionSensor']
-        self.add_state_sensors(['PrimaryPlayerCamera'])
-
-    @property
-    def observation_space(self):
-        return spaces.Box(0, 255, shape=self._resolution)
-
-
-class HolodeckAndroidExampleWorldEnvironment(HolodeckEnvironment):
-    def __init__(self, agent_name="android0", verbose=False, resolution=(32, 32), grayscale=False, hostname="localhost",
-                 start_world=True):
-        super(HolodeckAndroidExampleWorldEnvironment, self).__init__(agent_name=agent_name, verbose=verbose,
-                                                                     task_key="ExampleWorld_android",
-                                                                     height=resolution[0], width=resolution[1],
-                                                                     agent_type=Holodeck.SimulatorAgent.AndroidAgent,
-                                                                     grayscale=grayscale,
-                                                                     hostname=hostname, start_world=start_world)
-
-        # self.agent.send_command('AndroidConfiguration', {"AreCollisionsVisible": True})
-        # self.state_sensors = ['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor',
-        # 'RelativeSkeletalPositionSensor']
-        # TODO: Correct sensors
-        # self.add_state_sensors(['PrimaryPlayerCamera', 'IMUSensor', 'JointRotationSensor',
-        #                       'RelativeSkeletalPositionSensor'])
-        self.add_state_sensors(["PrimaryPlayerCamera"])
-
-    @property
-    def observation_space(self):
-        return spaces.Box(0, 255, shape=self._resolution)
+            self._sensor_map[sensors] = self._client.get_sensor(self._agent.name, HolodeckSensor.name(sensors))
