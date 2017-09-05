@@ -11,8 +11,15 @@ from HolodeckClient import HolodeckClient
 from HolodeckSensors import HolodeckSensor
 
 
+class HolodeckMaps:
+    MAZE_WORLD_SPHERE = 1
+
+    def __init__(self):
+        print "No point in instantiating an object."
+
+
 class HolodeckEnvironment(object):
-    def __init__(self, agent_type, agent_name, task_key=None, height=256, width=256, start_world=True):
+    def __init__(self, agent_type, agent_name, task_key=None, height=512, width=512, start_world=True):
         self._state_sensors = []
         self._height = height
         self._width = width
@@ -37,16 +44,13 @@ class HolodeckEnvironment(object):
         self.add_state_sensors([HolodeckSensor.TERMINAL, HolodeckSensor.REWARD])
 
         # TODO: Make sure this waits for the Holodeck binary to start up...
+        time.sleep(10)
         self._client.acquire()
 
     def __linux_start_process__(self, task_key):
         task_map = {
-            "TrainStation_UAV": "./worlds/TrainStation_UAV_v1.02/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
-            "MazeWorld_UAV": "./worlds/MazeWorld_UAV_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
-            "ForestWorld_UAV": "./worlds/ForestWorld_UAV_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
-            "MazeWorld_sphere": "./worlds/MazeWorld_sphere_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
-            "ExampleWorld_android": ("./worlds/ExampleWorld_android_v1.00/LinuxNoEditor/Holodeck/"
-                                     "Binaries/Linux/Holodeck")
+            HolodeckMaps.MAZE_WORLD_SPHERE:
+                "./worlds/MazeWorld_sphere_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
         }
 
         self._world_process = subprocess.Popen([task_map[task_key], '-opengl4', '-SILENT', '-LOG=MyLog.txt',
@@ -57,12 +61,8 @@ class HolodeckEnvironment(object):
 
     def __windows_start_process__(self, task_key):
         task_map = {
-            "TrainStation_UAV": "./worlds/TrainStation_UAV_v1.02/WindowsNoEditor/Holodeck/Binaries/Win64/Holodeck",
-            "MazeWorld_UAV": "./worlds/MazeWorld_UAV_v1.00/WindowsNoEditor/Holodeck/Binaries/Win64/Holodeck",
-            "ForestWorld_UAV": "./worlds/ForestWorld_UAV_v1.00/WindowsNoEditor/Holodeck/Binaries/Linux/Holodeck",
-            "MazeWorld_sphere": "./worlds/MazeWorld_sphere_v1.00/WindowsNoEditor/Holodeck/Binaries/Linux/Holodeck",
-            "ExampleWorld_android": ("./worlds/ExampleWorld_android_v1.00/WindowsNoEditor/Holodeck/"
-                                     "Binaries/Win64/Holodeck.exe")
+            HolodeckMaps.MAZE_WORLD_SPHERE:
+                "./worlds/MazeWorld_sphere_v1.00/WindowsNoEditor/Holodeck/Binaries/Linux/Holodeck",
         }
 
         self._world_process = subprocess.Popen([task_map[task_key], '-SILENT', '-LOG=MyLog.txt',

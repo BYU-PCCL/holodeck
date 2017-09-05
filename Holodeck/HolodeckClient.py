@@ -37,9 +37,18 @@ class HolodeckClient:
         self._release_semaphore_fn = windows_release_semaphore
 
     def __posix_init__(self):
-        # Do the necessary imports
-        # TODO
-        raise NotImplementedError()
+        import posix_ipc
+        self._semaphore1 = posix_ipc.Semaphore("/tmp/HOLODECK_SEMAPHORE_1")
+        self._semaphore2 = posix_ipc.Semaphore("/tmp/HOLODECK_SEMAPHORE_2")
+
+        def posix_acquire_semaphore(sem):
+            sem.acquire(None)
+
+        def posix_release_semaphore(sem):
+            sem.release()
+
+        self._get_semaphore_fn = posix_acquire_semaphore
+        self._release_semaphore_fn = posix_release_semaphore
 
     def acquire(self):
         self._get_semaphore_fn(self._semaphore2)
