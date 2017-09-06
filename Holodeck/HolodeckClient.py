@@ -57,7 +57,7 @@ class HolodeckClient:
         self._release_semaphore_fn(self._semaphore1)
 
     def subscribe_sensor(self, agent_name, sensor_key, shape, dtype):
-        key = agent_name + "/" + sensor_key
+        key = agent_name + "_" + sensor_key
         self._sensors[key] = HolodeckSharedMemory(key, shape, dtype)
 
     def get_sensor(self, agent_name, sensor_key):

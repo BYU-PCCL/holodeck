@@ -21,10 +21,11 @@ def editor_example():
             # command_list = command_str.strip().split()
             # command[0] = command_list[0]
             # command[1] = command_list[1]
-            if (i / 100) % 2 == 0:
-                command = np.array([1, 1], np.float32)
-            else:
-                command = np.array([1, -1], np.float32)
+            # if (i / 100) % 2 == 0:
+            #     command = np.array([1, 1], np.float32)
+            # else:
+            #     command = np.array([1, -1], np.float32)
+            command = np.random.normal(0, 2, 2)
             state, reward, terminal, _ = env.step(command)
             # print i, reward, terminal, len(state)
 
