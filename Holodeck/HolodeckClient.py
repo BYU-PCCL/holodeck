@@ -61,7 +61,7 @@ class HolodeckClient:
         self._sensors[key] = HolodeckSharedMemory(key, shape, dtype)
 
     def get_sensor(self, agent_name, sensor_key):
-        return self._sensors[agent_name + "/" + sensor_key].np_array
+        return self._sensors[agent_name + "_" + sensor_key].np_array
 
     def subscribe_command(self, agent_name, shape):
         self._agents[agent_name] = HolodeckSharedMemory(agent_name, shape)
