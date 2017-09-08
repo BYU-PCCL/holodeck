@@ -38,8 +38,8 @@ class HolodeckClient:
 
     def __posix_init__(self):
         import posix_ipc
-        self._semaphore1 = posix_ipc.Semaphore("/tmp/HOLODECK_SEMAPHORE_1")
-        self._semaphore2 = posix_ipc.Semaphore("/tmp/HOLODECK_SEMAPHORE_2")
+        self._semaphore1 = posix_ipc.Semaphore("/HOLODECK_SEMAPHORE_1")
+        self._semaphore2 = posix_ipc.Semaphore("/HOLODECK_SEMAPHORE_2")
 
         def posix_acquire_semaphore(sem):
             sem.acquire(None)
