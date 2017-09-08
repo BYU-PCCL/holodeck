@@ -21,7 +21,7 @@ class HolodeckSharedMemory:
             self._mem_path = "/HOLODECK_MEM_" + name
             self._mem_pointer = mmap.mmap(0, size_bytes, self._mem_path)
         elif os.name == "posix":
-            self._mem_path = "/tmp/HOLODECK_MEM_" + name
+            self._mem_path = "/dev/shm/HOLODECK_MEM_" + name
             f = os.open(self._mem_path, os.O_CREAT | os.O_TRUNC | os.O_RDWR)
             os.ftruncate(f, size_bytes)
             self._mem_pointer = mmap.mmap(f, size_bytes)
