@@ -23,9 +23,6 @@ class HolodeckEnvironment(object):
         self._state_sensors = []
         self._height = height
         self._width = width
-        self._client = HolodeckClient()
-        self._agent = agent_type(client=self._client, name=agent_name)
-        self._sensor_map = dict()
 
         if start_world:
             if os.name == "posix":
@@ -36,21 +33,24 @@ class HolodeckEnvironment(object):
                 print "Unknown platform:", os.name
                 raise NotImplementedError()
 
+        # TODO(joshgreaves) - Send a message to show the world is ready
+        time.sleep(2)
+        self._client = HolodeckClient()
+        self._agent = agent_type(client=self._client, name=agent_name)
+        self._sensor_map = dict()
+
         # Subscribe settings
         self._reset_ptr = self._client.subscribe_setting("RESET", [1], np.bool)
         self._reset_ptr[0] = False
 
         # Subscribe sensors
         self.add_state_sensors([HolodeckSensor.TERMINAL, HolodeckSensor.REWARD])
-
-        # TODO: Make sure this waits for the Holodeck binary to start up...
-        time.sleep(10)
         self._client.acquire()
 
     def __linux_start_process__(self, task_key):
         task_map = {
             HolodeckMaps.MAZE_WORLD_SPHERE:
-                "./worlds/MazeWorld_sphere_v1.00/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck",
+                "./worlds/MazeWorld_sphere_v1.00/Holodeck/Binaries/Linux/Holodeck",
         }
 
         self._world_process = subprocess.Popen([task_map[task_key], '-opengl4', '-SILENT', '-LOG=MyLog.txt',

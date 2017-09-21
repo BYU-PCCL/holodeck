@@ -24,8 +24,8 @@ class HolodeckClient:
     def __windows_init__(self):
         import win32event
         semaphore_all_access = 0x1F0003
-        self._semaphore1 = win32event.OpenSemaphore(semaphore_all_access, False, "Global\\HOLODECK_SEMAPHORE_1")
-        self._semaphore2 = win32event.OpenSemaphore(semaphore_all_access, False, "Global\\HOLODECK_SEMAPHORE_2")
+        self._semaphore1 = win32event.OpenSemaphore(semaphore_all_access, False, "Global\\HOLODECK_SEMAPHORE_SERVER")
+        self._semaphore2 = win32event.OpenSemaphore(semaphore_all_access, False, "Global\\HOLODECK_SEMAPHORE_CLIENT")
 
         def windows_acquire_semaphore(sem):
             win32event.WaitForSingleObject(sem, 100000) # 100 second timeout
@@ -38,8 +38,8 @@ class HolodeckClient:
 
     def __posix_init__(self):
         import posix_ipc
-        self._semaphore1 = posix_ipc.Semaphore("/HOLODECK_SEMAPHORE_1")
-        self._semaphore2 = posix_ipc.Semaphore("/HOLODECK_SEMAPHORE_2")
+        self._semaphore1 = posix_ipc.Semaphore("/HOLODECK_SEMAPHORE_SERVER")
+        self._semaphore2 = posix_ipc.Semaphore("/HOLODECK_SEMAPHORE_CLIENT")
 
         def posix_acquire_semaphore(sem):
             sem.acquire(None)
