@@ -7,6 +7,19 @@ import time
 
 
 def editor_example():
+    env = HolodeckEnvironment(agent_name="sphere0", agent_type=Holodeck.HolodeckAgents.ContinuousSphereAgent,
+                              start_world=False)
+    env.add_state_sensors([HolodeckSensor.PRIMARY_PLAYER_CAMERA, HolodeckSensor.ORIENTATION_SENSOR])
+
+    for i in xrange(10):
+        env.reset()
+        for _ in tqdm(xrange(300)):
+            command = np.random.normal(0, 5, 2)
+            state, reward, terminal, _ = env.step(command)
+            # time.sleep(1)
+
+
+def sphere_example():
     env = HolodeckEnvironment(agent_name="sphere0", task_key=HolodeckMaps.MAZE_WORLD_SPHERE,
                               agent_type=Holodeck.HolodeckAgents.ContinuousSphereAgent)
     env.add_state_sensors([HolodeckSensor.PRIMARY_PLAYER_CAMERA, HolodeckSensor.ORIENTATION_SENSOR])
@@ -14,7 +27,7 @@ def editor_example():
     print("Connected")
     for i in xrange(10):
         env.reset()
-        for _ in tqdm(range(300)):
+        for _ in tqdm(xrange(300)):
             command = np.random.normal(0, 5, 2)
             state, reward, terminal, _ = env.step(command)
 
