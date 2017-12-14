@@ -2,9 +2,10 @@ import mmap
 import numpy as np
 import os
 import ctypes
+from functools import reduce
 
 
-class HolodeckSharedMemory:
+class Shmem:
     _numpy_to_ctype = {
         np.float32: ctypes.c_float,
         np.uint8: ctypes.c_uint8,
@@ -26,7 +27,7 @@ class HolodeckSharedMemory:
             os.ftruncate(f, size_bytes)
             self._mem_pointer = mmap.mmap(f, size_bytes)
         else:
-            print "Currently unsupported os:", os.name
+            print("Currently unsupported os:", os.name)
 
         self.np_array = np.ndarray(shape, dtype=dtype)
-        self.np_array.data = (HolodeckSharedMemory._numpy_to_ctype[dtype] * size).from_buffer(self._mem_pointer)
+        self.np_array.data = (Shmem._numpy_to_ctype[dtype] * size).from_buffer(self._mem_pointer)

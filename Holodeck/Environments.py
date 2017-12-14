@@ -1,25 +1,24 @@
-import Holodeck.HolodeckAgents
-from gym import spaces
-from multiprocessing import Process
+from __future__ import print_function
+
 import subprocess
 import atexit
 import os
 import time
 import numpy as np
 
-from HolodeckClient import HolodeckClient
-from HolodeckSensors import HolodeckSensor
+from Holodeck.ShmemClient import ShmemClient
+from Holodeck.Sensors import Sensors
 
 
 class HolodeckMaps:
     MAZE_WORLD_SPHERE = 1
 
     def __init__(self):
-        print "No point in instantiating an object."
+        print("No point in instantiating an object.")
 
 
 class HolodeckEnvironment(object):
-    def __init__(self, agent_type, agent_name, task_key=None, height=512, width=512, start_world=True):
+    def __init__(self, agent_type, agent_name, task_key=None, height=512, width=512, start_world=True, sensors=None):
         self._state_sensors = []
         self._height = height
         self._width = width
@@ -30,12 +29,12 @@ class HolodeckEnvironment(object):
             elif os.name == "nt":
                 self.__windows_start_process__(task_key)
             else:
-                print "Unknown platform:", os.name
+                print("Unknown platform:", os.name)
                 raise NotImplementedError()
 
         # TODO(joshgreaves) - Send a message to show the world is ready
-        time.sleep(2)
-        self._client = HolodeckClient()
+        time.sleep(10)
+        self._client = ShmemClient()
         self._agent = agent_type(client=self._client, name=agent_name)
         self._sensor_map = dict()
 
@@ -44,7 +43,10 @@ class HolodeckEnvironment(object):
         self._reset_ptr[0] = False
 
         # Subscribe sensors
-        self.add_state_sensors([HolodeckSensor.TERMINAL, HolodeckSensor.REWARD])
+        self.add_state_sensors([Sensors.TERMINAL, Sensors.REWARD])
+        if sensors is not None:
+            self.add_state_sensors(sensors)
+
         self._client.acquire()
 
     def __linux_start_process__(self, task_key):
@@ -110,9 +112,9 @@ class HolodeckEnvironment(object):
         reward = None
         terminal = None
         for sensor in self._state_sensors:
-            if sensor == HolodeckSensor.REWARD:
+            if sensor == Sensors.REWARD:
                 reward = self._sensor_map[sensor]
-            elif sensor == HolodeckSensor.TERMINAL:
+            elif sensor == Sensors.TERMINAL:
                 terminal = self._sensor_map[sensor]
             else:
                 result.append(self._sensor_map[sensor])
@@ -125,8 +127,8 @@ class HolodeckEnvironment(object):
                 self.add_state_sensors(sensor)
         else:
             self._client.subscribe_sensor(self._agent.name,
-                                          HolodeckSensor.name(sensors),
-                                          HolodeckSensor.shape(sensors),
-                                          HolodeckSensor.dtype(sensors))
+                                          Sensors.name(sensors),
+                                          Sensors.shape(sensors),
+                                          Sensors.dtype(sensors))
             self._state_sensors.append(sensors)
-            self._sensor_map[sensors] = self._client.get_sensor(self._agent.name, HolodeckSensor.name(sensors))
+            self._sensor_map[sensors] = self._client.get_sensor(self._agent.name, Sensors.name(sensors))

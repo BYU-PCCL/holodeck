@@ -1,8 +1,9 @@
 import os
-from HolodeckSharedMemory import HolodeckSharedMemory
+from Holodeck.Shmem import Shmem
+from Holodeck.Exceptions import HolodeckException
 
 
-class HolodeckClient:
+class ShmemClient:
     def __init__(self):
         # Important functions
         self._get_semaphore_fn = None
@@ -19,7 +20,7 @@ class HolodeckClient:
         elif os.name == "posix":
             self.__posix_init__()
         else:
-            print "Currently unsupported os:", os.name
+            raise HolodeckException("Currently unsupported os: " + os.name)
 
     def __windows_init__(self):
         import win32event
@@ -58,15 +59,15 @@ class HolodeckClient:
 
     def subscribe_sensor(self, agent_name, sensor_key, shape, dtype):
         key = agent_name + "_" + sensor_key
-        self._sensors[key] = HolodeckSharedMemory(key, shape, dtype)
+        self._sensors[key] = Shmem(key, shape, dtype)
 
     def get_sensor(self, agent_name, sensor_key):
         return self._sensors[agent_name + "_" + sensor_key].np_array
 
     def subscribe_command(self, agent_name, shape):
-        self._agents[agent_name] = HolodeckSharedMemory(agent_name, shape)
+        self._agents[agent_name] = Shmem(agent_name, shape)
         return self._agents[agent_name].np_array
 
     def subscribe_setting(self, setting_name, shape, dtype):
-        self._settings[setting_name] = HolodeckSharedMemory(setting_name, shape, dtype)
+        self._settings[setting_name] = Shmem(setting_name, shape, dtype)
         return self._settings[setting_name].np_array

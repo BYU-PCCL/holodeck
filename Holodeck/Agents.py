@@ -1,16 +1,8 @@
 from gym import spaces
-import json
-import threading
-from collections import defaultdict
-import time
-from HolodeckClient import HolodeckClient
 import numpy as np
 
 
 class HolodeckAgent(object):
-    class TimeoutError(Exception):
-        pass
-
     def __init__(self, client, name="DefaultAgent"):
         self.name = name
         self._client = client
@@ -60,11 +52,7 @@ class DiscreteSphereAgent(HolodeckAgent):
         return [2]
 
     def __act__(self, action):
-        actions = [(10, 0), (-10, 0), (0, 90), (0, -90)]
-        # to_act = None
-        # for i, j in enumerate(action):
-        #     if j == 1:
-        #         to_act = actions[i]
+        actions = [(2, 0), (-2, 0), (0, 2), (0, -2)]
         to_act = np.array(actions[action])
 
         if to_act is None:

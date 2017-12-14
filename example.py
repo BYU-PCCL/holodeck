@@ -1,37 +1,33 @@
-import numpy as np
 from tqdm import tqdm
-from Holodeck.HolodeckEnvironment import *
-from Holodeck.HolodeckSensors import HolodeckSensor
-import cv2
-import time
+from Holodeck import Holodeck, Agents
+from Holodeck.Environments import *
+from Holodeck.Sensors import Sensors
 
 
 def editor_example():
-    env = HolodeckEnvironment(agent_name="sphere0", agent_type=Holodeck.HolodeckAgents.ContinuousSphereAgent,
+    env = HolodeckEnvironment(agent_name="sphere0", agent_type=Agents.ContinuousSphereAgent,
                               start_world=False)
-    env.add_state_sensors([HolodeckSensor.PRIMARY_PLAYER_CAMERA, HolodeckSensor.ORIENTATION_SENSOR])
+    env.add_state_sensors([Sensors.PRIMARY_PLAYER_CAMERA, Sensors.ORIENTATION_SENSOR])
 
-    for i in xrange(10):
+    for i in range(10):
         env.reset()
-        for _ in tqdm(xrange(300)):
+        for _ in tqdm(range(300)):
             command = np.random.normal(0, 5, 2)
             state, reward, terminal, _ = env.step(command)
             # time.sleep(1)
 
 
 def sphere_example():
-    env = HolodeckEnvironment(agent_name="sphere0", task_key=HolodeckMaps.MAZE_WORLD_SPHERE,
-                              agent_type=Holodeck.HolodeckAgents.ContinuousSphereAgent)
-    env.add_state_sensors([HolodeckSensor.PRIMARY_PLAYER_CAMERA, HolodeckSensor.ORIENTATION_SENSOR])
+    env = Holodeck.make("SphereMaze-v0")
 
     print("Connected")
-    for i in xrange(10):
+    for i in range(10):
         env.reset()
-        for _ in tqdm(xrange(300)):
-            command = np.random.normal(0, 5, 2)
+        for _ in tqdm(range(300)):
+            command = env.action_space.sample()
             state, reward, terminal, _ = env.step(command)
 
 
 if __name__ == "__main__":
-    editor_example()
+    sphere_example()
     print("Finished")

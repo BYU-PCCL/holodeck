@@ -1,6 +1,6 @@
 import numpy as np
 
-class HolodeckSensor:
+class Sensors:
     TERMINAL = 1
     REWARD = 2
     PRIMARY_PLAYER_CAMERA = 3   # default is 512 x 512 RGBA
@@ -46,15 +46,15 @@ class HolodeckSensor:
 
     @staticmethod
     def shape(sensor_type):
-        return HolodeckSensor._shape_dict[sensor_type] if sensor_type in HolodeckSensor._shape_dict else None
+        return Sensors._shape_dict[sensor_type] if sensor_type in Sensors._shape_dict else None
 
     @staticmethod
     def name(sensor_type):
-        return HolodeckSensor._name_dict[sensor_type] if sensor_type in HolodeckSensor._name_dict else None
+        return Sensors._name_dict[sensor_type] if sensor_type in Sensors._name_dict else None
 
     @staticmethod
     def dtype(sensor_type):
-        return HolodeckSensor._type_dict[sensor_type] if sensor_type in HolodeckSensor._type_dict else None
+        return Sensors._type_dict[sensor_type] if sensor_type in Sensors._type_dict else None
 
     def __init__(self):
-        print "No point in instantiating an object."
+        print("No point in instantiating an object.")
