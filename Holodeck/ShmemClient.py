@@ -1,6 +1,6 @@
 import os
-from Holodeck.Shmem import Shmem
-from Holodeck.Exceptions import HolodeckException
+from .Shmem import Shmem
+from .Exceptions import HolodeckException
 
 
 class ShmemClient:

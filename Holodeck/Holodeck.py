@@ -1,7 +1,7 @@
 from __future__ import print_function
-from Holodeck.Environments import  *
-from Holodeck.Exceptions import HolodeckException
-from Holodeck.Agents import *
+from .Environments import  *
+from .Exceptions import HolodeckException
+from .Agents import *
 
 
 def make(world):

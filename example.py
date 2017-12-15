@@ -1,6 +1,9 @@
+from __future__ import print_function
 from tqdm import tqdm
+import numpy as np
+
 from Holodeck import Holodeck, Agents
-from Holodeck.Environments import *
+from Holodeck.Environments import HolodeckEnvironment
 from Holodeck.Sensors import Sensors
 
 
@@ -14,7 +17,6 @@ def editor_example():
         for _ in tqdm(range(300)):
             command = np.random.normal(0, 5, 2)
             state, reward, terminal, _ = env.step(command)
-            # time.sleep(1)
 
 
 def sphere_example():

@@ -6,8 +6,8 @@ import os
 import time
 import numpy as np
 
-from Holodeck.ShmemClient import ShmemClient
-from Holodeck.Sensors import Sensors
+from .ShmemClient import ShmemClient
+from .Sensors import Sensors
 
 
 class HolodeckMaps:
