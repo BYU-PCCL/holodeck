@@ -9,6 +9,7 @@ class Sensors:
     IMU_SENSOR = 6
     JOINT_ROTATION_SENSOR = 7
     RELATIVE_SKELETAL_POSITION_SENSOR = 8
+    LOCATION_SENSOR = 9
 
     # Sizes are the number of entries in the numpy array
     _shape_dict = {
@@ -20,6 +21,7 @@ class Sensors:
         IMU_SENSOR: [6, 1],
         JOINT_ROTATION_SENSOR: [79, 1],
         RELATIVE_SKELETAL_POSITION_SENSOR: [67, 4],
+        LOCATION_SENSOR: [3, 1],
     }
 
     _type_dict = {
@@ -31,6 +33,7 @@ class Sensors:
         IMU_SENSOR: np.float32,
         JOINT_ROTATION_SENSOR: np.float32,
         RELATIVE_SKELETAL_POSITION_SENSOR: np.float32,
+        LOCATION_SENSOR: np.float32,
     }
 
     _name_dict = {
@@ -42,6 +45,7 @@ class Sensors:
         IMU_SENSOR: "IMUSensor",
         JOINT_ROTATION_SENSOR: "JointRotationSensor",
         RELATIVE_SKELETAL_POSITION_SENSOR: "RelativeSkeletalPositionSensor",
+        LOCATION_SENSOR: "LocationSensor",
     }
 
     @staticmethod
