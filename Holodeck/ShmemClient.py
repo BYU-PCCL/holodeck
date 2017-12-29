@@ -1,6 +1,7 @@
 import os
 from .Shmem import Shmem
 from .Exceptions import HolodeckException
+from itertools import chain
 
 
 class ShmemClient:
@@ -12,6 +13,7 @@ class ShmemClient:
         self._release_semaphore_fn = None
         self._semaphore1 = None
         self._semaphore2 = None
+        self.unlink = None
 
         self._sensors = dict()
         self._agents = dict()
@@ -38,8 +40,12 @@ class ShmemClient:
         def windows_release_semaphore(sem):
             win32event.ReleaseSemaphore(sem, 1)
 
+        def windows_unlink():
+            pass
+
         self._get_semaphore_fn = windows_acquire_semaphore
         self._release_semaphore_fn = windows_release_semaphore
+        self.unlink = windows_unlink
 
     def __posix_init__(self):
         import posix_ipc
@@ -52,8 +58,15 @@ class ShmemClient:
         def posix_release_semaphore(sem):
             sem.release()
 
+        def posix_unlink():
+            posix_ipc.unlink_semaphore(self._semaphore1.name)
+            posix_ipc.unlink_semaphore(self._semaphore2.name)
+            for shmem_block in chain(self._sensors.values(), self._agents.values(), self._settings.values()):
+                shmem_block.unlink()
+
         self._get_semaphore_fn = posix_acquire_semaphore
         self._release_semaphore_fn = posix_release_semaphore
+        self.unlink = posix_unlink
 
     def acquire(self):
         self._get_semaphore_fn(self._semaphore2)

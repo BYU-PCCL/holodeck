@@ -80,6 +80,7 @@ class HolodeckEnvironment(object):
     def __on_exit__(self):
         if hasattr(self, '_world_process'):
             self._world_process.kill()
+        self._client.unlink()
 
     @property
     def action_space(self):
