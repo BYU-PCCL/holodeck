@@ -2,6 +2,7 @@ from __future__ import print_function
 from .Environments import  *
 from .Exceptions import HolodeckException
 from .Agents import *
+import uuid
 
 
 def make(world):
@@ -11,7 +12,8 @@ def make(world):
                                 "height": 512,
                                 "width": 512,
                                 "start_world": True,
-                                "sensors": [Sensors.PRIMARY_PLAYER_CAMERA, Sensors.ORIENTATION_SENSOR]}}
+                                "sensors": [Sensors.PRIMARY_PLAYER_CAMERA, Sensors.ORIENTATION_SENSOR],
+                                "uuid": str(uuid.uuid4())}}
 
     if world not in worlds:
         raise HolodeckException("Invalid World Name")

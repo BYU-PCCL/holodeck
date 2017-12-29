@@ -12,17 +12,17 @@ class Shmem:
         np.bool: ctypes.c_bool,
     }
 
-    def __init__(self, name, shape, dtype=np.float32):
+    def __init__(self, name, shape, dtype=np.float32, uuid=""):
         size = reduce(lambda x, y: x * y, shape)
         size_bytes = np.dtype(dtype).itemsize * size
 
         self._mem_path = None
         self._mem_pointer = None
         if os.name == "nt":
-            self._mem_path = "/HOLODECK_MEM_" + name
+            self._mem_path = "/HOLODECK_MEM" + uuid + "_" + name
             self._mem_pointer = mmap.mmap(0, size_bytes, self._mem_path)
         elif os.name == "posix":
-            self._mem_path = "/dev/shm/HOLODECK_MEM_" + name
+            self._mem_path = "/dev/shm/HOLODECK_MEM" + uuid + "_" + name
             f = os.open(self._mem_path, os.O_CREAT | os.O_TRUNC | os.O_RDWR)
             os.ftruncate(f, size_bytes)
             self._mem_pointer = mmap.mmap(f, size_bytes)
