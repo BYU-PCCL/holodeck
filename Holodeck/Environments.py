@@ -57,7 +57,7 @@ class HolodeckEnvironment(object):
                 "./worlds/MazeWorld_sphere_v1.00/Holodeck/Binaries/Linux/Holodeck",
         }
 
-        self._world_process = subprocess.Popen([task_map[task_key], '-opengl4', '-SILENT', '-LOG=MyLog.txt',
+        self._world_process = subprocess.Popen([task_map[task_key], '-opengl4', '-SILENT', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._width), "-ResY=" + str(self._height),
                                                 "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
@@ -70,7 +70,7 @@ class HolodeckEnvironment(object):
                 "..\\build\\WindowsNoEditor\\Holodeck\\Binaries\\Win64\\Holodeck.exe",
         }
 
-        self._world_process = subprocess.Popen([task_map[task_key], '-SILENT', '-LOG=MyLog.txt',
+        self._world_process = subprocess.Popen([task_map[task_key], '-SILENT', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._width), " -ResY=" + str(self._height),
                                                 "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),

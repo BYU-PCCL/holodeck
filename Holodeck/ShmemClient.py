@@ -1,7 +1,7 @@
 import os
+from itertools import chain
 from .Shmem import Shmem
 from .Exceptions import HolodeckException
-from itertools import chain
 
 
 class ShmemClient:

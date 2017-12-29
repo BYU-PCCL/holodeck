@@ -31,5 +31,5 @@ def sphere_example():
 
 
 if __name__ == "__main__":
-    editor_example()
+    sphere_example()
     print("Finished")
