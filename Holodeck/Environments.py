@@ -18,10 +18,12 @@ class HolodeckMaps:
 
 
 class HolodeckEnvironment(object):
-    def __init__(self, agent_type, agent_name, task_key=None, height=512, width=512, start_world=True, sensors=None):
+    def __init__(self, agent_type, agent_name, task_key=None, height=512, width=512, start_world=True, sensors=None,
+                 uuid=""):
         self._state_sensors = []
         self._height = height
         self._width = width
+        self._uuid = uuid
 
         if start_world:
             if os.name == "posix":
@@ -34,7 +36,7 @@ class HolodeckEnvironment(object):
 
         # TODO(joshgreaves) - Send a message to show the world is ready
         time.sleep(10)
-        self._client = ShmemClient()
+        self._client = ShmemClient(self._uuid)
         self._agent = agent_type(client=self._client, name=agent_name)
         self._sensor_map = dict()
 
@@ -55,8 +57,9 @@ class HolodeckEnvironment(object):
                 "./worlds/MazeWorld_sphere_v1.00/Holodeck/Binaries/Linux/Holodeck",
         }
 
-        self._world_process = subprocess.Popen([task_map[task_key], '-opengl4', '-SILENT', '-LOG=MyLog.txt',
-                                                '-ResX=' + str(self._width), " -ResY=" + str(self._height)],
+        self._world_process = subprocess.Popen([task_map[task_key], '-opengl4', '-SILENT', '-LOG=HolodeckLog.txt',
+                                                '-ResX=' + str(self._width), "-ResY=" + str(self._height),
+                                                "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
                                                stderr=open(os.devnull, 'w'))
         atexit.register(self.__on_exit__)
@@ -64,11 +67,12 @@ class HolodeckEnvironment(object):
     def __windows_start_process__(self, task_key):
         task_map = {
             HolodeckMaps.MAZE_WORLD_SPHERE:
-                "./worlds/MazeWorld_sphere_v1.00/WindowsNoEditor/Holodeck/Binaries/Linux/Holodeck",
+                "..\\build\\WindowsNoEditor\\Holodeck\\Binaries\\Win64\\Holodeck.exe",
         }
 
-        self._world_process = subprocess.Popen([task_map[task_key], '-SILENT', '-LOG=MyLog.txt',
-                                                '-ResX=' + str(self._width), " -ResY=" + str(self._height)],
+        self._world_process = subprocess.Popen([task_map[task_key], '-SILENT', '-LOG=HolodeckLog.txt',
+                                                '-ResX=' + str(self._width), " -ResY=" + str(self._height),
+                                                "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
                                                stderr=open(os.devnull, 'w'))
         atexit.register(self.__on_exit__)
@@ -76,6 +80,7 @@ class HolodeckEnvironment(object):
     def __on_exit__(self):
         if hasattr(self, '_world_process'):
             self._world_process.kill()
+        self._client.unlink()
 
     @property
     def action_space(self):
