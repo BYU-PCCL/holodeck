@@ -1,8 +1,20 @@
 from __future__ import print_function
+import uuid
+import os
 from .Environments import  *
 from .Exceptions import HolodeckException
 from .Agents import *
-import uuid
+
+
+# Load in all existing worlds
+holodeck_path = os.environ("HOLODECKPATH")
+if holodeck_path == "":
+    raise HolodeckException("Couldn't find environment variable HOLODECKPATH.")
+for file_name in os.listdir(os.path.join(holodeck_path, "worlds")):
+    if file_name.endswith(".config"):
+        with open(file_name, 'r') as f:
+            for line in f.readlines():
+                print(line)
 
 
 def make(world):
