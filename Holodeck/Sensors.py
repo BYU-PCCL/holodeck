@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Sensors:
     TERMINAL = 1
     REWARD = 2

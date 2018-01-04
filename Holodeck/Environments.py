@@ -3,6 +3,7 @@ import atexit
 import os
 import time
 import numpy as np
+from copy import copy
 
 from .ShmemClient import ShmemClient
 from .Sensors import Sensors
@@ -107,18 +108,15 @@ class HolodeckEnvironment(object):
         return self._get_state()
 
     def _get_state(self):
-        result = []
         reward = None
         terminal = None
         for sensor in self._state_sensors:
             if sensor == Sensors.REWARD:
-                reward = self._sensor_map[sensor]
+                reward = self._sensor_map[sensor][0]
             elif sensor == Sensors.TERMINAL:
-                terminal = self._sensor_map[sensor]
-            else:
-                result.append(self._sensor_map[sensor])
+                terminal = self._sensor_map[sensor][0]
 
-        return result, reward, terminal, None
+        return copy(self._sensor_map), reward, terminal, None
 
     def add_state_sensors(self, sensors):
         if type(sensors) == list:
