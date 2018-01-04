@@ -6,7 +6,7 @@ from .Agents import *
 
 
 # Load in all existing worlds
-holodeck_path = os.environ("HOLODECKPATH")
+holodeck_path = os.environ("HOLODECK_PATH")
 if holodeck_path == "":
     raise HolodeckException("Couldn't find environment variable HOLODECKPATH.")
 for file_name in os.listdir(os.path.join(holodeck_path, "worlds")):

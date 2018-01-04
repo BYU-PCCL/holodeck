@@ -1,5 +1,29 @@
 Holodeck is a simulator built for training reinforcement agents. It comes with several pre-made worlds.
 
+# Installation
+* Clone the repository `git clone https://github.com/byu-pccl/HolodeckPythonBinding`
+* Run the Python install script `python3 install.py`
+* Download the default worlds:
+* Unzip the default worlds to your_holodeck_path/worlds (Linux default: /usr/local/Holodeck/worlds, Windows default: C:\Users\user_name\AppData\local\Holodeck\worlds)
+* Add the Holodeck root directory to your path
+* Add the HOLODECK_WORLDS environment variable
+
+# Adding Environemnt Variables
+## Linux
+Add these lines to the end of your bashrc file:
+`export HOLODECK_WORLDS="path_to_holodeck_worlds"`
+`export PATH=path_to_holodeck_root:${PATH}`
+(Note: default is /usr/local/Holodeck)
+
+## Windows
+Press the windows button and start typing `environment variables`. Click the button that says `Edit the system environment variables`.
+Press the Environment Variables button.
+Under the User variables section, click "New".
+VariableName = HOLODECK_WORLDS
+VariableValue = your path to holodeck worlds (default: C:\User\user_name\AppData\local\Holodeck\worlds)
+
+Then, click on the Path variable, and add the Holodeck root directory to it.
+
 GENERAL USAGE
 -------------
 To use Holodeck, you need a worlds folder in the directory you are working in, in which you download the necessary
