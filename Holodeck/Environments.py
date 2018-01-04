@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import subprocess
 import atexit
 import os
@@ -101,10 +99,6 @@ class HolodeckEnvironment(object):
         pass
 
     def step(self, action):
-        # note: this assert currently doesn't work with discrete sphere robot because it's a one hot vector
-        # assert action.shape == self.action_space.sample().shape, (action.shape, self.action_space.sample().shape)
-        # self.frames += 1
-
         self._agent.act(action)
 
         self._client.release()

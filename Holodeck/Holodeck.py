@@ -1,7 +1,6 @@
-from __future__ import print_function
 import uuid
-import os
-from .Environments import  *
+
+from .Environments import *
 from .Exceptions import HolodeckException
 from .Agents import *
 
