@@ -9,16 +9,9 @@ from .ShmemClient import ShmemClient
 from .Sensors import Sensors
 
 
-class HolodeckMaps:
-    MAZE_WORLD_SPHERE = 1
-
-    def __init__(self):
-        print("No point in instantiating an object.")
-
-
 class HolodeckEnvironment(object):
-    def __init__(self, agent_type, agent_name, task_key=None, height=512, width=512, start_world=True, sensors=None,
-                 uuid=""):
+    def __init__(self, agent_type, agent_name, binary_path, task_key=None, height=512, width=512, start_world=True,
+                 sensors=None, uuid=""):
         self._state_sensors = []
         self._height = height
         self._width = width
@@ -26,9 +19,9 @@ class HolodeckEnvironment(object):
 
         if start_world:
             if os.name == "posix":
-                self.__linux_start_process__(task_key)
+                self.__linux_start_process__(binary_path, task_key)
             elif os.name == "nt":
-                self.__windows_start_process__(task_key)
+                self.__windows_start_process__(binary_path, task_key)
             else:
                 print("Unknown platform:", os.name)
                 raise NotImplementedError()
@@ -50,26 +43,16 @@ class HolodeckEnvironment(object):
 
         self._client.acquire()
 
-    def __linux_start_process__(self, task_key):
-        task_map = {
-            HolodeckMaps.MAZE_WORLD_SPHERE:
-                "./worlds/MazeWorld_sphere_v1.00/Holodeck/Binaries/Linux/Holodeck",
-        }
-
-        self._world_process = subprocess.Popen([task_map[task_key], '-opengl4', '-SILENT', '-LOG=HolodeckLog.txt',
+    def __linux_start_process__(self, binary_path, task_key):
+        self._world_process = subprocess.Popen([binary_path, task_key, '-opengl4', '-SILENT', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._width), "-ResY=" + str(self._height),
                                                 "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
                                                stderr=open(os.devnull, 'w'))
         atexit.register(self.__on_exit__)
 
-    def __windows_start_process__(self, task_key):
-        task_map = {
-            HolodeckMaps.MAZE_WORLD_SPHERE:
-                "..\\build\\WindowsNoEditor\\Holodeck\\Binaries\\Win64\\Holodeck.exe",
-        }
-
-        self._world_process = subprocess.Popen([task_map[task_key], '-SILENT', '-LOG=HolodeckLog.txt',
+    def __windows_start_process__(self, binary_path, task_key):
+        self._world_process = subprocess.Popen([binary_path, task_key, '-SILENT', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._width), " -ResY=" + str(self._height),
                                                 "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),

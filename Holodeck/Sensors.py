@@ -11,6 +11,7 @@ class Sensors:
     JOINT_ROTATION_SENSOR = 7
     RELATIVE_SKELETAL_POSITION_SENSOR = 8
     LOCATION_SENSOR = 9
+    VELOCITY_SENSOR = 10
 
     # Sizes are the number of entries in the numpy array
     _shape_dict = {
@@ -23,6 +24,7 @@ class Sensors:
         JOINT_ROTATION_SENSOR: [79, 1],
         RELATIVE_SKELETAL_POSITION_SENSOR: [67, 4],
         LOCATION_SENSOR: [3, 1],
+        VELOCITY_SENSOR: [3, 1],
     }
 
     _type_dict = {
@@ -35,6 +37,7 @@ class Sensors:
         JOINT_ROTATION_SENSOR: np.float32,
         RELATIVE_SKELETAL_POSITION_SENSOR: np.float32,
         LOCATION_SENSOR: np.float32,
+        VELOCITY_SENSOR: np.float32,
     }
 
     _name_dict = {
@@ -47,7 +50,10 @@ class Sensors:
         JOINT_ROTATION_SENSOR: "JointRotationSensor",
         RELATIVE_SKELETAL_POSITION_SENSOR: "RelativeSkeletalPositionSensor",
         LOCATION_SENSOR: "LocationSensor",
+        VELOCITY_SENSOR: "VelocitySensor",
     }
+
+    _reverse_name_dict = {v: k for k, v in _name_dict.items()}
 
     @staticmethod
     def shape(sensor_type):
@@ -60,6 +66,10 @@ class Sensors:
     @staticmethod
     def dtype(sensor_type):
         return Sensors._type_dict[sensor_type] if sensor_type in Sensors._type_dict else None
+
+    @staticmethod
+    def name_to_sensor(sensor_name):
+        return Sensors._reverse_name_dict[sensor_name] if sensor_name in Sensors._reverse_name_dict else None
 
     def __init__(self):
         print("No point in instantiating an object.")

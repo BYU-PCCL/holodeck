@@ -20,13 +20,13 @@ def editor_example():
 
 
 def sphere_example():
-    env = Holodeck.make("SphereMaze-v0")
+    env = Holodeck.make("UrbanCity")
 
     print("Connected")
     for i in range(10):
         env.reset()
         for _ in tqdm(range(300)):
-            command = env.action_space.sample()
+            command = np.array([0, 0, 1, 10])
             state, reward, terminal, _ = env.step(command)
 
 

@@ -3,26 +3,29 @@ Holodeck is a simulator built for training reinforcement agents. It comes with s
 # Installation
 * Clone the repository `git clone https://github.com/byu-pccl/HolodeckPythonBinding`
 * Run the Python install script `python3 install.py`
+* Add the Holodeck root directory to your python path (see below)
+* Add the HOLODECKWORLDS environment variable (see below)
 * Download the default worlds:
+** [Linux](https://drive.google.com/open?id=1i0qvSRlongb2vrvzk6AbaVj6XmzLKMAC)
+** [Windows](https://drive.google.com/open?id=1yOvMfJF9IlOyt0Zo7LiGLSj8HHZQWw1F)
 * Unzip the default worlds to your_holodeck_path/worlds (Linux default: /usr/local/Holodeck/worlds, Windows default: C:\Users\user_name\AppData\local\Holodeck\worlds)
-* Add the Holodeck root directory to your path
-* Add the HOLODECK_WORLDS environment variable
 
 # Adding Environemnt Variables
 ## Linux
 Add these lines to the end of your bashrc file:
-`export HOLODECK_WORLDS="path_to_holodeck_worlds"`
-`export PATH=path_to_holodeck_root:${PATH}`
+```export HOLODECKPATH="path_to_holodeck_root"
+export PYTHONPATH="${HOLODECKPATH}:${PYTHONPATH}"```
 (Note: default is /usr/local/Holodeck)
 
 ## Windows
 Press the windows button and start typing `environment variables`. Click the button that says `Edit the system environment variables`.
 Press the Environment Variables button.
 Under the User variables section, click "New".
-VariableName = HOLODECK_WORLDS
+VariableName = HOLODECKWORLDS
 VariableValue = your path to holodeck worlds (default: C:\User\user_name\AppData\local\Holodeck\worlds)
 
-Then, click on the Path variable, and add the Holodeck root directory to it.
+Then, click on the PYTHONPATH variable, and add the Holodeck root directory to it.
+(If the PYTHONPATH variable isn't there, you should create it).
 
 GENERAL USAGE
 -------------
