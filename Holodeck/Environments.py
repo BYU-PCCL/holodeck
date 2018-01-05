@@ -5,6 +5,7 @@ import time
 import numpy as np
 from copy import copy
 
+from Holodeck.Exceptions import HolodeckException
 from .ShmemClient import ShmemClient
 from .Sensors import Sensors
 
@@ -44,20 +45,39 @@ class HolodeckEnvironment(object):
         self._client.acquire()
 
     def __linux_start_process__(self, binary_path, task_key):
+        import posix_ipc
+        loading_semaphore = posix_ipc.Semaphore("/HolodeckLoadingSem" + self._uuid, os.O_CREAT | os.O_EXCL,
+                                                initial_value=0)
+
+        def posix_acquire_semaphore(sem):
+            sem.acquire(None)
+
+        def posix_release_semaphore(sem):
+            sem.release()
         self._world_process = subprocess.Popen([binary_path, task_key, '-opengl4', '-SILENT', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._width), "-ResY=" + str(self._height),
                                                 "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
                                                stderr=open(os.devnull, 'w'))
         atexit.register(self.__on_exit__)
+        try:
+            loading_semaphore.acquire(100)
+        except posix_ipc.BusyError:
+            raise HolodeckException("Timed out waiting for binary to load")
+        loading_semaphore.unlink()
 
     def __windows_start_process__(self, binary_path, task_key):
+        import win32event
+        loading_semaphore = win32event.CreateSemaphore(None, 0, 1, "Global\\HolodeckLoadingSem" + self._uuid)
         self._world_process = subprocess.Popen([binary_path, task_key, '-SILENT', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._width), " -ResY=" + str(self._height),
                                                 "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
                                                stderr=open(os.devnull, 'w'))
         atexit.register(self.__on_exit__)
+        response = win32event.WaitForSingleObject(loading_semaphore, 100000)  # 100 second timeout
+        if response == win32event.WAIT_TIMEOUT:
+            raise HolodeckException("Timed out waiting for binary to load")
 
     def __on_exit__(self):
         if hasattr(self, '_world_process'):
