@@ -44,12 +44,6 @@ class HolodeckEnvironment(object):
         import posix_ipc
         loading_semaphore = posix_ipc.Semaphore("/HOLODECK_LOADING_SEM" + self._uuid, os.O_CREAT | os.O_EXCL,
                                                 initial_value=0)
-
-        def posix_acquire_semaphore(sem):
-            sem.acquire(None)
-
-        def posix_release_semaphore(sem):
-            sem.release()
         self._world_process = subprocess.Popen([binary_path, task_key, '-opengl4', '-SILENT', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._width), "-ResY=" + str(self._height),
                                                 "--HolodeckUUID=" + self._uuid],
