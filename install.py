@@ -2,7 +2,6 @@ import os
 import glob
 import shutil
 from pathlib import Path
-import urllib.request
 
 
 def linux_installation():

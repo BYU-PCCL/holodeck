@@ -44,9 +44,9 @@ class HolodeckEnvironment(object):
         import posix_ipc
         loading_semaphore = posix_ipc.Semaphore("/HOLODECK_LOADING_SEM" + self._uuid, os.O_CREAT | os.O_EXCL,
                                                 initial_value=0)
-        self._world_process = subprocess.Popen([binary_path, task_key, '-opengl4', '-SILENT', '-LOG=HolodeckLog.txt',
-                                                '-ResX=' + str(self._width), "-ResY=" + str(self._height),
-                                                "--HolodeckUUID=" + self._uuid],
+        self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl4', '-SILENT',
+                                                '-LOG=HolodeckLog.txt','-ResX=' + str(self._width),
+                                                "-ResY=" + str(self._height), "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
                                                stderr=open(os.devnull, 'w'))
         atexit.register(self.__on_exit__)
@@ -59,7 +59,7 @@ class HolodeckEnvironment(object):
     def __windows_start_process__(self, binary_path, task_key):
         import win32event
         loading_semaphore = win32event.CreateSemaphore(None, 0, 1, "Global\\HOLODECK_LOADING_SEM" + self._uuid)
-        self._world_process = subprocess.Popen([binary_path, task_key, '-SILENT', '-LOG=HolodeckLog.txt',
+        self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-SILENT', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._width), " -ResY=" + str(self._height),
                                                 "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
