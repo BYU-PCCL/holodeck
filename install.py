@@ -31,6 +31,8 @@ def linux_installation():
         for file in glob.glob("Holodeck/*.py"):
             shutil.copyfile(file, os.path.join(path, "Holodeck", "Holodeck", file.split("/")[-1]))
 
+        os.chmod(worlds_path, 0o777)
+
         print("To continue installation, follow instructions on the github page")
         print("https://github.com/byu-pccl/HolodeckPythonBinding")
         print("Ensure to add the installed directory to your Python path")
