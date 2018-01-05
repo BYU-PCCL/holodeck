@@ -1,7 +1,6 @@
 import subprocess
 import atexit
 import os
-import time
 import numpy as np
 from copy import copy
 
@@ -11,7 +10,7 @@ from .Sensors import Sensors
 
 
 class HolodeckEnvironment(object):
-    def __init__(self, agent_type, agent_name, binary_path, task_key=None, height=512, width=512, start_world=True,
+    def __init__(self, agent_type, agent_name, binary_path=None, task_key=None, height=512, width=512, start_world=True,
                  sensors=None, uuid=""):
         self._state_sensors = []
         self._height = height
@@ -24,11 +23,8 @@ class HolodeckEnvironment(object):
             elif os.name == "nt":
                 self.__windows_start_process__(binary_path, task_key)
             else:
-                print("Unknown platform:", os.name)
-                raise NotImplementedError()
+                raise HolodeckException("Unknown platform: " + os.name)
 
-        # TODO(joshgreaves) - Send a message to show the world is ready
-        time.sleep(10)
         self._client = ShmemClient(self._uuid)
         self._agent = agent_type(client=self._client, name=agent_name)
         self._sensor_map = dict()
@@ -46,7 +42,7 @@ class HolodeckEnvironment(object):
 
     def __linux_start_process__(self, binary_path, task_key):
         import posix_ipc
-        loading_semaphore = posix_ipc.Semaphore("/HolodeckLoadingSem" + self._uuid, os.O_CREAT | os.O_EXCL,
+        loading_semaphore = posix_ipc.Semaphore("/HOLODECK_LOADING_SEM" + self._uuid, os.O_CREAT | os.O_EXCL,
                                                 initial_value=0)
 
         def posix_acquire_semaphore(sem):
@@ -68,7 +64,7 @@ class HolodeckEnvironment(object):
 
     def __windows_start_process__(self, binary_path, task_key):
         import win32event
-        loading_semaphore = win32event.CreateSemaphore(None, 0, 1, "Global\\HolodeckLoadingSem" + self._uuid)
+        loading_semaphore = win32event.CreateSemaphore(None, 0, 1, "Global\\HOLODECK_LOADING_SEM" + self._uuid)
         self._world_process = subprocess.Popen([binary_path, task_key, '-SILENT', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._width), " -ResY=" + str(self._height),
                                                 "--HolodeckUUID=" + self._uuid],

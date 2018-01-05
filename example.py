@@ -20,7 +20,7 @@ def editor_example():
 
 
 def sphere_example():
-    env = Holodeck.make("UrbanCity")
+    env = Holodeck.make("ConiferForest")
 
     print("Connected")
     for i in range(10):
