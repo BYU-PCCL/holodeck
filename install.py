@@ -2,6 +2,31 @@ import os
 import glob
 import shutil
 from pathlib import Path
+import urllib.request
+import zipfile
+
+holodeck_binary_website = "http://pcc.byu.edu/holodeck/"
+holodeck_binary_name = "DefaultWorlds_1.0.zip"
+block_size = 81920  # 8kb
+
+
+def download_binary(binary_location, worlds_path):
+    print("Downloading default worlds...")
+    file_loc = os.path.join(worlds_path, holodeck_binary_name)
+    with urllib.request.urlopen(binary_location) as conn:
+        length = int(conn.headers["Content-Length"])
+        with open(file_loc, 'wb') as f:
+            amount_read = 0
+            while amount_read < length:
+                data = conn.read(block_size)
+                f.write(data)
+                amount_read += block_size
+
+    print("Unpacking worlds...")
+    with zipfile.ZipFile(file_loc, 'r') as zip_file:
+        zip_file.extractall(worlds_path)
+
+    os.remove(file_loc)
 
 
 def linux_installation():
@@ -32,6 +57,7 @@ def linux_installation():
             shutil.copyfile(file, os.path.join(path, "Holodeck", "Holodeck", file.split("/")[-1]))
 
         os.chmod(worlds_path, 0o777)
+        download_binary(holodeck_binary_website + "Linux_" + holodeck_binary_name, worlds_path)
 
         print("To continue installation, follow instructions on the github page")
         print("https://github.com/byu-pccl/HolodeckPythonBinding")
@@ -67,6 +93,8 @@ def windows_installation():
 
         for file in glob.glob("Holodeck\\*.py"):
             shutil.copyfile(file, os.path.join(path, "Holodeck", "Holodeck", file.split("\\")[-1]))
+
+        download_binary(holodeck_binary_website + "Windows_" + holodeck_binary_name, worlds_path)
 
         print("To continue installation, follow instructions on the github page")
         print("https://github.com/byu-pccl/HolodeckPythonBinding")
