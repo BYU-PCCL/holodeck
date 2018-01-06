@@ -4,7 +4,7 @@ import os
 import numpy as np
 from copy import copy
 
-from Holodeck.Exceptions import HolodeckException
+from .Exceptions import HolodeckException
 from .ShmemClient import ShmemClient
 from .Sensors import Sensors
 

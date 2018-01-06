@@ -38,6 +38,7 @@ def _setup_binary(binary_location, worlds_path):
             q.put(conn.read(block_size))
             amount_read += block_size
         write_thread.join()
+        print()
 
     # Unzip the binary
     print("Unpacking worlds...")
