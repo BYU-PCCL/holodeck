@@ -90,10 +90,10 @@ def linux_installation():
 
 
 def windows_installation():
-    default_path = os.path.join(str(Path.home()), "AppData", "local")
+    default_path = os.path.join(str(Path.home()), "AppData", "Local")
 
     print("Beginning Windows installation")
-    path = input("Please choose installation path (Default is /usr/local): ")
+    path = input("Please choose installation path (Default is C:\User\user_name\AppData\Local): ")
     if path == "":
         path = default_path
 
