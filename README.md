@@ -22,23 +22,29 @@ Currently only support Python3 in Windows and Linux.
 * Run the Python install script `python3 install.py`
 * Add the Holodeck root directory to your python path (see below)
 * Add the HOLODECKPATH environment variable (see below)
-* Verify installation by opening python3 in terminal and running `from Holodeck import Holodeck`
+* `source .bashrc` or open a new terminal
+* Verify installation by opening python3 in terminal and running:
+```
+from Holodeck import Holodeck
+env = Holodeck.make("MazeWorld")
+```
+If the world loads up then installation was successful
 
 ## Adding Environment Variables
 ### Linux
 Add these lines to the end of your bashrc file:
 ```
-export HOLODECKPATH="path_to_holodeck_root"
+export HOLODECKPATH="/usr/local/Holodeck"
 export PYTHONPATH="${HOLODECKPATH}:${PYTHONPATH}"
 ```
-(Note: default holodeck path is /usr/local/Holodeck)
+If you didn't install at the default location, make sure to change it to the correct path.
 
 ### Windows
 Press the windows button and start typing "environment variables". Click "Edit the system environment variables".
 Press the Environment Variables button.
 Under the System variables section, click "New".
 VariableName = HOLODECKPATH
-VariableValue = your path to holodeck (default: C:\User\user_name\AppData\Local\Holodeck)
+VariableValue = your path to holodeck (default: C:\Users\user_name\AppData\Local\Holodeck)
 
 Then, click on the PYTHONPATH variable, and add the Holodeck root directory to it.
 (If the PYTHONPATH variable isn't there, you should create it).

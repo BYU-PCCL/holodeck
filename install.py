@@ -74,10 +74,12 @@ def linux_installation():
         for file in glob.glob("Holodeck/*.py"):
             shutil.copyfile(file, os.path.join(path, "Holodeck", "Holodeck", file.split("/")[-1]))
 
-        os.chmod(worlds_path, 0o777)
+        os.chmod(worlds_path, 0o755)
         _setup_binary(holodeck_binary_website + "Linux_" + holodeck_binary_name, worlds_path)
 
         # Make the binary executable
+        for path, _, _ in os.walk(os.path.join(worlds_path, "LinuxDefaultWorlds")):
+            os.chmod(path, 0o775)
         binary_path = os.path.join(worlds_path, "LinuxDefaultWorlds/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck")
         os.chmod(binary_path, 0o755)
 
@@ -93,7 +95,7 @@ def windows_installation():
     default_path = os.path.join(str(Path.home()), "AppData", "Local")
 
     print("Beginning Windows installation")
-    path = input("Please choose installation path (Default is C:\User\user_name\AppData\Local): ")
+    path = input("Please choose installation path (Default is C:\\User\\user_name\\AppData\\Local): ")
     if path == "":
         path = default_path
 
