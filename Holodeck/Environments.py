@@ -11,7 +11,7 @@ from .Sensors import Sensors
 
 class HolodeckEnvironment(object):
     def __init__(self, agent_type, agent_name, binary_path=None, task_key=None, height=512, width=512, start_world=True,
-                 sensors=None, uuid=""):
+                 sensors=None, uuid="", gl_version=4):
         self._state_sensors = []
         self._height = height
         self._width = width
@@ -19,7 +19,7 @@ class HolodeckEnvironment(object):
 
         if start_world:
             if os.name == "posix":
-                self.__linux_start_process__(binary_path, task_key)
+                self.__linux_start_process__(binary_path, task_key, gl_version)
             elif os.name == "nt":
                 self.__windows_start_process__(binary_path, task_key)
             else:
@@ -40,12 +40,12 @@ class HolodeckEnvironment(object):
 
         self._client.acquire()
 
-    def __linux_start_process__(self, binary_path, task_key):
+    def __linux_start_process__(self, binary_path, task_key, gl_version):
         import posix_ipc
         loading_semaphore = posix_ipc.Semaphore("/HOLODECK_LOADING_SEM" + self._uuid, os.O_CREAT | os.O_EXCL,
                                                 initial_value=0)
-        self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl4', '-SILENT',
-                                                '-LOG=HolodeckLog.txt','-ResX=' + str(self._width),
+        self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
+                                                '-SILENT', '-LOG=HolodeckLog.txt','-ResX=' + str(self._width),
                                                 "-ResY=" + str(self._height), "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
                                                stderr=open(os.devnull, 'w'))

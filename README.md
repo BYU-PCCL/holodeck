@@ -11,6 +11,7 @@ Currently only support Python3 in Windows and Linux.
 
 ### Linux
 * Posix ipc: `pip3 install posix_ipc`
+* OpenGL3 or 4
 
 ### Windows
 * Holodeck on Windows requires pywin32:
@@ -20,8 +21,8 @@ Currently only support Python3 in Windows and Linux.
 # Installation
 * Clone the repository `git clone https://github.com/byu-pccl/HolodeckPythonBinding`
 * Run the Python install script `python3 install.py`
-* Add the Holodeck root directory to your python path (see below)
 * Add the HOLODECKPATH environment variable (see below)
+* Add the HOLODECKPATH to your PYTHONPATH (see below)
 * `source .bashrc` or open a new terminal
 * Verify installation by opening python3 in terminal and running:
 ```
@@ -102,3 +103,10 @@ It contains the following sensors:
 * PrimaryPlayerCamera
 * OrientationSensor
 * LocationSensor
+
+# Using OpenGL3 in Linux
+To use OpenGL3 in linux, change the argument in Holodeck.make:
+```
+from Holodeck import Holodeck
+env = Holodeck.make("MazeWorld", Holodeck.GL_VERSION.OPENGL3)
+```

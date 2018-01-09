@@ -5,6 +5,11 @@ from .Exceptions import HolodeckException
 from .Agents import *
 
 
+class GL_VERSION(object):
+    OPENGL4 = 4
+    OPENGL3 = 3
+
+
 def _get_worlds_map():
     string_to_agent = {"DiscreteSphereAgent": DiscreteSphereAgent,
                        "UAVAgent": UAVAgent}
@@ -35,7 +40,7 @@ def _get_worlds_map():
     return holodeck_worlds
 
 
-def make(world):
+def make(world, gl_version=GL_VERSION.OPENGL4):
     holodeck_worlds = _get_worlds_map()
     if world not in holodeck_worlds:
         raise HolodeckException("Invalid World Name")
@@ -43,4 +48,5 @@ def make(world):
     param_dict = copy(holodeck_worlds[world])
     param_dict["start_world"] = True
     param_dict["uuid"] = str(uuid.uuid4())
+    param_dict["gl_version"] = gl_version
     return HolodeckEnvironment(**param_dict)
