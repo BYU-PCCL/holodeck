@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Sensors:
     TERMINAL = 1
     REWARD = 2
@@ -52,6 +53,8 @@ class Sensors:
         VELOCITY_SENSOR: "VelocitySensor",
     }
 
+    _reverse_name_dict = {v: k for k, v in _name_dict.items()}
+
     @staticmethod
     def shape(sensor_type):
         return Sensors._shape_dict[sensor_type] if sensor_type in Sensors._shape_dict else None
@@ -63,6 +66,10 @@ class Sensors:
     @staticmethod
     def dtype(sensor_type):
         return Sensors._type_dict[sensor_type] if sensor_type in Sensors._type_dict else None
+
+    @staticmethod
+    def name_to_sensor(sensor_name):
+        return Sensors._reverse_name_dict[sensor_name] if sensor_name in Sensors._reverse_name_dict else None
 
     def __init__(self):
         print("No point in instantiating an object.")

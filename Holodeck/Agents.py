@@ -52,11 +52,8 @@ class DiscreteSphereAgent(HolodeckAgent):
         return [2]
 
     def __act__(self, action):
-        actions = [(2, 0), (-2, 0), (0, 2), (0, -2)]
-        to_act = np.array(actions[action])
-
-        if to_act is None:
-            raise RuntimeError("Action must be one-hot")
+        actions = np.array([[2, 0], [-2, 0], [0, 2], [0, -2]])
+        to_act = np.array(actions[action, :])
 
         np.copyto(self._action_buffer, to_act)
 

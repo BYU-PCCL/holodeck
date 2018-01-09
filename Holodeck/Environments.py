@@ -1,25 +1,17 @@
-from __future__ import print_function
-
 import subprocess
 import atexit
 import os
-import time
 import numpy as np
+from copy import copy
 
+from .Exceptions import HolodeckException
 from .ShmemClient import ShmemClient
 from .Sensors import Sensors
 
 
-class HolodeckMaps:
-    MAZE_WORLD_SPHERE = 1
-
-    def __init__(self):
-        print("No point in instantiating an object.")
-
-
 class HolodeckEnvironment(object):
-    def __init__(self, agent_type, agent_name, task_key=None, height=512, width=512, start_world=True, sensors=None,
-                 uuid=""):
+    def __init__(self, agent_type, agent_name, binary_path=None, task_key=None, height=512, width=512, start_world=True,
+                 sensors=None, uuid="", gl_version=4):
         self._state_sensors = []
         self._height = height
         self._width = width
@@ -27,15 +19,12 @@ class HolodeckEnvironment(object):
 
         if start_world:
             if os.name == "posix":
-                self.__linux_start_process__(task_key)
+                self.__linux_start_process__(binary_path, task_key, gl_version)
             elif os.name == "nt":
-                self.__windows_start_process__(task_key)
+                self.__windows_start_process__(binary_path, task_key)
             else:
-                print("Unknown platform:", os.name)
-                raise NotImplementedError()
+                raise HolodeckException("Unknown platform: " + os.name)
 
-        # TODO(joshgreaves) - Send a message to show the world is ready
-        time.sleep(10)
         self._client = ShmemClient(self._uuid)
         self._agent = agent_type(client=self._client, name=agent_name)
         self._sensor_map = dict()
@@ -51,31 +40,34 @@ class HolodeckEnvironment(object):
 
         self._client.acquire()
 
-    def __linux_start_process__(self, task_key):
-        task_map = {
-            HolodeckMaps.MAZE_WORLD_SPHERE:
-                "./worlds/MazeWorld_sphere_v1.00/Holodeck/Binaries/Linux/Holodeck",
-        }
-
-        self._world_process = subprocess.Popen([task_map[task_key], '-opengl4', '-SILENT', '-LOG=HolodeckLog.txt',
-                                                '-ResX=' + str(self._width), "-ResY=" + str(self._height),
-                                                "--HolodeckUUID=" + self._uuid],
+    def __linux_start_process__(self, binary_path, task_key, gl_version):
+        import posix_ipc
+        loading_semaphore = posix_ipc.Semaphore("/HOLODECK_LOADING_SEM" + self._uuid, os.O_CREAT | os.O_EXCL,
+                                                initial_value=0)
+        self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
+                                                '-SILENT', '-LOG=HolodeckLog.txt','-ResX=' + str(self._width),
+                                                "-ResY=" + str(self._height), "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
                                                stderr=open(os.devnull, 'w'))
         atexit.register(self.__on_exit__)
+        try:
+            loading_semaphore.acquire(100)
+        except posix_ipc.BusyError:
+            raise HolodeckException("Timed out waiting for binary to load")
+        loading_semaphore.unlink()
 
-    def __windows_start_process__(self, task_key):
-        task_map = {
-            HolodeckMaps.MAZE_WORLD_SPHERE:
-                "..\\build\\WindowsNoEditor\\Holodeck\\Binaries\\Win64\\Holodeck.exe",
-        }
-
-        self._world_process = subprocess.Popen([task_map[task_key], '-SILENT', '-LOG=HolodeckLog.txt',
+    def __windows_start_process__(self, binary_path, task_key):
+        import win32event
+        loading_semaphore = win32event.CreateSemaphore(None, 0, 1, "Global\\HOLODECK_LOADING_SEM" + self._uuid)
+        self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-SILENT', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._width), " -ResY=" + str(self._height),
                                                 "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
                                                stderr=open(os.devnull, 'w'))
         atexit.register(self.__on_exit__)
+        response = win32event.WaitForSingleObject(loading_semaphore, 100000)  # 100 second timeout
+        if response == win32event.WAIT_TIMEOUT:
+            raise HolodeckException("Timed out waiting for binary to load")
 
     def __on_exit__(self):
         if hasattr(self, '_world_process'):
@@ -101,10 +93,6 @@ class HolodeckEnvironment(object):
         pass
 
     def step(self, action):
-        # note: this assert currently doesn't work with discrete sphere robot because it's a one hot vector
-        # assert action.shape == self.action_space.sample().shape, (action.shape, self.action_space.sample().shape)
-        # self.frames += 1
-
         self._agent.act(action)
 
         self._client.release()
@@ -113,18 +101,15 @@ class HolodeckEnvironment(object):
         return self._get_state()
 
     def _get_state(self):
-        result = []
         reward = None
         terminal = None
         for sensor in self._state_sensors:
             if sensor == Sensors.REWARD:
-                reward = self._sensor_map[sensor]
+                reward = self._sensor_map[sensor][0]
             elif sensor == Sensors.TERMINAL:
-                terminal = self._sensor_map[sensor]
-            else:
-                result.append(self._sensor_map[sensor])
+                terminal = self._sensor_map[sensor][0]
 
-        return result, reward, terminal, None
+        return copy(self._sensor_map), reward, terminal, None
 
     def add_state_sensors(self, sensors):
         if type(sensors) == list:
