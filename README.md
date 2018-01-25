@@ -7,7 +7,7 @@ Currently only support Python3 in Windows and Linux.
 * Python3
 * The following packages: `pip3 install numpy gym`
 * Platform specific dependencies below
-* Around 2.5gb disk space
+* About 3gb hard drive space (around 5gb needed during installation)
 
 ### Linux
 * Posix ipc: `pip3 install posix_ipc`
@@ -57,7 +57,7 @@ The Holodeck instance is designed in the same vein as OpenAI's Gym.
 All you need is to import Holodeck `from Holodeck import Holodeck` and then create an environment with the make command:
 `env = Holodeck.make('MazeWorld')`.
 
-The current world list is `MazeWorld`, `UrbanCity`, and `ConiferForest`.
+The current world list is `MazeWorld`, `UrbanCity`, `EuropeanForest`, and `RedwoodForest`.
 
 Each environment contains an agent, and each agent has a specific number of sensors.
 The default worlds currently contain 2 supported agents:
@@ -66,7 +66,8 @@ The default worlds currently contain 2 supported agents:
 
 UAV WORLDS
 * UrbanCity
-* ConiferForest
+* EuropeanForest
+* RedwoodForest
 
 SPHERE ROBOT WORLDS
 * MazeWorld
