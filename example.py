@@ -1,7 +1,7 @@
 import numpy as np
 
 from Holodeck import Holodeck, Agents
-from Holodeck.Environments import HolodeckEnvironment
+from Holodeck.Environments import *
 from Holodeck.Sensors import Sensors
 
 
@@ -42,15 +42,35 @@ def sphere_example():
 # This editor example shows how to interact with Holodeck worlds while they are being built
 # in the Unreal Engine. Most people that use Holodeck will not need this.
 def editor_example():
-    env = HolodeckEnvironment(agent_name="sphere0", agent_type=Agents.ContinuousSphereAgent,
-                              start_world=False)
-    env.add_state_sensors([Sensors.PRIMARY_PLAYER_CAMERA, Sensors.ORIENTATION_SENSOR])
+    sensors = [Sensors.PRIMARY_PLAYER_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
+    agent = AgentDefinition("sphere0", Agents.ContinuousSphereAgent, sensors)
+    env = HolodeckEnvironment(agent, start_world=False)
+    command = np.random.normal(0, 5, 2)
 
     for i in range(10):
         env.reset()
         for _ in range(300):
-            command = np.random.normal(0, 5, 2)
             state, reward, terminal, _ = env.step(command)
+
+
+# This editor example shows how to interact with Holodeck worlds that have multiple agents.
+# This is specifically for when working with UE4 directly and not a prebuilt binary.
+def editor_multi_agent_example():
+    agents = [AgentDefinition("uav0", Agents.UAVAgent, [Sensors.PRIMARY_PLAYER_CAMERA, Sensors.LOCATION_SENSOR]),
+              AgentDefinition("uav1", Agents.UAVAgent, [Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR])]
+    env = HolodeckEnvironment(agents, start_world=False)
+
+    cmd1 = np.array([0, 0, 0.5, 5])
+    cmd2 = np.array([0, 0, -0.7, 7])
+    for i in range(10):
+        env.reset()
+        cmd2[3] = i
+        env.act("uav0", cmd1)
+        env.act("uav1", cmd2)
+        for _ in tqdm(range(300)):
+            states = env.tick()
+            # print("********")
+            # print(states)
 
 
 if __name__ == "__main__":

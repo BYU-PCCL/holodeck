@@ -9,10 +9,17 @@ from .ShmemClient import ShmemClient
 from .Sensors import Sensors
 
 
+class AgentDefinition(object):
+    def __init__(self, agent_name, agent_type, sensors=list()):
+        super(AgentDefinition, self).__init__()
+        self.name = agent_name
+        self.type = agent_type
+        self.sensors = sensors
+
+
 class HolodeckEnvironment(object):
-    def __init__(self, agent_type, agent_name, binary_path=None, task_key=None, height=512, width=512, start_world=True,
-                 sensors=None, uuid="", gl_version=4):
-        self._state_sensors = []
+    def __init__(self, agent_definitions, binary_path=None, task_key=None, height=512, width=512,
+                 start_world=True, uuid="", gl_version=4):
         self._height = height
         self._width = width
         self._uuid = uuid
@@ -25,18 +32,26 @@ class HolodeckEnvironment(object):
             else:
                 raise HolodeckException("Unknown platform: " + os.name)
 
+        # Set up the agents
+        agent_definitions = [agent_definitions] if type(agent_definitions) != list else agent_definitions
         self._client = ShmemClient(self._uuid)
-        self._agent = agent_type(client=self._client, name=agent_name)
+        self._all_agents = self._prepare_agents(agent_definitions)
+        self._agent = self._all_agents[0]
+        self._agent_dict = {x.name: x for x in self._all_agents}
         self._sensor_map = dict()
+
+        # Set the default state function
+        self.num_agents = len(self._all_agents)
+        self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
         # Subscribe settings
         self._reset_ptr = self._client.subscribe_setting("RESET", [1], np.bool)
         self._reset_ptr[0] = False
 
         # Subscribe sensors
-        self.add_state_sensors([Sensors.TERMINAL, Sensors.REWARD])
-        if sensors is not None:
-            self.add_state_sensors(sensors)
+        for agent in agent_definitions:
+            self.add_state_sensors(agent.name, [Sensors.TERMINAL, Sensors.REWARD])
+            self.add_state_sensors(agent.name, agent.sensors)
 
         self._client.acquire()
 
@@ -87,7 +102,7 @@ class HolodeckEnvironment(object):
         self._reset_ptr[0] = True
         self._client.release()
         self._client.acquire()
-        return self._get_state()
+        return self._default_state_fn()
 
     def render(self):
         pass
@@ -98,27 +113,44 @@ class HolodeckEnvironment(object):
         self._client.release()
         self._client.acquire()
 
-        return self._get_state()
+        return self._get_single_state()
 
-    def _get_state(self):
+    def act(self, agent_name, action):
+        self._agent_dict[agent_name].act(action)
+
+    def tick(self):
+        self._client.release()
+        self._client.acquire()
+        return self._get_full_state()
+
+    def _get_single_state(self):
         reward = None
         terminal = None
-        for sensor in self._state_sensors:
+        for sensor in self._sensor_map[self._agent.name]:
             if sensor == Sensors.REWARD:
-                reward = self._sensor_map[sensor][0]
+                reward = self._sensor_map[self._agent.name][sensor][0]
             elif sensor == Sensors.TERMINAL:
-                terminal = self._sensor_map[sensor][0]
+                terminal = self._sensor_map[self._agent.name][sensor][0]
 
-        return copy(self._sensor_map), reward, terminal, None
+        return copy(self._sensor_map[self._agent.name]), reward, terminal, None
 
-    def add_state_sensors(self, sensors):
+    def _get_full_state(self):
+        return copy(self._sensor_map)
+
+    def add_state_sensors(self, agent_name, sensors):
         if type(sensors) == list:
             for sensor in sensors:
-                self.add_state_sensors(sensor)
+                self.add_state_sensors(agent_name, sensor)
         else:
-            self._client.subscribe_sensor(self._agent.name,
+            self._client.subscribe_sensor(agent_name,
                                           Sensors.name(sensors),
                                           Sensors.shape(sensors),
                                           Sensors.dtype(sensors))
-            self._state_sensors.append(sensors)
-            self._sensor_map[sensors] = self._client.get_sensor(self._agent.name, Sensors.name(sensors))
+            if agent_name not in self._sensor_map:
+                self._sensor_map[agent_name] = dict()
+            self._sensor_map[agent_name][sensors] = self._client.get_sensor(agent_name, Sensors.name(sensors))
+
+    def _prepare_agents(self, agent_definitions):
+        if type(agent_definitions) == list:
+            return [self._prepare_agents(x)[0] for x in agent_definitions]
+        return [agent_definitions.type(client=self._client, name=agent_definitions.name)]
