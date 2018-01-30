@@ -7,6 +7,7 @@ import os
 import numpy as np
 from copy import copy
 
+from .Agents import *
 from .Exceptions import HolodeckException
 from .ShmemClient import ShmemClient
 from .Sensors import Sensors
@@ -14,24 +15,40 @@ from .Sensors import Sensors
 
 class AgentDefinition(object):
     """A class for declaring what agents are expected in a particular Holodeck Environment."""
+    __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
+                      "UAVAgent": UAVAgent,
+                      DiscreteSphereAgent: DiscreteSphereAgent,
+                      UAVAgent: UAVAgent}
+
+    @staticmethod
+    def __convert_sensors__(sensors):
+        result = []
+        for sensor in sensors:
+            if type(sensor) == str:
+                result.append(Sensors.name_to_sensor(sensor))
+            else:
+                result.append(sensor)
+        return result
+
     def __init__(self, agent_name, agent_type, sensors=list()):
         """Constructor for AgentDefinition.
 
         Positional Arguments:
         agent_name -- The name of the agent to control
-        agent_type -- The type of HolodeckAgent to control
+        agent_type -- The type of HolodeckAgent to control, string or class reference
 
         Keyword arguments:
-        sensors -- A list of HolodeckSensors to read from this agent (default empty)
+        sensors -- A list of HolodeckSensors to read from this agent, string or class reference (default empty)
         """
         super(AgentDefinition, self).__init__()
         self.name = agent_name
-        self.type = agent_type
-        self.sensors = sensors
+        self.type = AgentDefinition.__agent_keys__[agent_type]
+        self.sensors = AgentDefinition.__convert_sensors__(sensors)
 
 
 class HolodeckEnvironment(object):
     """The high level interface for interacting with a Holodeck Environment"""
+
     def __init__(self, agent_definitions, binary_path=None, task_key=None, height=512, width=512,
                  start_world=True, uuid="", gl_version=4):
         """Constructor for HolodeckEnvironment.
