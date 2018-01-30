@@ -1,3 +1,4 @@
+"""This file contains multiple examples of how you might use Holodeck."""
 import numpy as np
 
 from Holodeck import Holodeck, Agents
