@@ -13,6 +13,7 @@ class Sensors:
     LOCATION_SENSOR = 9
     VELOCITY_SENSOR = 10
     ROTATION_SENSOR = 11
+    COLLISION_SENSOR = 12
 
     # Sizes are the number of entries in the numpy array
     _shape_dict = {
@@ -27,6 +28,7 @@ class Sensors:
         LOCATION_SENSOR: [3, 1],
         VELOCITY_SENSOR: [3, 1],
         ROTATION_SENSOR: [3, 1],
+        COLLISION_SENSOR: [1],
     }
 
     _type_dict = {
@@ -41,6 +43,7 @@ class Sensors:
         LOCATION_SENSOR: np.float32,
         VELOCITY_SENSOR: np.float32,
         ROTATION_SENSOR: np.float32,
+        COLLISION_SENSOR: np.bool,
     }
 
     _name_dict = {
@@ -54,7 +57,8 @@ class Sensors:
         RELATIVE_SKELETAL_POSITION_SENSOR: "RelativeSkeletalPositionSensor",
         LOCATION_SENSOR: "LocationSensor",
         VELOCITY_SENSOR: "VelocitySensor",
-        ROTATION_SENSOR: "RotationSensor"
+        ROTATION_SENSOR: "RotationSensor",
+        COLLISION_SENSOR: "CollisionSensor"
     }
 
     _reverse_name_dict = {v: k for k, v in _name_dict.items()}
