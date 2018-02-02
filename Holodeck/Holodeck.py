@@ -1,8 +1,8 @@
+import json
 import uuid
 
 from .Environments import *
 from .Exceptions import HolodeckException
-from .Agents import *
 
 
 class GL_VERSION(object):
@@ -11,10 +11,7 @@ class GL_VERSION(object):
 
 
 def _get_worlds_map():
-    string_to_agent = {"DiscreteSphereAgent": DiscreteSphereAgent,
-                       "UAVAgent": UAVAgent}
     holodeck_worlds = dict()
-
     # Load in all existing worlds
     holodeck_path = os.environ["HOLODECKPATH"]
     if holodeck_path == "":
@@ -24,19 +21,16 @@ def _get_worlds_map():
         full_path = os.path.join(worlds_path, dir_name)
         if os.path.isdir(full_path):
             for file_name in os.listdir(full_path):
-                if file_name.endswith(".txt"):
+                if file_name == "config.json":
                     with open(os.path.join(full_path, file_name), 'r') as f:
-                        lines = f.read().splitlines()
-                        for line in lines[2:]:
-                            entries = line.split(' ')
-                            holodeck_worlds[entries[0]] = {"binary_path": os.path.join(full_path, lines[1]),
-                                                           "agent_type": string_to_agent[entries[1]],
-                                                           "agent_name": entries[2],
-                                                           "task_key": entries[0],
-                                                           "height": int(entries[3]),
-                                                           "width": int(entries[4]),
-                                                           "sensors": list(
-                                                               map(lambda x: Sensors.name_to_sensor(x), entries[5:]))}
+                        config = json.load(f)
+                    for level in config["maps"]:
+                        holodeck_worlds[level["name"]] = {
+                            "agent_definitions": [AgentDefinition(**x) for x in level["agents"]],
+                            "binary_path": os.path.join(full_path, config["path"]),
+                            "task_key": level["name"],
+                            "height": level["resy"],
+                            "width": level["resx"]}
     return holodeck_worlds
 
 
