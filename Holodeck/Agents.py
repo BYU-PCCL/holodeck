@@ -72,3 +72,12 @@ class AndroidAgent(HolodeckAgent):
 
     def __action_space_shape__(self):
         return [127]
+
+
+class NavAgent(HolodeckAgent):
+    @property
+    def action_space(self):
+        return spaces.Box(-10000, 10000, shape=[3])
+
+    def __action_space_shape__(self):
+        return [3]
