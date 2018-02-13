@@ -17,8 +17,10 @@ class AgentDefinition(object):
     """A class for declaring what agents are expected in a particular Holodeck Environment."""
     __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
                       "UAVAgent": UAVAgent,
+                      "NavAgent": NavAgent,
                       DiscreteSphereAgent: DiscreteSphereAgent,
-                      UAVAgent: UAVAgent}
+                      UAVAgent: UAVAgent,
+                      NavAgent: NavAgent}
 
     @staticmethod
     def __convert_sensors__(sensors):
