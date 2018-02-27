@@ -4,11 +4,15 @@ import numpy as np
 from Holodeck import Holodeck, Agents
 from Holodeck.Environments import *
 from Holodeck.Sensors import Sensors
+from Holodeck.AgentSettings import *
 
 
 def uav_example():
     """A basic example of how to use the UAV agent."""
     env = Holodeck.make("UrbanCity")
+
+    # To get the mass of the UAV
+    mass = env.get_setting("uav0", UAVSettings.UAV_MASS)
 
     for i in range(10):
         env.reset()
@@ -46,11 +50,12 @@ def editor_example():
     in the Unreal Engine. Most people that use Holodeck will not need this.
     """
     sensors = [Sensors.PRIMARY_PLAYER_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
-    agent = AgentDefinition("sphere0", Agents.ContinuousSphereAgent, sensors)
+    agent = AgentDefinition("uav0", Agents.UAVAgent, sensors)
     env = HolodeckEnvironment(agent, start_world=False)
-    command = np.random.normal(0, 5, 2)
+    command = [0, 0, 1, 2]
 
     for i in range(10):
+        #  for i in range(25):
         env.reset()
         for _ in range(300):
             state, reward, terminal, _ = env.step(command)

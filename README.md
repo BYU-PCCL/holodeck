@@ -92,6 +92,36 @@ It contains the following sensors:
 * VelocitySensor
 * IMUSensor
 
+It has the following settings, indexed from 0 to 25:
+Notes:  * The TAU, P, I, and D constants are settings for the UAV's internal PID controller.
+        * These are already indexed in Settings.UAV.<SETTING_NAME>
+* UAV_MASS
+* UAV_MU
+* UAV_MAX_ROLL
+* UAV_MAX_PITCH
+* UAV_MAX_YAW_RATE
+* UAV_MAX_FORCE
+* UAV_TAU_UP_ROLL
+* UAV_TAU_UP_PITCH
+* UAV_TAU_UP_YAW_RATE
+* UAV_TAU_UP_FORCE
+* UAV_TAU_DOWN_ROLL
+* UAV_TAU_DOWN_PITCH
+* UAV_TAU_DOWN_YAW_RATE
+* UAV_TAU_DOWN_FORCE
+* UAV_ROLL_P
+* UAV_ROLL_I
+* UAV_ROLL_D
+* UAV_PITCH_P
+* UAV_PITCH_I
+* UAV_PITCH_D
+* UAV_YAW_P
+* UAV_YAW_I
+* UAV_YAW_D
+* UAV_ALT_P
+* UAV_ALT_I
+* UAV_ALT_D
+
 
 ## DiscreteSphereRobot
 The DiscreteSphereRobot takes in an index of one of four actions:
