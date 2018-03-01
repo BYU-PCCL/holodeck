@@ -1,4 +1,5 @@
 import os
+from os.path import expanduser
 import glob
 import shutil
 from pathlib import Path
@@ -11,6 +12,13 @@ from queue import Queue
 holodeck_binary_website = "http://pcc.byu.edu/holodeck/"
 holodeck_binary_name = "DefaultWorlds_1.02.zip"
 block_size = 1000000  # 1mb
+
+
+def expand_tilde(in_text):
+    if in_text[0] == "~":
+        home_directory = expanduser("~")
+        in_text = in_text.replace("~", home_directory, 1) + in_text[1:]
+    return in_text
 
 
 def _setup_binary(binary_location, worlds_path):
@@ -59,6 +67,8 @@ def linux_installation():
         print("Unable to find path: " + path)
         return
 
+    path = expand_tilde(path)
+
     try:
         base_path = os.path.join(path, "Holodeck")
         worlds_path = os.path.join(base_path, "worlds")
@@ -98,6 +108,8 @@ def windows_installation():
     path = input("Please choose installation path (Default is C:\\User\\user_name\\AppData\\Local): ")
     if path == "":
         path = default_path
+
+    path = expand_tilde(path)
 
     if not os.path.isdir(path):
         print("Unable to find path: " + path)
