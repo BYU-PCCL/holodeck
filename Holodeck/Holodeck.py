@@ -1,5 +1,6 @@
 import json
 import uuid
+import sys
 
 from .Environments import *
 from .Exceptions import HolodeckException
@@ -24,6 +25,8 @@ def _get_worlds_map():
                 if file_name == "config.json":
                     with open(os.path.join(full_path, file_name), 'r') as f:
                         config = json.load(f)
+                        if sys.version_info[0] < 3:
+                            config = _convert_unicode(config)
                     for level in config["maps"]:
                         holodeck_worlds[level["name"]] = {
                             "agent_definitions": [AgentDefinition(**x) for x in level["agents"]],
@@ -32,6 +35,19 @@ def _get_worlds_map():
                             "height": level["resy"],
                             "width": level["resx"]}
     return holodeck_worlds
+
+
+# Resolves python 2 issue with json loading in unicode instead of string
+def _convert_unicode(value):
+    if isinstance(value, dict):
+        return {_convert_unicode(key): _convert_unicode(value)
+                for key, value in value.iteritems()}
+    elif isinstance(value, list):
+            return [_convert_unicode(item) for item in value]
+    elif isinstance(value, unicode):
+        return value.encode('utf-8')
+    else:
+        return value
 
 
 def make(world, gl_version=GL_VERSION.OPENGL4):
