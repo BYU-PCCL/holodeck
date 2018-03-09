@@ -45,7 +45,6 @@ def _convert_unicode(value):
     elif isinstance(value, list):
             return [_convert_unicode(item) for item in value]
     elif isinstance(value, unicode):
-        new_val = value.encode('utf-8')
         return value.encode('utf-8')
     else:
         return value
