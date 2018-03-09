@@ -182,6 +182,9 @@ class HolodeckEnvironment(object):
                 self._sensor_map[agent_name] = dict()
             self._sensor_map[agent_name][sensors] = self._client.get_sensor(agent_name, Sensors.name(sensors))
 
+    def get_setting(self, agent_name, setting_index):
+        return self._agent_dict[agent_name].get_setting(setting_index)
+
     def __linux_start_process__(self, binary_path, task_key, gl_version):
         import posix_ipc
         loading_semaphore = posix_ipc.Semaphore("/HOLODECK_LOADING_SEM" + self._uuid, os.O_CREAT | os.O_EXCL,

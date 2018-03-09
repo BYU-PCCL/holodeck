@@ -8,6 +8,10 @@ class HolodeckAgent(object):
         self._client = client
         self._action_buffer, self._teleport_bool_buffer, self._teleport_buffer = \
             self._client.subscribe_command(name, self.__action_space_shape__())
+        settings_buffer_name = name + "_settings"
+        self._settings_buffer = self._client.subscribe_setting(settings_buffer_name,
+                                                               self.__setting_space_shape__(),
+                                                               np.float32)
 
     def act(self, action):
         self.__act__(action)
@@ -18,12 +22,21 @@ class HolodeckAgent(object):
         np.copyto(self._teleport_buffer, location)
         np.copyto(self._teleport_bool_buffer, True)
 
+    def get_setting(self, setting_index):
+        return self._settings_buffer[setting_index]
+
     @property
     def action_space(self):
         raise NotImplementedError()
 
     def __action_space_shape__(self):
         raise NotImplementedError()
+
+    def __setting_space_shape__(self):
+        """Total number of items in the agent settings
+        It is to be implemented by every subclass.
+        """
+        raise NotImplementedError
 
     def __act__(self, action):
         # The default act function is to copy the data,
@@ -39,6 +52,9 @@ class UAVAgent(HolodeckAgent):
     def __action_space_shape__(self):
         return [4]
 
+    def __setting_space_shape__(self):
+        return [26]  # This is the total number of constants in the c++ code that get exported.
+
 
 class ContinuousSphereAgent(HolodeckAgent):
     @property
@@ -48,6 +64,9 @@ class ContinuousSphereAgent(HolodeckAgent):
 
     def __action_space_shape__(self):
         return [2]
+
+    def __setting_space_shape__(self):
+        return [0]
 
 
 class DiscreteSphereAgent(HolodeckAgent):
@@ -64,6 +83,9 @@ class DiscreteSphereAgent(HolodeckAgent):
 
         np.copyto(self._action_buffer, to_act)
 
+    def __setting_space_shape__(self):
+        return [0]
+
 
 class AndroidAgent(HolodeckAgent):
     @property
@@ -73,6 +95,8 @@ class AndroidAgent(HolodeckAgent):
     def __action_space_shape__(self):
         return [127]
 
+    def __setting_space_shape__(self):
+        return [0]
 
 class NavAgent(HolodeckAgent):
     @property
@@ -81,3 +105,6 @@ class NavAgent(HolodeckAgent):
 
     def __action_space_shape__(self):
         return [3]
+
+    def __setting_space_shape__(self):
+        return [0]
