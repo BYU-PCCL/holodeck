@@ -6,6 +6,7 @@ import atexit
 import os
 import numpy as np
 from copy import copy
+import struct
 
 from .Agents import *
 from .Exceptions import HolodeckException
@@ -94,8 +95,8 @@ class HolodeckEnvironment(object):
         # Subscribe settings
         self._reset_ptr = self._client.subscribe_setting("RESET", [1], np.bool)
         self._reset_ptr[0] = False
-        self._command_bool_ptr = self._client.subscribe_setting("CommandBufferBool", [1], np.bool)
-        self._command_buffer_ptr = self._client.subscribe_setting("Commandbuffer", [int(1048576 / 8)], np.byte)
+        self._command_bool_ptr = self._client.subscribe_setting("command_bool", [1], np.bool)
+        self._command_buffer_ptr = self._client.subscribe_setting("command_buffer", [int(1048576 / 8)], np.byte)
 
         # Subscribe sensors
         for agent in agent_definitions:
@@ -185,11 +186,20 @@ class HolodeckEnvironment(object):
             self._sensor_map[agent_name][sensors] = self._client.get_sensor(agent_name, Sensors.name(sensors))
 
     def write_to_command_buffer(self, to_write):
+        print("write_to_command_buffer() called")
+        if self._command_bool_ptr[0] == False:
+            print("The bool was false before entering the command!")
+            np.copyto(self._command_bool_ptr, True)
+        if self._command_bool_ptr[0]:
+            print("the bool was successfully set to True")
         to_write += '0'
         input_bytes = str.encode(to_write)
         type(input_bytes)
-        np.copyto(self._command_buffer_ptr, to_write)
-        self._command_bool_ptr[0] = True
+        index = 0
+        for val in input_bytes:
+            self._command_buffer_ptr[index] = val
+            index += 1
+
 
     def __linux_start_process__(self, binary_path, task_key, gl_version):
         import posix_ipc
