@@ -1,4 +1,3 @@
-from gym import spaces
 import numpy as np
 
 
@@ -34,7 +33,9 @@ class HolodeckAgent(object):
 class UAVAgent(HolodeckAgent):
     @property
     def action_space(self):
-        return spaces.Box(-1, 3.5, shape=[4])
+        # TODO(joshgreaves) : Remove dependency on gym
+        # return spaces.Box(-1, 3.5, shape=[4])
+        pass
 
     def __action_space_shape__(self):
         return [4]
@@ -43,8 +44,9 @@ class UAVAgent(HolodeckAgent):
 class ContinuousSphereAgent(HolodeckAgent):
     @property
     def action_space(self):
-        # return spaces.Box(-1, 1, shape=[2])
-        return spaces.Box(np.array([-1, -.25]), np.array([1, .25]))
+        # TODO(joshgreaves) : Remove dependency on gym
+        # return spaces.Box(np.array([-1, -.25]), np.array([1, .25]))
+        pass
 
     def __action_space_shape__(self):
         return [2]
@@ -53,7 +55,9 @@ class ContinuousSphereAgent(HolodeckAgent):
 class DiscreteSphereAgent(HolodeckAgent):
     @property
     def action_space(self):
-        return spaces.Discrete(4)
+        # TODO(joshgreaves) : Remove dependency on gym
+        # return spaces.Discrete(4)
+        pass
 
     def __action_space_shape__(self):
         return [2]
@@ -68,7 +72,9 @@ class DiscreteSphereAgent(HolodeckAgent):
 class AndroidAgent(HolodeckAgent):
     @property
     def action_space(self):
-        return spaces.Box(-1000, 1000, shape=[127])
+        # TODO(joshgreaves) : Remove dependency on gym
+        # return spaces.Box(-1000, 1000, shape=[127])
+        pass
 
     def __action_space_shape__(self):
         return [127]
@@ -77,7 +83,9 @@ class AndroidAgent(HolodeckAgent):
 class NavAgent(HolodeckAgent):
     @property
     def action_space(self):
-        return spaces.Box(-10000, 10000, shape=[3])
+        # TODO(joshgreaves) : Remove dependency on gym
+        # return spaces.Box(-10000, 10000, shape=[3])
+        pass
 
     def __action_space_shape__(self):
         return [3]

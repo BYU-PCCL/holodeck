@@ -1,10 +1,11 @@
-import mmap
-import numpy as np
-import os
 import ctypes
+import mmap
+import os
 from functools import reduce
 
-from .exceptions import HolodeckException
+import numpy as np
+
+from holodeck.exceptions import HolodeckException
 
 
 class Shmem:

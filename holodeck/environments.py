@@ -1,16 +1,15 @@
 """This module contains the high level interface for interacting with Holodeck.
 It specifies an environment, which contains a number of agents, and the interface for communicating with the agents.
 """
-import subprocess
 import atexit
 import os
-import numpy as np
+import subprocess
 from copy import copy
 
-from .agents import *
-from .exceptions import HolodeckException
-from .shmemclient import ShmemClient
-from .sensors import Sensors
+from holodeck.agents import *
+from holodeck.exceptions import HolodeckException
+from holodeck.sensors import Sensors
+from holodeck.shmemclient import ShmemClient
 
 
 class AgentDefinition(object):

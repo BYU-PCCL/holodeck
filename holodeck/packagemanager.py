@@ -1,12 +1,12 @@
 import json
 import os
+import shutil
 import sys
+import tempfile
 import urllib.request
 import zipfile
 from queue import Queue
 from threading import Thread
-import tempfile
-import shutil
 
 from holodeck import util
 from holodeck.exceptions import HolodeckException
@@ -22,7 +22,45 @@ def all_packages():
 
 
 def installed_packages():
-    return [x for x, _ in _iter_packages()]
+    return [x["name"] for x, _ in _iter_packages()]
+
+
+def package_info(pkg_name):
+    indent = "  "
+    for config, _ in _iter_packages():
+        if pkg_name == config["name"]:
+            print("Package:", pkg_name)
+            print(indent, "Platform:", config["platform"])
+            print(indent, "Version:", config["version"])
+            print(indent, "Path:", config["path"])
+            print(indent, "Worlds:")
+            for world in config["maps"]:
+                world_info(world["name"], world_config=world, initial_indent="    ")
+
+
+def world_info(world_name, world_config=None, initial_indent="", next_indent="  "):
+    if world_config is None:
+        for config, _ in _iter_packages():
+            for world in config["maps"]:
+                if world["name"] == world_name:
+                    world_config = world
+
+    if world_config is None:
+        raise HolodeckException("Couldn't find world " + world_name)
+
+    second_indent = initial_indent + next_indent
+    agent_indent = second_indent + next_indent
+    sensor_indent = agent_indent + next_indent
+
+    print(initial_indent, world_config["name"])
+    print(second_indent, "Resolution:", world_config["resx"], "x", world_config["resy"])
+    print(second_indent, "Agents:")
+    for agent in world_config["agents"]:
+        print(agent_indent, "Name:", agent["agent_name"])
+        print(agent_indent, "Type:", agent["agent_type"])
+        print(agent_indent, "Sensors:")
+        for sensor in agent["sensors"]:
+            print(sensor_indent, sensor)
 
 
 def install(package_name):
@@ -42,8 +80,8 @@ def install(package_name):
 def remove(package_name):
     if package_name not in packages:
         raise HolodeckException("Unknown package name " + package_name)
-    for name, path in _iter_packages():
-        if name == package_name:
+    for config, path in _iter_packages():
+        if config["name"] == package_name:
             shutil.rmtree(path)
 
 
@@ -59,7 +97,7 @@ def _iter_packages():
                         config = json.load(f)
                         if sys.version_info[0] < 3:
                             config = util.convert_unicode(config)
-                        yield config["name"], full_path
+                        yield config, full_path
 
 
 def _download_binary(binary_location, worlds_path, block_size=1000000):

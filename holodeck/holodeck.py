@@ -1,10 +1,10 @@
-import json
-import sys
+import os
 import uuid
+from copy import copy
 
-from .util import get_holodeck_path, convert_unicode
-from .environments import *
-from .exceptions import HolodeckException
+from holodeck.environments import HolodeckEnvironment, AgentDefinition
+from holodeck.exceptions import HolodeckException
+from holodeck.packagemanager import _iter_packages
 
 
 class GL_VERSION(object):
@@ -14,25 +14,14 @@ class GL_VERSION(object):
 
 def _get_worlds_map():
     holodeck_worlds = dict()
-    # Load in all downloaded worlds
-    holodeck_path = get_holodeck_path()
-    worlds_path = os.path.join(holodeck_path, "worlds")
-    for dir_name in os.listdir(worlds_path):
-        full_path = os.path.join(worlds_path, dir_name)
-        if os.path.isdir(full_path):
-            for file_name in os.listdir(full_path):
-                if file_name == "config.json":
-                    with open(os.path.join(full_path, file_name), 'r') as f:
-                        config = json.load(f)
-                        if sys.version_info[0] < 3:
-                            config = convert_unicode(config)
-                    for level in config["maps"]:
-                        holodeck_worlds[level["name"]] = {
-                            "agent_definitions": [AgentDefinition(**x) for x in level["agents"]],
-                            "binary_path": os.path.join(full_path, config["path"]),
-                            "task_key": level["name"],
-                            "height": level["resy"],
-                            "width": level["resx"]}
+    for config, path in _iter_packages():
+        for level in config["maps"]:
+            holodeck_worlds[level["name"]] = {
+                "agent_definitions": [AgentDefinition(**x) for x in level["agents"]],
+                "binary_path": os.path.join(path, config["path"]),
+                "task_key": level["name"],
+                "height": level["resy"],
+                "width": level["resx"]}
     return holodeck_worlds
 
 
