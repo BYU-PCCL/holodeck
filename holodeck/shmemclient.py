@@ -2,8 +2,8 @@ import os
 import numpy as np
 from itertools import chain
 
-from .Shmem import Shmem
-from .Exceptions import HolodeckException
+from .shmem import Shmem
+from .exceptions import HolodeckException
 
 
 class ShmemClient:

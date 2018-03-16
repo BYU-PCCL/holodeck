@@ -1,9 +1,10 @@
 import json
-import uuid
 import sys
+import uuid
 
-from .Environments import *
-from .Exceptions import HolodeckException
+from .util import get_holodeck_path, convert_unicode
+from .environments import *
+from .exceptions import HolodeckException
 
 
 class GL_VERSION(object):
@@ -13,10 +14,8 @@ class GL_VERSION(object):
 
 def _get_worlds_map():
     holodeck_worlds = dict()
-    # Load in all existing worlds
-    holodeck_path = os.environ["HOLODECKPATH"]
-    if holodeck_path == "":
-        raise HolodeckException("Couldn't find environment variable HOLODECKWORLDS.")
+    # Load in all downloaded worlds
+    holodeck_path = get_holodeck_path()
     worlds_path = os.path.join(holodeck_path, "worlds")
     for dir_name in os.listdir(worlds_path):
         full_path = os.path.join(worlds_path, dir_name)
@@ -26,7 +25,7 @@ def _get_worlds_map():
                     with open(os.path.join(full_path, file_name), 'r') as f:
                         config = json.load(f)
                         if sys.version_info[0] < 3:
-                            config = _convert_unicode(config)
+                            config = convert_unicode(config)
                     for level in config["maps"]:
                         holodeck_worlds[level["name"]] = {
                             "agent_definitions": [AgentDefinition(**x) for x in level["agents"]],
@@ -35,19 +34,6 @@ def _get_worlds_map():
                             "height": level["resy"],
                             "width": level["resx"]}
     return holodeck_worlds
-
-
-# Resolves python 2 issue with json loading in unicode instead of string
-def _convert_unicode(value):
-    if isinstance(value, dict):
-        return {_convert_unicode(key): _convert_unicode(value)
-                for key, value in value.iteritems()}
-    elif isinstance(value, list):
-            return [_convert_unicode(item) for item in value]
-    elif isinstance(value, unicode):
-        return value.encode('utf-8')
-    else:
-        return value
 
 
 def make(world, gl_version=GL_VERSION.OPENGL4):

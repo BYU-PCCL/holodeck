@@ -7,14 +7,14 @@ import os
 import numpy as np
 from copy import copy
 
-from .Agents import *
-from .Exceptions import HolodeckException
-from .ShmemClient import ShmemClient
-from .Sensors import Sensors
+from .agents import *
+from .exceptions import HolodeckException
+from .shmemclient import ShmemClient
+from .sensors import Sensors
 
 
 class AgentDefinition(object):
-    """A class for declaring what agents are expected in a particular Holodeck Environment."""
+    """A class for declaring what agents are expected in a particular holodeck Environment."""
     __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
                       "UAVAgent": UAVAgent,
                       "NavAgent": NavAgent,
@@ -49,7 +49,7 @@ class AgentDefinition(object):
 
 
 class HolodeckEnvironment(object):
-    """The high level interface for interacting with a Holodeck Environment"""
+    """The high level interface for interacting with a holodeck Environment"""
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, height=512, width=512,
                  start_world=True, uuid="", gl_version=4):
@@ -64,7 +64,7 @@ class HolodeckEnvironment(object):
         height -- The height to load the binary at (default 512)
         width -- The width to load the binary at (default 512)
         start_world -- Whether to load a binary or not (default True)
-        uuid -- A unique identifier, used when running multiple instances of Holodeck (default "")
+        uuid -- A unique identifier, used when running multiple instances of holodeck (default "")
         gl_version -- The version of OpenGL to use for Linux (default 4)
         """
         self._height = height

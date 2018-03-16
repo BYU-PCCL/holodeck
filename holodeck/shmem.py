@@ -4,7 +4,7 @@ import os
 import ctypes
 from functools import reduce
 
-from .Exceptions import HolodeckException
+from .exceptions import HolodeckException
 
 
 class Shmem:
