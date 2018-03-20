@@ -1,4 +1,5 @@
-"""This module contains the high level interface for interacting with Holodeck.
+"""Module containing the environment interface for Holodeck.
+An environment contains all elements required to communicate with a world binary or HolodeckCore editor.
 It specifies an environment, which contains a number of agents, and the interface for communicating with the agents.
 """
 import atexit
@@ -22,7 +23,7 @@ class AgentDefinition(object):
                       NavAgent: NavAgent}
 
     @staticmethod
-    def __convert_sensors__(sensors):
+    def __convert_sensors(sensors):
         result = []
         for sensor in sensors:
             if type(sensor) == str:
@@ -38,17 +39,17 @@ class AgentDefinition(object):
         agent_name -- The name of the agent to control
         agent_type -- The type of HolodeckAgent to control, string or class reference
 
-        Keyword arguments:
+        Keyword Arguments:
         sensors -- A list of HolodeckSensors to read from this agent, string or class reference (default empty)
         """
         super(AgentDefinition, self).__init__()
         self.name = agent_name
         self.type = AgentDefinition.__agent_keys__[agent_type]
-        self.sensors = AgentDefinition.__convert_sensors__(sensors)
+        self.sensors = AgentDefinition.__convert_sensors(sensors)
 
 
 class HolodeckEnvironment(object):
-    """The high level interface for interacting with a holodeck Environment"""
+    """The high level interface for interacting with a Holodeck world"""
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, height=512, width=512,
                  start_world=True, uuid="", gl_version=4):
@@ -79,7 +80,7 @@ class HolodeckEnvironment(object):
                 raise HolodeckException("Unknown platform: " + os.name)
 
         # Set up the agents
-        agent_definitions = [agent_definitions] if type(agent_definitions) != list else agent_definitions
+        self._agent_definitions = [agent_definitions] if type(agent_definitions) != list else agent_definitions
         self._client = ShmemClient(self._uuid)
         self._all_agents = self._prepare_agents(agent_definitions)
         self._agent = self._all_agents[0]
@@ -111,6 +112,23 @@ class HolodeckEnvironment(object):
         """Gives the observation space for the main agent."""
         # TODO(joshgreaves) : Implement this
         raise NotImplementedError()
+
+    def info(self):
+        """Returns a string with specific information about the environment."""
+        result = list()
+        result.append("Agents:\n")
+        for agent in self._agent_definitions:
+            result.append("\tName: ")
+            result.append(agent.name)
+            result.append("\n\tType: ")
+            result.append(agent.type.__name__)
+            result.append("\n\t")
+            result.append("Sensors:\n")
+            for sensor in agent.sensors:
+                result.append("\t\t")
+                result.append(Sensors.name(sensor))
+                result.append("\n")
+        return "".join(result)
 
     def reset(self):
         """Resets the environment, and returns the state.

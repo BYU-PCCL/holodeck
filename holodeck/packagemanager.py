@@ -22,10 +22,16 @@ def all_packages():
 
 
 def installed_packages():
+    """Returns a list of all installed packages"""
     return [x["name"] for x, _ in _iter_packages()]
 
 
 def package_info(pkg_name):
+    """Prints the information of a package.
+
+    Positional Arguments:
+    pkg_name -- The name of the package to get information for
+    """
     indent = "  "
     for config, _ in _iter_packages():
         if pkg_name == config["name"]:
@@ -39,6 +45,14 @@ def package_info(pkg_name):
 
 
 def world_info(world_name, world_config=None, initial_indent="", next_indent="  "):
+    """Gets the information of a world.
+
+    Positional Arguments:
+    world_name -- the name of the world to retrieve information for
+    world_config -- A dictionary containing the world's configuration. Will find the config if None (default None)
+    initial_indent -- This indent will apply to each output line (default "")
+    next_indent -- This indent will be applied within each nested line (default "  ")
+    """
     if world_config is None:
         for config, _ in _iter_packages():
             for world in config["maps"]:
@@ -64,7 +78,11 @@ def world_info(world_name, world_config=None, initial_indent="", next_indent="  
 
 
 def install(package_name):
-    # Install constants
+    """Installs a holodeck package.
+
+    Positional Arguments:
+    package_name -- the name of the package to install
+    """
     binary_website = "http://pcc.byu.edu/holodeck/"
 
     if package_name not in packages:
@@ -78,6 +96,11 @@ def install(package_name):
 
 
 def remove(package_name):
+    """Removes a holodeck package.
+
+    Positional Arguments:
+    package_name -- the name of the package to remove
+    """
     if package_name not in packages:
         raise HolodeckException("Unknown package name " + package_name)
     for config, path in _iter_packages():

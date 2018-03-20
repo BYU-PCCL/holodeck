@@ -1,3 +1,5 @@
+"""Holodeck is a high fidelity simulator for reinforcement learning.
+"""
 import os
 import json
 import sys

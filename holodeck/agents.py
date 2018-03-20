@@ -29,6 +29,9 @@ class HolodeckAgent(object):
         # but if needed it can be overridden
         np.copyto(self._action_buffer, action)
 
+    def __repr__(self):
+        return "HolodeckAgent"
+
 
 class UAVAgent(HolodeckAgent):
     @property
@@ -40,6 +43,9 @@ class UAVAgent(HolodeckAgent):
     def __action_space_shape__(self):
         return [4]
 
+    def __repr__(self):
+        return "UAVAgent"
+
 
 class ContinuousSphereAgent(HolodeckAgent):
     @property
@@ -50,6 +56,9 @@ class ContinuousSphereAgent(HolodeckAgent):
 
     def __action_space_shape__(self):
         return [2]
+
+    def __repr__(self):
+        return "ContinuousSphereAgent"
 
 
 class DiscreteSphereAgent(HolodeckAgent):
@@ -68,6 +77,9 @@ class DiscreteSphereAgent(HolodeckAgent):
 
         np.copyto(self._action_buffer, to_act)
 
+    def __repr__(self):
+        return "DiscreteSphereAgent"
+
 
 class AndroidAgent(HolodeckAgent):
     @property
@@ -79,6 +91,9 @@ class AndroidAgent(HolodeckAgent):
     def __action_space_shape__(self):
         return [127]
 
+    def __repr__(self):
+        return "AndroidAgent"
+
 
 class NavAgent(HolodeckAgent):
     @property
@@ -89,3 +104,6 @@ class NavAgent(HolodeckAgent):
 
     def __action_space_shape__(self):
         return [3]
+
+    def __repr__(self):
+        return "NavAgent"
