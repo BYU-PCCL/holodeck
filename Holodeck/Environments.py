@@ -4,11 +4,8 @@ It specifies an environment, which contains a number of agents, and the interfac
 import subprocess
 import atexit
 import os
-import numpy as np
 from copy import copy
-import struct
 
-from .Agents import *
 from .command import *
 from .Exceptions import HolodeckException
 from .ShmemClient import ShmemClient
@@ -230,7 +227,7 @@ class HolodeckEnvironment(object):
         to_write -- The string to write to the command buffer."""
         # TODO(mitch): Handle the edge case of writing too much data to the buffer.
         np.copyto(self._command_bool_ptr, True)
-        to_write += '0'  # The gason parser for JSON expects a 0 at the end of the file. Without this it won't terminate
+        to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
         input_bytes = str.encode(to_write)
         for index, val in enumerate(input_bytes):
             self._command_buffer_ptr[index] = val
