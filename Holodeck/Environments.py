@@ -9,6 +9,7 @@ from copy import copy
 import struct
 
 from .Agents import *
+from .Command import *
 from .Exceptions import HolodeckException
 from .ShmemClient import ShmemClient
 from .Sensors import Sensors
@@ -98,6 +99,10 @@ class HolodeckEnvironment(object):
         self._command_bool_ptr = self._client.subscribe_setting("command_bool", [1], np.bool)
         self._command_buffer_ptr = self._client.subscribe_setting("command_buffer", [int(1048576 / 8)], np.byte)
 
+        # ._commands holds commands that are queued up to write to the command buffer on tick.
+        self._commands = Commands()
+        self._should_write_to_command_buffer = False
+
         # Subscribe sensors
         for agent in agent_definitions:
             self.add_state_sensors(agent.name, [Sensors.TERMINAL, Sensors.REWARD])
@@ -139,6 +144,8 @@ class HolodeckEnvironment(object):
         """
         self._agent.act(action)
 
+        self.handle_command_buffer()
+
         self._client.release()
         self._client.acquire()
 
@@ -151,6 +158,23 @@ class HolodeckEnvironment(object):
         """
         self._agent_dict[agent_name].teleport(location)
 
+    def handle_command_buffer(self):
+        if self._should_write_to_command_buffer:
+            self.write_to_command_buffer(self._commands.to_json())
+            self._should_write_to_command_buffer = False
+
+    def spawn_agent(self, agent_definition, location):
+        self._should_write_to_command_buffer = True
+        # set up the shared memory for the client binding (this code)
+        prepared_agent = self._prepare_agents(agent_definition)
+        self._all_agents.append(prepared_agent[0])
+        self._agent_dict[prepared_agent[0].name] = prepared_agent[0]
+        self.add_state_sensors(agent_definition.name, [Sensors.TERMINAL, Sensors.REWARD])
+        self.add_state_sensors(agent_definition.name, agent_definition.sensors)
+        # Make the command and write it to the command buffer.
+        command_to_send = SpawnAgentCommand(location, agent_definition.name, agent_definition.type)
+        self._commands.add_command(command_to_send)
+
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
 
@@ -162,6 +186,7 @@ class HolodeckEnvironment(object):
 
     def tick(self):
         """Ticks the environment once. Returns a dict from agent name to state."""
+        self.handle_command_buffer()
         self._client.release()
         self._client.acquire()
         return self._get_full_state()
@@ -186,12 +211,7 @@ class HolodeckEnvironment(object):
             self._sensor_map[agent_name][sensors] = self._client.get_sensor(agent_name, Sensors.name(sensors))
 
     def write_to_command_buffer(self, to_write):
-        print("write_to_command_buffer() called")
-        if self._command_bool_ptr[0] == False:
-            print("The bool was false before entering the command!")
-            np.copyto(self._command_bool_ptr, True)
-        if self._command_bool_ptr[0]:
-            print("the bool was successfully set to True")
+        np.copyto(self._command_bool_ptr, True)
         to_write += '0'
         input_bytes = str.encode(to_write)
         type(input_bytes)
@@ -199,7 +219,6 @@ class HolodeckEnvironment(object):
         for val in input_bytes:
             self._command_buffer_ptr[index] = val
             index += 1
-
 
     def __linux_start_process__(self, binary_path, task_key, gl_version):
         import posix_ipc
