@@ -159,11 +159,23 @@ class HolodeckEnvironment(object):
         self._agent_dict[agent_name].teleport(location)
 
     def handle_command_buffer(self):
+        """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
+        clears the contents of the self._commands list"""
         if self._should_write_to_command_buffer:
             self.write_to_command_buffer(self._commands.to_json())
             self._should_write_to_command_buffer = False
+            self._commands.clear()
 
     def spawn_agent(self, agent_definition, location):
+        """Queues up a spawn agent command to be written to the command buffer. It will open up the respective buffers
+        needed for sending commands to and receiving data from the agent.
+
+        Positional arguments:
+        agent_definition -- This is the agent to spawn, its name, and the buffers to open for the sensors. Use the
+        AgentDefinition class.
+        location -- The position to spawn the agent in the world, in XYZ coordinates. Expects a list, and must be 3
+        arguments.
+        """
         self._should_write_to_command_buffer = True
         # set up the shared memory for the client binding (this code)
         prepared_agent = self._prepare_agents(agent_definition)
@@ -211,10 +223,14 @@ class HolodeckEnvironment(object):
             self._sensor_map[agent_name][sensors] = self._client.get_sensor(agent_name, Sensors.name(sensors))
 
     def write_to_command_buffer(self, to_write):
+        """Writes to the command buffer. It will handle converting the string to the correct format.
+
+        Positional arguments:
+        to_write -- The string to write to the command buffer."""
+        # TODO(mitch): Handle the edge case of writing too much data to the buffer.
         np.copyto(self._command_bool_ptr, True)
-        to_write += '0'
+        to_write += '0'  # The gason parser for JSON expects a 0 at the end of the file.
         input_bytes = str.encode(to_write)
-        type(input_bytes)
         index = 0
         for val in input_bytes:
             self._command_buffer_ptr[index] = val

@@ -1,8 +1,8 @@
-import numpy as np
 from .Agents import *
 
 
 class Commands(object):
+    """Holds Command objects in a list, and when requested packages everything in the correct json format"""
     def __init__(self):
         self._commands = []
 
@@ -18,9 +18,12 @@ class Commands(object):
         to_return += "]}"
         return to_return
 
+    def clear(self):
+        self._commands.clear()
+
 
 class Command(object):
-
+    """Base class for Command objects. Can return itself in json format. You must set the command type."""
     def __init__(self):
         self._number_parameters = []
         self._string_parameters = []
@@ -30,13 +33,13 @@ class Command(object):
         self._command_type = command_type
 
     def add_number_parameters(self, number):
-        if type(number) == list:
+        if isinstance(number, list):
             self._number_parameters.extend(number)
             return
         self._number_parameters.append(number)
 
     def add_string_parameters(self, string):
-        if type(string) == list:
+        if isinstance(string, list):
             self._string_parameters.extend(string)
             return
         self._string_parameters.append(string)
@@ -55,6 +58,7 @@ class Command(object):
 
 
 class SpawnAgentCommand(Command):
+    """Holds the information to be sent to Holodeck that is needed for spawning an agent."""
     __type_keys__ = {
         DiscreteSphereAgent: "SphereRobot",
         UAVAgent: "UAV",
