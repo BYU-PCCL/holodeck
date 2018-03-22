@@ -9,7 +9,7 @@ from copy import copy
 import struct
 
 from .Agents import *
-from .Command import *
+from .command import *
 from .Exceptions import HolodeckException
 from .ShmemClient import ShmemClient
 from .Sensors import Sensors
@@ -97,10 +97,11 @@ class HolodeckEnvironment(object):
         self._reset_ptr = self._client.subscribe_setting("RESET", [1], np.bool)
         self._reset_ptr[0] = False
         self._command_bool_ptr = self._client.subscribe_setting("command_bool", [1], np.bool)
-        self._command_buffer_ptr = self._client.subscribe_setting("command_buffer", [int(1048576 / 8)], np.byte)
+        megabyte = 1048576  # This is the size of the command buffer that Holodeck expects/will read.
+        self._command_buffer_ptr = self._client.subscribe_setting("command_buffer", [megabyte], np.byte)
 
         # ._commands holds commands that are queued up to write to the command buffer on tick.
-        self._commands = Commands()
+        self._commands = CommandsGroup()
         self._should_write_to_command_buffer = False
 
         # Subscribe sensors
@@ -229,12 +230,10 @@ class HolodeckEnvironment(object):
         to_write -- The string to write to the command buffer."""
         # TODO(mitch): Handle the edge case of writing too much data to the buffer.
         np.copyto(self._command_bool_ptr, True)
-        to_write += '0'  # The gason parser for JSON expects a 0 at the end of the file.
+        to_write += '0'  # The gason parser for JSON expects a 0 at the end of the file. Without this it won't terminate
         input_bytes = str.encode(to_write)
-        index = 0
-        for val in input_bytes:
+        for index, val in enumerate(input_bytes):
             self._command_buffer_ptr[index] = val
-            index += 1
 
     def __linux_start_process__(self, binary_path, task_key, gl_version):
         import posix_ipc
