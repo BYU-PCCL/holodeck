@@ -4,10 +4,9 @@ It specifies an environment, which contains a number of agents, and the interfac
 import subprocess
 import atexit
 import os
-import numpy as np
 from copy import copy
 
-from .Agents import *
+from .command import *
 from .Exceptions import HolodeckException
 from .ShmemClient import ShmemClient
 from .Sensors import Sensors
@@ -94,6 +93,13 @@ class HolodeckEnvironment(object):
         # Subscribe settings
         self._reset_ptr = self._client.subscribe_setting("RESET", [1], np.bool)
         self._reset_ptr[0] = False
+        self._command_bool_ptr = self._client.subscribe_setting("command_bool", [1], np.bool)
+        megabyte = 1048576  # This is the size of the command buffer that Holodeck expects/will read.
+        self._command_buffer_ptr = self._client.subscribe_setting("command_buffer", [megabyte], np.byte)
+
+        # ._commands holds commands that are queued up to write to the command buffer on tick.
+        self._commands = CommandsGroup()
+        self._should_write_to_command_buffer = False
 
         # Subscribe sensors
         for agent in agent_definitions:
@@ -136,6 +142,8 @@ class HolodeckEnvironment(object):
         """
         self._agent.act(action)
 
+        self._handle_command_buffer()
+
         self._client.release()
         self._client.acquire()
 
@@ -148,6 +156,35 @@ class HolodeckEnvironment(object):
         """
         self._agent_dict[agent_name].teleport(location)
 
+    def _handle_command_buffer(self):
+        """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
+        clears the contents of the self._commands list"""
+        if self._should_write_to_command_buffer:
+            self.write_to_command_buffer(self._commands.to_json())
+            self._should_write_to_command_buffer = False
+            self._commands.clear()
+
+    def spawn_agent(self, agent_definition, location):
+        """Queues up a spawn agent command to be written to the command buffer. It will open up the respective buffers
+        needed for sending commands to and receiving data from the agent.
+
+        Positional arguments:
+        agent_definition -- This is the agent to spawn, its name, and the buffers to open for the sensors. Use the
+        AgentDefinition class.
+        location -- The position to spawn the agent in the world, in XYZ coordinates. Expects a list, and must be 3
+        arguments.
+        """
+        self._should_write_to_command_buffer = True
+        # set up the shared memory for the client binding (this code)
+        prepared_agent = self._prepare_agents(agent_definition)
+        self._all_agents.append(prepared_agent[0])
+        self._agent_dict[prepared_agent[0].name] = prepared_agent[0]
+        self.add_state_sensors(agent_definition.name, [Sensors.TERMINAL, Sensors.REWARD])
+        self.add_state_sensors(agent_definition.name, agent_definition.sensors)
+        # Make the command and write it to the command buffer.
+        command_to_send = SpawnAgentCommand(location, agent_definition.name, agent_definition.type)
+        self._commands.add_command(command_to_send)
+
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
 
@@ -159,6 +196,7 @@ class HolodeckEnvironment(object):
 
     def tick(self):
         """Ticks the environment once. Returns a dict from agent name to state."""
+        self._handle_command_buffer()
         self._client.release()
         self._client.acquire()
         return self._get_full_state()
@@ -181,6 +219,18 @@ class HolodeckEnvironment(object):
             if agent_name not in self._sensor_map:
                 self._sensor_map[agent_name] = dict()
             self._sensor_map[agent_name][sensors] = self._client.get_sensor(agent_name, Sensors.name(sensors))
+
+    def write_to_command_buffer(self, to_write):
+        """Writes to the command buffer. It will handle converting the string to the correct format.
+
+        Positional arguments:
+        to_write -- The string to write to the command buffer."""
+        # TODO(mitch): Handle the edge case of writing too much data to the buffer.
+        np.copyto(self._command_bool_ptr, True)
+        to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
+        input_bytes = str.encode(to_write)
+        for index, val in enumerate(input_bytes):
+            self._command_buffer_ptr[index] = val
 
     def __linux_start_process__(self, binary_path, task_key, gl_version):
         import posix_ipc
