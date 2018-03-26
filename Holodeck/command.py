@@ -27,11 +27,17 @@ class Command(object):
         self._command_type = ""
 
     def set_command_type(self, command_type):
-        """Sets the type of the command"""
+        """Sets the type of the command
+        Positional Arguments:
+        command_type -- This is the name of the command that it will be set to.
+        """
         self._command_type = command_type
 
     def add_number_parameters(self, number):
-        """Adds number parameters to the list"""
+        """Adds number parameters to the list
+        Positional Arguments:
+        number -- A number or list of numbers to add to the parameters.
+        """
         if isinstance(number, list):
             for x in number:
                 self.add_number_parameters(x)
@@ -39,7 +45,10 @@ class Command(object):
         self._parameters.append("{ \"value\": " + str(number) + " }")
 
     def add_string_parameters(self, string):
-        """Adds string parameters to the list"""
+        """Adds string parameters to the list
+        Positional Arguments:
+        string -- A string or list of strings to add to the parameters.
+        """
         if isinstance(string, list):
             for x in string:
                 self.add_string_parameters(x)
@@ -75,17 +84,27 @@ class SpawnAgentCommand(Command):
         self.set_name(name)
 
     def set_location(self, location):
-        """Set the location to spawn the agent at"""
+        """Sets the location to spawn the agent at
+        Positional Arguments:
+        location -- XYZ coordinate of where to spawn the agent.
+        """
         if len(location) != 3:
             print("Invalid location given to spawn agent command")
             return
         self.add_number_parameters(location)
 
     def set_name(self, name):
-        """Sets the name to give the agent"""
+        """Sets the name to give the agent
+        Positional Arguments:
+        name -- The name to set the agent to.
+        """
         self.add_string_parameters(name)
 
     def set_type(self, agent_type):
-        """Sets the type of agent to spawn in Holodeck"""
+        """Sets the type of agent to spawn in Holodeck. Currently accepted agents are: DiscreteSphereAgent, UAVAgent,
+        and AndroidAgent.
+        Positional Arguments:
+        agent_type -- The type of agent to spawn.
+        """
         type_str = SpawnAgentCommand.__type_keys[agent_type]
         self.add_string_parameters(type_str)

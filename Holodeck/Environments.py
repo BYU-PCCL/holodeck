@@ -142,7 +142,7 @@ class HolodeckEnvironment(object):
         """
         self._agent.act(action)
 
-        self.handle_command_buffer()
+        self._handle_command_buffer()
 
         self._client.release()
         self._client.acquire()
@@ -156,7 +156,7 @@ class HolodeckEnvironment(object):
         """
         self._agent_dict[agent_name].teleport(location)
 
-    def handle_command_buffer(self):
+    def _handle_command_buffer(self):
         """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
         clears the contents of the self._commands list"""
         if self._should_write_to_command_buffer:
@@ -196,7 +196,7 @@ class HolodeckEnvironment(object):
 
     def tick(self):
         """Ticks the environment once. Returns a dict from agent name to state."""
-        self.handle_command_buffer()
+        self._handle_command_buffer()
         self._client.release()
         self._client.acquire()
         return self._get_full_state()
