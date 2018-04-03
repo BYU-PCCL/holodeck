@@ -18,7 +18,8 @@ class AgentDefinition(object):
     __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
                       "UAVAgent": UAVAgent,
                       DiscreteSphereAgent: DiscreteSphereAgent,
-                      UAVAgent: UAVAgent}
+                      UAVAgent: UAVAgent,
+                      AndroidAgent: AndroidAgent}
 
     @staticmethod
     def __convert_sensors__(sensors):
