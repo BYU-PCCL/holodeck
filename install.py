@@ -59,8 +59,6 @@ def linux_installation():
         print("Unable to find path: " + path)
         return
 
-    path = expanduser(path)
-
     try:
         base_path = os.path.join(path, "Holodeck")
         worlds_path = os.path.join(base_path, "worlds")
