@@ -13,6 +13,7 @@ holodeck_binary_website = "http://pcc.byu.edu/holodeck/"
 holodeck_binary_name = "DefaultWorlds_1.02.zip"
 block_size = 1000000  # 1mb
 
+
 def _setup_binary(binary_location, worlds_path):
     def file_writer_worker(path, length, q):
         amount_written = 0
