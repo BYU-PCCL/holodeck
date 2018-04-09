@@ -26,7 +26,7 @@ class AgentDefinition(object):
     def __convert_sensors(sensors):
         result = []
         for sensor in sensors:
-            if type(sensor) == str:
+            if isinstance(sensor, str):
                 result.append(Sensors.name_to_sensor(sensor))
             else:
                 result.append(sensor)
@@ -80,7 +80,7 @@ class HolodeckEnvironment(object):
                 raise HolodeckException("Unknown platform: " + os.name)
 
         # Set up the agents
-        self._agent_definitions = [agent_definitions] if type(agent_definitions) != list else agent_definitions
+        self._agent_definitions = [agent_definitions] if isinstance(agent_definitions, list) else agent_definitions
         self._client = ShmemClient(self._uuid)
         self._all_agents = self._prepare_agents(agent_definitions)
         self._agent = self._all_agents[0]
@@ -187,7 +187,7 @@ class HolodeckEnvironment(object):
         agent_name -- The name of the agent to add the sensor to
         sensors -- A list of, or single sensor to add to the agent
         """
-        if type(sensors) == list:
+        if isinstance(sensors, list):
             for sensor in sensors:
                 self.add_state_sensors(agent_name, sensor)
         else:
@@ -248,6 +248,6 @@ class HolodeckEnvironment(object):
         return copy(self._sensor_map)
 
     def _prepare_agents(self, agent_definitions):
-        if type(agent_definitions) == list:
+        if isinstance(agent_definitions, list):
             return [self._prepare_agents(x)[0] for x in agent_definitions]
         return [agent_definitions.type(client=self._client, name=agent_definitions.name)]

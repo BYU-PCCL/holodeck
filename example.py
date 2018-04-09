@@ -1,7 +1,8 @@
 """This file contains multiple examples of how you might use Holodeck."""
 import numpy as np
 
-from holodeck import holodeck, agents
+import holodeck
+from holodeck import agents
 from holodeck.environments import *
 from holodeck.sensors import Sensors
 
@@ -60,9 +61,11 @@ def editor_multi_agent_example():
     """This editor example shows how to interact with holodeck worlds that have multiple agents.
     This is specifically for when working with UE4 directly and not a prebuilt binary.
     """
-    agents = [AgentDefinition("uav0", agents.UAVAgent, [Sensors.PRIMARY_PLAYER_CAMERA, Sensors.LOCATION_SENSOR]),
-              AgentDefinition("uav1", agents.UAVAgent, [Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR])]
-    env = HolodeckEnvironment(agents, start_world=False)
+    agent_definitions = [
+        AgentDefinition("uav0", agents.UAVAgent, [Sensors.PRIMARY_PLAYER_CAMERA, Sensors.LOCATION_SENSOR]),
+        AgentDefinition("uav1", agents.UAVAgent, [Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR])
+    ]
+    env = HolodeckEnvironment(agent_definitions, start_world=False)
 
     cmd0 = np.array([0, 0, 0.5, 5])
     cmd1 = np.array([0, 0, -0.7, 7])
