@@ -13,6 +13,7 @@ class Shmem:
         np.float32: ctypes.c_float,
         np.uint8: ctypes.c_uint8,
         np.bool: ctypes.c_bool,
+        np.byte: ctypes.c_byte
     }
 
     def __init__(self, name, shape, dtype=np.float32, uuid=""):
