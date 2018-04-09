@@ -34,7 +34,7 @@ class AgentDefinition(object):
                 result.append(sensor)
         return result
 
-    def __init__(self, agent_name, agent_type, sensors=list()):
+    def __init__(self, agent_name, agent_type, sensors=None):
         """Constructor for AgentDefinition.
 
         Positional Arguments:
@@ -45,6 +45,7 @@ class AgentDefinition(object):
         sensors -- A list of HolodeckSensors to read from this agent, string or class reference (default empty)
         """
         super(AgentDefinition, self).__init__()
+        sensors = sensors or list()
         self.name = agent_name
         self.type = AgentDefinition.__agent_keys__[agent_type]
         self.sensors = AgentDefinition.__convert_sensors(sensors)
