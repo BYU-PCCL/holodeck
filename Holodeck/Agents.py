@@ -6,10 +6,17 @@ class HolodeckAgent(object):
     def __init__(self, client, name="DefaultAgent"):
         self.name = name
         self._client = client
-        self._action_buffer = self._client.subscribe_command(name, self.__action_space_shape__())
+        self._action_buffer, self._teleport_bool_buffer, self._teleport_buffer = \
+            self._client.subscribe_command(name, self.__action_space_shape__())
 
     def act(self, action):
         self.__act__(action)
+
+    def teleport(self, location):
+        # The default teleport function is to copy the data to the buffer and set the bool to true
+        # It can be overridden if needs be.
+        np.copyto(self._teleport_buffer, location)
+        np.copyto(self._teleport_bool_buffer, True)
 
     @property
     def action_space(self):
@@ -65,6 +72,14 @@ class AndroidAgent(HolodeckAgent):
 
     def __action_space_shape__(self):
         return [94]
+      
+class NavAgent(HolodeckAgent):
+    @property
+    def action_space(self):
+        return spaces.Box(-10000, 10000, shape=[3])
+
+    def __action_space_shape__(self):
+        return [3]
 
     @staticmethod
     def joint_ind(joint_name):
@@ -130,3 +145,4 @@ class AndroidAgent(HolodeckAgent):
         "ring_03_r":    92,
         "pinky_03_r":   93
     }
+

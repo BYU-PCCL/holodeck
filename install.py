@@ -1,4 +1,5 @@
 import os
+from os.path import expanduser
 import glob
 import shutil
 from pathlib import Path
@@ -54,7 +55,7 @@ def linux_installation():
     path = input("Please choose installation path (Default is /usr/local): ")
     if path == "":
         path = default_path
-
+    path = expanduser(path)
     if not os.path.isdir(path):
         print("Unable to find path: " + path)
         return
@@ -98,7 +99,7 @@ def windows_installation():
     path = input("Please choose installation path (Default is C:\\User\\user_name\\AppData\\Local): ")
     if path == "":
         path = default_path
-
+    path = expanduser(path)
     if not os.path.isdir(path):
         print("Unable to find path: " + path)
         return
