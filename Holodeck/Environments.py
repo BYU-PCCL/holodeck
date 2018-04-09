@@ -16,9 +16,11 @@ class AgentDefinition(object):
     """A class for declaring what agents are expected in a particular Holodeck Environment."""
     __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
                       "UAVAgent": UAVAgent,
-                      "NavAgent": NavAgent,
+                      "AndroidAgent": AndroidAgent,
+                      "NavAgent" : NavAgent,
                       DiscreteSphereAgent: DiscreteSphereAgent,
                       UAVAgent: UAVAgent,
+                      AndroidAgent: AndroidAgent,
                       NavAgent: NavAgent}
 
     @staticmethod
