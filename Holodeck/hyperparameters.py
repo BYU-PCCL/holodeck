@@ -1,7 +1,19 @@
 from enum import Enum
+from .Agents import *
 
 
-class UAVHyperParameters(Enum):
+class HyperParameters:
+        _shape_dict = {
+                UAVAgent: [27]
+        }
+
+        @staticmethod
+        def shape(agent_type):
+                return HyperParameters._shape_dict[agent_type] if agent_type in HyperParameters._shape_dict else [1]
+
+
+class UAV:
+        NUMBER_OF_ELEMENTS = 0  # this is the first item in the buffer.
         UAV_MASS = 1
         UAV_MU = 2
         UAV_MAX_ROLL = 3
@@ -28,4 +40,3 @@ class UAVHyperParameters(Enum):
         UAV_ALT_P = 24
         UAV_ALT_I = 25
         UAV_ALT_D = 26
-        NUMBER_OF_ELEMENTS = 27
