@@ -8,6 +8,7 @@ from copy import copy
 
 from .command import *
 from .Exceptions import HolodeckException
+from .hyperparameters import *
 from .ShmemClient import ShmemClient
 from .Sensors import Sensors
 
@@ -17,7 +18,7 @@ class AgentDefinition(object):
     __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
                       "UAVAgent": UAVAgent,
                       "AndroidAgent": AndroidAgent,
-                      "NavAgent" : NavAgent,
+                      "NavAgent": NavAgent,
                       DiscreteSphereAgent: DiscreteSphereAgent,
                       UAVAgent: UAVAgent,
                       AndroidAgent: AndroidAgent,
@@ -82,11 +83,13 @@ class HolodeckEnvironment(object):
 
         # Set up the agents
         agent_definitions = [agent_definitions] if type(agent_definitions) != list else agent_definitions
-        self._client = ShmemClient(self._uuid)
-        self._all_agents = self._prepare_agents(agent_definitions)
+        self._client = ShmemClient(self._uuid)  # this stays.
+        self._sensor_map = dict()  # this stays
+        self._all_agents = list()  # = self._prepare_agents(agent_definitions)
+        self._agent_dict = dict()  # {x.name: x for x in self._all_agents}
+        self._hyper_parameters_map = dict()
+        self._add_agents(agent_definitions)
         self._agent = self._all_agents[0]
-        self._agent_dict = {x.name: x for x in self._all_agents}
-        self._sensor_map = dict()
 
         # Set the default state function
         self.num_agents = len(self._all_agents)
@@ -103,10 +106,11 @@ class HolodeckEnvironment(object):
         self._commands = CommandsGroup()
         self._should_write_to_command_buffer = False
 
+        # this should be happening any time we add an agent, so we will do it in the self._add_agent function
         # Subscribe sensors
-        for agent in agent_definitions:
-            self.add_state_sensors(agent.name, [Sensors.TERMINAL, Sensors.REWARD])
-            self.add_state_sensors(agent.name, agent.sensors)
+        # for agent in agent_definitions:
+        #     self.add_state_sensors(agent.name, [Sensors.TERMINAL, Sensors.REWARD])
+        #     self.add_state_sensors(agent.name, agent.sensors)
 
         self._client.acquire()
 
@@ -166,27 +170,6 @@ class HolodeckEnvironment(object):
             self._should_write_to_command_buffer = False
             self._commands.clear()
 
-    def spawn_agent(self, agent_definition, location):
-        """Queues up a spawn agent command to be written to the command buffer. It will open up the respective buffers
-        needed for sending commands to and receiving data from the agent.
-
-        Positional arguments:
-        agent_definition -- This is the agent to spawn, its name, and the buffers to open for the sensors. Use the
-        AgentDefinition class.
-        location -- The position to spawn the agent in the world, in XYZ coordinates. Expects a list, and must be 3
-        arguments.
-        """
-        self._should_write_to_command_buffer = True
-        # set up the shared memory for the client binding (this code)
-        prepared_agent = self._prepare_agents(agent_definition)
-        self._all_agents.append(prepared_agent[0])
-        self._agent_dict[prepared_agent[0].name] = prepared_agent[0]
-        self.add_state_sensors(agent_definition.name, [Sensors.TERMINAL, Sensors.REWARD])
-        self.add_state_sensors(agent_definition.name, agent_definition.sensors)
-        # Make the command and write it to the command buffer.
-        command_to_send = SpawnAgentCommand(location, agent_definition.name, agent_definition.type)
-        self._commands.add_command(command_to_send)
-
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
 
@@ -222,6 +205,23 @@ class HolodeckEnvironment(object):
                 self._sensor_map[agent_name] = dict()
             self._sensor_map[agent_name][sensors] = self._client.get_sensor(agent_name, Sensors.name(sensors))
 
+    def spawn_agent(self, agent_definition, location):
+        """Queues up a spawn agent command to be written to the command buffer. It will open up the respective buffers
+        needed for sending commands to and receiving data from the agent.
+
+        Positional arguments:
+        agent_definition -- This is the agent to spawn, its name, and the buffers to open for the sensors. Use the
+        AgentDefinition class.
+        location -- The position to spawn the agent in the world, in XYZ coordinates. Expects a list, and must be 3
+        arguments.
+        """
+        self._should_write_to_command_buffer = True
+        # set up the shared memory for the agent.
+        self._add_agents(agent_definition)
+        # Make the command and write it to the command buffer.
+        command_to_send = SpawnAgentCommand(location, agent_definition.name, agent_definition.type)
+        self._commands.add_command(command_to_send)
+
     def write_to_command_buffer(self, to_write):
         """Writes to the command buffer. It will handle converting the string to the correct format.
 
@@ -233,6 +233,19 @@ class HolodeckEnvironment(object):
         input_bytes = str.encode(to_write)
         for index, val in enumerate(input_bytes):
             self._command_buffer_ptr[index] = val
+
+    def set_hyper_parameter(self, agent_name, parameter_index, value):
+        if agent_name not in self._hyper_parameters_map:
+            return
+        if parameter_index >= self._hyper_parameters_map[agent_name][0]:
+            print("Invalid index of hyper parameter: ", parameter_index)
+            return
+        self._hyper_parameters_map[agent_name][parameter_index] = value
+
+    def get_hyper_parameters(self, agent_name):
+        if agent_name not in self._hyper_parameters_map:
+            return None
+        return self._hyper_parameters_map[agent_name]
 
     def __linux_start_process__(self, binary_path, task_key, gl_version):
         import posix_ipc
@@ -286,3 +299,30 @@ class HolodeckEnvironment(object):
         if type(agent_definitions) == list:
             return [self._prepare_agents(x)[0] for x in agent_definitions]
         return [agent_definitions.type(client=self._client, name=agent_definitions.name)]
+
+    def _add_agents(self, agent_definitions):
+        prepared_agents = self._prepare_agents(agent_definitions)
+        self._all_agents.extend(prepared_agents)
+        for agent in prepared_agents:
+            self._agent_dict[agent.name] = agent
+        for agent in agent_definitions:
+            self.add_state_sensors(agent.name, [Sensors.TERMINAL, Sensors.REWARD])
+            self.add_state_sensors(agent.name, agent.sensors)
+            self._subscribe_hyper_parameters(agent)
+
+        # prepared_agent = self._prepare_agents(agent_definitions)
+        # self._all_agents.append(prepared_agent[0])
+        # self._agent_dict[prepared_agent[0].name] = prepared_agent[0]
+        # self.add_state_sensors(agent_definitions.name, [Sensors.TERMINAL, Sensors.REWARD])
+        # self.add_state_sensors(agent_definitions.name, agent_definitions.sensors)
+
+    def _subscribe_hyper_parameters(self, agent_definition):
+        if isinstance(agent_definition, list):
+            for agent in agent_definition:
+                self._subscribe_hyper_parameters(agent_definition)
+        else:
+            setting_name = ''.join({agent_definition.name, "_hyper_parameter"})
+            shape = HyperParameters.shape(agent_definition.type)
+            self._hyper_parameters_map[agent_definition.name] = self._client.subscribe_setting(setting_name,
+                                                                                               shape,
+                                                                                               np.float32)
