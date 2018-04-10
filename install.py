@@ -1,13 +1,13 @@
-import os
-from os.path import expanduser
 import glob
+import os
 import shutil
-from pathlib import Path
+import sys
 import urllib.request
 import zipfile
-import sys
-from threading import Thread
+from os.path import expanduser
+from pathlib import Path
 from queue import Queue
+from threading import Thread
 
 holodeck_binary_website = "http://pcc.byu.edu/holodeck/"
 holodeck_binary_name = "DefaultWorlds_1.02.zip"
@@ -61,19 +61,19 @@ def linux_installation():
         return
 
     try:
-        base_path = os.path.join(path, "Holodeck")
+        base_path = os.path.join(path, "holodeck")
         worlds_path = os.path.join(base_path, "worlds")
-        holodeck_path = os.path.join(base_path, "Holodeck")
+        holodeck_path = os.path.join(base_path, "holodeck")
         if not os.path.exists(base_path):
             os.mkdir(base_path)
         if not os.path.exists(worlds_path):
             os.mkdir(worlds_path)
         if not os.path.exists(holodeck_path):
             os.mkdir(holodeck_path)
-        print("Installing at:", os.path.join(path, "Holodeck"))
+        print("Installing at:", os.path.join(path, "holodeck"))
 
-        for file in glob.glob("Holodeck/*.py"):
-            shutil.copyfile(file, os.path.join(path, "Holodeck", "Holodeck", file.split("/")[-1]))
+        for file in glob.glob("holodeck/*.py"):
+            shutil.copyfile(file, os.path.join(path, "holodeck", "holodeck", file.split("/")[-1]))
 
         os.chmod(worlds_path, 0o755)
         _setup_binary(holodeck_binary_website + "Linux_" + holodeck_binary_name, worlds_path)
@@ -81,7 +81,7 @@ def linux_installation():
         # Make the binary executable
         for path, _, _ in os.walk(os.path.join(worlds_path, "LinuxDefaultWorlds")):
             os.chmod(path, 0o777)
-        binary_path = os.path.join(worlds_path, "LinuxDefaultWorlds/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck")
+        binary_path = os.path.join(worlds_path, "LinuxDefaultWorlds/LinuxNoEditor/holodeck/Binaries/Linux/holodeck")
         os.chmod(binary_path, 0o755)
 
         print("To continue installation, follow instructions on the github page")
@@ -105,19 +105,19 @@ def windows_installation():
         return
 
     try:
-        base_path = os.path.join(path, "Holodeck")
+        base_path = os.path.join(path, "holodeck")
         worlds_path = os.path.join(base_path, "worlds")
-        holodeck_path = os.path.join(base_path, "Holodeck")
+        holodeck_path = os.path.join(base_path, "holodeck")
         if not os.path.exists(base_path):
             os.mkdir(base_path)
         if not os.path.exists(worlds_path):
             os.mkdir(worlds_path)
         if not os.path.exists(holodeck_path):
             os.mkdir(holodeck_path)
-        print("Installing at:", os.path.join(path, "Holodeck"))
+        print("Installing at:", os.path.join(path, "holodeck"))
 
-        for file in glob.glob("Holodeck\\*.py"):
-            shutil.copyfile(file, os.path.join(path, "Holodeck", "Holodeck", file.split("\\")[-1]))
+        for file in glob.glob("holodeck\\*.py"):
+            shutil.copyfile(file, os.path.join(path, "holodeck", "holodeck", file.split("\\")[-1]))
 
         _setup_binary(holodeck_binary_website + "Windows_" + holodeck_binary_name, worlds_path)
 
@@ -134,4 +134,4 @@ if os.name == "posix":
 elif os.name == "nt":
     windows_installation()
 else:
-    raise NotImplementedError("Holodeck is only supported for Linux and Windows")
+    raise NotImplementedError("holodeck is only supported for Linux and Windows")

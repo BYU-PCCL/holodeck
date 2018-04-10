@@ -1,56 +1,58 @@
-"""This module contains the high level interface for interacting with Holodeck.
+"""Module containing the environment interface for Holodeck.
+An environment contains all elements required to communicate with a world binary or HolodeckCore editor.
 It specifies an environment, which contains a number of agents, and the interface for communicating with the agents.
 """
-import subprocess
 import atexit
 import os
+import subprocess
 from copy import copy
 
-from .command import *
-from .Exceptions import HolodeckException
-from .ShmemClient import ShmemClient
-from .Sensors import Sensors
+from holodeck.command import *
+from holodeck.exceptions import HolodeckException
+from holodeck.sensors import Sensors
+from holodeck.shmemclient import ShmemClient
 
 
 class AgentDefinition(object):
-    """A class for declaring what agents are expected in a particular Holodeck Environment."""
+    """A class for declaring what agents are expected in a particular holodeck Environment."""
     __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
                       "UAVAgent": UAVAgent,
                       "AndroidAgent": AndroidAgent,
-                      "NavAgent" : NavAgent,
+                      "NavAgent": NavAgent,
                       DiscreteSphereAgent: DiscreteSphereAgent,
                       UAVAgent: UAVAgent,
                       AndroidAgent: AndroidAgent,
                       NavAgent: NavAgent}
 
     @staticmethod
-    def __convert_sensors__(sensors):
+    def __convert_sensors(sensors):
         result = []
         for sensor in sensors:
-            if type(sensor) == str:
+            if isinstance(sensor, str):
                 result.append(Sensors.name_to_sensor(sensor))
             else:
                 result.append(sensor)
         return result
 
-    def __init__(self, agent_name, agent_type, sensors=list()):
+    def __init__(self, agent_name, agent_type, sensors=None):
         """Constructor for AgentDefinition.
 
         Positional Arguments:
         agent_name -- The name of the agent to control
         agent_type -- The type of HolodeckAgent to control, string or class reference
 
-        Keyword arguments:
+        Keyword Arguments:
         sensors -- A list of HolodeckSensors to read from this agent, string or class reference (default empty)
         """
         super(AgentDefinition, self).__init__()
+        sensors = sensors or list()
         self.name = agent_name
         self.type = AgentDefinition.__agent_keys__[agent_type]
-        self.sensors = AgentDefinition.__convert_sensors__(sensors)
+        self.sensors = AgentDefinition.__convert_sensors(sensors)
 
 
 class HolodeckEnvironment(object):
-    """The high level interface for interacting with a Holodeck Environment"""
+    """The high level interface for interacting with a Holodeck world"""
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, height=512, width=512,
                  start_world=True, uuid="", gl_version=4):
@@ -65,7 +67,7 @@ class HolodeckEnvironment(object):
         height -- The height to load the binary at (default 512)
         width -- The width to load the binary at (default 512)
         start_world -- Whether to load a binary or not (default True)
-        uuid -- A unique identifier, used when running multiple instances of Holodeck (default "")
+        uuid -- A unique identifier, used when running multiple instances of holodeck (default "")
         gl_version -- The version of OpenGL to use for Linux (default 4)
         """
         self._height = height
@@ -81,7 +83,7 @@ class HolodeckEnvironment(object):
                 raise HolodeckException("Unknown platform: " + os.name)
 
         # Set up the agents
-        agent_definitions = [agent_definitions] if type(agent_definitions) != list else agent_definitions
+        self._agent_definitions = [agent_definitions] if isinstance(agent_definitions, list) else agent_definitions
         self._client = ShmemClient(self._uuid)
         self._all_agents = self._prepare_agents(agent_definitions)
         self._agent = self._all_agents[0]
@@ -120,6 +122,23 @@ class HolodeckEnvironment(object):
         """Gives the observation space for the main agent."""
         # TODO(joshgreaves) : Implement this
         raise NotImplementedError()
+
+    def info(self):
+        """Returns a string with specific information about the environment."""
+        result = list()
+        result.append("Agents:\n")
+        for agent in self._agent_definitions:
+            result.append("\tName: ")
+            result.append(agent.name)
+            result.append("\n\tType: ")
+            result.append(agent.type.__name__)
+            result.append("\n\t")
+            result.append("Sensors:\n")
+            for sensor in agent.sensors:
+                result.append("\t\t")
+                result.append(Sensors.name(sensor))
+                result.append("\n")
+        return "".join(result)
 
     def reset(self):
         """Resets the environment, and returns the state.
@@ -210,7 +229,7 @@ class HolodeckEnvironment(object):
         agent_name -- The name of the agent to add the sensor to
         sensors -- A list of, or single sensor to add to the agent
         """
-        if type(sensors) == list:
+        if isinstance(sensors, list):
             for sensor in sensors:
                 self.add_state_sensors(agent_name, sensor)
         else:
@@ -283,6 +302,6 @@ class HolodeckEnvironment(object):
         return copy(self._sensor_map)
 
     def _prepare_agents(self, agent_definitions):
-        if type(agent_definitions) == list:
+        if isinstance(agent_definitions, list):
             return [self._prepare_agents(x)[0] for x in agent_definitions]
         return [agent_definitions.type(client=self._client, name=agent_definitions.name)]

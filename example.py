@@ -1,14 +1,15 @@
 """This file contains multiple examples of how you might use Holodeck."""
 import numpy as np
 
-from Holodeck import Holodeck, Agents
-from Holodeck.Environments import *
-from Holodeck.Sensors import Sensors
+import holodeck
+from holodeck import agents
+from holodeck.environments import *
+from holodeck.sensors import Sensors
 
 
 def uav_example():
     """A basic example of how to use the UAV agent."""
-    env = Holodeck.make("UrbanCity")
+    env = holodeck.make("UrbanCity")
 
     for i in range(10):
         env.reset()
@@ -26,7 +27,7 @@ def uav_example():
 
 def sphere_example():
     """A basic example of how to use the sphere agent."""
-    env = Holodeck.make("MazeWorld")
+    env = holodeck.make("MazeWorld")
 
     # This command is to constantly rotate to the right
     command = 2
@@ -42,11 +43,11 @@ def sphere_example():
 
 
 def editor_example():
-    """This editor example shows how to interact with Holodeck worlds while they are being built
-    in the Unreal Engine. Most people that use Holodeck will not need this.
+    """This editor example shows how to interact with holodeck worlds while they are being built
+    in the Unreal Engine. Most people that use holodeck will not need this.
     """
     sensors = [Sensors.PRIMARY_PLAYER_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
-    agent = AgentDefinition("sphere0", Agents.ContinuousSphereAgent, sensors)
+    agent = AgentDefinition("sphere0", agents.ContinuousSphereAgent, sensors)
     env = HolodeckEnvironment(agent, start_world=False)
     command = np.random.normal(0, 5, 2)
 
@@ -57,12 +58,14 @@ def editor_example():
 
 
 def editor_multi_agent_example():
-    """This editor example shows how to interact with Holodeck worlds that have multiple agents.
+    """This editor example shows how to interact with holodeck worlds that have multiple agents.
     This is specifically for when working with UE4 directly and not a prebuilt binary.
     """
-    agents = [AgentDefinition("uav0", Agents.UAVAgent, [Sensors.PRIMARY_PLAYER_CAMERA, Sensors.LOCATION_SENSOR]),
-              AgentDefinition("uav1", Agents.UAVAgent, [Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR])]
-    env = HolodeckEnvironment(agents, start_world=False)
+    agent_definitions = [
+        AgentDefinition("uav0", agents.UAVAgent, [Sensors.PRIMARY_PLAYER_CAMERA, Sensors.LOCATION_SENSOR]),
+        AgentDefinition("uav1", agents.UAVAgent, [Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR])
+    ]
+    env = HolodeckEnvironment(agent_definitions, start_world=False)
 
     cmd0 = np.array([0, 0, 0.5, 5])
     cmd1 = np.array([0, 0, -0.7, 7])

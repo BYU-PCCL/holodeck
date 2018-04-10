@@ -4,7 +4,7 @@ import numpy as np
 class Sensors:
     TERMINAL = 1
     REWARD = 2
-    PRIMARY_PLAYER_CAMERA = 3   # default is 512 x 512 RGBA
+    PRIMARY_PLAYER_CAMERA = 3  # default is 512 x 512 RGBA
     CAMERA_SENSOR_ARRAY_2D = 4  # default is 512 x 512 RGBA
     ORIENTATION_SENSOR = 5
     IMU_SENSOR = 6
