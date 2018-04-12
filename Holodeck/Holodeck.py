@@ -45,7 +45,7 @@ def make(world, gl_version=GL_VERSION.OPENGL4, primary_cam_size=None):
     param_dict["gl_version"] = gl_version
 
     if primary_cam_size is not None:
-        param_dict["width"] = primary_cam_size[0]
-        param_dict["height"] = primary_cam_size[1]
-
+        param_dict["height"] = primary_cam_size[0]
+        param_dict["width"] = primary_cam_size[1]
+        
     return HolodeckEnvironment(**param_dict)
