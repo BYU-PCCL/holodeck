@@ -70,6 +70,8 @@ class HolodeckEnvironment(object):
         self._width = width
         self._uuid = uuid
 
+        Sensors.set_primary_cam_size(width, height)
+
         if start_world:
             if os.name == "posix":
                 self.__linux_start_process__(binary_path, task_key, gl_version)
