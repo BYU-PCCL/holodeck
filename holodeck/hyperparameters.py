@@ -1,17 +1,17 @@
-from .agents import *
+from holodeck.agents import *
 
 
-class HyperParameters:
+class Hyperparameters:
         _shape_dict = {
                 UAVAgent: [27]
         }
 
         @staticmethod
         def shape(agent_type):
-                return HyperParameters._shape_dict[agent_type] if agent_type in HyperParameters._shape_dict else [1]
+                return Hyperparameters._shape_dict[agent_type] if agent_type in Hyperparameters._shape_dict else [1]
 
 
-class UAV:
+class UAVHyperparameters:
         NUMBER_OF_ELEMENTS = 0  # this is the first item in the buffer.
         UAV_MASS = 1
         UAV_MU = 2

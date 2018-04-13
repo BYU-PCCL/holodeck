@@ -89,7 +89,7 @@ class HolodeckEnvironment(object):
         self._all_agents = list()
         self._agent_dict = dict()
         agent_definitions = [agent_definitions] if not isinstance(agent_definitions, list) else agent_definitions
-        self._hyper_parameters_map = dict()
+        self._hyperparameters_map = dict()
         self._add_agents(agent_definitions)
         self._agent = self._all_agents[0]
 
@@ -245,36 +245,33 @@ class HolodeckEnvironment(object):
         for index, val in enumerate(input_bytes):
             self._command_buffer_ptr[index] = val
 
-    def set_hyper_parameter(self, agent_name, parameter_index, value):
-        """Sets a specific hyper parameter on a specific agent.
+    def set_hyperparameter(self, agent_name, parameter_index, value):
+        """Sets a specific hyperparameter on a specific agent.
 
         Positional Arguments:
         agent_name -- the name of the agent
         parameter_index -- The index of the parameter to set
         value -- The value to set the parameter to.
         """
-        if agent_name not in self._hyper_parameters_map:
-            print("Agent does not exist: ", agent_name)
-            return
-        if parameter_index >= self._hyper_parameters_map[agent_name][0]:
-            print("Invalid index of hyper parameter: ", parameter_index)
-            return
+        if agent_name not in self._hyperparameters_map:
+            raise HolodeckException("Agent does not exist: " + agent_name)
+        if parameter_index >= self._hyperparameters_map[agent_name][0]:
+            raise HolodeckException("Invalid index of hyper parameter: " + parameter_index)
         if parameter_index == 0:
-            print("Cannot change the number of elements in the hyper parameters list")
-            return
-        self._hyper_parameters_map[agent_name][parameter_index] = value
+            raise HolodeckException("Cannot change the number of elements in the hyper parameters list")
+        self._hyperparameters_map[agent_name][parameter_index] = value
 
-    def get_hyper_parameters(self, agent_name):
+    def get_hyperparameters(self, agent_name):
         """Gets the list of hyper parameters for a specific agent.
 
         Positional Arguments:
         agent_name -- The agent for which to get the hyper parameters.
         return -- A list of the hyper parameters for a specific agent, or none if DNE
         """
-        if agent_name not in self._hyper_parameters_map:
+        if agent_name not in self._hyperparameters_map:
             print(agent_name, " does not exist.")
             return None
-        return self._hyper_parameters_map[agent_name]
+        return self._hyperparameters_map[agent_name]
 
     def __linux_start_process__(self, binary_path, task_key, gl_version):
         import posix_ipc
@@ -346,19 +343,19 @@ class HolodeckEnvironment(object):
         for agent in agent_definitions:
             self.add_state_sensors(agent.name, [Sensors.TERMINAL, Sensors.REWARD])
             self.add_state_sensors(agent.name, agent.sensors)
-            self._subscribe_hyper_parameters(agent)
+            self._subscribe_hyperparameters(agent)
 
-    def _subscribe_hyper_parameters(self, agent_definition):
+    def _subscribe_hyperparameters(self, agent_definition):
         """Sets up the linkages with holodeck to set and get the hyper parameters of an agent.
 
         agent_definition --  The definition of the agent to subscribe hyper parameters for.
         """
         if isinstance(agent_definition, list):
             for agent in agent_definition:
-                self._subscribe_hyper_parameters(agent)
+                self._subscribe_hyperparameters(agent)
         else:
-            setting_name = agent_definition.name + "_hyper_parameter"
-            shape = HyperParameters.shape(agent_definition.type)
-            self._hyper_parameters_map[agent_definition.name] = self._client.subscribe_setting(setting_name,
-                                                                                               shape,
-                                                                                               np.float32)
+            setting_name = agent_definition.name + "_hyperparameter"
+            shape = Hyperparameters.shape(agent_definition.type)
+            self._hyperparameters_map[agent_definition.name] = self._client.subscribe_setting(setting_name,
+                                                                                              shape,
+                                                                                              np.float32)
