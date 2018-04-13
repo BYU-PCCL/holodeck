@@ -88,7 +88,7 @@ class HolodeckEnvironment(object):
         self._sensor_map = dict()
         self._all_agents = list()
         self._agent_dict = dict()
-        agent_definitions = [agent_definitions] if type(agent_definitions) != list else agent_definitions
+        agent_definitions = [agent_definitions] if not isinstance(agent_definitions, list) else agent_definitions
         self._hyper_parameters_map = dict()
         self._add_agents(agent_definitions)
         self._agent = self._all_agents[0]
