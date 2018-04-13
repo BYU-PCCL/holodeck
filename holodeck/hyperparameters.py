@@ -12,7 +12,7 @@ class Hyperparameters:
 
 
 class UAVHyperparameters:
-        NUMBER_OF_ELEMENTS = 0  # this is the first item in the buffer.
+        NUMBER_OF_ELEMENTS = 0  # this is the first item in the buffer, not the actual number of elements
         UAV_MASS = 1
         UAV_MU = 2
         UAV_MAX_ROLL = 3

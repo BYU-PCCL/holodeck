@@ -219,8 +219,9 @@ class HolodeckEnvironment(object):
             self._sensor_map[agent_name][sensors] = self._client.get_sensor(agent_name, Sensors.name(sensors))
 
     def spawn_agent(self, agent_definition, location):
-        """Queues up a spawn agent command to be written to the command buffer. It will open up the respective buffers
-        needed for sending commands to and receiving data from the agent.
+        """Queues up a spawn agent command to be written to the command buffer.  It will open up the respective buffers
+        needed for sending commands to and receiving data from the agent.  Nothing in the agent will be initialized, and
+        it won't even exist in Holodeck until the next tick when Holodeck reads the command.
 
         Positional arguments:
         agent_definition -- This is the agent to spawn, its name, and the buffers to open for the sensors. Use the
@@ -234,7 +235,7 @@ class HolodeckEnvironment(object):
         self._commands.add_command(command_to_send)
 
     def write_to_command_buffer(self, to_write):
-        """Writes to the command buffer. It will handle converting the string to the correct format.
+        """Writes to the command buffer.  It will handle converting the string to the correct format.
 
         Positional arguments:
         to_write -- The string to write to the command buffer."""
@@ -256,7 +257,7 @@ class HolodeckEnvironment(object):
         if agent_name not in self._hyperparameters_map:
             raise HolodeckException("Agent does not exist: " + agent_name)
         if parameter_index >= self._hyperparameters_map[agent_name][0]:
-            raise HolodeckException("Invalid index of hyper parameter: " + parameter_index)
+            raise HolodeckException("Invalid index of hyper parameter: " + str(parameter_index))
         if parameter_index == 0:
             raise HolodeckException("Cannot change the number of elements in the hyper parameters list")
         self._hyperparameters_map[agent_name][parameter_index] = value
@@ -269,8 +270,7 @@ class HolodeckEnvironment(object):
         return -- A list of the hyper parameters for a specific agent, or none if DNE
         """
         if agent_name not in self._hyperparameters_map:
-            print(agent_name, " does not exist.")
-            return None
+            raise HolodeckException("Agent does not exist: " + agent_name)
         return self._hyperparameters_map[agent_name]
 
     def __linux_start_process__(self, binary_path, task_key, gl_version):
@@ -334,8 +334,7 @@ class HolodeckEnvironment(object):
         agent_definitions -- The agent(s) to add.
         """
         if not isinstance(agent_definitions, list):
-            self._add_agents([agent_definitions])
-            return
+            return self._add_agents([agent_definitions])
         prepared_agents = self._prepare_agents(agent_definitions)
         self._all_agents.extend(prepared_agents)
         for agent in prepared_agents:
