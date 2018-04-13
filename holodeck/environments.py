@@ -336,6 +336,9 @@ class HolodeckEnvironment(object):
         Positional Arguments:
         agent_definitions -- The agent(s) to add.
         """
+        if not isinstance(agent_definitions, list):
+            self._add_agents([agent_definitions])
+            return
         prepared_agents = self._prepare_agents(agent_definitions)
         self._all_agents.extend(prepared_agents)
         for agent in prepared_agents:
