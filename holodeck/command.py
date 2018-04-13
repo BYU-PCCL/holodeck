@@ -1,8 +1,9 @@
-from .Agents import *
+from holodeck.agents import *
 
 
 class CommandsGroup(object):
     """Holds Command objects in a list, and when requested packages everything in the correct json format"""
+
     def __init__(self):
         self._commands = []
 
@@ -22,6 +23,7 @@ class CommandsGroup(object):
 
 class Command(object):
     """Base class for Command objects. Can return itself in json format. You must set the command type."""
+
     def __init__(self):
         self._parameters = []
         self._command_type = ""
