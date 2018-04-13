@@ -82,11 +82,11 @@ class HolodeckEnvironment(object):
                 raise HolodeckException("Unknown platform: " + os.name)
 
         # Set up the agents
-        agent_definitions = [agent_definitions] if type(agent_definitions) != list else agent_definitions
         self._client = ShmemClient(self._uuid)  # this stays.
         self._sensor_map = dict()  # this stays
         self._all_agents = list()  # = self._prepare_agents(agent_definitions)
         self._agent_dict = dict()  # {x.name: x for x in self._all_agents}
+        agent_definitions = [agent_definitions] if type(agent_definitions) != list else agent_definitions
         self._hyper_parameters_map = dict()
         self._add_agents(agent_definitions)
         self._agent = self._all_agents[0]
@@ -244,6 +244,7 @@ class HolodeckEnvironment(object):
 
     def get_hyper_parameters(self, agent_name):
         if agent_name not in self._hyper_parameters_map:
+            print(agent_name, " not in map")
             return None
         return self._hyper_parameters_map[agent_name]
 
@@ -310,18 +311,13 @@ class HolodeckEnvironment(object):
             self.add_state_sensors(agent.name, agent.sensors)
             self._subscribe_hyper_parameters(agent)
 
-        # prepared_agent = self._prepare_agents(agent_definitions)
-        # self._all_agents.append(prepared_agent[0])
-        # self._agent_dict[prepared_agent[0].name] = prepared_agent[0]
-        # self.add_state_sensors(agent_definitions.name, [Sensors.TERMINAL, Sensors.REWARD])
-        # self.add_state_sensors(agent_definitions.name, agent_definitions.sensors)
-
     def _subscribe_hyper_parameters(self, agent_definition):
         if isinstance(agent_definition, list):
             for agent in agent_definition:
-                self._subscribe_hyper_parameters(agent_definition)
+                self._subscribe_hyper_parameters(agent)
         else:
-            setting_name = ''.join({agent_definition.name, "_hyper_parameter"})
+            setting_name = agent_definition.name + "_hyper_parameter"
+            print(setting_name)
             shape = HyperParameters.shape(agent_definition.type)
             self._hyper_parameters_map[agent_definition.name] = self._client.subscribe_setting(setting_name,
                                                                                                shape,
