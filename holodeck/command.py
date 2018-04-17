@@ -1,3 +1,8 @@
+"""This module contains the classes used for formatting and sending commands to the Holodeck backend.
+
+To create a new command to send to the Holodeck backend, simply subclass from command.
+"""
+
 from holodeck.agents import *
 
 
@@ -12,12 +17,12 @@ class CommandsGroup(object):
         self._commands.append(command)
 
     def to_json(self):
-        """Returns a string of the commands array object and all of the commands inside the array"""
+        """Return a string of the commands array object and all of the commands inside the array"""
         commands = ",".join(map(lambda x: x.to_json(), self._commands))
         return "{\"commands\": [" + commands + "]}"
 
     def clear(self):
-        """Clears the list of commands"""
+        """Clear the list of commands"""
         self._commands.clear()
 
 
@@ -29,14 +34,14 @@ class Command(object):
         self._command_type = ""
 
     def set_command_type(self, command_type):
-        """Sets the type of the command
+        """Set the type of the command.
         Positional Arguments:
         command_type -- This is the name of the command that it will be set to.
         """
         self._command_type = command_type
 
     def add_number_parameters(self, number):
-        """Adds number parameters to the list
+        """Add given number parameters to the internal list.
         Positional Arguments:
         number -- A number or list of numbers to add to the parameters.
         """
@@ -47,7 +52,7 @@ class Command(object):
         self._parameters.append("{ \"value\": " + str(number) + " }")
 
     def add_string_parameters(self, string):
-        """Adds string parameters to the list
+        """Add given string parameters to the internal list.
         Positional Arguments:
         string -- A string or list of strings to add to the parameters.
         """
@@ -58,7 +63,7 @@ class Command(object):
         self._parameters.append("{ \"value\": \"" + string + "\" }")
 
     def to_json(self):
-        """Returns this object in json format"""
+        """Return this object in json format."""
         to_return = "{ \"type\": \"" + self._command_type + "\", \"params\": [" + ",".join(self._parameters) + "]}"
         return to_return
 
@@ -86,7 +91,7 @@ class SpawnAgentCommand(Command):
         self.set_name(name)
 
     def set_location(self, location):
-        """Sets the location to spawn the agent at
+        """Set the location to spawn the agent at.
         Positional Arguments:
         location -- XYZ coordinate of where to spawn the agent.
         """
@@ -96,14 +101,14 @@ class SpawnAgentCommand(Command):
         self.add_number_parameters(location)
 
     def set_name(self, name):
-        """Sets the name to give the agent
+        """Set the name to give the agent.
         Positional Arguments:
         name -- The name to set the agent to.
         """
         self.add_string_parameters(name)
 
     def set_type(self, agent_type):
-        """Sets the type of agent to spawn in Holodeck. Currently accepted agents are: DiscreteSphereAgent, UAVAgent,
+        """Set the type of agent to spawn in Holodeck. Currently accepted agents are: DiscreteSphereAgent, UAVAgent,
         and AndroidAgent.
         Positional Arguments:
         agent_type -- The type of agent to spawn.
