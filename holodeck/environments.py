@@ -88,7 +88,6 @@ class HolodeckEnvironment(object):
         self._sensor_map = dict()
         self._all_agents = list()
         self._agent_dict = dict()
-        agent_definitions = [agent_definitions] if not isinstance(agent_definitions, list) else agent_definitions
         self._hyperparameters_map = dict()
         self._add_agents(agent_definitions)
         self._agent = self._all_agents[0]
@@ -104,7 +103,7 @@ class HolodeckEnvironment(object):
         megabyte = 1048576  # This is the size of the command buffer that Holodeck expects/will read.
         self._command_buffer_ptr = self._client.subscribe_setting("command_buffer", [megabyte], np.byte)
 
-        # ._commands holds commands that are queued up to write to the command buffer on tick.
+        # self._commands holds commands that are queued up to write to the command buffer on tick.
         self._commands = CommandsGroup()
         self._should_write_to_command_buffer = False
 
@@ -219,9 +218,10 @@ class HolodeckEnvironment(object):
             self._sensor_map[agent_name][sensors] = self._client.get_sensor(agent_name, Sensors.name(sensors))
 
     def spawn_agent(self, agent_definition, location):
-        """Queues up a spawn agent command to be written to the command buffer.  It will open up the respective buffers
-        needed for sending commands to and receiving data from the agent.  Nothing in the agent will be initialized, and
-        it won't even exist in Holodeck until the next tick when Holodeck reads the command.
+        """Queue up a spawn agent command to be written to the command buffer and open up the respective buffers
+        needed for sending commands to and receiving data from the agent.
+        Nothing in the agent will be initialized, and it won't even exist in Holodeck until the next tick when the
+        Holodeck backend reads the command.
 
         Positional arguments:
         agent_definition -- This is the agent to spawn, its name, and the buffers to open for the sensors. Use the
@@ -235,10 +235,11 @@ class HolodeckEnvironment(object):
         self._commands.add_command(command_to_send)
 
     def write_to_command_buffer(self, to_write):
-        """Writes to the command buffer.  It will handle converting the string to the correct format.
+        """Write input to the command buffer.  Reformat input string to the correct format.
 
         Positional arguments:
-        to_write -- The string to write to the command buffer."""
+        to_write -- The string to write to the command buffer.
+        """
         # TODO(mitch): Handle the edge case of writing too much data to the buffer.
         np.copyto(self._command_bool_ptr, True)
         to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
@@ -247,7 +248,7 @@ class HolodeckEnvironment(object):
             self._command_buffer_ptr[index] = val
 
     def set_hyperparameter(self, agent_name, parameter_index, value):
-        """Sets a specific hyperparameter on a specific agent.
+        """Set a specific hyperparameter on a specific agent.
 
         Positional Arguments:
         agent_name -- the name of the agent
@@ -263,7 +264,7 @@ class HolodeckEnvironment(object):
         self._hyperparameters_map[agent_name][parameter_index] = value
 
     def get_hyperparameters(self, agent_name):
-        """Gets the list of hyper parameters for a specific agent.
+        """Get the list of hyper parameters for a specific agent.
 
         Positional Arguments:
         agent_name -- The agent for which to get the hyper parameters.
@@ -327,8 +328,9 @@ class HolodeckEnvironment(object):
         return [agent_definitions.type(client=self._client, name=agent_definitions.name)]
 
     def _add_agents(self, agent_definitions):
-        """Adds agents to the client. This sets up their shared memory and sensor linkages.
-        Does not spawn an agent in the Holodeck, this is only for documenting and accessing already existing agents
+        """Add specified agents to the client. Set up their shared memory and sensor linkages.
+        Does not spawn an agent in the Holodeck, this is only for documenting and accessing already existing agents.
+        This is an internal function.
 
         Positional Arguments:
         agent_definitions -- The agent(s) to add.
@@ -346,6 +348,7 @@ class HolodeckEnvironment(object):
 
     def _subscribe_hyperparameters(self, agent_definition):
         """Sets up the linkages with holodeck to set and get the hyper parameters of an agent.
+        This is an internal function.
 
         agent_definition --  The definition of the agent to subscribe hyper parameters for.
         """
