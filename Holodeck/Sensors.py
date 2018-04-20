@@ -23,7 +23,7 @@ class Sensors:
         CAMERA_SENSOR_ARRAY_2D: [512, 512, 4],
         ORIENTATION_SENSOR: [3, 3],
         IMU_SENSOR: [6, 1],
-        JOINT_ROTATION_SENSOR: [79, 1],
+        JOINT_ROTATION_SENSOR: [94, 1],
         RELATIVE_SKELETAL_POSITION_SENSOR: [67, 4],
         LOCATION_SENSOR: [3, 1],
         VELOCITY_SENSOR: [3, 1],
@@ -78,6 +78,10 @@ class Sensors:
     @staticmethod
     def name_to_sensor(sensor_name):
         return Sensors._reverse_name_dict[sensor_name] if sensor_name in Sensors._reverse_name_dict else None
+
+    @staticmethod
+    def set_primary_cam_size(width, height):
+        Sensors._shape_dict[Sensors.PRIMARY_PLAYER_CAMERA] = [height, width, 4]
 
     def __init__(self):
         print("No point in instantiating an object.")
