@@ -34,7 +34,7 @@ def _get_worlds_map():
     return holodeck_worlds
 
 
-def make(world, gl_version=GL_VERSION.OPENGL4):
+def make(world, gl_version=GL_VERSION.OPENGL4, resolution=None):
     holodeck_worlds = _get_worlds_map()
     if world not in holodeck_worlds:
         raise HolodeckException("Invalid World Name")
@@ -43,4 +43,9 @@ def make(world, gl_version=GL_VERSION.OPENGL4):
     param_dict["start_world"] = True
     param_dict["uuid"] = str(uuid.uuid4())
     param_dict["gl_version"] = gl_version
+
+    if resolution is not None:
+        param_dict["width"] = resolution[0]
+        param_dict["height"] = resolution[1]
+
     return HolodeckEnvironment(**param_dict)
