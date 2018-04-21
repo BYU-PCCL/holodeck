@@ -89,7 +89,7 @@ class AndroidAgent(HolodeckAgent):
         return None
 
     def __action_space_shape__(self):
-        return [127]
+        return [94]
 
     def __repr__(self):
         return "AndroidAgent"

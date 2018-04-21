@@ -79,5 +79,9 @@ class Sensors:
     def name_to_sensor(sensor_name):
         return Sensors._reverse_name_dict[sensor_name] if sensor_name in Sensors._reverse_name_dict else None
 
+    @staticmethod
+    def set_primary_cam_size(height, width):
+        Sensors._shape_dict[Sensors.PRIMARY_PLAYER_CAMERA] = [height, width, 4]
+
     def __init__(self):
         print("No point in instantiating an object.")
