@@ -247,7 +247,7 @@ class HolodeckEnvironment(object):
         for index, val in enumerate(input_bytes):
             self._command_buffer_ptr[index] = val
 
-    def set_hyperparameter(self, agent_name, parameter_index, value):
+    def set_hyperparameter(self, parameter_index, value, agent_name=None):
         """Set a specific hyperparameter on a specific agent.
 
         Positional Arguments:
@@ -255,22 +255,27 @@ class HolodeckEnvironment(object):
         parameter_index -- The index of the parameter to set
         value -- The value to set the parameter to.
         """
-        if agent_name not in self._hyperparameters_map:
-            raise HolodeckException("Agent does not exist: " + agent_name)
-        if parameter_index >= self._hyperparameters_map[agent_name][0]:
-            raise HolodeckException("Invalid index of hyper parameter: " + str(parameter_index))
-        if parameter_index == 0:
-            raise HolodeckException("Cannot change the number of elements in the hyper parameters list")
+        if agent_name is None:
+            agent_name = self._agent.name
+        else:
+            if agent_name not in self._hyperparameters_map:
+                raise HolodeckException("Agent does not exist: " + agent_name)
+            if parameter_index >= self._hyperparameters_map[agent_name][0]:
+                raise HolodeckException("Invalid index of hyper parameter: " + str(parameter_index))
+            if parameter_index == 0:
+                raise HolodeckException("Cannot change the number of elements in the hyper parameters list")
         self._hyperparameters_map[agent_name][parameter_index] = value
 
-    def get_hyperparameters(self, agent_name):
+    def get_hyperparameters(self, agent_name=None):
         """Get the list of hyper parameters for a specific agent.
 
         Positional Arguments:
         agent_name -- The agent for which to get the hyper parameters.
         return -- A list of the hyper parameters for a specific agent, or none if DNE
         """
-        if agent_name not in self._hyperparameters_map:
+        if agent_name is None:
+            agent_name = self._agent.name
+        elif agent_name not in self._hyperparameters_map:
             raise HolodeckException("Agent does not exist: " + agent_name)
         return self._hyperparameters_map[agent_name]
 
