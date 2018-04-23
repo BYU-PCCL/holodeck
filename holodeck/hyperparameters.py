@@ -20,7 +20,7 @@ class Hyperparameters:
 
 
 class UAVHyperparameters:
-    """This class contains the indeces of the UAV's hyperparameters
+    """This class contains the indices of the UAV's hyperparameters
 
     The variables appended with a P, I, or D apply to the proportional, integral, and derivative part of the internal
     PID controller of the UAV. The variables with TAU are the "Process Time Constants" - the value that we calculated
