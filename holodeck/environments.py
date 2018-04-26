@@ -261,17 +261,17 @@ class HolodeckEnvironment(object):
             if agent_name not in self._hyperparameters_map:
                 raise HolodeckException("Agent does not exist: " + agent_name)
             if parameter_index >= self._hyperparameters_map[agent_name][0]:
-                raise HolodeckException("Invalid index of hyper parameter: " + str(parameter_index))
+                raise HolodeckException("Invalid index of hyperparameter: " + str(parameter_index))
             if parameter_index == 0:
-                raise HolodeckException("Cannot change the number of elements in the hyper parameters list")
+                raise HolodeckException("Cannot change the number of elements in the hyperparameters list")
         self._hyperparameters_map[agent_name][parameter_index] = value
 
     def get_hyperparameters(self, agent_name=None):
-        """Get the list of hyper parameters for a specific agent.
+        """Get the list of hyperparameters for a specific agent.
 
         Positional Arguments:
-        agent_name -- The agent for which to get the hyper parameters.
-        return -- A list of the hyper parameters for a specific agent, or none if DNE
+        agent_name -- The agent for which to get the hyperparameters.
+        return -- A list of the hyperparameters for a specific agent, or none if DNE
         """
         if agent_name is None:
             agent_name = self._agent.name
@@ -341,7 +341,7 @@ class HolodeckEnvironment(object):
         agent_definitions -- The agent(s) to add.
         """
         if not isinstance(agent_definitions, list):
-            return self._add_agents([agent_definitions])
+            agent_definitions = [agent_definitions]
         prepared_agents = self._prepare_agents(agent_definitions)
         self._all_agents.extend(prepared_agents)
         for agent in prepared_agents:
@@ -352,10 +352,10 @@ class HolodeckEnvironment(object):
             self._subscribe_hyperparameters(agent)
 
     def _subscribe_hyperparameters(self, agent_definition):
-        """Sets up the linkages with holodeck to set and get the hyper parameters of an agent.
+        """Sets up the linkages with holodeck to set and get the hyperparameters of an agent.
         This is an internal function.
 
-        agent_definition --  The definition of the agent to subscribe hyper parameters for.
+        agent_definition --  The definition of the agent to subscribe hyperparameters for.
         """
         if isinstance(agent_definition, list):
             for agent in agent_definition:
