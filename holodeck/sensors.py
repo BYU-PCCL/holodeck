@@ -22,12 +22,12 @@ class Sensors:
         PRIMARY_PLAYER_CAMERA: [512, 512, 4],
         CAMERA_SENSOR_ARRAY_2D: [512, 512, 4],
         ORIENTATION_SENSOR: [3, 3],
-        IMU_SENSOR: [6, 1],
-        JOINT_ROTATION_SENSOR: [94, 1],
+        IMU_SENSOR: [2, 3],
+        JOINT_ROTATION_SENSOR: [94],
         RELATIVE_SKELETAL_POSITION_SENSOR: [67, 4],
-        LOCATION_SENSOR: [3, 1],
-        VELOCITY_SENSOR: [3, 1],
-        ROTATION_SENSOR: [3, 1],
+        LOCATION_SENSOR: [3],
+        VELOCITY_SENSOR: [3],
+        ROTATION_SENSOR: [3],
         COLLISION_SENSOR: [1],
     }
 
