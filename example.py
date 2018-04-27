@@ -24,6 +24,10 @@ def uav_example():
             velocity = state[Sensors.VELOCITY_SENSOR]
             # For a full list of sensors the UAV has, view the README
 
+            # To access and change hyperparameters of the agent:
+            params = env.get_hyperparameters()
+            params[UAVHyperparameters.UAV_MAX_PITCH] = 0
+
 
 def sphere_example():
     """A basic example of how to use the sphere agent."""
@@ -41,15 +45,40 @@ def sphere_example():
             orientation = state[Sensors.ORIENTATION_SENSOR]
             # For a full list of sensors the sphere robot has, view the README
 
+            # Note: The sphere agent doesn't have any hyperparameters.
+
+
+def multi_agent_example():
+    """A basic example of using multiple agents"""
+    env = holodeck.make("UrbanCity")
+
+    cmd0 = np.array([0, 0, 1, 5])
+    cmd1 = np.array([0, 0, -0.7, 5])
+    for i in range(10):
+        env.reset()
+        # This will queue up a new agent to spawn into the environment, given that the coordinates are not blocked.
+        sensors = [Sensors.PRIMARY_PLAYER_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
+        agent = AgentDefinition("uav1", agents.UAVAgent, sensors)
+        env.spawn_agent(agent, [1, 1, 5])
+        env.tick()  # Tick the environment once so the second agent spawns before we try to interact with it.
+
+        env.act("uav0", cmd0)
+        env.act("uav1", cmd1)
+        for _ in range(600):
+            states = env.tick()
+            uav0_terminal = states["uav0"][Sensors.TERMINAL]
+            uav1_reward = states["uav1"][Sensors.REWARD]
+            uav1_hyperparameters = env.get_hyperparameters("uav1")
+
 
 def editor_example():
     """This editor example shows how to interact with holodeck worlds while they are being built
     in the Unreal Engine. Most people that use holodeck will not need this.
     """
     sensors = [Sensors.PRIMARY_PLAYER_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
-    agent = AgentDefinition("sphere0", agents.ContinuousSphereAgent, sensors)
+    agent = AgentDefinition("uav0", agents.UAVAgent, sensors)
     env = HolodeckEnvironment(agent, start_world=False)
-    command = np.random.normal(0, 5, 2)
+    command = [0, 0, 1, 1]
 
     for i in range(10):
         env.reset()
@@ -75,10 +104,11 @@ def editor_multi_agent_example():
         env.act("uav1", cmd1)
         for _ in range(300):
             states = env.tick()
+
             uav0_terminal = states["uav0"][Sensors.TERMINAL]
             uav1_reward = states["uav1"][Sensors.REWARD]
 
 
 if __name__ == "__main__":
-    uav_example()
+    multi_agent_example()
     print("Finished")
