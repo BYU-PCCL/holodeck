@@ -110,5 +110,5 @@ def editor_multi_agent_example():
 
 
 if __name__ == "__main__":
-    multi_agent_example()
+    uav_example()
     print("Finished")
