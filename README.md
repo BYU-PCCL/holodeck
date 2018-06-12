@@ -105,6 +105,9 @@ It contains the following sensors:
 * OrientationSensor
 * LocationSensor
 
+# Custom World Creation
+To create custom worlds with variable start positions, number and type of agents, and different environments see https://github.com/BYU-PCCL/Holodeck for details on compiling Holodeck and editing worlds with the Unreal editor.
+
 # Using OpenGL3 in Linux
 To use OpenGL3 in linux, change the argument in Holodeck.make:
 ```
