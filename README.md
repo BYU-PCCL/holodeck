@@ -105,7 +105,13 @@ It contains the following sensors:
 * OrientationSensor
 * LocationSensor
 
-# Using OpenGL3 in Linux
+## AndroidAgent
+The AndroidAgent action space is a 94 dimensional vector containing values for the torques to be applied at each of the Android's joints. Details can be found [here](https://github.com/BYU-PCCL/Holodeck/blob/develop/Source/Holodeck/Agents/Private/Android.cpp)
+
+## Custom World Creation
+To create custom worlds with variable start positions, number and type of agents, and different environments see [Using Custom Worlds](https://github.com/BYU-PCCL/HolodeckPythonBinding/wiki/Using-Custom-Worlds) on the wiki for details on compiling Holodeck and editing worlds with the Unreal editor.
+
+## Using OpenGL3 in Linux
 To use OpenGL3 in linux, change the argument in Holodeck.make:
 ```
 from Holodeck import Holodeck

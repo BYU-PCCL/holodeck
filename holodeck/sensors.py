@@ -5,7 +5,7 @@ class Sensors:
     TERMINAL = 1
     REWARD = 2
     PRIMARY_PLAYER_CAMERA = 3  # default is 512 x 512 RGBA
-    CAMERA_SENSOR_ARRAY_2D = 4  # default is 512 x 512 RGBA
+    PIXEL_CAMERA = 4  # default is 512 x 512 RGBA
     ORIENTATION_SENSOR = 5
     IMU_SENSOR = 6
     JOINT_ROTATION_SENSOR = 7
@@ -20,7 +20,7 @@ class Sensors:
         TERMINAL: [1],
         REWARD: [1],
         PRIMARY_PLAYER_CAMERA: [512, 512, 4],
-        CAMERA_SENSOR_ARRAY_2D: [512, 512, 4],
+        PIXEL_CAMERA: [256, 256, 4],
         ORIENTATION_SENSOR: [3, 3],
         IMU_SENSOR: [2, 3],
         JOINT_ROTATION_SENSOR: [94],
@@ -35,7 +35,7 @@ class Sensors:
         TERMINAL: np.bool,
         REWARD: np.float32,
         PRIMARY_PLAYER_CAMERA: np.uint8,
-        CAMERA_SENSOR_ARRAY_2D: np.float32,
+        PIXEL_CAMERA: np.uint8,
         ORIENTATION_SENSOR: np.float32,
         IMU_SENSOR: np.float32,
         JOINT_ROTATION_SENSOR: np.float32,
@@ -50,7 +50,7 @@ class Sensors:
         TERMINAL: "Terminal",
         REWARD: "Reward",
         PRIMARY_PLAYER_CAMERA: "PrimaryPlayerCamera",
-        CAMERA_SENSOR_ARRAY_2D: "CameraSensorArray2D",
+        PIXEL_CAMERA: "PixelCamera",
         ORIENTATION_SENSOR: "OrientationSensor",
         IMU_SENSOR: "IMUSensor",
         JOINT_ROTATION_SENSOR: "JointRotationSensor",
