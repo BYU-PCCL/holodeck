@@ -14,9 +14,7 @@ Currently only support Python3 in Windows and Linux.
 * OpenGL3 or 4
 
 ### Windows
-* Holodeck on Windows requires pywin32:
-  * Navigate to https://sourceforge.net/projects/pywin32/files/pywin32/
-  * Choose the latest build and download the correct version (32 or 64 bit, and correct Python version).
+* pywin32: `pip3 install pywin32`
 
 # Installation
 * Clone the repository `git clone https://github.com/byu-pccl/HolodeckPythonBinding`
