@@ -10,7 +10,7 @@ from queue import Queue
 from threading import Thread
 
 holodeck_binary_website = "http://pcc.byu.edu/holodeck/"
-holodeck_binary_name = "DefaultWorlds_1.02.zip"
+holodeck_binary_name = "DefaultWorlds_1.03.zip"
 block_size = 1000000  # 1mb
 
 
