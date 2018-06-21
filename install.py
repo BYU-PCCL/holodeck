@@ -10,8 +10,13 @@ from queue import Queue
 from threading import Thread
 
 holodeck_binary_website = "http://pcc.byu.edu/holodeck/"
-holodeck_binary_name = "DefaultWorlds_1.03.zip"
 block_size = 1000000  # 1mb
+
+packaged_project_names = [
+    "DefaultWorlds_1.03.zip",
+    "CyberPunkCity_1.0.zip",
+    "InfiniteForest_1.0.zip"
+]
 
 
 def _setup_binary(binary_location, worlds_path):
@@ -129,6 +134,22 @@ def windows_installation():
         print("Insufficient permissions, cannot install at specified path.")
 
 
+def select_project_name():
+    print("Available Unreal Projects:")
+    for i in range(len(packaged_project_names)):
+        print(str(i)+": "+packaged_project_names[i])
+
+    try:
+        choice = int(input("Choose an Unreal Project for download(default 0): "))
+    except ValueError:
+        choice = 0
+
+    if choice >= len(packaged_project_names) or choice < 0:
+        choice = 0
+    return packaged_project_names[choice]
+
+
+holodeck_binary_name = select_project_name()
 if os.name == "posix":
     linux_installation()
 elif os.name == "nt":
