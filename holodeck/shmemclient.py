@@ -1,8 +1,8 @@
 import os
-from itertools import chain
+import numpy as np
 
-from .Shmem import Shmem
-from .Exceptions import HolodeckException
+from holodeck.exceptions import HolodeckException
+from holodeck.shmem import Shmem
 
 
 class ShmemClient:
@@ -62,8 +62,9 @@ class ShmemClient:
         def posix_unlink():
             posix_ipc.unlink_semaphore(self._semaphore1.name)
             posix_ipc.unlink_semaphore(self._semaphore2.name)
-            for shmem_block in chain(self._sensors.values(), self._agents.values(), self._settings.values()):
-                shmem_block.unlink()
+            # TODO(mitch) : Properly unlink shmem in posix
+            # for shmem_block in chain(self._sensors.values(), self._agents.values(), self._settings.values()):
+            #     shmem_block.unlink()
 
         self._get_semaphore_fn = posix_acquire_semaphore
         self._release_semaphore_fn = posix_release_semaphore
@@ -83,8 +84,11 @@ class ShmemClient:
         return self._sensors[agent_name + "_" + sensor_key].np_array
 
     def subscribe_command(self, agent_name, shape):
-        self._agents[agent_name] = Shmem(agent_name, shape, uuid=self._uuid)
-        return self._agents[agent_name].np_array
+        self._agents[agent_name] = (Shmem(agent_name, shape, uuid=self._uuid),
+                                    Shmem(agent_name + "_teleport_bool", [1], uuid=self._uuid, dtype=np.bool),
+                                    Shmem(agent_name + "_teleport_command", [3], uuid=self._uuid))
+        buffers = self._agents[agent_name]
+        return list(map(lambda x: x.np_array, buffers))
 
     def subscribe_setting(self, setting_name, shape, dtype):
         self._settings[setting_name] = Shmem(setting_name, shape, dtype, self._uuid)

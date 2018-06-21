@@ -14,9 +14,7 @@ Currently only support Python3 in Windows and Linux.
 * OpenGL3 or 4
 
 ### Windows
-* Holodeck on Windows requires pywin32:
-  * Navigate to https://sourceforge.net/projects/pywin32/files/pywin32/
-  * Choose the latest build and download the correct version (32 or 64 bit, and correct Python version).
+* pywin32: `pip3 install pywin32`
 
 # Installation
 * Clone the repository `git clone https://github.com/byu-pccl/HolodeckPythonBinding`
@@ -105,7 +103,13 @@ It contains the following sensors:
 * OrientationSensor
 * LocationSensor
 
-# Using OpenGL3 in Linux
+## AndroidAgent
+The AndroidAgent action space is a 94 dimensional vector containing values for the torques to be applied at each of the Android's joints. Details can be found [here](https://github.com/BYU-PCCL/Holodeck/blob/develop/Source/Holodeck/Agents/Private/Android.cpp)
+
+## Custom World Creation
+To create custom worlds with variable start positions, number and type of agents, and different environments see [Using Custom Worlds](https://github.com/BYU-PCCL/HolodeckPythonBinding/wiki/Using-Custom-Worlds) on the wiki for details on compiling Holodeck and editing worlds with the Unreal editor.
+
+## Using OpenGL3 in Linux
 To use OpenGL3 in linux, change the argument in Holodeck.make:
 ```
 from Holodeck import Holodeck
