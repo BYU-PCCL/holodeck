@@ -148,9 +148,4 @@ def select_project():
 
 
 package_name = select_project()
-if os.name == "posix":
-    install(package_name)
-elif os.name == "nt":
-    install(package_name)
-else:
-    raise NotImplementedError("holodeck is only supported for Linux and Windows")
+install(package_name)
