@@ -12,7 +12,8 @@ from holodeck import util
 from holodeck.exceptions import HolodeckException
 
 packages = {
-    "DefaultWorlds": "DefaultWorlds_1.02.zip",
+    "DefaultWorlds": "DefaultWorlds_1.03.zip",
+    "InfiniteForest": "InfiniteForest_1.0.zip",
 }
 
 
@@ -83,6 +84,7 @@ def install(package_name):
     Positional Arguments:
     package_name -- the name of the package to install
     """
+
     binary_website = "http://pcc.byu.edu/holodeck/"
 
     if package_name not in packages:

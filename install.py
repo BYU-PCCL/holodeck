@@ -8,15 +8,11 @@ from os.path import expanduser
 from pathlib import Path
 from queue import Queue
 from threading import Thread
+from holodeck.packagemanager import *
+
 
 holodeck_binary_website = "http://pcc.byu.edu/holodeck/"
 block_size = 1000000  # 1mb
-
-packaged_project_names = [
-    "DefaultWorlds_1.03.zip",
-    "CyberPunkCity_1.0.zip",
-    "InfiniteForest_1.0.zip"
-]
 
 
 def _setup_binary(binary_location, worlds_path):
@@ -87,6 +83,7 @@ def linux_installation():
         for path, _, _ in os.walk(os.path.join(worlds_path, "LinuxDefaultWorlds")):
             os.chmod(path, 0o777)
         binary_path = os.path.join(worlds_path, "LinuxDefaultWorlds/LinuxNoEditor/holodeck/Binaries/Linux/holodeck")
+        print(binary_path)
         os.chmod(binary_path, 0o755)
 
         print("To continue installation, follow instructions on the github page")
@@ -131,28 +128,29 @@ def windows_installation():
         print("Ensure to add the installed directory to your path")
 
     except PermissionError:
-        print("Insufficient permissions, cannot install at specified path.")
+        print("Insufficient permissions, cannot install at specified path. Try running as administrator")
 
 
-def select_project_name():
+def select_project():
     print("Available Unreal Projects:")
-    for i in range(len(packaged_project_names)):
-        print(str(i)+": "+packaged_project_names[i])
+    package_names = all_packages()
+    for i in range(len(package_names)):
+        print(str(i)+": "+package_names[i])
 
     try:
         choice = int(input("Choose an Unreal Project for download(default 0): "))
     except ValueError:
         choice = 0
 
-    if choice >= len(packaged_project_names) or choice < 0:
+    if choice >= len(package_names) or choice < 0:
         choice = 0
-    return packaged_project_names[choice]
+    return package_names[choice]
 
 
-holodeck_binary_name = select_project_name()
+package_name = select_project()
 if os.name == "posix":
-    linux_installation()
+    install(package_name)
 elif os.name == "nt":
-    windows_installation()
+    install(package_name)
 else:
     raise NotImplementedError("holodeck is only supported for Linux and Windows")

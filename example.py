@@ -16,7 +16,7 @@ def uav_example():
 
         # This command tells the UAV to not roll or pitch, but to constantly yaw left at 10m altitude.
         command = np.array([0, 0, 1, 10])
-        for _ in range(300):
+        for _ in range(3000):
             state, reward, terminal, _ = env.step(command)
 
             # To access specific sensor data:
@@ -82,7 +82,7 @@ def editor_example():
 
     for i in range(10):
         env.reset()
-        for _ in range(300):
+        for _ in range(3000):
             state, reward, terminal, _ = env.step(command)
 
 
