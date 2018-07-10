@@ -9,7 +9,7 @@ from holodeck.sensors import Sensors
 
 def uav_example():
     """A basic example of how to use the UAV agent."""
-    env = holodeck.make("UrbanCity")
+    env = holodeck.make("InfiniteForest")
 
     for i in range(10):
         env.reset()

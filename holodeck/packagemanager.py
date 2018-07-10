@@ -95,7 +95,6 @@ def install(package_name):
     install_path = os.path.join(util.get_holodeck_path(), "worlds")
     binary_url = binary_website + util.get_os_key() + "_" + package_url
     _download_binary(binary_url, install_path)
-    print(install_path)
     if os.name == "posix":
         _make_binary_excecutable(package_name, install_path)
 
@@ -169,5 +168,4 @@ def _make_binary_excecutable(package_name, worlds_path):
     for path, _, _ in os.walk(os.path.join(worlds_path, complete_name)):
         os.chmod(path, 0o777)
     binary_path = os.path.join(worlds_path, complete_name + "/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck")
-    print(binary_path)
     os.chmod(binary_path, 0o755)
