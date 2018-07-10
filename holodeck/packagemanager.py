@@ -19,7 +19,7 @@ packages = {
 
 def all_packages():
     """Returns a list of all downloadable package names"""
-    return [k for k in packages.keys()]
+    return list(packages.keys())
 
 
 def installed_packages():

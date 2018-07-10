@@ -9,14 +9,14 @@ from holodeck.sensors import Sensors
 
 def uav_example():
     """A basic example of how to use the UAV agent."""
-    env = holodeck.make("InfiniteForest")
+    env = holodeck.make("UrbanCity")
 
     for i in range(10):
         env.reset()
 
         # This command tells the UAV to not roll or pitch, but to constantly yaw left at 10m altitude.
         command = np.array([0, 0, 1, 10])
-        for _ in range(3000):
+        for _ in range(300):
             state, reward, terminal, _ = env.step(command)
 
             # To access specific sensor data:

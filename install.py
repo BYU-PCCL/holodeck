@@ -62,17 +62,15 @@ def _windows_make_path():
 def _select_project():
     print("Available Unreal Projects:")
     package_names = all_packages()
-    for i in range(len(package_names)):
-        print(" "+str(i)+": "+package_names[i])
+    for name in package_names:
+        print(" " + name)
 
-    try:
-        choice = int(input("Please choose an Unreal Project for installation(default 0): "))
-    except ValueError:
-        choice = 0
+    choice = input("Please choose an Unreal Project for installation(default is DefaultWorlds): ")
 
-    if choice >= len(package_names) or choice < 0:
-        choice = 0
-    return package_names[choice]
+    if not choice in package_names:
+        choice = "DefaultWorlds"
+
+    return choice
 
 
 def _install_world(package_name):
