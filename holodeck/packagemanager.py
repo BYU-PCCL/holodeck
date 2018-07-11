@@ -78,12 +78,17 @@ def world_info(world_name, world_config=None, initial_indent="", next_indent="  
             print(sensor_indent, sensor)
 
 
-def install(package_name):
+def install(package_name, holodeck_path="."):
     """Installs a holodeck package.
 
     Positional Arguments:
     package_name -- the name of the package to install
     """
+
+    # using util.get_holodeck_path() as a default value causes a compilation error if HOLODECKPATH does not exist
+    # "." is used instead
+    if holodeck_path == ".":
+        holodeck_path = util.get_holodeck_path()
 
     binary_website = "http://pcc.byu.edu/holodeck/"
 
@@ -91,8 +96,8 @@ def install(package_name):
         raise HolodeckException("Unknown package name " + package_name)
     package_url = packages[package_name]
 
-    print("Installing", package_name)
-    install_path = os.path.join(util.get_holodeck_path(), "worlds")
+    print("Installing " + package_name + " at " + holodeck_path)
+    install_path = os.path.join(holodeck_path, "worlds")
     binary_url = binary_website + util.get_os_key() + "_" + package_url
     _download_binary(binary_url, install_path)
     if os.name == "posix":
