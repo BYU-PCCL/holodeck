@@ -14,6 +14,7 @@ from holodeck.exceptions import HolodeckException
 packages = {
     "DefaultWorlds": "DefaultWorlds_1.03.zip",
     "InfiniteForest": "InfiniteForest_1.0.zip",
+    "CyberPunkCity": "CyberPunkCity_1.0.zip",
 }
 
 
