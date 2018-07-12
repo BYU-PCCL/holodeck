@@ -71,40 +71,13 @@ SPHERE ROBOT WORLDS
 * MazeWorld
 
 To interact with the environment, you simply call `env.step(cmd)` where cmd is a command for the specific agent.
-Each agent has a different action space, which are detailed below.
+Each agent has a different action space, which are detailed [here](https://github.com/BYU-PCCL/Holodeck/blob/develop/Docs/agents.md).
 The step function returns a tuple of `(state, reward, terminal, info)`.
 The state is a dictionary of sensor enum to sensor value.
 Reward is the reward received from the previous action, and terminal indicates whether the current state is a terminal state.
 Info contains additional environment specific information.
-The sensors for each agent are also indicated below.
 
-## UAV
-The UAV's action space is as follows:
-```
-[roll_target, pitch_target, yaw_rate_target, altitude_target]
-```
-It contains the following sensors:
-* PrimaryPlayerCamera
-* OrientationSensor
-* LocationSensor
-* VelocitySensor
-* IMUSensor
-
-
-## DiscreteSphereRobot
-The DiscreteSphereRobot takes in an index of one of four actions:
-* 0: Move Forward
-* 1: Move Backward
-* 2: Turn Right
-* 3: Turn Left
-
-It contains the following sensors:
-* PrimaryPlayerCamera
-* OrientationSensor
-* LocationSensor
-
-## AndroidAgent
-The AndroidAgent action space is a 94 dimensional vector containing values for the torques to be applied at each of the Android's joints. Details can be found [here](https://github.com/BYU-PCCL/Holodeck/blob/develop/Source/Holodeck/Agents/Private/Android.cpp)
+The sensors for each agent are also indicated [here](https://github.com/BYU-PCCL/Holodeck/blob/develop/Docs/sensors.md
 
 ## Custom World Creation
 To create custom worlds with variable start positions, number and type of agents, and different environments see [Using Custom Worlds](https://github.com/BYU-PCCL/HolodeckPythonBinding/wiki/Using-Custom-Worlds) on the wiki for details on compiling Holodeck and editing worlds with the Unreal editor.
