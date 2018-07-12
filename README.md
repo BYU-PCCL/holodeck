@@ -77,7 +77,7 @@ The state is a dictionary of sensor enum to sensor value.
 Reward is the reward received from the previous action, and terminal indicates whether the current state is a terminal state.
 Info contains additional environment specific information.
 
-The sensors for each agent are also indicated [here](https://github.com/BYU-PCCL/Holodeck/blob/develop/Docs/sensors.md
+The sensors for each agent are also indicated [here](https://github.com/BYU-PCCL/Holodeck/blob/develop/Docs/sensors.md)
 
 ## Custom World Creation
 To create custom worlds with variable start positions, number and type of agents, and different environments see [Using Custom Worlds](https://github.com/BYU-PCCL/HolodeckPythonBinding/wiki/Using-Custom-Worlds) on the wiki for details on compiling Holodeck and editing worlds with the Unreal editor.
