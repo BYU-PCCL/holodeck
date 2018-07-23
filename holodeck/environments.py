@@ -236,6 +236,24 @@ class HolodeckEnvironment(object):
         command_to_send = SpawnAgentCommand(location, agent_definition.name, agent_definition.type)
         self._commands.add_command(command_to_send)
 
+    def change_fog_density(self, density):
+        """Queue up a change fog density command to be written to the command buffer and open up the respective buffers
+        needed for sending commands to and receiving data from the agent.
+        By the next tick, the exponential height fog in the world will have the new density. If there is no fog in the world,
+        it be automatically created with the given density.
+
+        Positional arguments:
+        agent_definition -- The new density value, something between 0-1. The command will not be sent if the given
+        density is invalid.
+        """
+        if density < 0 or density > 1:
+            print("Fog density should be between 0 and 1")
+            return
+
+        self._should_write_to_command_buffer = True
+        command_to_send = ChangeFogDensityCommand(density)
+        self._commands.add_command(command_to_send)
+
     def write_to_command_buffer(self, to_write):
         """Write input to the command buffer.  Reformat input string to the correct format.
 

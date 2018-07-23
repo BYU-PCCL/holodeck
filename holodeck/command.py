@@ -115,3 +115,25 @@ class SpawnAgentCommand(Command):
         """
         type_str = SpawnAgentCommand.__type_keys[agent_type]
         self.add_string_parameters(type_str)
+
+
+class ChangeFogDensityCommand(Command):
+
+    def __init__(self, density):
+        """Sets the command type to ChangeFogDensity and initialized this object.
+
+        :param density: The new density, should be something between 0-1
+        """
+        Command.__init__(self)
+        self._command_type = "ChangeFogDensity"
+        self.set_density(density)
+
+    def set_density(self, density):
+        """Set the density for the fog.
+        Positional Arguments:
+        density -- The new density, should be something between 0-1
+        """
+        if density < 0 or density > 1:
+            print("Fog density should be between 0 and 1")
+            return
+        self.add_number_parameters(density)
