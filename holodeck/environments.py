@@ -239,11 +239,11 @@ class HolodeckEnvironment(object):
     def change_fog_density(self, density):
         """Queue up a change fog density command to be written to the command buffer and open up the respective buffers
         needed for sending commands to and receiving data from the agent.
-        By the next tick, the exponential height fog in the world will have the new density. If there is no fog in the world,
-        it be automatically created with the given density.
+        By the next tick, the exponential height fog in the world will have the new density. If there is no fog in the
+        world, it be automatically created with the given density.
 
         Positional arguments:
-        agent_definition -- The new density value, something between 0-1. The command will not be sent if the given
+        density -- The new density value, something between 0-1. The command will not be sent if the given
         density is invalid.
         """
         if density < 0 or density > 1:
@@ -252,6 +252,24 @@ class HolodeckEnvironment(object):
 
         self._should_write_to_command_buffer = True
         command_to_send = ChangeFogDensityCommand(density)
+        self._commands.add_command(command_to_send)
+
+    def change_day_time(self, hour):
+        """Queue up a change day time command to be written to the command buffer and open up the respective buffers
+        needed for sending commands to and receiving data from the agent.
+        By the next tick, the lighting and the skysphere will be updated with the new hour. If there is no skysphere
+        or directional light in the world, the command will not function properly but will not cause a crash.
+
+        Positional arguments:
+        hour -- The hour in military time, should be something between 0-23. If the value will be truncated. The command
+        will not be sent if the given hour is out of range.
+        """
+        if hour < 0 or hour > 23:
+            print("ERROR: The given hour should be between 0 and 23 (military time)")
+            return
+
+        self._should_write_to_command_buffer = True
+        command_to_send = DayTimeCommand(hour)
         self._commands.add_command(command_to_send)
 
     def write_to_command_buffer(self, to_write):

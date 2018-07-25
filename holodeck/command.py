@@ -137,3 +137,25 @@ class ChangeFogDensityCommand(Command):
             print("Fog density should be between 0 and 1")
             return
         self.add_number_parameters(density)
+
+
+class DayTimeCommand(Command):
+
+    def __init__(self, hour):
+        """Sets the command type to DayTime and initialized this object.
+
+        :param hour: The hour in military time, should be something between 0-23
+        """
+        Command.__init__(self)
+        self._command_type = "DayTime"
+        self.set_hour(hour)
+
+    def set_hour(self, hour):
+        """Set the hour.
+        Positional Arguments:
+        hour -- The hour in military time, should be something between 0-23
+        """
+        if hour < 0 or hour > 23:
+            print("The hour should be in military time; between 0 and 23")
+            return
+        self.add_number_parameters(hour)
