@@ -237,8 +237,7 @@ class HolodeckEnvironment(object):
         self._commands.add_command(command_to_send)
 
     def change_fog_density(self, density):
-        """Queue up a change fog density command to be written to the command buffer and open up the respective buffers
-        needed for sending commands to and receiving data from the agent.
+        """Queue up a change fog density command.
         By the next tick, the exponential height fog in the world will have the new density. If there is no fog in the
         world, it be automatically created with the given density.
 
@@ -255,14 +254,13 @@ class HolodeckEnvironment(object):
         self._commands.add_command(command_to_send)
 
     def change_day_time(self, hour):
-        """Queue up a change day time command to be written to the command buffer and open up the respective buffers
-        needed for sending commands to and receiving data from the agent.
+        """Queue up a change day time command.
         By the next tick, the lighting and the skysphere will be updated with the new hour. If there is no skysphere
         or directional light in the world, the command will not function properly but will not cause a crash.
 
         Positional arguments:
-        hour -- The hour in military time, should be something between 0-23. If the value will be truncated. The command
-        will not be sent if the given hour is out of range.
+        hour -- The hour in military time, should be something between 0-23. The command will not be sent if the given
+        hour is out of range.
         """
         if hour < 0 or hour > 23:
             print("ERROR: The given hour should be between 0 and 23 (military time)")
@@ -270,6 +268,28 @@ class HolodeckEnvironment(object):
 
         self._should_write_to_command_buffer = True
         command_to_send = DayTimeCommand(hour)
+        self._commands.add_command(command_to_send)
+
+    def set_weather(self, type):
+        """Queue up a set weather command.
+        By the next tick, the lighting, skysphere, fog, and relavant particle systems will be updated and/or spawned
+        to the given weather. If there is no skysphere or directional light in the world, the command may not function
+        properly but will not cause a crash.
+
+        NOTE: Because this command can effect the fog density, any changes made by a change_fog_density command before
+        a set_weather command called will be undone. It is recommended to call change_fog_density after calling set
+        weather.
+
+        Positional arguments:
+        type -- The type of weather, which can be 'Rain', 'Snow', 'Sun', or 'Clouds'. If the given type string is not
+        available, the command will not be sent.
+        """
+        if not SetWeatherCommand.has_type(type):
+            print("ERROR: Invalid weather type. The available weather types are :" + str(SetWeatherCommand.types))
+            return
+
+        self._should_write_to_command_buffer = True
+        command_to_send = SetWeatherCommand(type)
         self._commands.add_command(command_to_send)
 
     def write_to_command_buffer(self, to_write):

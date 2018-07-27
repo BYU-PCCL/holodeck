@@ -159,3 +159,39 @@ class DayTimeCommand(Command):
             print("The hour should be in military time; between 0 and 23")
             return
         self.add_number_parameters(hour)
+
+
+class SetWeatherCommand(Command):
+    """ Avaiable weather types. NOTE: Snow and clouds not implemented """
+    types = [
+        "Rain",
+        "Snow",
+        "Sun",
+        "Clouds"
+    ]
+
+    def __init__(self, type):
+        """Sets the command type to SetWeather and initialized this object.
+
+        :param type: The weather type, should be one of the above array
+        """
+        Command.__init__(self)
+        self._command_type = "SetWeather"
+        self.set_type(type)
+
+    def set_type(self, type):
+        """Set the weather type.
+        Positional Arguments:
+        type: The weather type, should be one of the above array
+        """
+        exists = self.has_type(type)
+        if exists:
+            self.add_string_parameters(type)
+
+    @staticmethod
+    def has_type(type):
+        """Checks the validity of the type. Returns true if it exists in the type array
+        Positional Arguments:
+        type: The weather type, should be one of the above array
+        """
+        return type in SetWeatherCommand.types
