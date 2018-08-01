@@ -236,7 +236,7 @@ class HolodeckEnvironment(object):
         command_to_send = SpawnAgentCommand(location, agent_definition.name, agent_definition.type)
         self._commands.add_command(command_to_send)
 
-    def change_fog_density(self, density):
+    def set_fog_density(self, density):
         """Queue up a change fog density command.
         By the next tick, the exponential height fog in the world will have the new density. If there is no fog in the
         world, it be automatically created with the given density.
@@ -253,7 +253,7 @@ class HolodeckEnvironment(object):
         command_to_send = ChangeFogDensityCommand(density)
         self._commands.add_command(command_to_send)
 
-    def change_day_time(self, hour):
+    def set_day_time(self, hour):
         """Queue up a change day time command.
         By the next tick, the lighting and the skysphere will be updated with the new hour. If there is no skysphere
         or directional light in the world, the command will not function properly but will not cause a crash.
@@ -272,7 +272,7 @@ class HolodeckEnvironment(object):
 
     def set_weather(self, type):
         """Queue up a set weather command.
-        By the next tick, the lighting, skysphere, fog, and relavant particle systems will be updated and/or spawned
+        By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
         to the given weather. If there is no skysphere or directional light in the world, the command may not function
         properly but will not cause a crash.
 
@@ -281,15 +281,15 @@ class HolodeckEnvironment(object):
         weather.
 
         Positional arguments:
-        type -- The type of weather, which can be 'Rain', 'Snow', 'Sun', or 'Clouds'. If the given type string is not
-        available, the command will not be sent.
+        type -- The type of weather, which can be 'Rain', 'Snow', or 'Cloudy'. In all downloadable worlds, the weather
+        is clear by default. If the given type string is not available, the command will not be sent.
         """
-        if not SetWeatherCommand.has_type(type):
+        if not SetWeatherCommand.has_type(type.lower()):
             print("ERROR: Invalid weather type. The available weather types are :" + str(SetWeatherCommand.types))
             return
 
         self._should_write_to_command_buffer = True
-        command_to_send = SetWeatherCommand(type)
+        command_to_send = SetWeatherCommand(type.lower())
         self._commands.add_command(command_to_send)
 
     def write_to_command_buffer(self, to_write):

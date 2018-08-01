@@ -162,12 +162,11 @@ class DayTimeCommand(Command):
 
 
 class SetWeatherCommand(Command):
-    """ Avaiable weather types. NOTE: Snow and clouds not implemented """
+    """ Avaiable weather types. NOTE: Snow not implemented """
     types = [
-        "Rain",
-        "Snow",
-        "Sun",
-        "Clouds"
+        "rain",
+        "snow",
+        "cloudy"
     ]
 
     def __init__(self, type):
@@ -184,6 +183,7 @@ class SetWeatherCommand(Command):
         Positional Arguments:
         type: The weather type, should be one of the above array
         """
+        type.lower()
         exists = self.has_type(type)
         if exists:
             self.add_string_parameters(type)
