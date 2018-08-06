@@ -163,7 +163,7 @@ class DayTimeCommand(Command):
 
 class SetWeatherCommand(Command):
     """ Avaiable weather types. NOTE: Snow not implemented """
-    types = [
+    _types = [
         "rain",
         "snow",
         "cloudy"
@@ -194,4 +194,4 @@ class SetWeatherCommand(Command):
         Positional Arguments:
         type: The weather type, should be one of the above array
         """
-        return type in SetWeatherCommand.types
+        return type in SetWeatherCommand._types
