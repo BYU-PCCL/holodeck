@@ -111,6 +111,8 @@ def remove(package_name):
 def _iter_packages():
     path = util.get_holodeck_path()
     worlds_path = os.path.join(path, "worlds")
+    if not os.path.exists(worlds_path):
+        os.makedirs(worlds_path)
     for dir_name in os.listdir(worlds_path):
         full_path = os.path.join(worlds_path, dir_name)
         if os.path.isdir(full_path):
