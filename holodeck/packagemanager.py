@@ -79,18 +79,14 @@ def world_info(world_name, world_config=None, initial_indent="", next_indent="  
             print(sensor_indent, sensor)
 
 
-def install(package_name, holodeck_path="."):
+def install(package_name):
     """Installs a holodeck package.
 
     Positional Arguments:
     package_name -- the name of the package to install
     """
 
-    # using util.get_holodeck_path() as a default value causes a compilation error if HOLODECKPATH does not exist
-    # "." is used instead
-    if holodeck_path == ".":
-        holodeck_path = util.get_holodeck_path()
-
+    holodeck_path = util.get_holodeck_path()
     binary_website = "http://pcc.byu.edu/holodeck/"
 
     if package_name not in packages:
