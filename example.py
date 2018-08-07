@@ -82,7 +82,7 @@ def editor_example():
 
     for i in range(10):
         env.reset()
-        for _ in range(300):
+        for _ in range(3000):
             state, reward, terminal, _ = env.step(command)
 
 
