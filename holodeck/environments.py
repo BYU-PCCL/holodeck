@@ -270,6 +270,32 @@ class HolodeckEnvironment(object):
         command_to_send = DayTimeCommand(hour)
         self._commands.add_command(command_to_send)
 
+    def start_day_cycle(self, day_length):
+        """Queue up a day cycle command to start the day cycle.
+        The sky sphere will now update each tick with an updated sun angle as it moves about the sky. The length of a
+        day will be roughly equivalent to the number of minutes given.
+
+        Positional arguments:
+        day_length -- The number of minutes each day will be
+        """
+        if day_length <= 0:
+            print("Day Cycle ERROR: The given day length should be between above 0!")
+            return
+
+        self._should_write_to_command_buffer = True
+        command_to_send = DayCycleCommand(True)
+        command_to_send.set_day_length(day_length)
+        self._commands.add_command(command_to_send)
+
+    def stop_day_cycle(self, hour):
+        """Queue up a day cycle command to stop the day cycle.
+        By the next tick, day cycle will stop where it is.
+        """
+
+        self._should_write_to_command_buffer = True
+        command_to_send = DayCycleCommand(False)
+        self._commands.add_command(command_to_send)
+
     def set_weather(self, type):
         """Queue up a set weather command.
         By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned

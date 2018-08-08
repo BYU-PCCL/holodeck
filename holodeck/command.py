@@ -161,11 +161,42 @@ class DayTimeCommand(Command):
         self.add_number_parameters(hour)
 
 
+class DayCycleCommand(Command):
+
+    def __init__(self, start):
+        """Sets the command type to DayCycle and initialized this object.
+
+        :param start: bool representing whether to start or stop the day night cycle
+        """
+        Command.__init__(self)
+        self._command_type = "DayCycle"
+        self.set_command(start)
+
+    def set_day_length(self, day_length):
+        """Set the day length in minutes.
+        Positional Arguments:
+        hour -- The day length in minutes. Cannot be at or below 0
+        """
+        if day_length <= 0:
+            print("The day length should not be equal to or below 0")
+            return
+        self.add_number_parameters(day_length)
+
+    def set_command(self, start):
+        """Start or stop the command
+        Positional Arguments:
+        start -- Bool for whether to start(true) the day cycle or stop(false).
+        """
+        if start:
+            self.add_string_parameters("start")
+        else:
+            self.add_string_parameters("stop")
+
+
 class SetWeatherCommand(Command):
     """ Avaiable weather types. NOTE: Snow not implemented """
     _types = [
         "rain",
-        "snow",
         "cloudy"
     ]
 
