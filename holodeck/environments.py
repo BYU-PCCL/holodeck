@@ -287,7 +287,7 @@ class HolodeckEnvironment(object):
         command_to_send.set_day_length(day_length)
         self._commands.add_command(command_to_send)
 
-    def stop_day_cycle(self, hour):
+    def stop_day_cycle(self):
         """Queue up a day cycle command to stop the day cycle.
         By the next tick, day cycle will stop where it is.
         """
@@ -296,7 +296,7 @@ class HolodeckEnvironment(object):
         command_to_send = DayCycleCommand(False)
         self._commands.add_command(command_to_send)
 
-    def set_weather(self, type):
+    def set_weather(self, weather_type):
         """Queue up a set weather command.
         By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
         to the given weather. If there is no skysphere or directional light in the world, the command may not function
@@ -310,12 +310,12 @@ class HolodeckEnvironment(object):
         type -- The type of weather, which can be 'Rain', 'Snow', or 'Cloudy'. In all downloadable worlds, the weather
         is clear by default. If the given type string is not available, the command will not be sent.
         """
-        if not SetWeatherCommand.has_type(type.lower()):
+        if not SetWeatherCommand.has_type(weather_type.lower()):
             print("ERROR: Invalid weather type. The available weather types are :" + str(SetWeatherCommand.types))
             return
 
         self._should_write_to_command_buffer = True
-        command_to_send = SetWeatherCommand(type.lower())
+        command_to_send = SetWeatherCommand(weather_type.lower())
         self._commands.add_command(command_to_send)
 
     def write_to_command_buffer(self, to_write):

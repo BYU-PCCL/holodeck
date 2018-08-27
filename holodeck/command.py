@@ -194,30 +194,30 @@ class DayCycleCommand(Command):
 
 
 class SetWeatherCommand(Command):
-    """ Avaiable weather types. NOTE: Snow not implemented """
+    """ Avaiable weather types. """
     _types = [
         "rain",
         "cloudy"
     ]
 
-    def __init__(self, type):
+    def __init__(self, weather_type):
         """Sets the command type to SetWeather and initialized this object.
 
         :param type: The weather type, should be one of the above array
         """
         Command.__init__(self)
         self._command_type = "SetWeather"
-        self.set_type(type)
+        self.set_type(weather_type)
 
-    def set_type(self, type):
+    def set_type(self, weather_type):
         """Set the weather type.
         Positional Arguments:
         type: The weather type, should be one of the above array
         """
-        type.lower()
-        exists = self.has_type(type)
+        weather_type.lower()
+        exists = self.has_type(weather_type)
         if exists:
-            self.add_string_parameters(type)
+            self.add_string_parameters(weather_type)
 
     @staticmethod
     def has_type(type):
