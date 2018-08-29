@@ -13,7 +13,7 @@ class GL_VERSION(object):
     OPENGL3 = 3
 
 
-def make(world_name, gl_version=GL_VERSION.OPENGL4, resolution=None):
+def make(world_name, gl_version=GL_VERSION.OPENGL4, resolution=None, verbose=False):
     """Creates a holodeck environment using the supplied world name.
 
     Positional Arguments:
@@ -30,6 +30,7 @@ def make(world_name, gl_version=GL_VERSION.OPENGL4, resolution=None):
     param_dict["start_world"] = True
     param_dict["uuid"] = str(uuid.uuid4())
     param_dict["gl_version"] = gl_version
+    param_dict["verbose"] = verbose
     if resolution is not None:
         param_dict["height"] = resolution[0]
         param_dict["width"] = resolution[1]
