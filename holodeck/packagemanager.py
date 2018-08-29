@@ -85,7 +85,6 @@ def install(package_name):
     Positional Arguments:
     package_name -- the name of the package to install
     """
-
     holodeck_path = util.get_holodeck_path()
     binary_website = "http://pcc.byu.edu/holodeck/"
 
@@ -144,7 +143,11 @@ def _download_binary(binary_location, worlds_path, block_size=1000000):
             num_blocks = int_percent // percent_per_block
             blocks = chr(0x2589) * num_blocks
             spaces = " " * (max_width - num_blocks)
-            sys.stdout.write("\r|" + blocks + spaces + "| %d%%" % int_percent)
+            try:
+                sys.stdout.write("\r|" + blocks + spaces + "| %d%%" % int_percent)
+            except UnicodeEncodeError:
+                print("\rDownloading...", end="")
+
             sys.stdout.flush()
 
     q = Queue()
@@ -165,6 +168,7 @@ def _download_binary(binary_location, worlds_path, block_size=1000000):
     print("Unpacking worlds...")
     with zipfile.ZipFile(tmp_fd, 'r') as zip_file:
         zip_file.extractall(worlds_path)
+    print("Finished.")
 
 
 def _make_binary_excecutable(package_name, worlds_path):
