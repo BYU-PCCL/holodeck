@@ -1,15 +1,27 @@
 import numpy as np
-
+from functools import reduce
 
 class HolodeckAgent(object):
     def __init__(self, client, name="DefaultAgent"):
         self.name = name
         self._client = client
-        self._action_buffer, self._teleport_bool_buffer, self._teleport_buffer = \
-            self._client.subscribe_command(name, self.__action_space_shape__())
+
+        self._num_control_schemes = len(self.control_schemes)
+        # print(self.control_schemes)
+        self._max_control_scheme_length = max(map(lambda x: reduce(lambda i, j: i * j, x[1]), self.control_schemes))
+
+        self._action_buffer = self._client.malloc(name, [self._max_control_scheme_length], np.float32)
+        self._teleport_bool_buffer = self._client.malloc(name + "_teleport_bool", [1], np.bool)
+        self._teleport_buffer = self._client.malloc(name + "_teleport_command", [3], np.float32)
+        self._control_scheme_buffer = self._client.malloc(name + "_control_scheme", [1],
+                                                          np.uint8)
+        self.set_control_scheme(0)
 
     def act(self, action):
         self.__act__(action)
+
+    def set_control_scheme(self, index):
+        self._control_scheme_buffer[0] = index % self._num_control_schemes
 
     def teleport(self, location):
         # The default teleport function is to copy the data to the buffer and set the bool to true
@@ -21,7 +33,8 @@ class HolodeckAgent(object):
     def action_space(self):
         raise NotImplementedError()
 
-    def __action_space_shape__(self):
+    @property
+    def control_schemes(self):
         raise NotImplementedError()
 
     def __act__(self, action):
@@ -30,21 +43,23 @@ class HolodeckAgent(object):
         np.copyto(self._action_buffer, action)
 
     def __repr__(self):
-        return "HolodeckAgent"
+        return self.name
 
 
-class UAVAgent(HolodeckAgent):
+class UavAgent(HolodeckAgent):
     @property
     def action_space(self):
         # TODO(joshgreaves) : Remove dependency on gym
         # return spaces.Box(-1, 3.5, shape=[4])
         return None
 
-    def __action_space_shape__(self):
-        return [4]
+    @property
+    def control_schemes(self):
+        return [("[pitch_torque, roll_torque, yaw_torque, thrust]", [4]),
+                ("[pitch_target, roll_target, yaw_rate_target, altitude_target", [4])]
 
     def __repr__(self):
-        return "UAVAgent"
+        return "UavAgent " + self.name
 
 
 class ContinuousSphereAgent(HolodeckAgent):
@@ -54,11 +69,15 @@ class ContinuousSphereAgent(HolodeckAgent):
         # return spaces.Box(np.array([-1, -.25]), np.array([1, .25]))
         return None
 
+    @property
+    def control_schemes(self):
+        return [("[forward_movement, rotation]", [2])]
+
     def __action_space_shape__(self):
         return [2]
 
     def __repr__(self):
-        return "ContinuousSphereAgent"
+        return "ContinuousSphereAgent " + self.name
 
 
 class DiscreteSphereAgent(HolodeckAgent):
@@ -68,8 +87,8 @@ class DiscreteSphereAgent(HolodeckAgent):
         # return spaces.Discrete(4)
         return None
 
-    def __action_space_shape__(self):
-        return [2]
+    def control_schemes(self):
+        return [("0: Move forward\n1: Move backward\n2: Turn right\n3: Turn left", [2])]
 
     def __act__(self, action):
         actions = np.array([[2, 0], [-2, 0], [0, 2], [0, -2]])
@@ -78,7 +97,7 @@ class DiscreteSphereAgent(HolodeckAgent):
         np.copyto(self._action_buffer, to_act)
 
     def __repr__(self):
-        return "DiscreteSphereAgent"
+        return "DiscreteSphereAgent " + self.name
 
 
 class AndroidAgent(HolodeckAgent):
@@ -88,11 +107,12 @@ class AndroidAgent(HolodeckAgent):
         # return spaces.Box(-1000, 1000, shape=[94])
         return None
 
-    def __action_space_shape__(self):
-        return [94]
+    @property
+    def control_schemes(self):
+        return [("[Bone torques * 94]", [94])]
 
     def __repr__(self):
-        return "AndroidAgent"
+        return "AndroidAgent " + self.name
 
     @staticmethod
     def joint_ind(joint_name):
@@ -166,8 +186,9 @@ class NavAgent(HolodeckAgent):
         # return spaces.Box(-10000, 10000, shape=[3])
         pass
 
-    def __action_space_shape__(self):
-        return [3]
+    @property
+    def control_schemes(self):
+        return [("[x_target, y_target, z_target]", [3])]
 
     def __repr__(self):
-        return "NavAgent"
+        return "NavAgent " + self.name

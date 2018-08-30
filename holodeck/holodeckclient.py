@@ -5,7 +5,7 @@ from holodeck.exceptions import HolodeckException
 from holodeck.shmem import Shmem
 
 
-class ShmemClient:
+class HolodeckClient:
     def __init__(self, uuid=""):
         self._uuid = uuid
 
@@ -16,6 +16,7 @@ class ShmemClient:
         self._semaphore2 = None
         self.unlink = None
 
+        self._memory = dict()
         self._sensors = dict()
         self._agents = dict()
         self._settings = dict()
@@ -76,20 +77,8 @@ class ShmemClient:
     def release(self):
         self._release_semaphore_fn(self._semaphore1)
 
-    def subscribe_sensor(self, agent_name, sensor_key, shape, dtype):
-        key = agent_name + "_" + sensor_key
-        self._sensors[key] = Shmem(key, shape, dtype, self._uuid)
+    def malloc(self, key, shape, dtype):
+        if key not in self._memory or self._memory[key].shape != shape or self._memory[key].dtype != dtype:
+            self._memory[key] = Shmem(key, shape, dtype, self._uuid)
 
-    def get_sensor(self, agent_name, sensor_key):
-        return self._sensors[agent_name + "_" + sensor_key].np_array
-
-    def subscribe_command(self, agent_name, shape):
-        self._agents[agent_name] = (Shmem(agent_name, shape, uuid=self._uuid),
-                                    Shmem(agent_name + "_teleport_bool", [1], uuid=self._uuid, dtype=np.bool),
-                                    Shmem(agent_name + "_teleport_command", [3], uuid=self._uuid))
-        buffers = self._agents[agent_name]
-        return list(map(lambda x: x.np_array, buffers))
-
-    def subscribe_setting(self, setting_name, shape, dtype):
-        self._settings[setting_name] = Shmem(setting_name, shape, dtype, self._uuid)
-        return self._settings[setting_name].np_array
+        return self._memory[key].np_array

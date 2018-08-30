@@ -72,7 +72,7 @@ class SpawnAgentCommand(Command):
     """Holds the information to be sent to Holodeck that is needed for spawning an agent."""
     __type_keys = {
         DiscreteSphereAgent: "SphereRobot",
-        UAVAgent: "UAV",
+        UavAgent: "UAV",
         NavAgent: "NavAgent",
         AndroidAgent: "Android"
     }

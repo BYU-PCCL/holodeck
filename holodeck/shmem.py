@@ -17,6 +17,8 @@ class Shmem:
     }
 
     def __init__(self, name, shape, dtype=np.float32, uuid=""):
+        self.shape = shape
+        self.dtype = dtype
         size = reduce(lambda x, y: x * y, shape)
         size_bytes = np.dtype(dtype).itemsize * size
 
