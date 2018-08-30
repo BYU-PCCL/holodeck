@@ -87,5 +87,9 @@ class Sensors:
     def set_primary_cam_size(height, width):
         Sensors._shape_dict[Sensors.PRIMARY_PLAYER_CAMERA] = [height, width, 4]
 
+    @staticmethod
+    def set_pixel_cam_size(height, width):
+        Sensors._shape_dict[Sensors.PIXEL_CAMERA] = [height, width, 4]
+
     def __init__(self):
         print("No point in instantiating an object.")

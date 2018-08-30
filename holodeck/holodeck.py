@@ -13,7 +13,8 @@ class GL_VERSION(object):
     OPENGL3 = 3
 
 
-def make(world_name, gl_version=GL_VERSION.OPENGL4, resolution=None, verbose=False):
+
+def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=None):
     """Creates a holodeck environment using the supplied world name.
 
     Positional Arguments:
@@ -30,10 +31,13 @@ def make(world_name, gl_version=GL_VERSION.OPENGL4, resolution=None, verbose=Fal
     param_dict["start_world"] = True
     param_dict["uuid"] = str(uuid.uuid4())
     param_dict["gl_version"] = gl_version
-    param_dict["verbose"] = verbose
-    if resolution is not None:
-        param_dict["height"] = resolution[0]
-        param_dict["width"] = resolution[1]
+
+    if window_res is not None:
+        param_dict["window_width"] = window_res[0]
+        param_dict["window_height"] = window_res[1]
+    if cam_res is not None:
+        param_dict["camera_width"] = cam_res[0]
+        param_dict["camera_height"] = cam_res[1]
 
     return HolodeckEnvironment(**param_dict)
 
@@ -46,6 +50,8 @@ def _get_worlds_map():
                 "agent_definitions": [AgentDefinition(**x) for x in level["agents"]],
                 "binary_path": os.path.join(path, config["path"]),
                 "task_key": level["name"],
-                "height": level["resy"],
-                "width": level["resx"]}
+                "window_height": level["window_height"],
+                "window_width": level["window_width"],
+                "camera_height": level["camera_height"],
+                "camera_width": level["camera_width"]}
     return holodeck_worlds
