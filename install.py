@@ -81,7 +81,7 @@ def linux_installation():
         # Make the binary executable
         for path, _, _ in os.walk(os.path.join(worlds_path, "LinuxDefaultWorlds")):
             os.chmod(path, 0o777)
-        binary_path = os.path.join(worlds_path, "LinuxDefaultWorlds/LinuxNoEditor/Holodeck/Binaries/Linux/holodeck")
+        binary_path = os.path.join(worlds_path, "LinuxDefaultWorlds/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck")
         os.chmod(binary_path, 0o755)
 
         print("To continue installation, follow instructions on the github page")
