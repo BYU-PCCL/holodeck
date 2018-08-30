@@ -5,6 +5,7 @@ It specifies an environment, which contains a number of agents, and the interfac
 import atexit
 import os
 import subprocess
+import sys
 from copy import copy
 
 from holodeck.hyperparameters import *
@@ -57,6 +58,7 @@ class HolodeckEnvironment(object):
 
     def __init__(self, agent_definitions, window_height=512, window_width=512, camera_height=256, camera_width=256,
                  binary_path=None, task_key=None,start_world=True, uuid="", gl_version=4):
+
         """Constructor for HolodeckEnvironment.
 
         Positional arguments:
@@ -82,9 +84,9 @@ class HolodeckEnvironment(object):
 
         if start_world:
             if os.name == "posix":
-                self.__linux_start_process__(binary_path, task_key, gl_version)
+                self.__linux_start_process__(binary_path, task_key, gl_version, verbose=verbose)
             elif os.name == "nt":
-                self.__windows_start_process__(binary_path, task_key)
+                self.__windows_start_process__(binary_path, task_key, verbose=verbose)
             else:
                 raise HolodeckException("Unknown platform: " + os.name)
 
@@ -284,9 +286,10 @@ class HolodeckEnvironment(object):
             raise HolodeckException("Agent does not exist: " + agent_name)
         return self._hyperparameters_map[agent_name]
 
-    def __linux_start_process__(self, binary_path, task_key, gl_version):
+    def __linux_start_process__(self, binary_path, task_key, gl_version, verbose):
         import posix_ipc
-        loading_semaphore = posix_ipc.Semaphore("/HOLODECK_LOADING_SEM" + self._uuid, os.O_CREAT | os.O_EXCL,
+        out_stream = sys.stdout if verbose else open(os.devnull, 'w')
+        loading_semaphore = posix_ipc.Semaphore('/HOLODECK_LOADING_SEM' + self._uuid, os.O_CREAT | os.O_EXCL,
                                                 initial_value=0)
         self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
                                                 '-SILENT', '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_width),
@@ -294,6 +297,7 @@ class HolodeckEnvironment(object):
                                                 "-CamResY=" + str(self._camera_height), "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
                                                stderr=open(os.devnull, 'w'))
+
         atexit.register(self.__on_exit__)
         try:
             loading_semaphore.acquire(100)
@@ -301,17 +305,19 @@ class HolodeckEnvironment(object):
             raise HolodeckException("Timed out waiting for binary to load")
         loading_semaphore.unlink()
 
-    def __windows_start_process__(self, binary_path, task_key):
+    def __windows_start_process__(self, binary_path, task_key, verbose):
         import win32event
+        out_stream = sys.stdout if verbose else open(os.devnull, 'w')
         loading_semaphore = win32event.CreateSemaphore(None, 0, 1, "Global\\HOLODECK_LOADING_SEM" + self._uuid)
+
         self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-SILENT', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._window_width),
                                                 "-ResY=" + str(self._window_height),
                                                 '-CamResX=' + str(self._camera_width),
                                                 "-CamResY=" + str(self._camera_height),
                                                 "--HolodeckUUID=" + self._uuid],
-                                               stdout=open(os.devnull, 'w'),
-                                               stderr=open(os.devnull, 'w'))
+                                               stdout=out_stream,
+                                               stderr=out_stream)
         atexit.register(self.__on_exit__)
         response = win32event.WaitForSingleObject(loading_semaphore, 100000)  # 100 second timeout
         if response == win32event.WAIT_TIMEOUT:
