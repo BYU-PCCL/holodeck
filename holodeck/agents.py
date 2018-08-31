@@ -11,8 +11,10 @@ class HolodeckAgent(object):
         self._max_control_scheme_length = max(map(lambda x: reduce(lambda i, j: i * j, x[1]), self.control_schemes))
 
         self._action_buffer = self._client.malloc(name, [self._max_control_scheme_length], np.float32)
-        self._teleport_bool_buffer = self._client.malloc(name + "_teleport_bool", [1], np.bool)
+        # teleport flag: 0: do nothing, 1: teleport, 2: rotate, 3: teleport and rotate
+        self._teleport_bool_buffer = self._client.malloc(name + "_teleport_flag", [1], np.uint8)
         self._teleport_buffer = self._client.malloc(name + "_teleport_command", [3], np.float32)
+        self._rotation_buffer = self._client.malloc(name + "_rotation_command", [3], np.float32)
         self._control_scheme_buffer = self._client.malloc(name + "_control_scheme", [1],
                                                           np.uint8)
         self.set_control_scheme(0)
@@ -23,11 +25,17 @@ class HolodeckAgent(object):
     def set_control_scheme(self, index):
         self._control_scheme_buffer[0] = index % self._num_control_schemes
 
-    def teleport(self, location):
+    def teleport(self, location, rotation):
         # The default teleport function is to copy the data to the buffer and set the bool to true
         # It can be overridden if needs be.
-        np.copyto(self._teleport_buffer, location)
-        np.copyto(self._teleport_bool_buffer, True)
+        val = 0
+        if location is not None:
+            val += 1
+            np.copyto(self._teleport_buffer, location)
+        if rotation is not None:
+            np.copyto(self._rotation_buffer, rotation)
+            val += 2
+        self._teleport_bool_buffer[0] = val
 
     @property
     def action_space(self):
