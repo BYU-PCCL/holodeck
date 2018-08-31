@@ -114,6 +114,12 @@ def remove(package_name):
             shutil.rmtree(path)
 
 
+def remove_all_packages():
+    """Removes all holodeck packages."""
+    for _, path in _iter_packages():
+        shutil.rmtree(path)
+
+
 def _iter_packages():
     path = util.get_holodeck_path()
     worlds_path = os.path.join(path, "worlds")
@@ -128,7 +134,7 @@ def _iter_packages():
                         config = json.load(f)
                         if sys.version_info[0] < 3:
                             config = util.convert_unicode(config)
-                        yield config, full_path
+                    yield config, full_path
 
 
 def _download_binary(binary_location, worlds_path, block_size=1000000):
