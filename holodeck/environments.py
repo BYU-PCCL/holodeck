@@ -166,11 +166,13 @@ class HolodeckEnvironment(object):
         return self._get_single_state()
 
     def teleport(self, agent_name, location=None, rotation=None):
-        """Loads up a command to teleport the target agent to any given location.
-        The teleport will occur the next time a step is taken. If no rotation is given, rotation will be set to the
+        """Teleports the target agent to any given location, and applies a specific rotation.
+        If no location is given, it isn't teleported.
+        If no rotation is given, the current rotation is preserved
         default value: 0,0,0.
         """
         self.agents[agent_name].teleport(location, rotation)
+        self.tick()
 
     def _handle_command_buffer(self):
         """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
