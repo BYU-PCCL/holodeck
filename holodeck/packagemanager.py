@@ -69,7 +69,7 @@ def world_info(world_name, world_config=None, initial_indent="", next_indent="  
     sensor_indent = agent_indent + next_indent
 
     print(initial_indent, world_config["name"])
-    print(second_indent, "Resolution:", world_config["resx"], "x", world_config["resy"])
+    print(second_indent, "Resolution:", world_config["window_width"], "x", world_config["window_height"])
     print(second_indent, "Agents:")
     for agent in world_config["agents"]:
         print(agent_indent, "Name:", agent["agent_name"])
