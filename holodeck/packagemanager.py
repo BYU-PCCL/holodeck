@@ -114,7 +114,7 @@ def remove(package_name):
             shutil.rmtree(path)
 
 
-def uninstall():
+def remove_all_packages():
     """Removes all holodeck packages."""
     for _, path in _iter_packages():
         shutil.rmtree(path)
