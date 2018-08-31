@@ -55,8 +55,8 @@ class AgentDefinition(object):
 class HolodeckEnvironment(object):
     """The high level interface for interacting with a Holodeck world"""
 
-    def __init__(self, agent_definitions, binary_path=None, task_key=None, height=512, width=512,
-                 start_world=True, uuid="", gl_version=4):
+    def __init__(self, agent_definitions, window_height=512, window_width=512, camera_height=256, camera_width=256,
+                 binary_path=None, task_key=None,start_world=True, uuid="", gl_version=4):
         """Constructor for HolodeckEnvironment.
 
         Positional arguments:
@@ -71,11 +71,14 @@ class HolodeckEnvironment(object):
         uuid -- A unique identifier, used when running multiple instances of holodeck (default "")
         gl_version -- The version of OpenGL to use for Linux (default 4)
         """
-        self._height = height
-        self._width = width
+        self._window_height = window_height
+        self._window_width = window_width
+        self._camera_height = camera_height
+        self._camera_width = camera_width
         self._uuid = uuid
 
-        Sensors.set_primary_cam_size(height, width)
+        Sensors.set_pixel_cam_size(camera_height, camera_width)
+        Sensors.set_primary_cam_size(window_height, window_width)
 
         if start_world:
             if os.name == "posix":
@@ -286,8 +289,9 @@ class HolodeckEnvironment(object):
         loading_semaphore = posix_ipc.Semaphore("/HOLODECK_LOADING_SEM" + self._uuid, os.O_CREAT | os.O_EXCL,
                                                 initial_value=0)
         self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
-                                                '-SILENT', '-LOG=HolodeckLog.txt', '-ResX=' + str(self._width),
-                                                "-ResY=" + str(self._height), "--HolodeckUUID=" + self._uuid],
+                                                '-SILENT', '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_width),
+                                                "-ResY=" + str(self._window_height), '-CamResX=' + str(self._camera_width),
+                                                "-CamResY=" + str(self._camera_height), "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
                                                stderr=open(os.devnull, 'w'))
         atexit.register(self.__on_exit__)
@@ -301,7 +305,10 @@ class HolodeckEnvironment(object):
         import win32event
         loading_semaphore = win32event.CreateSemaphore(None, 0, 1, "Global\\HOLODECK_LOADING_SEM" + self._uuid)
         self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-SILENT', '-LOG=HolodeckLog.txt',
-                                                '-ResX=' + str(self._width), " -ResY=" + str(self._height),
+                                                '-ResX=' + str(self._window_width),
+                                                "-ResY=" + str(self._window_height),
+                                                '-CamResX=' + str(self._camera_width),
+                                                "-CamResY=" + str(self._camera_height),
                                                 "--HolodeckUUID=" + self._uuid],
                                                stdout=open(os.devnull, 'w'),
                                                stderr=open(os.devnull, 'w'))
