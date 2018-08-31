@@ -229,6 +229,88 @@ class HolodeckEnvironment(object):
         command_to_send = SpawnAgentCommand(location, agent_definition.name, agent_definition.type)
         self._commands.add_command(command_to_send)
 
+    def set_fog_density(self, density):
+        """Queue up a change fog density command.
+        By the next tick, the exponential height fog in the world will have the new density. If there is no fog in the
+        world, it be automatically created with the given density.
+
+        Positional arguments:
+        density -- The new density value, something between 0-1. The command will not be sent if the given
+        density is invalid.
+        """
+        if density < 0 or density > 1:
+            print("Fog density should be between 0 and 1")
+            return
+
+        self._should_write_to_command_buffer = True
+        command_to_send = ChangeFogDensityCommand(density)
+        self._commands.add_command(command_to_send)
+
+    def set_day_time(self, hour):
+        """Queue up a change day time command.
+        By the next tick, the lighting and the skysphere will be updated with the new hour. If there is no skysphere
+        or directional light in the world, the command will not function properly but will not cause a crash.
+
+        Positional arguments:
+        hour -- The hour in military time, should be something between 0-23. The command will not be sent if the given
+        hour is out of range.
+        """
+        if hour < 0 or hour > 23:
+            print("ERROR: The given hour should be between 0 and 23 (military time)")
+            return
+
+        self._should_write_to_command_buffer = True
+        command_to_send = DayTimeCommand(hour)
+        self._commands.add_command(command_to_send)
+
+    def start_day_cycle(self, day_length):
+        """Queue up a day cycle command to start the day cycle.
+        The sky sphere will now update each tick with an updated sun angle as it moves about the sky. The length of a
+        day will be roughly equivalent to the number of minutes given.
+
+        Positional arguments:
+        day_length -- The number of minutes each day will be
+        """
+        if day_length <= 0:
+            print("Day Cycle ERROR: The given day length should be between above 0!")
+            return
+
+        self._should_write_to_command_buffer = True
+        command_to_send = DayCycleCommand(True)
+        command_to_send.set_day_length(day_length)
+        self._commands.add_command(command_to_send)
+
+    def stop_day_cycle(self):
+        """Queue up a day cycle command to stop the day cycle.
+        By the next tick, day cycle will stop where it is.
+        """
+
+        self._should_write_to_command_buffer = True
+        command_to_send = DayCycleCommand(False)
+        self._commands.add_command(command_to_send)
+
+    def set_weather(self, weather_type):
+        """Queue up a set weather command.
+        By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
+        to the given weather. If there is no skysphere or directional light in the world, the command may not function
+        properly but will not cause a crash.
+
+        NOTE: Because this command can effect the fog density, any changes made by a change_fog_density command before
+        a set_weather command called will be undone. It is recommended to call change_fog_density after calling set
+        weather.
+
+        Positional arguments:
+        type -- The type of weather, which can be 'Rain', 'Snow', or 'Cloudy'. In all downloadable worlds, the weather
+        is clear by default. If the given type string is not available, the command will not be sent.
+        """
+        if not SetWeatherCommand.has_type(weather_type.lower()):
+            print("ERROR: Invalid weather type. The available weather types are :" + str(SetWeatherCommand.types))
+            return
+
+        self._should_write_to_command_buffer = True
+        command_to_send = SetWeatherCommand(weather_type.lower())
+        self._commands.add_command(command_to_send)
+
     def write_to_command_buffer(self, to_write):
         """Write input to the command buffer.  Reformat input string to the correct format.
         Positional arguments:

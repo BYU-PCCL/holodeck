@@ -115,3 +115,114 @@ class SpawnAgentCommand(Command):
         """
         type_str = SpawnAgentCommand.__type_keys[agent_type]
         self.add_string_parameters(type_str)
+
+
+class ChangeFogDensityCommand(Command):
+
+    def __init__(self, density):
+        """Sets the command type to ChangeFogDensity and initialized this object.
+
+        :param density: The new density, should be something between 0-1
+        """
+        Command.__init__(self)
+        self._command_type = "ChangeFogDensity"
+        self.set_density(density)
+
+    def set_density(self, density):
+        """Set the density for the fog.
+        Positional Arguments:
+        density -- The new density, should be something between 0-1
+        """
+        if density < 0 or density > 1:
+            print("Fog density should be between 0 and 1")
+            return
+        self.add_number_parameters(density)
+
+
+class DayTimeCommand(Command):
+
+    def __init__(self, hour):
+        """Sets the command type to DayTime and initialized this object.
+
+        :param hour: The hour in military time, should be something between 0-23
+        """
+        Command.__init__(self)
+        self._command_type = "DayTime"
+        self.set_hour(hour)
+
+    def set_hour(self, hour):
+        """Set the hour.
+        Positional Arguments:
+        hour -- The hour in military time, should be something between 0-23
+        """
+        if hour < 0 or hour > 23:
+            print("The hour should be in military time; between 0 and 23")
+            return
+        self.add_number_parameters(hour)
+
+
+class DayCycleCommand(Command):
+
+    def __init__(self, start):
+        """Sets the command type to DayCycle and initialized this object.
+
+        :param start: bool representing whether to start or stop the day night cycle
+        """
+        Command.__init__(self)
+        self._command_type = "DayCycle"
+        self.set_command(start)
+
+    def set_day_length(self, day_length):
+        """Set the day length in minutes.
+        Positional Arguments:
+        hour -- The day length in minutes. Cannot be at or below 0
+        """
+        if day_length <= 0:
+            print("The day length should not be equal to or below 0")
+            return
+        self.add_number_parameters(day_length)
+
+    def set_command(self, start):
+        """Start or stop the command
+        Positional Arguments:
+        start -- Bool for whether to start(true) the day cycle or stop(false).
+        """
+        if start:
+            self.add_string_parameters("start")
+        else:
+            self.add_string_parameters("stop")
+
+
+class SetWeatherCommand(Command):
+    """ Avaiable weather types. """
+    _types = [
+        "rain",
+        "cloudy"
+    ]
+
+    def __init__(self, weather_type):
+        """Sets the command type to SetWeather and initialized this object.
+
+        :param type: The weather type, should be one of the above array
+        """
+        Command.__init__(self)
+        self._command_type = "SetWeather"
+        self.set_type(weather_type)
+
+    def set_type(self, weather_type):
+        """Set the weather type.
+        Positional Arguments:
+        type: The weather type, should be one of the above array
+        """
+        weather_type.lower()
+        exists = self.has_type(weather_type)
+        if exists:
+            self.add_string_parameters(weather_type)
+
+    @staticmethod
+    def has_type(weather_type):
+        """Checks the validity of the type. Returns true if it exists in the type array
+        Positional Arguments:
+        type: The weather type, should be one of the above array
+        """
+        return weather_type in SetWeatherCommand._types
