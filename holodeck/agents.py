@@ -7,7 +7,6 @@ class HolodeckAgent(object):
         self._client = client
 
         self._num_control_schemes = len(self.control_schemes)
-        # print(self.control_schemes)
         self._max_control_scheme_length = max(map(lambda x: reduce(lambda i, j: i * j, x[1]), self.control_schemes))
 
         self._action_buffer = self._client.malloc(name, [self._max_control_scheme_length], np.float32)
