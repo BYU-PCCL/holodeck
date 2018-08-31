@@ -18,7 +18,7 @@ from holodeck.holodeckclient import HolodeckClient
 class AgentDefinition(object):
     """A class for declaring what agents are expected in a particular holodeck Environment."""
     __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
-                      "UAVAgent": UavAgent,
+                      "UavAgent": UavAgent,
                       "AndroidAgent": AndroidAgent,
                       "NavAgent": NavAgent,
                       DiscreteSphereAgent: DiscreteSphereAgent,
