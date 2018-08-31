@@ -38,11 +38,9 @@ class AgentDefinition(object):
 
     def __init__(self, agent_name, agent_type, sensors=None):
         """Constructor for AgentDefinition.
-
         Positional Arguments:
         agent_name -- The name of the agent to control
         agent_type -- The type of HolodeckAgent to control, string or class reference
-
         Keyword Arguments:
         sensors -- A list of HolodeckSensors to read from this agent, string or class reference (default empty)
         """
@@ -56,13 +54,11 @@ class AgentDefinition(object):
 class HolodeckEnvironment(object):
     """The high level interface for interacting with a Holodeck world"""
 
-    def __init__(self, agent_definitions, binary_path=None, task_key=None, height=512, width=512,
-                 start_world=True, uuid="", gl_version=4, verbose=False):
+    def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
+                 camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False):
         """Constructor for HolodeckEnvironment.
-
         Positional arguments:
         agent_definitions -- A list of AgentDefinition objects for which agents to expect in the environment
-
         Keyword arguments:
         binary_path -- The path to the binary to load the world from (default None)
         task_key -- The name of the map within the binary to load (default None)
@@ -72,11 +68,14 @@ class HolodeckEnvironment(object):
         uuid -- A unique identifier, used when running multiple instances of holodeck (default "")
         gl_version -- The version of OpenGL to use for Linux (default 4)
         """
-        self._height = height
-        self._width = width
+        self._window_height = window_height
+        self._window_width = window_width
+        self._camera_height = camera_height
+        self._camera_width = camera_width
         self._uuid = uuid
 
-        Sensors.set_primary_cam_size(height, width)
+        Sensors.set_primary_cam_size(window_height, window_width)
+        Sensors.set_primary_cam_size(window_height, window_width)
 
         if start_world:
             if os.name == "posix":
@@ -153,7 +152,6 @@ class HolodeckEnvironment(object):
     def step(self, action):
         """Supplies an action to the main agent and tells the environment to tick once.
         Returns the state, reward, terminal, info tuple for the agent.
-
         Positional arguments:
         action -- An action for the main agent to carry out on the next tick
         """
@@ -183,7 +181,6 @@ class HolodeckEnvironment(object):
 
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
-
         Positional arguments:
         agent_name -- The name of the agent to give the command to
         action -- The action for the agent specified to carry out on the next tick
@@ -199,7 +196,6 @@ class HolodeckEnvironment(object):
 
     def add_state_sensors(self, agent_name, sensors):
         """Adds a sensor to a particular agent.
-
         Positional arguments:
         agent_name -- The name of the agent to add the sensor to
         sensors -- A list of, or single sensor to add to the agent
@@ -220,7 +216,6 @@ class HolodeckEnvironment(object):
         needed for sending commands to and receiving data from the agent.
         Nothing in the agent will be initialized, and it won't even exist in Holodeck until the next tick when the
         Holodeck backend reads the command.
-
         Positional arguments:
         agent_definition -- This is the agent to spawn, its name, and the buffers to open for the sensors. Use the
         AgentDefinition class.
@@ -234,7 +229,6 @@ class HolodeckEnvironment(object):
 
     def write_to_command_buffer(self, to_write):
         """Write input to the command buffer.  Reformat input string to the correct format.
-
         Positional arguments:
         to_write -- The string to write to the command buffer.
         """
@@ -247,7 +241,6 @@ class HolodeckEnvironment(object):
 
     def set_hyperparameter(self, parameter_index, value, agent_name=None):
         """Set a specific hyperparameter on a specific agent.
-
         Positional Arguments:
         agent_name -- the name of the agent
         parameter_index -- The index of the parameter to set
@@ -266,7 +259,6 @@ class HolodeckEnvironment(object):
 
     def get_hyperparameters(self, agent_name=None):
         """Get the list of hyperparameters for a specific agent.
-
         Positional Arguments:
         agent_name -- The agent for which to get the hyperparameters.
         return -- A list of the hyperparameters for a specific agent, or none if DNE
@@ -283,8 +275,9 @@ class HolodeckEnvironment(object):
         loading_semaphore = posix_ipc.Semaphore('/HOLODECK_LOADING_SEM' + self._uuid, os.O_CREAT | os.O_EXCL,
                                                 initial_value=0)
         self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
-                                                '-LOG=HolodeckLog.txt', '-ResX=' + str(self._width),
-                                                '-ResY=' + str(self._height), '--HolodeckUUID=' + self._uuid],
+                                                '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_width),
+                                                '-ResY=' + str(self._window_height),'-CamResX=' + str(self._camera_width),
+                                                '-CamResY=' + str(self._camera_height), '--HolodeckUUID=' + self._uuid],
                                                stdout=out_stream,
                                                stderr=out_stream)
         atexit.register(self.__on_exit__)
@@ -299,10 +292,10 @@ class HolodeckEnvironment(object):
         out_stream = sys.stdout if verbose else open(os.devnull, 'w')
         loading_semaphore = win32event.CreateSemaphore(None, 0, 1, "Global\\HOLODECK_LOADING_SEM" + self._uuid)
         self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-LOG=HolodeckLog.txt',
-                                                '-ResX=' + str(self._width), " -ResY=" + str(self._height),
-                                                "--HolodeckUUID=" + self._uuid],
-                                               stdout=out_stream,
-                                               stderr=out_stream)
+                                                '-ResX=' + str(self._window_width), "-ResY=" + str(self._window_height),
+                                                '-CamResX=' + str(self._camera_width),
+                                                '-CamResY=' + str(self._camera_height), "--HolodeckUUID=" + self._uuid],
+                                               stdout=out_stream, stderr=out_stream)
         atexit.register(self.__on_exit__)
         response = win32event.WaitForSingleObject(loading_semaphore, 100000)  # 100 second timeout
         if response == win32event.WAIT_TIMEOUT:
@@ -336,7 +329,6 @@ class HolodeckEnvironment(object):
         """Add specified agents to the client. Set up their shared memory and sensor linkages.
         Does not spawn an agent in the Holodeck, this is only for documenting and accessing already existing agents.
         This is an internal function.
-
         Positional Arguments:
         agent_definitions -- The agent(s) to add.
         """
@@ -354,7 +346,6 @@ class HolodeckEnvironment(object):
     def _subscribe_hyperparameters(self, agent_definition):
         """Sets up the linkages with holodeck to set and get the hyperparameters of an agent.
         This is an internal function.
-
         agent_definition --  The definition of the agent to subscribe hyperparameters for.
         """
         if isinstance(agent_definition, list):
