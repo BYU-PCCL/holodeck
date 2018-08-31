@@ -75,7 +75,7 @@ class HolodeckEnvironment(object):
         self._uuid = uuid
 
         Sensors.set_primary_cam_size(window_height, window_width)
-        Sensors.set_primary_cam_size(window_height, window_width)
+        Sensors.set_camera_cam_size(camera_height, camera_width)
 
         if start_world:
             if os.name == "posix":
