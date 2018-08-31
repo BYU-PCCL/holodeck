@@ -58,7 +58,7 @@ def multi_agent_example():
         env.reset()
         # This will queue up a new agent to spawn into the environment, given that the coordinates are not blocked.
         sensors = [Sensors.PIXEL_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
-        agent = AgentDefinition("uav1", agents.UAVAgent, sensors)
+        agent = AgentDefinition("uav1", agents.UavAgent, sensors)
         env.spawn_agent(agent, [1, 1, 5])
         env.tick()  # Tick the environment once so the second agent spawns before we try to interact with it.
 
@@ -76,8 +76,9 @@ def editor_example():
     in the Unreal Engine. Most people that use holodeck will not need this.
     """
     sensors = [Sensors.PIXEL_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
-    agent = AgentDefinition("uav0", agents.UAVAgent, sensors)
+    agent = AgentDefinition("uav0", agents.UavAgent, sensors)
     env = HolodeckEnvironment(agent, start_world=False)
+    env.agents["uav0"].set_control_scheme(1)
     command = [0, 0, 1, 1]
 
     for i in range(10):
@@ -91,8 +92,8 @@ def editor_multi_agent_example():
     This is specifically for when working with UE4 directly and not a prebuilt binary.
     """
     agent_definitions = [
-        AgentDefinition("uav0", agents.UAVAgent, [Sensors.PIXEL_CAMERA, Sensors.LOCATION_SENSOR]),
-        AgentDefinition("uav1", agents.UAVAgent, [Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR])
+        AgentDefinition("uav0", agents.UavAgent, [Sensors.PIXEL_CAMERA, Sensors.LOCATION_SENSOR]),
+        AgentDefinition("uav1", agents.UavAgent, [Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR])
     ]
     env = HolodeckEnvironment(agent_definitions, start_world=False)
 

@@ -12,17 +12,17 @@ from holodeck.hyperparameters import *
 from holodeck.command import *
 from holodeck.exceptions import HolodeckException
 from holodeck.sensors import Sensors
-from holodeck.shmemclient import ShmemClient
+from holodeck.holodeckclient import HolodeckClient
 
 
 class AgentDefinition(object):
     """A class for declaring what agents are expected in a particular holodeck Environment."""
     __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
-                      "UAVAgent": UAVAgent,
+                      "UAVAgent": UavAgent,
                       "AndroidAgent": AndroidAgent,
                       "NavAgent": NavAgent,
                       DiscreteSphereAgent: DiscreteSphereAgent,
-                      UAVAgent: UAVAgent,
+                      UavAgent: UavAgent,
                       AndroidAgent: AndroidAgent,
                       NavAgent: NavAgent}
 
@@ -87,10 +87,10 @@ class HolodeckEnvironment(object):
                 raise HolodeckException("Unknown platform: " + os.name)
 
         # Set up and add the agents
-        self._client = ShmemClient(self._uuid)
+        self._client = HolodeckClient(self._uuid)
         self._sensor_map = dict()
         self._all_agents = list()
-        self._agent_dict = dict()
+        self.agents = dict()
         self._hyperparameters_map = dict()
         self._add_agents(agent_definitions)
         self._agent = self._all_agents[0]
@@ -100,11 +100,11 @@ class HolodeckEnvironment(object):
         self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
         # Subscribe settings
-        self._reset_ptr = self._client.subscribe_setting("RESET", [1], np.bool)
+        self._reset_ptr = self._client.malloc("RESET", [1], np.bool)
         self._reset_ptr[0] = False
-        self._command_bool_ptr = self._client.subscribe_setting("command_bool", [1], np.bool)
+        self._command_bool_ptr = self._client.malloc("command_bool", [1], np.bool)
         megabyte = 1048576  # This is the size of the command buffer that Holodeck expects/will read.
-        self._command_buffer_ptr = self._client.subscribe_setting("command_buffer", [megabyte], np.byte)
+        self._command_buffer_ptr = self._client.malloc("command_buffer", [megabyte], np.byte)
 
         # self._commands holds commands that are queued up to write to the command buffer on tick.
         self._commands = CommandsGroup()
@@ -127,14 +127,14 @@ class HolodeckEnvironment(object):
         """Returns a string with specific information about the environment."""
         result = list()
         result.append("Agents:\n")
-        for agent in self._agent_definitions:
+        for agent in self._all_agents:
             result.append("\tName: ")
             result.append(agent.name)
             result.append("\n\tType: ")
-            result.append(agent.type.__name__)
+            result.append(type(agent).__name__)
             result.append("\n\t")
             result.append("Sensors:\n")
-            for sensor in agent.sensors:
+            for sensor in self._sensor_map[agent.name].keys():
                 result.append("\t\t")
                 result.append(Sensors.name(sensor))
                 result.append("\n")
@@ -149,10 +149,6 @@ class HolodeckEnvironment(object):
         self._client.release()
         self._client.acquire()
         return self._default_state_fn()
-
-    def render(self):
-        """Renders the environment. Currently does nothing."""
-        pass
 
     def step(self, action):
         """Supplies an action to the main agent and tells the environment to tick once.
@@ -175,7 +171,7 @@ class HolodeckEnvironment(object):
         The teleport will occur the next time a step is taken. If no rotation is given, rotation will be set to the
         default value: 0,0,0.
         """
-        self._agent_dict[agent_name].teleport(location)
+        self.agents[agent_name].teleport(location)
 
     def _handle_command_buffer(self):
         """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
@@ -192,7 +188,7 @@ class HolodeckEnvironment(object):
         agent_name -- The name of the agent to give the command to
         action -- The action for the agent specified to carry out on the next tick
         """
-        self._agent_dict[agent_name].act(action)
+        self.agents[agent_name].act(action)
 
     def tick(self):
         """Ticks the environment once. Returns a dict from agent name to state."""
@@ -212,13 +208,12 @@ class HolodeckEnvironment(object):
             for sensor in sensors:
                 self.add_state_sensors(agent_name, sensor)
         else:
-            self._client.subscribe_sensor(agent_name,
-                                          Sensors.name(sensors),
-                                          Sensors.shape(sensors),
-                                          Sensors.dtype(sensors))
             if agent_name not in self._sensor_map:
                 self._sensor_map[agent_name] = dict()
-            self._sensor_map[agent_name][sensors] = self._client.get_sensor(agent_name, Sensors.name(sensors))
+
+            self._sensor_map[agent_name][sensors] = self._client.malloc(agent_name + "_" + Sensors.name(sensors),
+                                                                        Sensors.shape(sensors),
+                                                                        Sensors.dtype(sensors))
 
     def spawn_agent(self, agent_definition, location):
         """Queue up a spawn agent command to be written to the command buffer and open up the respective buffers
@@ -350,7 +345,7 @@ class HolodeckEnvironment(object):
         prepared_agents = self._prepare_agents(agent_definitions)
         self._all_agents.extend(prepared_agents)
         for agent in prepared_agents:
-            self._agent_dict[agent.name] = agent
+            self.agents[agent.name] = agent
         for agent in agent_definitions:
             self.add_state_sensors(agent.name, [Sensors.TERMINAL, Sensors.REWARD])
             self.add_state_sensors(agent.name, agent.sensors)
@@ -368,6 +363,6 @@ class HolodeckEnvironment(object):
         else:
             setting_name = agent_definition.name + "_hyperparameter"
             shape = Hyperparameters.shape(agent_definition.type)
-            self._hyperparameters_map[agent_definition.name] = self._client.subscribe_setting(setting_name,
-                                                                                              shape,
-                                                                                              np.float32)
+            self._hyperparameters_map[agent_definition.name] = self._client.malloc(setting_name,
+                                                                                   shape,
+                                                                                   np.float32)

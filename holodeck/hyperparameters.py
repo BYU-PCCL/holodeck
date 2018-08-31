@@ -10,7 +10,7 @@ from holodeck.agents import *
 class Hyperparameters:
     """This class contains an easy way of accessing the expected size of the hyperparameter array for an agent."""
     _shape_dict = {
-            UAVAgent: [27]
+            UavAgent: [27]
     }
 
     @staticmethod
