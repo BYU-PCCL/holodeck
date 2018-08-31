@@ -31,7 +31,7 @@ def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=Non
     param_dict["uuid"] = str(uuid.uuid4())
     param_dict["gl_version"] = gl_version
     param_dict["verbose"] = verbose
-
+    
     if window_res is not None:
         param_dict["window_width"] = window_res[0]
         param_dict["window_height"] = window_res[1]

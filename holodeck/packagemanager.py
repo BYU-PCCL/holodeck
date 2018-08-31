@@ -12,13 +12,15 @@ from holodeck import util
 from holodeck.exceptions import HolodeckException
 
 packages = {
-    "DefaultWorlds": "DefaultWorlds_1.02.zip",
+    "DefaultWorlds": "DefaultWorlds_1.03.zip",
+    "InfiniteForest": "InfiniteForest_1.0.zip",
+    "CyberPunkCity": "CyberPunkCity_1.0.zip",
 }
 
 
 def all_packages():
     """Returns a list of all downloadable package names"""
-    return [k for k in packages.keys()]
+    return list(packages.keys())
 
 
 def installed_packages():
@@ -83,16 +85,20 @@ def install(package_name):
     Positional Arguments:
     package_name -- the name of the package to install
     """
+
+    holodeck_path = util.get_holodeck_path()
     binary_website = "http://pcc.byu.edu/holodeck/"
 
     if package_name not in packages:
         raise HolodeckException("Unknown package name " + package_name)
     package_url = packages[package_name]
 
-    print("Installing", package_name)
-    install_path = os.path.join(util.get_holodeck_path(), "worlds")
+    print("Installing " + package_name + " at " + holodeck_path)
+    install_path = os.path.join(holodeck_path, "worlds")
     binary_url = binary_website + util.get_os_key() + "_" + package_url
     _download_binary(binary_url, install_path)
+    if os.name == "posix":
+        _make_binary_excecutable(package_name, install_path)
 
 
 def remove(package_name):
@@ -111,6 +117,8 @@ def remove(package_name):
 def _iter_packages():
     path = util.get_holodeck_path()
     worlds_path = os.path.join(path, "worlds")
+    if not os.path.exists(worlds_path):
+        os.makedirs(worlds_path)
     for dir_name in os.listdir(worlds_path):
         full_path = os.path.join(worlds_path, dir_name)
         if os.path.isdir(full_path):
@@ -157,3 +165,11 @@ def _download_binary(binary_location, worlds_path, block_size=1000000):
     print("Unpacking worlds...")
     with zipfile.ZipFile(tmp_fd, 'r') as zip_file:
         zip_file.extractall(worlds_path)
+
+
+def _make_binary_excecutable(package_name, worlds_path):
+    complete_name = "Linux" + package_name
+    for path, _, _ in os.walk(os.path.join(worlds_path, complete_name)):
+        os.chmod(path, 0o777)
+    binary_path = os.path.join(worlds_path, complete_name + "/LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck")
+    os.chmod(binary_path, 0o755)

@@ -1,14 +1,16 @@
 import math
 import os
 
-from holodeck.exceptions import HolodeckException
-
 
 def get_holodeck_path():
-    holodeck_path = os.environ["HOLODECKPATH"]
-    if holodeck_path == "":
-        raise HolodeckException("Couldn't find environment variable HOLODECKPATH.")
-    return holodeck_path
+    if "HOLODECKPATH" in os.environ and os.environ["HOLODECKPATH"] != "":
+        return os.environ["HOLODECKPATH"]
+    if os.name == "posix":
+        return os.path.expanduser("~/.local/share/holodeck")
+    elif os.name == "nt":
+        return os.path.expanduser("~\\AppData\\Local\\holodeck")
+    else:
+        raise NotImplementedError("holodeck is only supported for Linux and Windows")
 
 
 def convert_unicode(value):
