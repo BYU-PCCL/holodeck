@@ -146,7 +146,7 @@ def _download_binary(binary_location, worlds_path, block_size=1000000):
             try:
                 sys.stdout.write("\r|" + blocks + spaces + "| %d%%" % int_percent)
             except UnicodeEncodeError:
-                print("\rDownloading...", end="")
+                print("\r"+str(int_percent)+"%", end="")
 
             sys.stdout.flush()
 
