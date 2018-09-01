@@ -220,9 +220,9 @@ class SetWeatherCommand(Command):
             self.add_string_parameters(weather_type)
 
     @staticmethod
-    def has_type(type):
+    def has_type(weather_type):
         """Checks the validity of the type. Returns true if it exists in the type array
         Positional Arguments:
         type: The weather type, should be one of the above array
         """
-        return type in SetWeatherCommand._types
+        return weather_type in SetWeatherCommand._types
