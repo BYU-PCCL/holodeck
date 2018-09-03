@@ -94,6 +94,7 @@ class DiscreteSphereAgent(HolodeckAgent):
         # return spaces.Discrete(4)
         return None
 
+    @property
     def control_schemes(self):
         return [("0: Move forward\n1: Move backward\n2: Turn right\n3: Turn left", [2])]
 

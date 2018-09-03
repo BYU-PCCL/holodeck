@@ -12,9 +12,7 @@ from holodeck import util
 from holodeck.exceptions import HolodeckException
 
 packages = {
-    "DefaultWorlds": "DefaultWorlds_1.03.zip",
-    "InfiniteForest": "InfiniteForest_1.0.zip",
-    "CyberPunkCity": "CyberPunkCity_1.0.zip",
+    "DefaultWorlds": "DefaultWorlds_1.04.zip",
 }
 
 
@@ -86,7 +84,7 @@ def install(package_name):
     package_name -- the name of the package to install
     """
     holodeck_path = util.get_holodeck_path()
-    binary_website = "http://pcc.byu.edu/holodeck/"
+    binary_website = "https://pcc.byu.edu/holodeck/"
 
     if package_name not in packages:
         raise HolodeckException("Unknown package name " + package_name)
