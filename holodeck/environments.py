@@ -353,6 +353,17 @@ class HolodeckEnvironment(object):
             raise HolodeckException("Agent does not exist: " + agent_name)
         return self._hyperparameters_map[agent_name]
 
+    def set_control_scheme(self, agent_name, control_scheme):
+        """Set the control scheme for a specific agent.
+        Positional Arguments:
+        agent_name -- The name of the agent to set the control scheme for.
+        control_scheme -- A control scheme value (see agents.ControlSchemes)
+        """
+        if agent_name not in self.agents:
+            print("No such agent %s" % agent_name)
+        else:
+            self.agents[agent_name].set_control_scheme(control_scheme)
+
     def __linux_start_process__(self, binary_path, task_key, gl_version, verbose):
         import posix_ipc
         out_stream = sys.stdout if verbose else open(os.devnull, 'w')
