@@ -1,6 +1,20 @@
 import numpy as np
 from functools import reduce
 
+
+class ControlSchemes(object):
+    ANDROID_TORQUES = 0
+
+    CONTINUOUS_SPHERE_DEFAULT = 0
+
+    DISCRETE_SPHERE_DEFAULT = 0
+
+    NAV_TARGET_LOCATION = 0
+
+    UAV_TORQUES = 0
+    UAV_ROLL_PITCH_YAW_RATE_ALT = 1
+
+
 class HolodeckAgent(object):
     def __init__(self, client, name="DefaultAgent"):
         self.name = name
