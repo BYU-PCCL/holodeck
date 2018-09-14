@@ -34,7 +34,7 @@ def sphere_example():
     env = holodeck.make("MazeWorld")
 
     # This command is to constantly rotate to the right
-    command = 2
+    command = 1
     for i in range(10):
         env.reset()
         for _ in range(300):
@@ -75,16 +75,18 @@ def editor_example():
     """This editor example shows how to interact with holodeck worlds while they are being built
     in the Unreal Engine. Most people that use holodeck will not need this.
     """
-    sensors = [Sensors.PIXEL_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
+    sensors = [Sensors.PIXEL_CAMERA, Sensors.LOCATION_SENSOR, Sensors.ORIENTATION_SENSOR]
+    # sensors = [Sensors.PIXEL_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
     agent = AgentDefinition("uav0", agents.UavAgent, sensors)
     env = HolodeckEnvironment(agent, start_world=False)
-    env.agents["uav0"].set_control_scheme(1)
-    command = [0, 0, 1, 1]
+
+    # command = [-6000,-3600,0]
 
     for i in range(10):
         env.reset()
-        for _ in range(3000):
-            state, reward, terminal, _ = env.step(command)
+        env.teleport_camera([0, 0, 0], [0, 90, 0])
+        for _ in range(500):
+            state, reward, terminal, _ = env.step([0,0,0,0])
 
 
 def editor_multi_agent_example():
@@ -93,23 +95,23 @@ def editor_multi_agent_example():
     """
     agent_definitions = [
         AgentDefinition("uav0", agents.UavAgent, [Sensors.PIXEL_CAMERA, Sensors.LOCATION_SENSOR]),
-        AgentDefinition("uav1", agents.UavAgent, [Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR])
+        AgentDefinition("nav0", agents.NavAgent, [Sensors.PIXEL_CAMERA, Sensors.LOCATION_SENSOR, Sensors.ORIENTATION_SENSOR])
     ]
     env = HolodeckEnvironment(agent_definitions, start_world=False)
 
     cmd0 = np.array([0, 0, 0.5, 5])
-    cmd1 = np.array([0, 0, -0.7, 7])
+    cmd1 = np.array([-8810.0, -3690.0, 0])
     for i in range(10):
         env.reset()
         env.act("uav0", cmd0)
-        env.act("uav1", cmd1)
-        for _ in range(300):
+        env.act("nav0", cmd1)
+        for _ in range(10000):
             states = env.tick()
 
-            uav0_terminal = states["uav0"][Sensors.TERMINAL]
-            uav1_reward = states["uav1"][Sensors.REWARD]
+            # uav0_terminal = states["uav0"][Sensors.TERMINAL]
+            # uav1_reward = states["uav1"][Sensors.REWARD]
 
 
 if __name__ == "__main__":
-    uav_example()
+    editor_example()
     print("Finished")
