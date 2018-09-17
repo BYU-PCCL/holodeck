@@ -170,7 +170,7 @@ class HolodeckEnvironment(object):
         If no rotation is given, the current rotation is preserved
         default value: 0,0,0.
         """
-        self.agents[agent_name].teleport(location, rotation)
+        self.agents[agent_name].teleport(location * 100, rotation)  # * 100 to convert m to cm
         self.tick()
 
     def _handle_command_buffer(self):
@@ -375,7 +375,9 @@ class HolodeckEnvironment(object):
                                                 '-CamResY=' + str(self._camera_height), '--HolodeckUUID=' + self._uuid],
                                                stdout=out_stream,
                                                stderr=out_stream)
+
         atexit.register(self.__on_exit__)
+
         try:
             loading_semaphore.acquire(100)
         except posix_ipc.BusyError:
@@ -399,6 +401,7 @@ class HolodeckEnvironment(object):
     def __on_exit__(self):
         if hasattr(self, '_world_process'):
             self._world_process.kill()
+            self._world_process.wait(5)
         self._client.unlink()
 
     def _get_single_state(self):
@@ -447,7 +450,7 @@ class HolodeckEnvironment(object):
             for agent in agent_definition:
                 self._subscribe_hyperparameters(agent)
         else:
-            setting_name = agent_definition.name + "_hyperparameter"
+            setting_name = agent_definition.name + "_hyperparameters"
             shape = Hyperparameters.shape(agent_definition.type)
             self._hyperparameters_map[agent_definition.name] = self._client.malloc(setting_name,
                                                                                    shape,
