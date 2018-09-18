@@ -18,10 +18,12 @@ from holodeck.holodeckclient import HolodeckClient
 class AgentDefinition(object):
     """A class for declaring what agents are expected in a particular holodeck Environment."""
     __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
+                      "ContinuousSphereAgent": ContinuousSphereAgent,
                       "UavAgent": UavAgent,
                       "AndroidAgent": AndroidAgent,
                       "NavAgent": NavAgent,
                       DiscreteSphereAgent: DiscreteSphereAgent,
+                      ContinuousSphereAgent: ContinuousSphereAgent,
                       UavAgent: UavAgent,
                       AndroidAgent: AndroidAgent,
                       NavAgent: NavAgent}
@@ -55,7 +57,8 @@ class HolodeckEnvironment(object):
     """The high level interface for interacting with a Holodeck world"""
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
-                 camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False):
+                 camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
+                 pre_start_steps=2):
         """Constructor for HolodeckEnvironment.
         Positional arguments:
         agent_definitions -- A list of AgentDefinition objects for which agents to expect in the environment
@@ -142,11 +145,15 @@ class HolodeckEnvironment(object):
     def reset(self):
         """Resets the environment, and returns the state.
         If it is a single agent environment, it returns that state for that agent. Otherwise, it returns a dict from
-        agent name to state.
+        agent name to state. Also ticks a specified amount to deal with initialization issues.
         """
         self._reset_ptr[0] = True
-        self._client.release()
-        self._client.acquire()
+
+        self._commands.clear()
+
+        for _ in range(self._pre_start_steps):
+            tick()
+
         return self._default_state_fn()
 
     def step(self, action):
