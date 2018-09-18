@@ -148,10 +148,8 @@ class HolodeckEnvironment(object):
         agent name to state. Also ticks a specified amount to deal with initialization issues.
         """
         self._reset_ptr[0] = True
-
         self._commands.clear()
-
-        for _ in range(self._pre_start_steps):
+        for _ in range(self._pre_start_steps+1):
             tick()
 
         return self._default_state_fn()
