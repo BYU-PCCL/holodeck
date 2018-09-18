@@ -76,6 +76,7 @@ class HolodeckEnvironment(object):
         self._camera_height = camera_height
         self._camera_width = camera_width
         self._uuid = uuid
+        self._pre_start_steps = pre_start_steps
 
         Sensors.set_primary_cam_size(window_height, window_width)
         Sensors.set_pixel_cam_size(camera_height, camera_width)
@@ -152,7 +153,7 @@ class HolodeckEnvironment(object):
         self._commands.clear()
 
         for _ in range(self._pre_start_steps):
-            tick()
+            self.tick()
 
         return self._default_state_fn()
 
