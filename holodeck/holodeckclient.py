@@ -63,9 +63,8 @@ class HolodeckClient:
         def posix_unlink():
             posix_ipc.unlink_semaphore(self._semaphore1.name)
             posix_ipc.unlink_semaphore(self._semaphore2.name)
-            # TODO(mitch) : Properly unlink shmem in posix
-            # for shmem_block in chain(self._sensors.values(), self._agents.values(), self._settings.values()):
-            #     shmem_block.unlink()
+            for shmem_block in self._memory.values():
+                shmem_block.unlink()
 
         self._get_semaphore_fn = posix_acquire_semaphore
         self._release_semaphore_fn = posix_release_semaphore

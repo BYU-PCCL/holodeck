@@ -214,3 +214,6 @@ class NavAgent(HolodeckAgent):
 
     def __repr__(self):
         return "NavAgent " + self.name
+
+    def __act__(self, action):
+        np.copyto(self._action_buffer, action * 100)
