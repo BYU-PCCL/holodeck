@@ -289,15 +289,6 @@ class HolodeckEnvironment(object):
         command_to_send = DayCycleCommand(False)
         self._commands.add_command(command_to_send)
 
-    def teleport_camera(self, location, rotation):
-        """Queue up a teleport camera command to stop the day cycle.
-        By the next tick, the camera's location and rotation will be updated
-        """
-
-        self._should_write_to_command_buffer = True
-        command_to_send = TeleportCameraCommand(location, rotation)
-        self._commands.add_command(command_to_send)
-
     def set_weather(self, weather_type):
         """Queue up a set weather command.
         By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
@@ -309,7 +300,7 @@ class HolodeckEnvironment(object):
         weather.
 
         Positional arguments:
-        type -- The type of weather, which can be 'Rain' or 'Cloudy'. In all default worlds, the weather
+        type -- The type of weather, which can be 'Rain', 'Snow', or 'Cloudy'. In all downloadable worlds, the weather
         is clear by default. If the given type string is not available, the command will not be sent.
         """
         if not SetWeatherCommand.has_type(weather_type.lower()):
