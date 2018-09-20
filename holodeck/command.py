@@ -231,7 +231,7 @@ class SetWeatherCommand(Command):
 class TeleportCameraCommand(Command):
     def __init__(self, location, rotation):
         """Sets the command type to TeleportCamera and initialized this object.
-         :param location: The location to give the camera
+        :param location: The location to give the camera
         :param rotation: The rotation to give the camera
         """
         Command.__init__(self)
@@ -249,6 +249,6 @@ class TeleportCameraCommand(Command):
     def set_rotation(self, rotation):
         """Set the rotation.
         Positional Arguments:
-        location: A three dimensional array representing rotation in x,y,z
+        rotation: A three dimensional array representing rotation in x,y,z
         """
         self.add_number_parameters(rotation)
