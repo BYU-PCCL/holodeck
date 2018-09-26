@@ -53,5 +53,6 @@ def _get_worlds_map():
                 "window_height": level["window_height"],
                 "window_width": level["window_width"],
                 "camera_height": level["camera_height"],
-                "camera_width": level["camera_width"]}
+                "camera_width": level["camera_width"],
+                "pre_start_steps": level["pre_start_steps"]}
     return holodeck_worlds
