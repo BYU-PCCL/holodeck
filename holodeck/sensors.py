@@ -1,7 +1,9 @@
+"""Definition of all of the sensor information"""
 import numpy as np
 
 
 class Sensors:
+    """Class information of sensor data with mappings from names to corresponding numbers"""
     TERMINAL = 1
     REWARD = 2
     PRIMARY_PLAYER_CAMERA = 3  # default is 512 x 512 RGBA

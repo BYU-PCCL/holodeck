@@ -7,43 +7,50 @@ from holodeck.agents import *
 
 
 class CommandsGroup(object):
-    """Holds Command objects in a list, and when requested packages everything in the correct json format"""
+    """Holds Command objects in a list, and when requested packages everything in the correct json format."""
 
     def __init__(self):
         self._commands = []
 
     def add_command(self, command):
-        """Adds a command to the list"""
+        """Adds a command to the list
+
+        Args:
+            command (Command): A command to add."""
         self._commands.append(command)
 
     def to_json(self):
-        """Return a string of the commands array object and all of the commands inside the array"""
+        """
+        Returns:
+             str: Json for commands array object and all of the commands inside the array."""
         commands = ",".join(map(lambda x: x.to_json(), self._commands))
         return "{\"commands\": [" + commands + "]}"
 
     def clear(self):
-        """Clear the list of commands"""
+        """Clear the list of commands."""
         self._commands.clear()
 
 
 class Command(object):
-    """Base class for Command objects. Can return itself in json format. You must set the command type."""
-
+    """Base class for Command objects. Commands are used for IPC between the holodeck python bindings and holodeck
+    binaries. Can return itself in json format. You must set the command type."""
     def __init__(self):
         self._parameters = []
         self._command_type = ""
 
     def set_command_type(self, command_type):
         """Set the type of the command.
-        Positional Arguments:
-        command_type -- This is the name of the command that it will be set to.
+
+        Args:
+            command_type (str): This is the name of the command that it will be set to.
         """
         self._command_type = command_type
 
     def add_number_parameters(self, number):
         """Add given number parameters to the internal list.
-        Positional Arguments:
-        number -- A number or list of numbers to add to the parameters.
+
+        Args:
+            number (list of int or list of float): A number or list of numbers to add to the parameters.
         """
         if isinstance(number, list):
             for x in number:
@@ -53,8 +60,9 @@ class Command(object):
 
     def add_string_parameters(self, string):
         """Add given string parameters to the internal list.
-        Positional Arguments:
-        string -- A string or list of strings to add to the parameters.
+
+        Args:
+            string (list of str or str): A string or list of strings to add to the parameters.
         """
         if isinstance(string, list):
             for x in string:
@@ -63,13 +71,21 @@ class Command(object):
         self._parameters.append("{ \"value\": \"" + string + "\" }")
 
     def to_json(self):
-        """Return this object in json format."""
+        """
+        Returns:
+            str: This object in json format."""
         to_return = "{ \"type\": \"" + self._command_type + "\", \"params\": [" + ",".join(self._parameters) + "]}"
         return to_return
 
 
 class SpawnAgentCommand(Command):
-    """Holds the information to be sent to Holodeck that is needed for spawning an agent."""
+    """Holds the information to be sent to Holodeck that is needed for spawning an agent.
+
+    Args:
+        location (list of float): The place to spawn the agent in XYZ coordinates (meters).
+        name (str): The name of the agent.
+        agent_type (str): The type of agent to spawn (UAVAgent, NavAgent, ...)
+    """
     __type_keys = {
         DiscreteSphereAgent: "SphereRobot",
         UavAgent: "UAV",
@@ -78,13 +94,7 @@ class SpawnAgentCommand(Command):
     }
 
     def __init__(self, location, name, agent_type):
-        """Sets the command type to SpawnAgent and initialized this object.
-
-        :param location: The place to spawn the agent in the world in XYZ
-        :param name: The name to give the agent
-        :param agent_type: The type of agent (UAVAgent, NavAgent, etc..)
-        """
-        Command.__init__(self)
+        super(SpawnAgentCommand, self).__init__()
         self._command_type = "SpawnAgent"
         self.set_location(location)
         self.set_type(agent_type)
@@ -92,8 +102,9 @@ class SpawnAgentCommand(Command):
 
     def set_location(self, location):
         """Set the location to spawn the agent at.
-        Positional Arguments:
-        location -- XYZ coordinate of where to spawn the agent.
+
+        Args:
+            location (list of float): XYZ coordinate of where to spawn the agent.
         """
         if len(location) != 3:
             print("Invalid location given to spawn agent command")
@@ -102,36 +113,39 @@ class SpawnAgentCommand(Command):
 
     def set_name(self, name):
         """Set the name to give the agent.
-        Positional Arguments:
-        name -- The name to set the agent to.
+
+        Args:
+            name (str): The name to set the agent to.
         """
         self.add_string_parameters(name)
 
     def set_type(self, agent_type):
         """Set the type of agent to spawn in Holodeck. Currently accepted agents are: DiscreteSphereAgent, UAVAgent,
         and AndroidAgent.
-        Positional Arguments:
-        agent_type -- The type of agent to spawn.
+
+        Args:
+            agent_type (str): The type of agent to spawn.
         """
         type_str = SpawnAgentCommand.__type_keys[agent_type]
         self.add_string_parameters(type_str)
 
 
 class ChangeFogDensityCommand(Command):
+    """A command for changing the fog density in the world.
 
+    Args:
+        density (float): A value between 0 and 1.
+    """
     def __init__(self, density):
-        """Sets the command type to ChangeFogDensity and initialized this object.
-
-        :param density: The new density, should be something between 0-1
-        """
-        Command.__init__(self)
+        super(ChangeFogDensityCommand, self).__init__()
         self._command_type = "ChangeFogDensity"
         self.set_density(density)
 
     def set_density(self, density):
         """Set the density for the fog.
-        Positional Arguments:
-        density -- The new density, should be something between 0-1
+
+        Args:
+            density (float): A value between 0 and 1.
         """
         if density < 0 or density > 1:
             print("Fog density should be between 0 and 1")
@@ -140,20 +154,21 @@ class ChangeFogDensityCommand(Command):
 
 
 class DayTimeCommand(Command):
+    """A command to change the time of day.
 
+    Args:
+        hour (int): The hour in military time, should be something between 0-23
+    """
     def __init__(self, hour):
-        """Sets the command type to DayTime and initialized this object.
-
-        :param hour: The hour in military time, should be something between 0-23
-        """
-        Command.__init__(self)
+        super(DayTimeCommand, self).__init__()
         self._command_type = "DayTime"
         self.set_hour(hour)
 
     def set_hour(self, hour):
         """Set the hour.
-        Positional Arguments:
-        hour -- The hour in military time, should be something between 0-23
+
+        Args:
+            hour (int): The hour in military time, should be something between 0-23
         """
         if hour < 0 or hour > 23:
             print("The hour should be in military time; between 0 and 23")
@@ -162,13 +177,13 @@ class DayTimeCommand(Command):
 
 
 class DayCycleCommand(Command):
+    """A command for turning on and off the day/night cycle.
 
+    Args:
+        start (bool): Whether to start or stop the day night cycle
+    """
     def __init__(self, start):
-        """Sets the command type to DayCycle and initialized this object.
-
-        :param start: bool representing whether to start or stop the day night cycle
-        """
-        Command.__init__(self)
+        super(DayCycleCommand, self).__init__()
         self._command_type = "DayCycle"
         self.set_command(start)
 
@@ -194,25 +209,26 @@ class DayCycleCommand(Command):
 
 
 class SetWeatherCommand(Command):
-    """ Avaiable weather types. """
+    """A command to set the weather type.
+
+    Args:
+        weather_type (str): The weather type. Can be "rain" or "cloudy".
+    """
     _types = [
         "rain",
         "cloudy"
     ]
 
     def __init__(self, weather_type):
-        """Sets the command type to SetWeather and initialized this object.
-
-        :param type: The weather type, should be one of the above array
-        """
         Command.__init__(self)
         self._command_type = "SetWeather"
         self.set_type(weather_type)
 
     def set_type(self, weather_type):
         """Set the weather type.
-        Positional Arguments:
-        type: The weather type, should be one of the above array
+
+        Args:
+            weather_type (str): The weather type.
         """
         weather_type.lower()
         exists = self.has_type(weather_type)
@@ -222,7 +238,8 @@ class SetWeatherCommand(Command):
     @staticmethod
     def has_type(weather_type):
         """Checks the validity of the type. Returns true if it exists in the type array
-        Positional Arguments:
-        type: The weather type, should be one of the above array
+
+        Args:
+            weather_type (str): The weather type, should be one of the above array
         """
         return weather_type in SetWeatherCommand._types

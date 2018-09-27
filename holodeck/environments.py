@@ -16,7 +16,13 @@ from holodeck.holodeckclient import HolodeckClient
 
 
 class AgentDefinition(object):
-    """A class for declaring what agents are expected in a particular holodeck Environment."""
+    """A class for declaring what agents are expected in a particular holodeck Environment.
+
+    Args:
+        agent_name (str): The name of the agent to control.
+        agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
+        sensors (list of (str or type)): A list of HolodeckSensors to read from this agent. Defaults to None.
+    """
     __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
                       "UavAgent": UavAgent,
                       "AndroidAgent": AndroidAgent,
@@ -37,13 +43,6 @@ class AgentDefinition(object):
         return result
 
     def __init__(self, agent_name, agent_type, sensors=None):
-        """Constructor for AgentDefinition.
-        Positional Arguments:
-        agent_name -- The name of the agent to control
-        agent_type -- The type of HolodeckAgent to control, string or class reference
-        Keyword Arguments:
-        sensors -- A list of HolodeckSensors to read from this agent, string or class reference (default empty)
-        """
         super(AgentDefinition, self).__init__()
         sensors = sensors or list()
         self.name = agent_name
@@ -52,22 +51,27 @@ class AgentDefinition(object):
 
 
 class HolodeckEnvironment(object):
-    """The high level interface for interacting with a Holodeck world"""
+    """The high level interface for interacting with a Holodeck world.
+    Most users will want an environment created for them via `holodeck.make`.
+
+    Args:
+        agent_definitions (list of :obj:`AgentDefinition`): Which agents to expect in the environment.
+        binary_path (str, optional): The path to the binary to load the world from. Defaults to None.
+        task_key (str, optional): The name of the map within the binary to load. Defaults to None.
+        window_height (int, optional): The height to load the binary at. Defaults to 512.
+        window_width (int, optional): The width to load the binary at. Defaults to 512.
+        camera_height (int, optional): The height of all pixel camera sensors. Defaults to 512.
+        camera_width (int, optional): The width of all pixel camera sensors. Defaults to 512.
+        start_world (bool, optional): Whether to load a binary or not. Defaults to True.
+        uuid (str): A unique identifier, used when running multiple instances of holodeck. Defaults to "".
+        gl_version (int, optional): The version of OpenGL to use for Linux. Defaults to 4.
+
+    Returns:
+        HolodeckEnvironment: A holodeck environment object.
+    """
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False):
-        """Constructor for HolodeckEnvironment.
-        Positional arguments:
-        agent_definitions -- A list of AgentDefinition objects for which agents to expect in the environment
-        Keyword arguments:
-        binary_path -- The path to the binary to load the world from (default None)
-        task_key -- The name of the map within the binary to load (default None)
-        height -- The height to load the binary at (default 512)
-        width -- The width to load the binary at (default 512)
-        start_world -- Whether to load a binary or not (default True)
-        uuid -- A unique identifier, used when running multiple instances of holodeck (default "")
-        gl_version -- The version of OpenGL to use for Linux (default 4)
-        """
         self._window_height = window_height
         self._window_width = window_width
         self._camera_height = camera_height
@@ -113,17 +117,20 @@ class HolodeckEnvironment(object):
 
     @property
     def action_space(self):
-        """Gives the action space for the main agent."""
+        """Gives the action space for the main agent.
+
+        Returns:
+            ActionSpace: The action space for the main agent.
+        """
         return self._agent.action_space
 
-    @property
-    def observation_space(self):
-        """Gives the observation space for the main agent."""
-        # TODO(joshgreaves) : Implement this
-        raise NotImplementedError()
-
     def info(self):
-        """Returns a string with specific information about the environment."""
+        """Returns a string with specific information about the environment.
+        This information includes which agents are in the environment and which sensors they have.
+
+        Returns:
+            str: The information in a string format.
+        """
         result = list()
         result.append("Agents:\n")
         for agent in self._all_agents:
@@ -143,6 +150,10 @@ class HolodeckEnvironment(object):
         """Resets the environment, and returns the state.
         If it is a single agent environment, it returns that state for that agent. Otherwise, it returns a dict from
         agent name to state.
+
+        Returns:
+            tuple or dict: For single agent environment, returns the same as `step`.
+                For multi-agent environment, returns the same as `tick`.
         """
         self._reset_ptr[0] = True
         self._client.release()
@@ -151,9 +162,17 @@ class HolodeckEnvironment(object):
 
     def step(self, action):
         """Supplies an action to the main agent and tells the environment to tick once.
-        Returns the state, reward, terminal, info tuple for the agent.
-        Positional arguments:
-        action -- An action for the main agent to carry out on the next tick
+        Primary mode of interaction for single agent environments.
+
+        Args:
+            action (np.ndarray): An action for the main agent to carry out on the next tick.
+
+        Returns:
+            tuple: The (state, reward, terminal, info) tuple for the agent. State is a dictionary
+            from sensor enum (see :obj:`holodeck.sensors.Sensors`) to np.ndarray.
+            Reward is the float reward returned by the environment.
+            Terminal is the bool terminal signal returned by the environment.
+            Info is any additional info, depending on the world. Defaults to None.
         """
         self._agent.act(action)
 
@@ -166,41 +185,50 @@ class HolodeckEnvironment(object):
 
     def teleport(self, agent_name, location=None, rotation=None):
         """Teleports the target agent to any given location, and applies a specific rotation.
-        If no location is given, it isn't teleported.
-        If no rotation is given, the current rotation is preserved
-        default value: 0,0,0.
+
+        Args:
+            agent_name (str): The name of the agent to teleport.
+            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
+                If no location is given, it isn't teleported, but may still be rotated. Defaults to None.
+            rotation (np.ndarray or list): A new rotation target for the agent.
+                If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
         """
         self.agents[agent_name].teleport(location * 100, rotation)  # * 100 to convert m to cm
         self.tick()
 
-    def _handle_command_buffer(self):
-        """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
-        clears the contents of the self._commands list"""
-        if self._should_write_to_command_buffer:
-            self.write_to_command_buffer(self._commands.to_json())
-            self._should_write_to_command_buffer = False
-            self._commands.clear()
-
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
-        Positional arguments:
-        agent_name -- The name of the agent to give the command to
-        action -- The action for the agent specified to carry out on the next tick
+        Primary mode of interaction for multi-agent environments. After all agent commands are supplied,
+        they can be applied with a call to `tick`.
+
+        Args:
+            agent_name (str): The name of the agent to supply an action for.
+            action (np.ndarray or list): The action to apply to the agent. This action will be applied every
+                time `tick` is called, until a new action is supplied with another call to act.
         """
         self.agents[agent_name].act(action)
 
     def tick(self):
-        """Ticks the environment once. Returns a dict from agent name to state."""
+        """Ticks the environment once. Normally used for multi-agent environments.
+
+        Returns:
+            dict: A dictionary from agent name to its full state. The full state is another dictionary
+            from :obj:`holodeck.sensors.Sensors` enum to np.ndarray, containing the sensors information
+            for each sensor. The sensors always include the reward and terminal sensors.
+        """
         self._handle_command_buffer()
         self._client.release()
         self._client.acquire()
         return self._get_full_state()
 
     def add_state_sensors(self, agent_name, sensors):
-        """Adds a sensor to a particular agent.
-        Positional arguments:
-        agent_name -- The name of the agent to add the sensor to
-        sensors -- A list of, or single sensor to add to the agent
+        """Adds a sensor to a particular agent. This only works if the world you are running also includes
+        that particular sensor on the agent.
+
+        Args:
+            agent_name (str): The name of the agent to add the sensor to.
+            sensors (:obj:`HolodeckSensor` or list of :obj:`HolodeckSensor`): Sensors to add to the agent.
+                Should be objects that inherit from :obj:`HolodeckSensor`.
         """
         if isinstance(sensors, list):
             for sensor in sensors:
@@ -214,15 +242,12 @@ class HolodeckEnvironment(object):
                                                                         Sensors.dtype(sensors))
 
     def spawn_agent(self, agent_definition, location):
-        """Queue up a spawn agent command to be written to the command buffer and open up the respective buffers
-        needed for sending commands to and receiving data from the agent.
-        Nothing in the agent will be initialized, and it won't even exist in Holodeck until the next tick when the
-        Holodeck backend reads the command.
-        Positional arguments:
-        agent_definition -- This is the agent to spawn, its name, and the buffers to open for the sensors. Use the
-        AgentDefinition class.
-        location -- The position to spawn the agent in the world, in XYZ coordinates. Expects a list, and must be 3
-        arguments.
+        """Queues a spawn agent command. It will be applied when `tick` or `step` is called next.
+        The agent won't be able to be used until the next frame.
+
+        Args:
+            agent_definition (:obj:`AgentDefinition`): The definition of the agent to spawn.
+            location (np.ndarray or list): The position to spawn the agent in the world, in XYZ coordinates (in meters).
         """
         self._should_write_to_command_buffer = True
         self._add_agents(agent_definition)
@@ -230,50 +255,43 @@ class HolodeckEnvironment(object):
         self._commands.add_command(command_to_send)
 
     def set_fog_density(self, density):
-        """Queue up a change fog density command.
+        """Queue up a change fog density command. It will be applied when `tick` or `step` is called next.
         By the next tick, the exponential height fog in the world will have the new density. If there is no fog in the
-        world, it be automatically created with the given density.
+        world, it will be automatically created with the given density.
 
-        Positional arguments:
-        density -- The new density value, something between 0-1. The command will not be sent if the given
+        Args:
+            density (float): The new density value, between 0 and 1. The command will not be sent if the given
         density is invalid.
         """
         if density < 0 or density > 1:
-            print("Fog density should be between 0 and 1")
-            return
+            raise HolodeckException("Fog density should be between 0 and 1")
 
         self._should_write_to_command_buffer = True
         command_to_send = ChangeFogDensityCommand(density)
         self._commands.add_command(command_to_send)
 
     def set_day_time(self, hour):
-        """Queue up a change day time command.
+        """Queue up a change day time command. It will be applied when `tick` or `step` is called next.
         By the next tick, the lighting and the skysphere will be updated with the new hour. If there is no skysphere
         or directional light in the world, the command will not function properly but will not cause a crash.
 
-        Positional arguments:
-        hour -- The hour in military time, should be something between 0-23. The command will not be sent if the given
-        hour is out of range.
+        Args:
+            hour (int): The hour in military time, between 0 and 23 inclusive.
         """
-        if hour < 0 or hour > 23:
-            print("ERROR: The given hour should be between 0 and 23 (military time)")
-            return
-
         self._should_write_to_command_buffer = True
-        command_to_send = DayTimeCommand(hour)
+        command_to_send = DayTimeCommand(hour % 24)
         self._commands.add_command(command_to_send)
 
     def start_day_cycle(self, day_length):
-        """Queue up a day cycle command to start the day cycle.
+        """Queue up a day cycle command to start the day cycle. It will be applied when `tick` or `step` is called next.
         The sky sphere will now update each tick with an updated sun angle as it moves about the sky. The length of a
         day will be roughly equivalent to the number of minutes given.
 
-        Positional arguments:
-        day_length -- The number of minutes each day will be
+        Args:
+            day_length (int): The number of minutes each day will be.
         """
         if day_length <= 0:
-            print("Day Cycle ERROR: The given day length should be between above 0!")
-            return
+            raise HolodeckException("The given day length should be between above 0!")
 
         self._should_write_to_command_buffer = True
         command_to_send = DayCycleCommand(True)
@@ -281,16 +299,15 @@ class HolodeckEnvironment(object):
         self._commands.add_command(command_to_send)
 
     def stop_day_cycle(self):
-        """Queue up a day cycle command to stop the day cycle.
+        """Queue up a day cycle command to stop the day cycle. It will be applied when `tick` or `step` is called next.
         By the next tick, day cycle will stop where it is.
         """
-
         self._should_write_to_command_buffer = True
         command_to_send = DayCycleCommand(False)
         self._commands.add_command(command_to_send)
 
     def set_weather(self, weather_type):
-        """Queue up a set weather command.
+        """Queue up a set weather command. It will be applied when `tick` or `step` is called next.
         By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
         to the given weather. If there is no skysphere or directional light in the world, the command may not function
         properly but will not cause a crash.
@@ -299,65 +316,23 @@ class HolodeckEnvironment(object):
         a set_weather command called will be undone. It is recommended to call change_fog_density after calling set
         weather.
 
-        Positional arguments:
-        type -- The type of weather, which can be 'Rain', 'Snow', or 'Cloudy'. In all downloadable worlds, the weather
-        is clear by default. If the given type string is not available, the command will not be sent.
+        Args:
+            weather_type (str): The type of weather, which can be 'Rain' or 'Cloudy'. In all downloadable worlds,
+            the weather is clear by default. If the given type string is not available, the command will not be sent.
         """
         if not SetWeatherCommand.has_type(weather_type.lower()):
-            print("ERROR: Invalid weather type. The available weather types are :" + str(SetWeatherCommand.types))
-            return
+            raise HolodeckException("Invalid weather type " + weather_type)
 
         self._should_write_to_command_buffer = True
         command_to_send = SetWeatherCommand(weather_type.lower())
         self._commands.add_command(command_to_send)
 
-    def write_to_command_buffer(self, to_write):
-        """Write input to the command buffer.  Reformat input string to the correct format.
-        Positional arguments:
-        to_write -- The string to write to the command buffer.
-        """
-        # TODO(mitch): Handle the edge case of writing too much data to the buffer.
-        np.copyto(self._command_bool_ptr, True)
-        to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
-        input_bytes = str.encode(to_write)
-        for index, val in enumerate(input_bytes):
-            self._command_buffer_ptr[index] = val
-
-    def set_hyperparameter(self, parameter_index, value, agent_name=None):
-        """Set a specific hyperparameter on a specific agent.
-        Positional Arguments:
-        agent_name -- the name of the agent
-        parameter_index -- The index of the parameter to set
-        value -- The value to set the parameter to.
-        """
-        if agent_name is None:
-            agent_name = self._agent.name
-        else:
-            if agent_name not in self._hyperparameters_map:
-                raise HolodeckException("Agent does not exist: " + agent_name)
-            if parameter_index >= self._hyperparameters_map[agent_name][0]:
-                raise HolodeckException("Invalid index of hyperparameter: " + str(parameter_index))
-            if parameter_index == 0:
-                raise HolodeckException("Cannot change the number of elements in the hyperparameters list")
-        self._hyperparameters_map[agent_name][parameter_index] = value
-
-    def get_hyperparameters(self, agent_name=None):
-        """Get the list of hyperparameters for a specific agent.
-        Positional Arguments:
-        agent_name -- The agent for which to get the hyperparameters.
-        return -- A list of the hyperparameters for a specific agent, or none if DNE
-        """
-        if agent_name is None:
-            agent_name = self._agent.name
-        elif agent_name not in self._hyperparameters_map:
-            raise HolodeckException("Agent does not exist: " + agent_name)
-        return self._hyperparameters_map[agent_name]
-
     def set_control_scheme(self, agent_name, control_scheme):
         """Set the control scheme for a specific agent.
-        Positional Arguments:
-        agent_name -- The name of the agent to set the control scheme for.
-        control_scheme -- A control scheme value (see agents.ControlSchemes)
+
+        Args:
+            agent_name (str): The name of the agent to set the control scheme for.
+            control_scheme (int): A control scheme value (see :obj:`holodeck.agents.ControlSchemes`)
         """
         if agent_name not in self.agents:
             print("No such agent %s" % agent_name)
@@ -418,6 +393,14 @@ class HolodeckEnvironment(object):
     def _get_full_state(self):
         return copy(self._sensor_map)
 
+    def _handle_command_buffer(self):
+        """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
+        clears the contents of the self._commands list"""
+        if self._should_write_to_command_buffer:
+            self.write_to_command_buffer(self._commands.to_json())
+            self._should_write_to_command_buffer = False
+            self._commands.clear()
+
     def _prepare_agents(self, agent_definitions):
         if isinstance(agent_definitions, list):
             return [self._prepare_agents(x)[0] for x in agent_definitions]
@@ -439,19 +422,15 @@ class HolodeckEnvironment(object):
         for agent in agent_definitions:
             self.add_state_sensors(agent.name, [Sensors.TERMINAL, Sensors.REWARD])
             self.add_state_sensors(agent.name, agent.sensors)
-            self._subscribe_hyperparameters(agent)
 
-    def _subscribe_hyperparameters(self, agent_definition):
-        """Sets up the linkages with holodeck to set and get the hyperparameters of an agent.
-        This is an internal function.
-        agent_definition --  The definition of the agent to subscribe hyperparameters for.
+    def _write_to_command_buffer(self, to_write):
+        """Write input to the command buffer.  Reformat input string to the correct format.
+        Positional arguments:
+        to_write -- The string to write to the command buffer.
         """
-        if isinstance(agent_definition, list):
-            for agent in agent_definition:
-                self._subscribe_hyperparameters(agent)
-        else:
-            setting_name = agent_definition.name + "_hyperparameters"
-            shape = Hyperparameters.shape(agent_definition.type)
-            self._hyperparameters_map[agent_definition.name] = self._client.malloc(setting_name,
-                                                                                   shape,
-                                                                                   np.float32)
+        # TODO(mitch): Handle the edge case of writing too much data to the buffer.
+        np.copyto(self._command_bool_ptr, True)
+        to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
+        input_bytes = str.encode(to_write)
+        for index, val in enumerate(input_bytes):
+            self._command_buffer_ptr[index] = val
