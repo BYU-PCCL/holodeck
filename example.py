@@ -10,6 +10,8 @@ from holodeck.sensors import Sensors
 def uav_example():
     """A basic example of how to use the UAV agent."""
     env = holodeck.make("UrbanCity")
+
+    # This changes the control scheme for the uav
     env.set_control_scheme("uav0", ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
 
     for i in range(10):
@@ -28,6 +30,11 @@ def uav_example():
             # To access and change hyperparameters of the agent:
             params = env.get_hyperparameters()
             params[UAVHyperparameters.UAV_MAX_PITCH] = 0
+
+    # It is useful to know that you can control the AgentFollower camera(what you see) by pressing V to toggle spectator
+    # mode. This detaches the camera and allows you to move freely about the world.
+    # You can also press C to snap to the location of the pixel camera to see the world from the perspective of the
+    # agent. See the Controls section of the ReadMe for more details.
 
 
 def sphere_example():
@@ -48,7 +55,7 @@ def sphere_example():
 
 
 def android_example():
-
+    """A basic example of how to use the android agent."""
     env = holodeck.make("AndroidPlayground")
 
     # The Android's command is a 94 length vector representing torques to be applied at each of his joints
@@ -92,6 +99,53 @@ def multi_agent_example():
             uav0_terminal = states["uav0"][Sensors.TERMINAL]
             uav1_reward = states["uav1"][Sensors.REWARD]
             uav1_hyperparameters = env.get_hyperparameters("uav1")
+
+
+def world_command_examples():
+    """A few examples to showcase commands for manipulating the worlds."""
+    env = holodeck.make("UrbanCity")
+
+    # This is the unaltered MazeWorld
+    for _ in range(300):
+        _ = env.tick()
+    env.reset()
+
+    # The set_day_time_command sets the hour between 0 and 23 (military time). This example sets it to 6 AM.
+    env.set_day_time(6)
+    for _ in range(300):
+        _ = env.tick()
+    env.reset()  # reset() undoes all alterations to the world
+
+    # The start_day_cycle command starts rotating the sun to emulate day cycles.
+    # The parameter sets the day length in minutes.
+    env.start_day_cycle(5)
+    for _ in range(1500):
+        _ = env.tick()
+    env.reset()
+
+    # The set_fog_density changes the density of the fog in the world. 1 is the maximum density.
+    env.set_fog_density(.25)
+    for _ in range(300):
+        _ = env.tick()
+    env.reset()
+
+    # The set_weather_command changes the weather in the world. The two available options are "rain" and "cloudy".
+    # The rainfall particle system is attached to the agent, so the rain particles will only be found around each agent.
+    # Every world is clear by default.
+    env.set_weather("rain")
+    for _ in range(500):
+        _ = env.tick()
+    env.reset()
+
+    env.set_weather("cloudy")
+    for _ in range(500):
+        _ = env.tick()
+    env.reset()
+
+    env.teleport_camera([1000, 1000, 1000], [0, 0, 0])
+    for _ in range(500):
+        _ = env.tick()
+    env.reset()
 
 
 def editor_example():
@@ -140,4 +194,4 @@ if __name__ == "__main__":
         holodeck.install("DefaultWorlds")
         print(holodeck.package_info("DefaultWorlds"))
 
-    uav_example()
+    world_command_examples()
