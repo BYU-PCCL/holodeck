@@ -24,10 +24,12 @@ class AgentDefinition(object):
         sensors (list of (str or type)): A list of HolodeckSensors to read from this agent. Defaults to None.
     """
     __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
+                      "ContinuousSphereAgent": ContinuousSphereAgent,
                       "UavAgent": UavAgent,
                       "AndroidAgent": AndroidAgent,
                       "NavAgent": NavAgent,
                       DiscreteSphereAgent: DiscreteSphereAgent,
+                      ContinuousSphereAgent: ContinuousSphereAgent,
                       UavAgent: UavAgent,
                       AndroidAgent: AndroidAgent,
                       NavAgent: NavAgent}
@@ -71,12 +73,26 @@ class HolodeckEnvironment(object):
     """
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
-                 camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False):
+                 camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
+                 pre_start_steps=2):
+        """Constructor for HolodeckEnvironment.
+        Positional arguments:
+        agent_definitions -- A list of AgentDefinition objects for which agents to expect in the environment
+        Keyword arguments:
+        binary_path -- The path to the binary to load the world from (default None)
+        task_key -- The name of the map within the binary to load (default None)
+        height -- The height to load the binary at (default 512)
+        width -- The width to load the binary at (default 512)
+        start_world -- Whether to load a binary or not (default True)
+        uuid -- A unique identifier, used when running multiple instances of holodeck (default "")
+        gl_version -- The version of OpenGL to use for Linux (default 4)
+        """
         self._window_height = window_height
         self._window_width = window_width
         self._camera_height = camera_height
         self._camera_width = camera_width
         self._uuid = uuid
+        self._pre_start_steps = pre_start_steps
 
         Sensors.set_primary_cam_size(window_height, window_width)
         Sensors.set_pixel_cam_size(camera_height, camera_width)
@@ -149,15 +165,22 @@ class HolodeckEnvironment(object):
     def reset(self):
         """Resets the environment, and returns the state.
         If it is a single agent environment, it returns that state for that agent. Otherwise, it returns a dict from
+<<<<<<< HEAD
         agent name to state.
 
         Returns:
             tuple or dict: For single agent environment, returns the same as `step`.
                 For multi-agent environment, returns the same as `tick`.
+=======
+        agent name to state. Also ticks a specified amount to deal with initialization issues.
+>>>>>>> 7c6c6dde5601dd7645d8497865c4cf3e6e3c141f
         """
         self._reset_ptr[0] = True
-        self._client.release()
-        self._client.acquire()
+        self._commands.clear()
+
+        for _ in range(self._pre_start_steps + 1):
+            self.tick()
+
         return self._default_state_fn()
 
     def step(self, action):
@@ -306,6 +329,14 @@ class HolodeckEnvironment(object):
         command_to_send = DayCycleCommand(False)
         self._commands.add_command(command_to_send)
 
+    def teleport_camera(self, location, rotation):
+        """Queue up a teleport camera command to stop the day cycle.
+        By the next tick, the camera's location and rotation will be updated
+        """
+        self._should_write_to_command_buffer = True
+        command_to_send = TeleportCameraCommand(location, rotation)
+        self._commands.add_command(command_to_send)
+
     def set_weather(self, weather_type):
         """Queue up a set weather command. It will be applied when `tick` or `step` is called next.
         By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
@@ -316,9 +347,15 @@ class HolodeckEnvironment(object):
         a set_weather command called will be undone. It is recommended to call change_fog_density after calling set
         weather.
 
+<<<<<<< HEAD
         Args:
             weather_type (str): The type of weather, which can be 'Rain' or 'Cloudy'. In all downloadable worlds,
             the weather is clear by default. If the given type string is not available, the command will not be sent.
+=======
+        Positional arguments:
+        type -- The type of weather, which can be 'Rain' or 'Cloudy'. In all downloadable worlds, the weather
+        is clear by default. If the given type string is not available, the command will not be sent.
+>>>>>>> 7c6c6dde5601dd7645d8497865c4cf3e6e3c141f
         """
         if not SetWeatherCommand.has_type(weather_type.lower()):
             raise HolodeckException("Invalid weather type " + weather_type)
