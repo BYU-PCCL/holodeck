@@ -2,7 +2,7 @@ import holodeck
 from holodeck import agents
 from holodeck.environments import *
 from holodeck.sensors import Sensors
-import cv2\
+import cv2
 
 """
     Future Tests to Implement:
