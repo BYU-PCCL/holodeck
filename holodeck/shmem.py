@@ -1,3 +1,4 @@
+"""Shared memory with memory mapping"""
 import ctypes
 import mmap
 import os
@@ -9,6 +10,15 @@ from holodeck.exceptions import HolodeckException
 
 
 class Shmem:
+    """Implementation of shared memory
+
+
+    Args:
+        name (str): Name the points to the beginning of the shared memory block
+        shape (int): Shape of the memory block
+        dtype (type optional): data type of the shared memory. Defaults to np.float32
+        uuid (str optional): UUID of the memory block. Defaults to ""
+    """
     _numpy_to_ctype = {
         np.float32: ctypes.c_float,
         np.uint8: ctypes.c_uint8,
@@ -39,6 +49,7 @@ class Shmem:
         self.np_array.data = (Shmem._numpy_to_ctype[dtype] * size).from_buffer(self._mem_pointer)
 
     def unlink(self):
+        """unlinks the shared memory"""
         if os.name == "posix":
             self.__linux_unlink__()
         elif os.name == "nt":

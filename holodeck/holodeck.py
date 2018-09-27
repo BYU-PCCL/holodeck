@@ -9,6 +9,12 @@ from holodeck.packagemanager import _iter_packages
 
 
 class GL_VERSION(object):
+    """OpenGL Version enum.
+
+    Attributes:
+        OPENGL3 (int): The value for OpenGL3.
+        OPENGL4 (int): The value for OpenGL4.
+    """
     OPENGL4 = 4
     OPENGL3 = 3
 
@@ -16,11 +22,17 @@ class GL_VERSION(object):
 def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=None, verbose=False):
     """Creates a holodeck environment using the supplied world name.
 
-    Positional Arguments:
-    world_name -- The name of the world to load as an environment
+    Args:
+        world_name (str): The name of the world to load as an environment. Must match the name of a world in an
+            installed package.
+        gl_version (int, optional): The OpenGL version to use (Linux only). Defaults to GL_VERSION.OPENGL4.
+        window_res ((int, int), optional): The resolution to load the game window at. Defaults to (512, 512).
+        cam_res ((int, int), optional): The resolution to load the pixel camera sensors at. Defaults to (256, 256).
+        verbose (bool): Whether to run in verbose mode. Defaults to False.
 
-    Keyword Arguments:
-    gl_version -- The version of OpenGL to use for Linux (default GL_VERSION.OPENGL4)
+    Returns:
+        HolodeckEnvironment: A holodeck environment instantiated with all the settings necessary for the specified
+            world, and other supplied arguments.
     """
     holodeck_worlds = _get_worlds_map()
     if world_name not in holodeck_worlds:

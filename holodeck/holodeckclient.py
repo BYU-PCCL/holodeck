@@ -1,3 +1,4 @@
+"""The client used for subscribing shared memory between python and c++."""
 import os
 import numpy as np
 
@@ -6,6 +7,12 @@ from holodeck.shmem import Shmem
 
 
 class HolodeckClient:
+    """HolodeckClient for controlling a shared memory session.
+
+    Args:
+        uuid (str, optional): A UUID to indicate which server this client is associated with.
+            The same UUID should be passed to the world through a command line flag. Defaults to "".
+    """
     def __init__(self, uuid=""):
         self._uuid = uuid
 
@@ -71,12 +78,24 @@ class HolodeckClient:
         self.unlink = posix_unlink
 
     def acquire(self):
+        """Used to acquire control. Will wait until the HolodeckServer has finished its work."""
         self._get_semaphore_fn(self._semaphore2)
 
     def release(self):
+        """Used to release control. Will allow the HolodeckServer to take a step."""
         self._release_semaphore_fn(self._semaphore1)
 
     def malloc(self, key, shape, dtype):
+        """Allocates a block of shared memory, and returns a numpy array whose data corresponds with that block.
+
+        Args:
+            key (str): The key to identify the block.
+            shape (list of int): The shape of the numpy array to allocate.
+            dtype (type): The numpy data type (e.g. np.float32).
+
+        Returns:
+            np.ndarray: The numpy array that is positioned on the shared memory.
+        """
         if key not in self._memory or self._memory[key].shape != shape or self._memory[key].dtype != dtype:
             self._memory[key] = Shmem(key, shape, dtype, self._uuid)
 
