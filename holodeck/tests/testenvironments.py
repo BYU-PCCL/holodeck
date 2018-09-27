@@ -108,7 +108,7 @@ def test_default_worlds():
     sphere_worlds = ['MazeWorld']
     android_worlds = ['AndroidPlayground']
 
-    test_time = 10
+    test_time = 200
 
     for world in uav_worlds:
         env = holodeck.make(world)
