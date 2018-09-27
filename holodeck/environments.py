@@ -165,15 +165,11 @@ class HolodeckEnvironment(object):
     def reset(self):
         """Resets the environment, and returns the state.
         If it is a single agent environment, it returns that state for that agent. Otherwise, it returns a dict from
-<<<<<<< HEAD
         agent name to state.
 
         Returns:
             tuple or dict: For single agent environment, returns the same as `step`.
                 For multi-agent environment, returns the same as `tick`.
-=======
-        agent name to state. Also ticks a specified amount to deal with initialization issues.
->>>>>>> 7c6c6dde5601dd7645d8497865c4cf3e6e3c141f
         """
         self._reset_ptr[0] = True
         self._commands.clear()
@@ -347,15 +343,10 @@ class HolodeckEnvironment(object):
         a set_weather command called will be undone. It is recommended to call change_fog_density after calling set
         weather.
 
-<<<<<<< HEAD
         Args:
             weather_type (str): The type of weather, which can be 'Rain' or 'Cloudy'. In all downloadable worlds,
             the weather is clear by default. If the given type string is not available, the command will not be sent.
-=======
-        Positional arguments:
-        type -- The type of weather, which can be 'Rain' or 'Cloudy'. In all downloadable worlds, the weather
-        is clear by default. If the given type string is not available, the command will not be sent.
->>>>>>> 7c6c6dde5601dd7645d8497865c4cf3e6e3c141f
+
         """
         if not SetWeatherCommand.has_type(weather_type.lower()):
             raise HolodeckException("Invalid weather type " + weather_type)
@@ -462,8 +453,9 @@ class HolodeckEnvironment(object):
 
     def _write_to_command_buffer(self, to_write):
         """Write input to the command buffer.  Reformat input string to the correct format.
-        Positional arguments:
-        to_write -- The string to write to the command buffer.
+
+        Args:
+            to_write (str): The string to write to the command buffer.
         """
         # TODO(mitch): Handle the edge case of writing too much data to the buffer.
         np.copyto(self._command_bool_ptr, True)
