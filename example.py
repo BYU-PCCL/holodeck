@@ -98,7 +98,7 @@ def multi_agent_example():
 
 def world_command_examples():
     """A few examples to showcase commands for manipulating the worlds."""
-    env = holodeck.make("UrbanCity")
+    env = holodeck.make("MazeWorld")
 
     # This is the unaltered MazeWorld
     for _ in range(300):

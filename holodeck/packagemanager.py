@@ -13,7 +13,7 @@ from holodeck import util
 from holodeck.exceptions import HolodeckException
 
 packages = {
-    "DefaultWorlds": "DefaultWorlds_1.05.zip",
+    "DefaultWorlds": "DefaultWorlds_1.1.0.zip",
 }
 
 
@@ -93,7 +93,7 @@ def install(package_name):
         package_name (str): The name of the package to install
     """
     holodeck_path = util.get_holodeck_path()
-    binary_website = "https://pcc.byu.edu/holodeck/"
+    binary_website = "https://holodeck.cs.byu.edu/binaries/"
 
     if package_name not in packages:
         raise HolodeckException("Unknown package name " + package_name)
