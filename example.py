@@ -27,10 +27,6 @@ def uav_example():
             velocity = state[Sensors.VELOCITY_SENSOR]
             # For a full list of sensors the UAV has, view the README
 
-            # To access and change hyperparameters of the agent:
-            params = env.get_hyperparameters()
-            params[UAVHyperparameters.UAV_MAX_PITCH] = 0
-
     # It is useful to know that you can control the AgentFollower camera(what you see) by pressing V to toggle spectator
     # mode. This detaches the camera and allows you to move freely about the world.
     # You can also press C to snap to the location of the pixel camera to see the world from the perspective of the
@@ -98,7 +94,6 @@ def multi_agent_example():
             states = env.tick()
             uav0_terminal = states["uav0"][Sensors.TERMINAL]
             uav1_reward = states["uav1"][Sensors.REWARD]
-            uav1_hyperparameters = env.get_hyperparameters("uav1")
 
 
 def world_command_examples():
@@ -194,4 +189,4 @@ if __name__ == "__main__":
         holodeck.install("DefaultWorlds")
         print(holodeck.package_info("DefaultWorlds"))
 
-    world_command_examples()
+    uav_example()
