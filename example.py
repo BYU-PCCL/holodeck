@@ -185,7 +185,7 @@ def editor_multi_agent_example():
 
 if __name__ == "__main__":
 
-    if holodeck.installed_packages() is 0:
+    if 'DefaultWorlds' not in holodeck.installed_packages():
         holodeck.install("DefaultWorlds")
         print(holodeck.package_info("DefaultWorlds"))
 
