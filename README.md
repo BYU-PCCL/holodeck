@@ -71,13 +71,13 @@ SPHERE ROBOT WORLDS
 * MazeWorld
 
 To interact with the environment, you simply call `env.step(cmd)` where cmd is a command for the specific agent.
-Each agent has a different action space, which are detailed [here](https://github.com/BYU-PCCL/Holodeck/blob/develop/Docs/agents.md).
+Each agent has a different action space, which are detailed [here](https://github.com/BYU-PCCL/Holodeck/blob/develop/docs/agents.md).
 The step function returns a tuple of `(state, reward, terminal, info)`.
 The state is a dictionary of sensor enum to sensor value.
 Reward is the reward received from the previous action, and terminal indicates whether the current state is a terminal state.
 Info contains additional environment specific information.
 
-The sensors for each agent are also indicated [here](https://github.com/BYU-PCCL/Holodeck/blob/develop/Docs/sensors.md)
+The sensors for each agent are also indicated [here](https://github.com/BYU-PCCL/Holodeck/blob/develop/docs/sensors.md)
 
 ## Custom World Creation
 To create custom worlds with variable start positions, number and type of agents, and different environments see [Using Custom Worlds](https://github.com/BYU-PCCL/HolodeckPythonBinding/wiki/Using-Custom-Worlds) on the wiki for details on compiling Holodeck and editing worlds with the Unreal editor.
