@@ -425,7 +425,7 @@ class HolodeckEnvironment(object):
         """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
         clears the contents of the self._commands list"""
         if self._should_write_to_command_buffer:
-            self.write_to_command_buffer(self._commands.to_json())
+            self._write_to_command_buffer(self._commands.to_json())
             self._should_write_to_command_buffer = False
             self._commands.clear()
 
