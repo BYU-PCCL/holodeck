@@ -2,7 +2,25 @@ import holodeck
 from holodeck import agents
 from holodeck.environments import *
 from holodeck.sensors import Sensors
-import cv2
+import cv2\
+
+"""
+    Future Tests to Implement:
+    
+        Test to be run when releasing a new version:
+        
+        Pixel camera images can be retrieved properly and the sizes can be adjusted.
+        Do the package manager functions work properly
+        Test that multi agents work properly
+        Test that the tasks work properly for the packaged worlds.
+        Hyper parameters can be set correctly
+        Sensors sense correctly
+        Each agent in packaged worlds have all the sensors they should
+        -Take screenshots at the beginning of each world as well sensor data and 
+        ensure that all the numbers and images line up. We don't want these changing between releases.
+
+
+"""
 
 # test that pixel camera works properly
 def camera_test(env, agent_name, command, test_time):
