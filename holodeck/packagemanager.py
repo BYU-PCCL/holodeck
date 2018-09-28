@@ -13,7 +13,7 @@ from holodeck import util
 from holodeck.exceptions import HolodeckException
 
 packages = {
-    "DefaultWorlds": "DefaultWorlds_1.1.0.zip",
+    "DefaultWorlds": "DefaultWorlds_0.1.0.zip",
 }
 
 
