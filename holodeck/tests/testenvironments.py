@@ -6,7 +6,6 @@ import cv2
 
 """
     Future Tests to Implement:
-    
         Test to be run when releasing a new version:
         
         Pixel camera images can be retrieved properly and the sizes can be adjusted.
@@ -16,21 +15,19 @@ import cv2
         Hyper parameters can be set correctly
         Sensors sense correctly
         Each agent in packaged worlds have all the sensors they should
-        -Take screenshots at the beginning of each world as well sensor data and 
+        -Take screenshots at the beginning of each world as well sensor data and
         ensure that all the numbers and images line up. We don't want these changing between releases.
-
-
 """
 
 # test that pixel camera works properly
 def camera_test(env, agent_name, command, test_time):
 
     # Test basic control and pixel_camera
-    for i in range(1):
+    for _ in range(1):
         env.reset()
 
         for j in range(test_time):
-            state, reward, terminal, _ = env.step(command)
+            state, _, terminal, _ = env.step(command)
 
             # To access specific sensor data:
             pixels = state[Sensors.PIXEL_CAMERA]
@@ -69,7 +66,7 @@ def spawn_test(env, agent_name, command):
         env.act("uav0", command0)
         env.act("uav1", command1)
 
-        for j in range(500):
+        for _ in range(500):
             env.tick()
 
 def world_command_test(env, agent_name, command, test_time):

@@ -69,7 +69,7 @@ class HolodeckAgent(object):
 
     def set_control_scheme(self, index):
         """Sets the control scheme for the agent. See :obj:`ControlSchemes`.
-        
+
         Args:
             index (int): The control scheme to use. Should be set with an enum from :obj:`ControlSchemes`.
         """
