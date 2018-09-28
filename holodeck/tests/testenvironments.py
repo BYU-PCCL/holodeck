@@ -7,7 +7,7 @@ import cv2
 """
     Future Tests to Implement:
         Test to be run when releasing a new version:
-        
+
         Pixel camera images can be retrieved properly and the sizes can be adjusted.
         Do the package manager functions work properly
         Test that multi agents work properly
@@ -19,6 +19,7 @@ import cv2
         ensure that all the numbers and images line up. We don't want these changing between releases.
 """
 
+
 # test that pixel camera works properly
 def camera_test(env, agent_name, command, test_time):
 
@@ -27,7 +28,7 @@ def camera_test(env, agent_name, command, test_time):
         env.reset()
 
         for j in range(test_time):
-            state, _, terminal, _ = env.step(command)
+            state, _, _, _ = env.step(command)
 
             # To access specific sensor data:
             pixels = state[Sensors.PIXEL_CAMERA]
@@ -38,19 +39,21 @@ def camera_test(env, agent_name, command, test_time):
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
 
+
 # TODO implement sensor checking
 def sensor_test():
     # print different sensor results a couple times for each sensor
     pass
 
+
 # Tests spawn agent works correctly.
 def spawn_test(env, agent_name, command):
 
     # Test spawn, teleport agent and teleport camera
-    for i in range(1):
+    for _ in range(1):
         env.reset()
 
-        state, reward, terminal, _ = env.step(command)
+        state, _, _, _ = env.step(command)
 
         spawn_loc = [0, 0, 20]
 
@@ -69,6 +72,7 @@ def spawn_test(env, agent_name, command):
         for _ in range(500):
             env.tick()
 
+
 def world_command_test(env, agent_name, command, test_time):
     """A few examples to showcase commands for manipulating the worlds."""
 
@@ -81,31 +85,24 @@ def world_command_test(env, agent_name, command, test_time):
     env.reset()
 
     print("Testing set_day_time")
-    # The set_day_time_command sets the hour between 0 and 23 (military time). This example sets it to 6 AM.
     env.set_day_time(6)
     for _ in range(test_time):
         _ = env.tick()
-    env.reset()  # reset() undoes all alterations to the world
+    env.reset()
 
     print("Testing start_day_cycle")
-    # The start_day_cycle command starts rotating the sun to emulate day cycles.
-    # The parameter sets the day length in minutes.
     env.start_day_cycle(1)
     for _ in range(test_time*3):
         _ = env.tick()
     env.reset()
 
     print("Testing set_fog_density")
-    # The set_fog_density changes the density of the fog in the world. 1 is the maximum density.
     env.set_fog_density(.5)
     for _ in range(test_time):
         _ = env.tick()
     env.reset()
 
     print("Testing set_weather(rain)")
-    # The set_weather_command changes the weather in the world. The two available options are "rain" and "cloudy".
-    # The rainfall particle system is attached to the agent, so the rain particles will only be found around each agent.
-    # Every world is clear by default.
     env.set_weather("rain")
     for _ in range(test_time):
         _ = env.tick()
@@ -116,6 +113,7 @@ def world_command_test(env, agent_name, command, test_time):
     for _ in range(test_time):
         _ = env.tick()
     env.reset()
+
 
 def test_default_worlds():
 
@@ -153,8 +151,7 @@ def test_default_worlds():
         print("Testing camera")
         camera_test(env, "android0", np.ones(94)*10, test_time)
 
+
 if __name__ == "__main__":
 
-    #holodeck.package_info("DefaultWorlds")
     test_default_worlds()
-    #holodeck.install("DefaultWorlds")
