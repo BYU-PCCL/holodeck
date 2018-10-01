@@ -1,3 +1,4 @@
+"""The client used for subscribing shared memory between python and c++."""
 import os
 import numpy as np
 
@@ -5,7 +6,13 @@ from holodeck.exceptions import HolodeckException
 from holodeck.shmem import Shmem
 
 
-class ShmemClient:
+class HolodeckClient:
+    """HolodeckClient for controlling a shared memory session.
+
+    Args:
+        uuid (str, optional): A UUID to indicate which server this client is associated with.
+            The same UUID should be passed to the world through a command line flag. Defaults to "".
+    """
     def __init__(self, uuid=""):
         self._uuid = uuid
 
@@ -16,6 +23,7 @@ class ShmemClient:
         self._semaphore2 = None
         self.unlink = None
 
+        self._memory = dict()
         self._sensors = dict()
         self._agents = dict()
         self._settings = dict()
@@ -62,34 +70,33 @@ class ShmemClient:
         def posix_unlink():
             posix_ipc.unlink_semaphore(self._semaphore1.name)
             posix_ipc.unlink_semaphore(self._semaphore2.name)
-            # TODO(mitch) : Properly unlink shmem in posix
-            # for shmem_block in chain(self._sensors.values(), self._agents.values(), self._settings.values()):
-            #     shmem_block.unlink()
+            for shmem_block in self._memory.values():
+                shmem_block.unlink()
 
         self._get_semaphore_fn = posix_acquire_semaphore
         self._release_semaphore_fn = posix_release_semaphore
         self.unlink = posix_unlink
 
     def acquire(self):
+        """Used to acquire control. Will wait until the HolodeckServer has finished its work."""
         self._get_semaphore_fn(self._semaphore2)
 
     def release(self):
+        """Used to release control. Will allow the HolodeckServer to take a step."""
         self._release_semaphore_fn(self._semaphore1)
 
-    def subscribe_sensor(self, agent_name, sensor_key, shape, dtype):
-        key = agent_name + "_" + sensor_key
-        self._sensors[key] = Shmem(key, shape, dtype, self._uuid)
+    def malloc(self, key, shape, dtype):
+        """Allocates a block of shared memory, and returns a numpy array whose data corresponds with that block.
 
-    def get_sensor(self, agent_name, sensor_key):
-        return self._sensors[agent_name + "_" + sensor_key].np_array
+        Args:
+            key (str): The key to identify the block.
+            shape (list of int): The shape of the numpy array to allocate.
+            dtype (type): The numpy data type (e.g. np.float32).
 
-    def subscribe_command(self, agent_name, shape):
-        self._agents[agent_name] = (Shmem(agent_name, shape, uuid=self._uuid),
-                                    Shmem(agent_name + "_teleport_bool", [1], uuid=self._uuid, dtype=np.bool),
-                                    Shmem(agent_name + "_teleport_command", [3], uuid=self._uuid))
-        buffers = self._agents[agent_name]
-        return list(map(lambda x: x.np_array, buffers))
+        Returns:
+            np.ndarray: The numpy array that is positioned on the shared memory.
+        """
+        if key not in self._memory or self._memory[key].shape != shape or self._memory[key].dtype != dtype:
+            self._memory[key] = Shmem(key, shape, dtype, self._uuid)
 
-    def subscribe_setting(self, setting_name, shape, dtype):
-        self._settings[setting_name] = Shmem(setting_name, shape, dtype, self._uuid)
-        return self._settings[setting_name].np_array
+        return self._memory[key].np_array

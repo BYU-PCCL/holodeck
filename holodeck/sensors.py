@@ -1,7 +1,9 @@
+"""Definition of all of the sensor information"""
 import numpy as np
 
 
 class Sensors:
+    """Class information of sensor data with mappings from names to corresponding numbers"""
     TERMINAL = 1
     REWARD = 2
     PRIMARY_PLAYER_CAMERA = 3  # default is 512 x 512 RGBA
@@ -14,6 +16,7 @@ class Sensors:
     VELOCITY_SENSOR = 10
     ROTATION_SENSOR = 11
     COLLISION_SENSOR = 12
+    PRESSURE_SENSOR = 13
 
     # Sizes are the number of entries in the numpy array
     _shape_dict = {
@@ -29,6 +32,7 @@ class Sensors:
         VELOCITY_SENSOR: [3],
         ROTATION_SENSOR: [3],
         COLLISION_SENSOR: [1],
+        PRESSURE_SENSOR: [48*(3+1)],
     }
 
     _type_dict = {
@@ -44,6 +48,7 @@ class Sensors:
         VELOCITY_SENSOR: np.float32,
         ROTATION_SENSOR: np.float32,
         COLLISION_SENSOR: np.bool,
+        PRESSURE_SENSOR: np.float32,
     }
 
     _name_dict = {
@@ -58,7 +63,8 @@ class Sensors:
         LOCATION_SENSOR: "LocationSensor",
         VELOCITY_SENSOR: "VelocitySensor",
         ROTATION_SENSOR: "RotationSensor",
-        COLLISION_SENSOR: "CollisionSensor"
+        COLLISION_SENSOR: "CollisionSensor",
+        PRESSURE_SENSOR: "PressureSensor"
     }
 
     _reverse_name_dict = {v: k for k, v in _name_dict.items()}
@@ -82,6 +88,10 @@ class Sensors:
     @staticmethod
     def set_primary_cam_size(height, width):
         Sensors._shape_dict[Sensors.PRIMARY_PLAYER_CAMERA] = [height, width, 4]
+
+    @staticmethod
+    def set_pixel_cam_size(height, width):
+        Sensors._shape_dict[Sensors.PIXEL_CAMERA] = [height, width, 4]
 
     def __init__(self):
         print("No point in instantiating an object.")
