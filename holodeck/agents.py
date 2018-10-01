@@ -161,7 +161,7 @@ class DiscreteSphereAgent(HolodeckAgent):
 
     def __act__(self, action):
         actions = np.array([[2, 0], [-2, 0], [0, 2], [0, -2]])
-        to_act = np.array(actions[action[0], :])
+        to_act = np.array(actions[action, :])
 
         np.copyto(self._action_buffer, to_act)
 

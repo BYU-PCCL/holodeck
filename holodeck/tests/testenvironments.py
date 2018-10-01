@@ -53,7 +53,7 @@ def spawn_test(env, agent_name, command):
     for _ in range(1):
         env.reset()
 
-        state, _, _, _ = env.step(command)
+        _ = env.step(command)
 
         spawn_loc = [0, 0, 20]
 
@@ -74,7 +74,6 @@ def spawn_test(env, agent_name, command):
 
 
 def world_command_test(env, agent_name, command, test_time):
-    """A few examples to showcase commands for manipulating the worlds."""
 
     env.act(agent_name, command)
 
