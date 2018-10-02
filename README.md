@@ -21,13 +21,13 @@ The `holodeck.install("DefaultWorlds")` line downloads and installs the given pa
 *This only needs to be done once.* `holodeck.package_info("DefaultWorlds")` will display information about the worlds contained in the package. If you want to download a different package, use `holodeck.all_packages()` to see a list of those available for installation.
 
 ## Basic Usage
-Holodeck's interface is designed in the same vein as OpenAI's Gym.
+Holodeck's interface is designed in the same vein as [OpenAI's Gym](https://gym.openai.com/).
 The quickest way to get acquainted with Holodeck use is to view the example.py file.
 Here is a basic walkthrough of an example that runs a Holodeck world:
 ```
 import holodeck
 env = holodeck.make("UrbanCity")
-command = np.array([0, -0.5, 0, 10])
+command = np.array([0, 0, 0, 100])
 for i in range(30):
     state, reward, terminal, info = env.step(command)
 ```
@@ -44,7 +44,7 @@ from holodeck.sensors import Sensors
 env = holodeck.make("UrbanCity")
 state, reward, terminal, info = env.reset()
 for i in range(30):
-    state, reward, terminal, info = env.step(np.array([0, -0.5, 0, 10]))
+    state, reward, terminal, info = env.step(np.array([0, 0, 0, 100]))
     print(state[Sensors.LOCATION_SENSOR])
 ```
 
@@ -65,7 +65,7 @@ You can view stats by entering console commands. When an environment is running,
 
 
 ## Custom World Creation
-To create custom worlds with variable start positions, number and type of agents, and different environments see the [Holodeck backend](https://github.com/BYU-PCCL/Holodeck) and follow the [Using Custom Worlds wiki](https://github.com/BYU-PCCL/HolodeckPythonBinding/wiki/Using-Custom-Worlds) to use Holodeck for editing worlds with the Unreal editor.
+To create custom worlds with variable start positions, number and type of agents, and different environments see the [Holodeck Engine](https://github.com/BYU-PCCL/Holodeck) and follow the [Using Custom Worlds wiki](https://github.com/BYU-PCCL/HolodeckPythonBinding/wiki/Using-Custom-Worlds) to use Holodeck for editing worlds with the Unreal editor.
 
 ## Using OpenGL3 in Linux
 To use OpenGL3 in linux, change the argument in Holodeck.make:
