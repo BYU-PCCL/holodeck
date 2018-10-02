@@ -35,15 +35,13 @@ You only need to install packages once. You should make sure to remove them with
 holodeck with pip.
 
 ## Basic Usage
-Holodeck's interface is designed in the same vein as OpenAI's Gym.
+Holodeck's interface is designed in the same vein as [OpenAI's Gym](https://gym.openai.com/).
 The quickest way to get acquainted with Holodeck use is to view the example.py file.
 Here is a basic walkthrough of an example that runs a Holodeck world:
 ```
 import holodeck
-
 env = holodeck.make("UrbanCity")    # Load the environment. This environment contains a UAV in a city.
 command = np.array([0, 0, 0, 100])  # The UAV takes 3 torques and a thrust as a command.
-
 for i in range(30):
     state, reward, terminal, info = env.step(command)  # Pass the command to the environment with step.
                                                        # This returns the state, reward, terminal and info tuple.
@@ -58,7 +56,6 @@ retrieving the correct value from the state dictionary:
 
 ```
 from holodeck.sensors import Sensors
-
 print(state[Sensors.LOCATION_SENSOR])
 ```
 
@@ -115,7 +112,7 @@ You can view stats by entering console commands. When an environment is running,
 
 
 ## Custom World Creation
-To create custom worlds with variable start positions, number and type of agents, and different environments see the [Holodeck backend](https://github.com/BYU-PCCL/Holodeck) and follow the [Using Custom Worlds wiki](https://github.com/BYU-PCCL/Holodeck/wiki/Using-Custom-Worlds) to use Holodeck for editing worlds with the Unreal editor.
+To create custom worlds with variable start positions, number and type of agents, and different environments see the [Holodeck Engine](https://github.com/BYU-PCCL/Holodeck) and follow the [Using Custom Worlds wiki](https://github.com/BYU-PCCL/Holodeck/wiki/Using-Custom-Worlds) to use Holodeck for editing worlds with the Unreal editor.
 
 ## Using OpenGL3 in Linux
 To use OpenGL3 in linux, change the argument in Holodeck.make:
