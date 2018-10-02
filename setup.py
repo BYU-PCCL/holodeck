@@ -5,12 +5,12 @@ with open("README.md") as f:
 
 setup(
     name="holodeck",
-    version="0.0.21",
+    version="0.0.22",
     description="High fidelity simulated environments for reinforcement learning",
     long_description=readme,
     author="Joshua Greaves, Max Robinson, Nick Walton",
     author_email="holodeck@cs.byu.edu",
-    url="https://github.com/byu-pccl/holodeckpythonbinding",
+    url="https://github.com/byu-pccl/holodeck",
     packages=["holodeck"],
     license='MIT License',
     python_requires=">=3",
