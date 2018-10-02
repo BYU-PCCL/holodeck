@@ -23,12 +23,12 @@ Holodeck has an internal package manager for handling packages.
 The most important commands for managing these are as follows:
 ```
 import holodeck
-print(holodeck.all_packages())  # View all packages that are available to be downloaded.
-print(holodeck.installed_packages())  # View which packages are currently installed.
-holodeck.install('DefaultWorlds')  # Installs the DefaultWorlds package.
+print(holodeck.all_packages())                 # View all packages that are available to be downloaded.
+print(holodeck.installed_packages())           # View which packages are currently installed.
+holodeck.install('DefaultWorlds')              # Installs the DefaultWorlds package.
 print(holodeck.package_info('DefaultWorlds'))  # View information on what worlds this package
                                                # contains, and what agents are in those worlds.
-holodeck.remove('DefaultWorlds')  # Removes a package.
+holodeck.remove('DefaultWorlds')               # Removes a package.
 ```
 You only need to install packages once. You should make sure to remove them with
 `holodeck.remove(package_name)` or `holodeck.remove_all_packages()` before removing
@@ -41,8 +41,9 @@ Here is a basic walkthrough of an example that runs a Holodeck world:
 ```
 import holodeck
 
-env = holodeck.make("UrbanCity")  # Load the environment. This environment contains a UAV in a city.
+env = holodeck.make("UrbanCity")    # Load the environment. This environment contains a UAV in a city.
 command = np.array([0, 0, 0, 100])  # The UAV takes 3 torques and a thrust as a command.
+
 for i in range(30):
     state, reward, terminal, info = env.step(command)  # Pass the command to the environment with step.
                                                        # This returns the state, reward, terminal and info tuple.
