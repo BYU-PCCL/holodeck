@@ -8,7 +8,6 @@ import subprocess
 import sys
 from copy import copy
 
-from holodeck.hyperparameters import *
 from holodeck.command import *
 from holodeck.exceptions import HolodeckException
 from holodeck.sensors import Sensors
