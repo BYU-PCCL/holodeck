@@ -105,14 +105,14 @@ You can view stats by entering console commands. When an environment is running,
 
 
 ## Documentation
-* [Agents](https://github.com/BYU-PCCL/Holodeck/blob/master/docs/agents.md)
-* [Sensors](https://github.com/BYU-PCCL/Holodeck/blob/master/docs/sensors.md)
-* [Environment configuration](https://github.com/BYU-PCCL/Holodeck/blob/master/docs/worlds.md)
+* [Agents](https://github.com/byu-pccl/holodeck/blob/master/docs/agents.md)
+* [Sensors](https://github.com/byu-pccl/holodeck/blob/master/docs/sensors.md)
+* [Environment configuration](https://github.com/byu-pccl/holodeck/blob/master/docs/worlds.md)
 * [Docs](https://holodeck.readthedocs.io/en/latest/)
 
 
 ## Custom World Creation
-To create custom worlds with variable start positions, number and type of agents, and different environments see the [Holodeck Engine](https://github.com/BYU-PCCL/Holodeck) and follow the [Using Custom Worlds wiki](https://github.com/BYU-PCCL/Holodeck/wiki/Using-Custom-Worlds) to use Holodeck for editing worlds with the Unreal editor.
+To create custom worlds with variable start positions, number and type of agents, and different environments see the [Holodeck Engine](https://github.com/byu-pccl/holodeck-engine) and follow the [Using Custom Worlds wiki](https://github.com/byu-pccl/holodeck-engine/wiki/Using-Custom-Worlds) to use Holodeck for editing worlds with the Unreal editor.
 
 ## Using OpenGL3 in Linux
 To use OpenGL3 in linux, change the argument in Holodeck.make:
