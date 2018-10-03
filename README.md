@@ -112,7 +112,7 @@ You can view stats by entering console commands. When an environment is running,
 
 
 ## Custom World Creation
-To create custom worlds with variable start positions, number and type of agents, and different environments see the [Holodeck Engine](https://github.com/byu-pccl/holodeck-engine) and follow the [Using Custom Worlds wiki](https://github.com/byu-pccl/holodeck-engine/wiki/Using-Custom-Worlds) to use Holodeck for editing worlds with the Unreal editor.
+To create custom worlds with variable start positions, number and type of agents, and different environments see the [Holodeck Engine](https://github.com/byu-pccl/holodeck-engine) and follow the [Packaging and Using Custom Worlds wiki](https://github.com/byu-pccl/holodeck-engine/wiki/Packaging-and-Using-Custom-Worlds) to use Holodeck for editing worlds with the Unreal editor.
 
 ## Using OpenGL3 in Linux
 To use OpenGL3 in linux, change the argument in Holodeck.make:
