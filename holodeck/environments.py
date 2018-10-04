@@ -383,7 +383,7 @@ class HolodeckEnvironment(object):
         try:
             loading_semaphore.acquire(100)
         except posix_ipc.BusyError:
-            raise HolodeckException("Timed out waiting for binary to load")
+            raise HolodeckException("Timed out waiting for binary to load. Ensure that holodeck is not being run with root priveleges.")
         loading_semaphore.unlink()
 
     def __windows_start_process__(self, binary_path, task_key, verbose):
