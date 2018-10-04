@@ -18,13 +18,13 @@ To install the python bindings, simply run
 
 
 ### Docker Installation
-1. Install nvidia-docker https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)
+1. Install nvidia-docker[https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)]
 2. Pull the docker repository and run it. (replace "*without*" with "*with*" to install with the `DefaultWorlds` package)
 ```
 sudo docker pull pccl/holodeck:ubuntu16.04-without-worlds
 sudo docker run -it pccl/holodeck:ubuntu16.04-without-worlds
 ```
-3. For versions other than Ubuntu 16.04 and Cuda 9.0 see https://hub.docker.com/r/pccl/holodeck/
+3. For versions other than Ubuntu 16.04 and Cuda 9.0 see here.[https://hub.docker.com/r/pccl/holodeck/]
 
 ### Installing Packages
 Holodeck currently contains one package, the `DefaultWorlds` package.
