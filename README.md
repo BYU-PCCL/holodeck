@@ -127,9 +127,9 @@ Holodeck can run on headless machines with GPU accelerated rendering. This requi
 
 ## Running with Holodeck Docker Container
 1. Install nvidia-docker https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)
-2. Pull the docker repository and run it (replace *with* with *without* to install without worlds. 
+2. Pull the docker repository and run it (replace *without* with *with* to install with worlds. 
 ```
-sudo docker pull pccl/holodeck:ubuntu16.04-with-worlds
-sudo docker run -it pccl/holodeck:ubuntu16.04-with-worlds
+sudo docker pull pccl/holodeck:ubuntu16.04-without-worlds
+sudo docker run -it pccl/holodeck:ubuntu16.04-without-worlds
 ```
 3. For versions other than Ubuntu 16.04 and Cuda 9.0 see https://hub.docker.com/r/pccl/holodeck/
