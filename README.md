@@ -16,6 +16,16 @@ Linux:
 To install the python bindings, simply run
 `pip3 install holodeck`
 
+
+## Holodeck Docker Installation
+1. Install nvidia-docker https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)
+2. Pull the docker repository and run it (replace *without* with *with* to install with the `DefaultWorlds` package. 
+```
+sudo docker pull pccl/holodeck:ubuntu16.04-without-worlds
+sudo docker run -it pccl/holodeck:ubuntu16.04-without-worlds
+```
+3. For versions other than Ubuntu 16.04 and Cuda 9.0 see https://hub.docker.com/r/pccl/holodeck/
+
 ### Installing Packages
 Holodeck currently contains one package, the `DefaultWorlds` package.
 Each package in turn contains a number of worlds.
@@ -124,12 +134,3 @@ env = Holodeck.make("MazeWorld", Holodeck.GL_VERSION.OPENGL3)
 
 ## Running Holodeck on Headless Machines
 Holodeck can run on headless machines with GPU accelerated rendering. This requires no extra configuration. Holodeck will automatically detect that the machine is headless and configure it's rendering process accordingly. 
-
-## Running with Holodeck Docker Container
-1. Install nvidia-docker https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)
-2. Pull the docker repository and run it (replace *without* with *with* to install with worlds. 
-```
-sudo docker pull pccl/holodeck:ubuntu16.04-without-worlds
-sudo docker run -it pccl/holodeck:ubuntu16.04-without-worlds
-```
-3. For versions other than Ubuntu 16.04 and Cuda 9.0 see https://hub.docker.com/r/pccl/holodeck/
