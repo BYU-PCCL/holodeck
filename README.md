@@ -84,7 +84,7 @@ env.set_control_scheme('uav0', ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
 ```
 For more control schemes, check out the [docs](https://holodeck.readthedocs.io/en/latest/holodeck/agents.html)
 
-## Multi Agent Environments
+## Multi Agent-Environments
 Holodeck supports multi-agent environments. The interface is a little different, but still very easy to use.
 Instead of calling `step` which passes a command to the main agent and ticks the game, you should call `act`.
 `act` supplies a command to a specific agent, but doesn't tick the game.
