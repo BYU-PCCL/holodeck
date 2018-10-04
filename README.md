@@ -121,3 +121,15 @@ To use OpenGL3 in linux, change the argument in Holodeck.make:
 from Holodeck import Holodeck
 env = Holodeck.make("MazeWorld", Holodeck.GL_VERSION.OPENGL3)
 ```
+
+## Running Holodeck on Headless Machines
+Holodeck can run on headless machines with GPU accelerated rendering. This requires no extra configuration. Holodeck will automatically detect that the machine is headless and configure it's rendering process accordingly. 
+
+## Running with Holodeck Docker Container
+1. Install nvidia-docker https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)
+2. For Ubuntu 16.04 and Cuda 9.0 pull the docker repository and run it
+```
+sudo docker pull pccl/holodeck:ubuntu16.04-with-worlds
+sudo docker run -it pccl/holodeck
+```
+3. For versions other than Ubuntu 16.04 see https://hub.docker.com/r/pccl/holodeck/
