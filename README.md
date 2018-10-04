@@ -40,6 +40,7 @@ The quickest way to get acquainted with Holodeck use is to view the example.py f
 Here is a basic walkthrough of an example that runs a Holodeck world:
 ```
 import holodeck
+import numpy as np
 env = holodeck.make("UrbanCity")    # Load the environment. This environment contains a UAV in a city.
 command = np.array([0, 0, 0, 100])  # The UAV takes 3 torques and a thrust as a command.
 for i in range(30):
