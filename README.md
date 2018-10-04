@@ -130,6 +130,6 @@ Holodeck can run on headless machines with GPU accelerated rendering. This requi
 2. Pull the docker repository and run it (replace *with* with *without* to install without worlds. 
 ```
 sudo docker pull pccl/holodeck:ubuntu16.04-with-worlds
-sudo docker run -it pccl/holodeck
+sudo docker run -it pccl/holodeck:ubuntu16.04-with-worlds
 ```
 3. For versions other than Ubuntu 16.04 and Cuda9.0 see https://hub.docker.com/r/pccl/holodeck/
