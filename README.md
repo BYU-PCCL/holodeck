@@ -22,6 +22,7 @@ Note: for some versions of pip you may see a warning, but holodeck will be insta
 For Ubuntu 16.04 and Cuda 9.0:
 1. Install [nvidia-docker](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0))
 2. Pull the docker repository and run it. (replace "*without*" with "*with*" to install with the `DefaultWorlds` package)
+3. Holodeck cannot be run with root priveleges so after entering the container, before you use holodeck you must login to a new user. The `holodeckuser` with password `holodeck` has been provided. And this account must be used if the `with-worlds` version is selected.
 ```
 sudo docker pull pccl/holodeck:ubuntu16.04-without-worlds
 sudo docker run -it pccl/holodeck:ubuntu16.04-without-worlds
