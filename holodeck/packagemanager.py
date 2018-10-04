@@ -93,7 +93,7 @@ def install(package_name):
         package_name (str): The name of the package to install
     """
     holodeck_path = util.get_holodeck_path()
-    binary_website = "https://holodeck.cs.byu.edu/binaries/"
+    binary_website = "https://s3.amazonaws.com/holodeckworlds/"
 
     if package_name not in packages:
         raise HolodeckException("Unknown package name " + package_name)
