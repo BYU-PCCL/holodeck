@@ -40,6 +40,7 @@ The quickest way to get acquainted with Holodeck use is to view the example.py f
 Here is a basic walkthrough of an example that runs a Holodeck world:
 ```
 import holodeck
+import numpy as np
 env = holodeck.make("UrbanCity")    # Load the environment. This environment contains a UAV in a city.
 command = np.array([0, 0, 0, 100])  # The UAV takes 3 torques and a thrust as a command.
 for i in range(30):
@@ -120,3 +121,15 @@ To use OpenGL3 in linux, change the argument in Holodeck.make:
 from Holodeck import Holodeck
 env = Holodeck.make("MazeWorld", Holodeck.GL_VERSION.OPENGL3)
 ```
+
+## Running Holodeck on Headless Machines
+Holodeck can run on headless machines with GPU accelerated rendering. This requires no extra configuration. Holodeck will automatically detect that the machine is headless and configure it's rendering process accordingly. 
+
+## Running with Holodeck Docker Container
+1. Install nvidia-docker https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)
+2. Pull the docker repository and run it (replace *with* with *without* to install without worlds. 
+```
+sudo docker pull pccl/holodeck:ubuntu16.04-with-worlds
+sudo docker run -it pccl/holodeck:ubuntu16.04-with-worlds
+```
+3. For versions other than Ubuntu 16.04 and Cuda 9.0 see https://hub.docker.com/r/pccl/holodeck/
