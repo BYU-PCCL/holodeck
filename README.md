@@ -17,7 +17,7 @@ To install the python bindings, simply run
 `pip3 install holodeck`
 
 
-## Holodeck Docker Installation
+### Holodeck Docker Installation
 1. Install nvidia-docker https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)
 2. Pull the docker repository and run it (replace *without* with *with* to install with the `DefaultWorlds` package. 
 ```
