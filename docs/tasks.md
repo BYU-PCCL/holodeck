@@ -12,6 +12,7 @@ Parameters:
 * MainAgent
 * ToFollow
 * OnlyWithinSight
+
 The proximity task gives a positive reward as the main agent approaches the given ToFollow actor. This can be a basic UE4 actor
 (such as a cube or wall) or a Holodeck agent. If the OnlyWithinSight parameter is set to true, then the reward will only be given when 
 the ToFollow actor is visible from the main agent.
@@ -19,12 +20,14 @@ the ToFollow actor is visible from the main agent.
 ### Distance Task
 Parameters:
 * MainAgent
+
 The distance task gives a positive reward as the agent moves farther away from its starting position.
 
 ### Maze Task
 Parameters: 
 * MainAgent
 * Target
+
 The maze task gives a positive reward as the agent approaches the Target actor.
 
 A task's parameters are not currently controllable from the python bindings, but the details of each task in the DefaultWorlds package 
