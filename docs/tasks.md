@@ -1,10 +1,12 @@
+# HolodeckTasks
+
 A HolodeckTask calculates the reward and terminal data for any given agent. This is accessed by `env.step(command)`, which returns a 
 tuple containing the reward and terminal. Tasks calculate this data differently depending on the it's type and given parameters. 
 Each task has a Main Agent parameter that indicates the agent that recieves the reward. Below are listed the additional parameters of the 
 different tasks as well as a description of their behavior.
 
 
-## Tasks
+## Task Types
 ### Proximity Task
 Parameters: 
 * MainAgent
