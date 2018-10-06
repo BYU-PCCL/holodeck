@@ -2,6 +2,11 @@
 import math
 import os
 
+try:
+    unicode        # Python 2
+except NameError:
+    unicode = str  # Python 3
+
 
 def get_holodeck_path():
     """Gets the path of the holodeck environment
