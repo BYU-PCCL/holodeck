@@ -28,7 +28,7 @@ Europeanforest
  
 MazeWorld
 - Task: Maze
-     * Main Agent: UavAgent ("uav0")
+     * Main Agent: DiscreteSphereAgent ("sphere0")
      * Target: Far wall
  
 RedwoodForest
