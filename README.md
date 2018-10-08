@@ -1,6 +1,14 @@
 # Holodeck
 Holodeck is a high-fidelity simulator for reinforcement learning built on top of Unreal Engine 4.
 [Read the docs.](https://holodeck.readthedocs.io)
+Citation:
+```
+@misc{HolodeckPCCL,
+  Author = {Joshua Greaves and Max Robinson and Nick Walton and Mitchell Mortensen and Robert Pottorff and Connor Christopherson and Derek Hancock and David Wingate},
+  Title = {Holodeck: A High Fidelity Simulator},
+  Year = {2018},
+}
+```
 
 ## Installation
 ### Requirements
