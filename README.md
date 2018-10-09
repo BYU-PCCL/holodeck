@@ -1,4 +1,7 @@
 # Holodeck
+
+[![Read the docs badge](https://readthedocs.org/projects/holodeck/badge/)](https://holodeck.readthedocs.io)
+
 Holodeck is a high-fidelity simulator for reinforcement learning built on top of Unreal Engine 4.
 [Read the docs.](https://holodeck.readthedocs.io)
 
