@@ -28,7 +28,7 @@ For Ubuntu 16.04 and Cuda 9.0*:
 3. Holodeck cannot be run with root privileges so after entering the container and before you use holodeck you must login to a normal user. The `holodeckuser` with password `"holodeck"` has been provided. This account must be used if the `with-worlds` version is selected.
 ```
 docker pull pccl/holodeck:ubuntu16.04-without-worlds
-docker run -it pccl/holodeck:ubuntu16.04-without-worlds
+nvidia-docker run -it pccl/holodeck:ubuntu16.04-without-worlds
 ```
 
 *For versions other than Ubuntu 16.04 and Cuda 9.0 see [here.](https://hub.docker.com/r/pccl/holodeck/).
