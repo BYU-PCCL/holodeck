@@ -154,7 +154,7 @@ def _download_binary(binary_location, worlds_path, block_size=1000000):
             percent_done = 100 * amount_written / length
             int_percent = int(percent_done)
             num_blocks = int_percent // percent_per_block
-            blocks = chr(0x2589) * num_blocks
+            blocks = chr(0x2588) * num_blocks
             spaces = " " * (max_width - num_blocks)
             try:
                 sys.stdout.write("\r|" + blocks + spaces + "| %d%%" % int_percent)
