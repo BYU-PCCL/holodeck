@@ -273,6 +273,19 @@ class HolodeckEnvironment(object):
         command_to_send = SpawnAgentCommand(location, agent_definition.name, agent_definition.type)
         self._commands.add_command(command_to_send)
 
+    def set_ticks_per_capture(self, agent_name, ticks_per_capture):
+        """Queues a pixel camera rate command. It will be applied when `tick` or `step` is called next.
+        The specified agent's pixel camera will capture images every specified number of ticks.
+        The sensor's image will remain unchanged between captures.
+
+        Args:
+            agent_name (str): The name of the agent whose pixel camera should be modified.
+            ticks_per_capture (int): The amount of ticks to wait between camera captures.
+        """
+        self._should_write_to_command_buffer = True
+        command_to_send = PixelCameraRateCommand(agent_name, ticks_per_capture)
+        self._commands.add_command(command_to_send)
+
     def set_fog_density(self, density):
         """Queue up a change fog density command. It will be applied when `tick` or `step` is called next.
         By the next tick, the exponential height fog in the world will have the new density. If there is no fog in the
