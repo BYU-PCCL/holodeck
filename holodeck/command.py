@@ -269,3 +269,29 @@ class TeleportCameraCommand(Command):
         rotation: A three dimensional array representing rotation in x,y,z
         """
         self.add_number_parameters(rotation)
+
+
+class PixelCameraRateCommand(Command):
+    def __init__(self, agent_name, ticks_per_capture):
+        """Sets the command type to PixelCameraRate and initializes this object.
+        :param agent_name: The name of the agent whose pixel camera rate should be modified
+        :param ticks_per_capture: The number of ticks that should pass per capture of the pixel camera
+        """
+        Command.__init__(self)
+        self._command_type = "PixelCameraRate"
+        self.set_agent(agent_name)
+        self.set_ticks_per_capture(ticks_per_capture)
+
+    def set_ticks_per_capture(self, ticks_per_capture):
+        """Set the ticks per capture.
+        Positional Arguments:
+        ticks_per_capture: An int representing the number of ticks per capture of the camera
+        """
+        self.add_number_parameters(ticks_per_capture)
+
+    def set_agent(self, agent_name):
+        """Set the agent.
+        Positional Arguments:
+        agent_name: A string representing the name of the agent
+        """
+        self.add_string_parameters(agent_name)
