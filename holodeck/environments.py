@@ -406,6 +406,14 @@ class HolodeckEnvironment(object):
             self._world_process.wait(5)
         self._client.unlink()
 
+    # Context manager APIs, allows `with` statement to be used
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        # TODO: Surpress exceptions?
+        self.__on_exit__()
+
     def _get_single_state(self):
         reward = None
         terminal = None
