@@ -9,7 +9,7 @@ class Sensors:
         TERMINAL (int): Index for terminal sensor output. Value is 1.
         REWARD (int): Index for reward sensor output. Value is 2.
         PRIMARY_PLAYER_CAMERA (int): Deprecated. Index for primary player camera sensor. Value is 3.
-        PIXEL_CAMERA (int): Index for pixel camera sensor. Value is 4.
+        RGB_CAMERA (int): Index for pixel camera sensor. Value is 4.
         ORIENTATION_SENSOR (int): Index for orientation sensor. Value is 5.
         IMU_SENSOR (int): Index for IMU sensor. Value is 6.
         JOINT_ROTATION_SENSOR (int): Index for joint rotation sensor. Value is 7.
@@ -23,7 +23,7 @@ class Sensors:
     TERMINAL = 1
     REWARD = 2
     PRIMARY_PLAYER_CAMERA = 3  # default is 512 x 512 RGBA
-    PIXEL_CAMERA = 4  # default is 512 x 512 RGBA
+    RGB_CAMERA = 4  # default is 512 x 512 RGBA
     ORIENTATION_SENSOR = 5
     IMU_SENSOR = 6
     JOINT_ROTATION_SENSOR = 7
@@ -39,7 +39,7 @@ class Sensors:
         TERMINAL: [1],
         REWARD: [1],
         PRIMARY_PLAYER_CAMERA: [512, 512, 4],
-        PIXEL_CAMERA: [256, 256, 4],
+        RGB_CAMERA: [256, 256, 4],
         ORIENTATION_SENSOR: [3, 3],
         IMU_SENSOR: [2, 3],
         JOINT_ROTATION_SENSOR: [94],
@@ -55,7 +55,7 @@ class Sensors:
         TERMINAL: np.bool,
         REWARD: np.float32,
         PRIMARY_PLAYER_CAMERA: np.uint8,
-        PIXEL_CAMERA: np.uint8,
+        RGB_CAMERA: np.uint8,
         ORIENTATION_SENSOR: np.float32,
         IMU_SENSOR: np.float32,
         JOINT_ROTATION_SENSOR: np.float32,
@@ -71,7 +71,7 @@ class Sensors:
         TERMINAL: "Terminal",
         REWARD: "Reward",
         PRIMARY_PLAYER_CAMERA: "PrimaryPlayerCamera",
-        PIXEL_CAMERA: "PixelCamera",
+        RGB_CAMERA: "RGBCamera",
         ORIENTATION_SENSOR: "OrientationSensor",
         IMU_SENSOR: "IMUSensor",
         JOINT_ROTATION_SENSOR: "JointRotationSensor",
@@ -151,7 +151,7 @@ class Sensors:
             height (int): New height value.
             width (int): New width value.
         """
-        Sensors._shape_dict[Sensors.PIXEL_CAMERA] = [height, width, 4]
+        Sensors._shape_dict[Sensors.RGB_CAMERA] = [height, width, 4]
 
     def __init__(self):
         print("No point in instantiating an object.")
