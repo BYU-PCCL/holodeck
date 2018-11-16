@@ -1,6 +1,5 @@
 """This file contains multiple examples of how you might use Holodeck."""
 import numpy as np
-import cv2
 
 import holodeck
 from holodeck import agents
@@ -10,7 +9,7 @@ from holodeck.sensors import Sensors
 
 def uav_example():
     """A basic example of how to use the UAV agent."""
-    env = holodeck.make("EuropeanForest")
+    env = holodeck.make("UrbanCity")
 
     # This changes the control scheme for the uav
     env.set_control_scheme("uav0", ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
@@ -20,7 +19,7 @@ def uav_example():
 
         # This command tells the UAV to not roll or pitch, but to constantly yaw left at 10m altitude.
         command = np.array([0, 0, 2, 10])
-        for _ in range(5000):
+        for _ in range(1000):
             state, reward, terminal, _ = env.step(command)
 
             # To access specific sensor data:
@@ -91,13 +90,10 @@ def multi_agent_example():
 
         env.act("uav0", cmd0)
         env.act("uav1", cmd1)
-        for j in range(1000):
+        for _ in range(1000):
             states = env.tick()
             uav0_terminal = states["uav0"][Sensors.TERMINAL]
-            uav1_loc = states["uav1"][Sensors.LOCATION_SENSOR]
-            print("Uav loc: ",uav1_loc)
-            uav1_cam = states["uav1"][Sensors.RGB_CAMERA]
-            cv2.imwrite("im" + str(j) + ".jpg", uav1_cam[:,:,0:3])
+            uav1_reward = states["uav1"][Sensors.REWARD]
 
 
 def world_command_examples():
@@ -154,34 +150,13 @@ def editor_example():
     sensors = [Sensors.RGB_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
     agent = AgentDefinition("uav0", agents.UavAgent, sensors)
     env = HolodeckEnvironment(agent, start_world=False)
-    env.set_control_scheme("uav0", ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
-    command = [0, 0, 0, 10]
+    env.agents["uav0"].set_control_scheme(1)
+    command = [0, 0, 10, 50]
 
     for i in range(10):
         env.reset()
-
-        _ = env.step(command)
-
-        spawn_loc = [0, 0, 20]
-
-        sensors = [Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
-        agent = AgentDefinition("uav1", agents.UavAgent, sensors)
-
-        env.spawn_agent(agent, spawn_loc)
-        env.tick()
-        env.set_control_scheme("uav1", ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
-
-        command0 = [0, 0, 0, 1]
-        command1 = [0, 2, 3, 10]
-        env.act("uav0", command0)
-        env.act("uav1", command1)
-
-        for _ in range(500):
-            state = env.tick()
-            uav1_state = state["uav1"]
-            loc = uav1_state[Sensors.LOCATION_SENSOR]
-            print(loc)
-
+        for _ in range(1000):
+            state, reward, terminal, _ = env.step(command)
 
 
 def editor_multi_agent_example():
@@ -199,30 +174,13 @@ def editor_multi_agent_example():
 
     for i in range(10):
         env.reset()
-
-        sensors = [Sensors.RGB_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
-        agent0 = AgentDefinition("uav0", agents.UavAgent, sensors)
-        agent1 = AgentDefinition("uav1", agents.UavAgent, sensors)
-        env.spawn_agent(agent0, [1, 1, 5])
-        env.spawn_agent(agent1, [1, 1, 5])
-
-        env.set_control_scheme("uav0", ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
-        env.set_control_scheme("uav1", ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
-
-        env.tick()  # Tick the environment once so the second agent spawns before we try to interact with it.
-        env.reset()
-
         env.act("uav0", cmd0)
         env.act("uav1", cmd1)
-        for j in range(1000):
+        for _ in range(1000):
             states = env.tick()
 
-
             uav0_terminal = states["uav0"][Sensors.TERMINAL]
-            uav1_loc = states["uav1"][Sensors.LOCATION_SENSOR]
-            print("Uav loc: ",uav1_loc)
-            uav1_cam = states["uav1"][Sensors.RGB_CAMERA]
-            cv2.imwrite("im" + str(j) + ".jpg", uav1_cam[:,:,0:3])
+            uav1_reward = states["uav1"][Sensors.REWARD]
 
 
 if __name__ == "__main__":
@@ -231,4 +189,4 @@ if __name__ == "__main__":
         holodeck.install("DefaultWorlds")
         print(holodeck.package_info("DefaultWorlds"))
 
-    editor_example()
+    uav_example()
