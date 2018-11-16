@@ -447,7 +447,6 @@ class HolodeckEnvironment(object):
         for agent in prepared_agents:
             self.agents[agent.name] = agent
         for agent in agent_definitions:
-            print("Adding agent ", agent.name)
             self.add_state_sensors(agent.name, [Sensors.TERMINAL, Sensors.REWARD])
             self.add_state_sensors(agent.name, agent.sensors)
 
