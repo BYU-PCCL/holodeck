@@ -288,9 +288,55 @@ class HolodeckEnvironment(object):
         command_to_send = ChangeFogDensityCommand(density)
         self._commands.add_command(command_to_send)
 
-    def debug_draw(self, start, end, color, thickness):
+    def draw_line(self, start, end, color=[255, 0, 0], thickness=10.0):
+        """Draws a debug line in the world
+
+        Args:
+            start (list of 3 floats): The start location of the line
+            end (list of 3 floats): The end location of the line
+            color (list of 3 floats): RGB values for the color
+            thickness (float): thickness of the line
+        """
         self._should_write_to_command_buffer = True
-        command_to_send = DebugDrawCommand(start, end, color, thickness)
+        command_to_send = DebugDrawCommand(0, start, end, color, thickness)
+        self._commands.add_command(command_to_send)
+
+    def draw_arrow(self, start, end, color=[255, 0, 0], thickness=10.0):
+        """Draws a debug arrow in the world
+
+        Args:
+            start (list of 3 floats): The start location of the arrow
+            end (list of 3 floats): The end location of the arrow
+            color (list of 3 floats): RGB values for the color
+            thickness (float): thickness of the arrow
+        """
+        self._should_write_to_command_buffer = True
+        command_to_send = DebugDrawCommand(1, start, end, color, thickness)
+        self._commands.add_command(command_to_send)
+
+    def draw_box(self, center, extent, color=[255, 0, 0], thickness=10.0):
+        """Draws a debug box in the world
+
+        Args:
+            center (list of 3 floats): The start location of the box
+            extent (list of 3 floats): The extent of the box
+            color (list of 3 floats): RGB values for the color
+            thickness (float): thickness of the lines
+        """
+        self._should_write_to_command_buffer = True
+        command_to_send = DebugDrawCommand(2, center, extent, color, thickness)
+        self._commands.add_command(command_to_send)
+
+    def draw_point(self, loc, color=[255, 0, 0], thickness=10.0):
+        """Draws a debug point in the world
+
+        Args:
+            loc (list of 3 floats): The location of the point
+            color (list of 3 floats): RGB values for the color
+            thickness (float): thickness of the point
+        """
+        self._should_write_to_command_buffer = True
+        command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
         self._commands.add_command(command_to_send)
 
     def set_day_time(self, hour):
