@@ -288,6 +288,11 @@ class HolodeckEnvironment(object):
         command_to_send = ChangeFogDensityCommand(density)
         self._commands.add_command(command_to_send)
 
+    def debug_draw(self, start, end, color, thickness):
+        self._should_write_to_command_buffer = True
+        command_to_send = DebugDrawCommand(start, end, color, thickness)
+        self._commands.add_command(command_to_send)
+
     def set_day_time(self, hour):
         """Queue up a change day time command. It will be applied when `tick` or `step` is called next.
         By the next tick, the lighting and the skysphere will be updated with the new hour. If there is no skysphere

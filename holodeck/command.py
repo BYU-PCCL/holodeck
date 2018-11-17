@@ -153,6 +153,25 @@ class ChangeFogDensityCommand(Command):
         self.add_number_parameters(density)
 
 
+class DebugDrawCommand(Command):
+    """A command for drawing a debug line in the world
+
+    Args:
+        density (float): A value between 0 and 1.
+    """
+    def __init__(self, start, end, color, thickness):
+
+        # TODO add error handling for invalid args
+        super(DebugDrawCommand, self).__init__()
+        self._command_type = "DebugDraw"
+
+        self.add_number_parameters(0)
+        self.add_number_parameters(start)
+        self.add_number_parameters(end)
+        self.add_number_parameters(color)
+        self.add_number_parameters(thickness)
+
+
 class DayTimeCommand(Command):
     """A command to change the time of day.
 
