@@ -154,18 +154,22 @@ class ChangeFogDensityCommand(Command):
 
 
 class DebugDrawCommand(Command):
-    """A command for drawing a debug line in the world
 
-    Args:
-        density (float): A value between 0 and 1.
-    """
-    def __init__(self, start, end, color, thickness):
+    def __init__(self, draw_type, start, end, color, thickness):
+        """Draws a debug lines, points, etc... in the world
 
-        # TODO add error handling for invalid args
+        Args:
+            draw_type (int) : The type of object to draw, 0: line, 1: arrow, 2: box, 3: point
+            start (list of 3 floats): The start location of the object
+            end (list of 3 floats): The end location of the object (not used for point, and extent for box)
+            color (list of 3 floats): RGB values for the color
+            thickness (float): thickness of the line/object
+        """
+
         super(DebugDrawCommand, self).__init__()
         self._command_type = "DebugDraw"
 
-        self.add_number_parameters(0)
+        self.add_number_parameters(draw_type)
         self.add_number_parameters(start)
         self.add_number_parameters(end)
         self.add_number_parameters(color)
