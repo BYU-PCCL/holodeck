@@ -274,8 +274,8 @@ class HolodeckEnvironment(object):
         self._commands.add_command(command_to_send)
 
     def set_ticks_per_capture(self, agent_name, ticks_per_capture):
-        """Queues a pixel camera rate command. It will be applied when `tick` or `step` is called next.
-        The specified agent's pixel camera will capture images every specified number of ticks.
+        """Queues a rgb camera rate command. It will be applied when `tick` or `step` is called next.
+        The specified agent's rgb camera will capture images every specified number of ticks.
         The sensor's image will remain unchanged between captures.
 
         Args:
@@ -283,7 +283,7 @@ class HolodeckEnvironment(object):
             ticks_per_capture (int): The amount of ticks to wait between camera captures.
         """
         self._should_write_to_command_buffer = True
-        command_to_send = PixelCameraRateCommand(agent_name, ticks_per_capture)
+        command_to_send = RGBCameraRateCommand(agent_name, ticks_per_capture)
         self._commands.add_command(command_to_send)
 
     def set_fog_density(self, density):

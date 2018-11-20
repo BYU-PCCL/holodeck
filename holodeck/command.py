@@ -281,14 +281,14 @@ class RenderViewportCommand(Command):
         self.add_number_parameters(int(bool(render_viewport)))
 
 
-class PixelCameraRateCommand(Command):
+class RGBCameraRateCommand(Command):
     def __init__(self, agent_name, ticks_per_capture):
-        """Sets the command type to PixelCameraRate and initializes this object.
+        """Sets the command type to RGBCameraRate and initializes this object.
         :param agent_name: The name of the agent whose pixel camera rate should be modified
         :param ticks_per_capture: The number of ticks that should pass per capture of the pixel camera
         """
         Command.__init__(self)
-        self._command_type = "PixelCameraRate"
+        self._command_type = "RGBCameraRate"
         self.set_agent(agent_name)
         self.set_ticks_per_capture(ticks_per_capture)
 
