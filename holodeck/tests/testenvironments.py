@@ -31,7 +31,7 @@ def camera_test(env, agent_name, command, test_time):
             state, _, _, _ = env.step(command)
 
             # To access specific sensor data:
-            pixels = state[Sensors.PIXEL_CAMERA]
+            pixels = state[Sensors.RGB_CAMERA]
             if j < 2:
                 cv2.namedWindow("Image")
                 cv2.moveWindow("Image",500,500)
@@ -47,7 +47,7 @@ def sensor_test():
 
 
 # Tests spawn agent works correctly.
-def spawn_test(env, agent_name, command):
+def spawn_test(env, command):
 
     # Test spawn, teleport agent and teleport camera
     for _ in range(1):
@@ -151,6 +151,27 @@ def test_default_worlds():
         camera_test(env, "android0", np.ones(94)*10, test_time)
 
 
+def test_editor():
+
+    test_time = 200
+
+    sensors = [Sensors.RGB_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
+    agent = AgentDefinition("uav0", agents.UavAgent, sensors)
+
+    env = HolodeckEnvironment(agent, start_world=False)
+    env.set_control_scheme("uav0", ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
+
+    print("Testing World Commands")
+    world_command_test(env, "uav0", [0, 0, 1, 10], test_time)
+
+    print("Testing camera")
+    camera_test(env, "uav0", [0, 0, 1, 10], test_time)
+
+    print("Testing spawn agent")
+    spawn_test(env, [0, 0, 1, 10])
+
+
 if __name__ == "__main__":
 
     test_default_worlds()
+    # test_editor()
