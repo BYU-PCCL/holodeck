@@ -278,3 +278,16 @@ class RenderViewportCommand(Command):
         Command.__init__(self)
         self.set_command_type("RenderViewport")
         self.add_number_parameters(int(bool(render_viewport)))
+
+class RenderQualityCommand(Command):
+    def __init__(self, render_quality):
+        """Adjusts the rendering quality of Holodeck. 
+        :param render_quality: An integer between 0 and 3. 
+                                    0 = low
+                                    1 = medium
+                                    2 = high
+                                    3 = epic
+        """
+        Command.__init__(self)
+        self.set_command_type("AdjustRenderQuality")
+        self.add_number_parameters(int(render_quality))

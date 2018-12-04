@@ -260,6 +260,10 @@ class HolodeckEnvironment(object):
                                                                         Sensors.shape(sensors),
                                                                         Sensors.dtype(sensors))
 
+    def _enqueue_command(self, command_to_send):
+        self._should_write_to_command_buffer = True
+        self._commands.add_command(command_to_send)
+
     def spawn_agent(self, agent_definition, location):
         """Queues a spawn agent command. It will be applied when `tick` or `step` is called next.
         The agent won't be able to be used until the next frame.
@@ -341,6 +345,16 @@ class HolodeckEnvironment(object):
         self._should_write_to_command_buffer = True
         command_to_send = RenderViewportCommand(render_viewport)
         self._commands.add_command(command_to_send)
+    def set_render_quality(self, render_quality):
+        """Adjusts the rendering quality of Holodeck. 
+        Args:
+            render_quality (int): An integer between 0 and 3. 
+                                    0 = low
+                                    1 = medium
+                                    2 = high
+                                    3 = epic
+        """
+        self._enqueue_command(RenderQualityCommand(render_quality))
 
     def set_weather(self, weather_type):
         """Queue up a set weather command. It will be applied when `tick` or `step` is called next.
