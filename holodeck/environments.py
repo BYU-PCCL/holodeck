@@ -277,6 +277,7 @@ class HolodeckEnvironment(object):
         """Queues a rgb camera rate command. It will be applied when `tick` or `step` is called next.
         The specified agent's rgb camera will capture images every specified number of ticks.
         The sensor's image will remain unchanged between captures.
+        This method must be called after every call to env.reset.
 
         Args:
             agent_name (str): The name of the agent whose pixel camera should be modified.
