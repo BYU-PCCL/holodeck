@@ -272,10 +272,8 @@ class HolodeckEnvironment(object):
             agent_definition (:obj:`AgentDefinition`): The definition of the agent to spawn.
             location (np.ndarray or list): The position to spawn the agent in the world, in XYZ coordinates (in meters).
         """
-        self._should_write_to_command_buffer = True
         self._add_agents(agent_definition)
-        command_to_send = SpawnAgentCommand(location, agent_definition.name, agent_definition.type)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(SpawnAgentCommand(location, agent_definition.name, agent_definition.type))
 
     def set_fog_density(self, density):
         """Queue up a change fog density command. It will be applied when `tick` or `step` is called next.
@@ -289,9 +287,7 @@ class HolodeckEnvironment(object):
         if density < 0 or density > 1:
             raise HolodeckException("Fog density should be between 0 and 1")
 
-        self._should_write_to_command_buffer = True
-        command_to_send = ChangeFogDensityCommand(density)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(ChangeFogDensityCommand(density))
 
     def set_day_time(self, hour):
         """Queue up a change day time command. It will be applied when `tick` or `step` is called next.
@@ -301,9 +297,7 @@ class HolodeckEnvironment(object):
         Args:
             hour (int): The hour in military time, between 0 and 23 inclusive.
         """
-        self._should_write_to_command_buffer = True
-        command_to_send = DayTimeCommand(hour % 24)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(DayTimeCommand(hour % 24))
 
     def start_day_cycle(self, day_length):
         """Queue up a day cycle command to start the day cycle. It will be applied when `tick` or `step` is called next.
@@ -316,35 +310,29 @@ class HolodeckEnvironment(object):
         if day_length <= 0:
             raise HolodeckException("The given day length should be between above 0!")
 
-        self._should_write_to_command_buffer = True
         command_to_send = DayCycleCommand(True)
         command_to_send.set_day_length(day_length)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(command_to_send)
 
     def stop_day_cycle(self):
         """Queue up a day cycle command to stop the day cycle. It will be applied when `tick` or `step` is called next.
         By the next tick, day cycle will stop where it is.
         """
-        self._should_write_to_command_buffer = True
-        command_to_send = DayCycleCommand(False)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(DayCycleCommand(False))
 
     def teleport_camera(self, location, rotation):
         """Queue up a teleport camera command to stop the day cycle.
         By the next tick, the camera's location and rotation will be updated
         """
-        self._should_write_to_command_buffer = True
-        command_to_send = TeleportCameraCommand(location, rotation)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(TeleportCameraCommand(location, rotation))
 
     def should_render_viewport(self, render_viewport):
         """Controls whether the viewport is rendered or not
         Args:
             render_viewport (boolean): If the viewport should be rendered
         """
-        self._should_write_to_command_buffer = True
-        command_to_send = RenderViewportCommand(render_viewport)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(RenderViewportCommand(render_viewport))
+
     def set_render_quality(self, render_quality):
         """Adjusts the rendering quality of Holodeck. 
         Args:
@@ -374,9 +362,7 @@ class HolodeckEnvironment(object):
         if not SetWeatherCommand.has_type(weather_type.lower()):
             raise HolodeckException("Invalid weather type " + weather_type)
 
-        self._should_write_to_command_buffer = True
-        command_to_send = SetWeatherCommand(weather_type.lower())
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(SetWeatherCommand(weather_type.lower()))
 
     def set_control_scheme(self, agent_name, control_scheme):
         """Set the control scheme for a specific agent.
