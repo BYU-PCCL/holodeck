@@ -271,7 +271,6 @@ class TeleportCameraCommand(Command):
         self.add_number_parameters(rotation)
 
 
-<<<<<<< HEAD
 class RenderViewportCommand(Command):
     def __init__(self, render_viewport):
         """
@@ -285,11 +284,6 @@ class RenderViewportCommand(Command):
 class RGBCameraRateCommand(Command):
     def __init__(self, agent_name, ticks_per_capture):
         """Sets the command type to RGBCameraRate and initializes this object.
-=======
-class RGBCameraRateCommand(Command):
-    def __init__(self, agent_name, ticks_per_capture):
-        """Sets the command type to PixelCameraRate and initializes this object.
->>>>>>> 8035fe5ac4a3390803f2543392b9d08fc7bb6d0f
         :param agent_name: The name of the agent whose pixel camera rate should be modified
         :param ticks_per_capture: The number of ticks that should pass per capture of the pixel camera
         """
