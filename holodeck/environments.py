@@ -289,7 +289,7 @@ class HolodeckEnvironment(object):
 
         self._enqueue_command(ChangeFogDensityCommand(density))
 
-    def draw_line(self, start, end, color=(255, 0, 0), thickness=10.0):
+    def draw_line(self, start, end, color=None, thickness=10.0):
         """Draws a debug line in the world
 
         Args:
@@ -298,11 +298,12 @@ class HolodeckEnvironment(object):
             color (list of 3 floats): RGB values for the color
             thickness (float): thickness of the line
         """
+        color = [255, 0, 0] if color is None else color
         self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(0, start, end, color, thickness)
         self._commands.add_command(command_to_send)
 
-    def draw_arrow(self, start, end, color=(255, 0, 0), thickness=10.0):
+    def draw_arrow(self, start, end, color=None, thickness=10.0):
         """Draws a debug arrow in the world
 
         Args:
@@ -311,11 +312,12 @@ class HolodeckEnvironment(object):
             color (list of 3 floats): RGB values for the color
             thickness (float): thickness of the arrow
         """
+        color = [255, 0, 0] if color is None else color
         self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(1, start, end, color, thickness)
         self._commands.add_command(command_to_send)
 
-    def draw_box(self, center, extent, color=(255, 0, 0), thickness=10.0):
+    def draw_box(self, center, extent, color=None, thickness=10.0):
         """Draws a debug box in the world
 
         Args:
@@ -324,11 +326,12 @@ class HolodeckEnvironment(object):
             color (list of 3 floats): RGB values for the color
             thickness (float): thickness of the lines
         """
+        color = [255, 0, 0] if color is None else color
         self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(2, center, extent, color, thickness)
         self._commands.add_command(command_to_send)
 
-    def draw_point(self, loc, color=(255, 0, 0), thickness=10.0):
+    def draw_point(self, loc, color=None, thickness=10.0):
         """Draws a debug point in the world
 
         Args:
@@ -336,6 +339,7 @@ class HolodeckEnvironment(object):
             color (list of 3 floats): RGB values for the color
             thickness (float): thickness of the point
         """
+        color = [255, 0, 0] if color is None else color
         self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
         self._commands.add_command(command_to_send)
