@@ -289,7 +289,7 @@ class HolodeckEnvironment(object):
         command_to_send = ChangeFogDensityCommand(density)
         self._commands.add_command(command_to_send)
 
-    def draw_line(self, start, end, color=[255, 0, 0], thickness=10.0):
+    def draw_line(self, start, end, color=(255, 0, 0), thickness=10.0):
         """Draws a debug line in the world
 
         Args:
@@ -302,7 +302,7 @@ class HolodeckEnvironment(object):
         command_to_send = DebugDrawCommand(0, start, end, color, thickness)
         self._commands.add_command(command_to_send)
 
-    def draw_arrow(self, start, end, color=[255, 0, 0], thickness=10.0):
+    def draw_arrow(self, start, end, color=(255, 0, 0), thickness=10.0):
         """Draws a debug arrow in the world
 
         Args:
@@ -315,7 +315,7 @@ class HolodeckEnvironment(object):
         command_to_send = DebugDrawCommand(1, start, end, color, thickness)
         self._commands.add_command(command_to_send)
 
-    def draw_box(self, center, extent, color=[255, 0, 0], thickness=10.0):
+    def draw_box(self, center, extent, color=(255, 0, 0), thickness=10.0):
         """Draws a debug box in the world
 
         Args:
@@ -328,7 +328,7 @@ class HolodeckEnvironment(object):
         command_to_send = DebugDrawCommand(2, center, extent, color, thickness)
         self._commands.add_command(command_to_send)
 
-    def draw_point(self, loc, color=[255, 0, 0], thickness=10.0):
+    def draw_point(self, loc, color=(255, 0, 0), thickness=10.0):
         """Draws a debug point in the world
 
         Args:
