@@ -276,7 +276,7 @@ class SetSensorEnabledCommand(Command):
         """Sets the command type to SetSensorEnabled and initializes the object.
         :param agent: Name of the agent whose sensor will be switched
         :param sensor: Name of the sensor to be switched
-        :param enable: Boolean representing the sensor state
+        :param enabled: Boolean representing the sensor state
         """
         Command.__init__(self)
         self._command_type = "SetSensorEnabled"
@@ -301,6 +301,6 @@ class SetSensorEnabledCommand(Command):
     def set_enabled(self, enabled):
         """Set sensor state.
         Positional Arguments:
-        enable: Boolean representing the new sensor state
+        enabled: Boolean representing the new sensor state
         """
         self.add_number_parameters(1 if enabled else 0)
