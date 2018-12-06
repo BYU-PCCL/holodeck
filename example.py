@@ -1,6 +1,5 @@
 """This file contains multiple examples of how you might use Holodeck."""
 import numpy as np
-from copy import deepcopy
 
 import holodeck
 from holodeck import agents
@@ -155,35 +154,9 @@ def editor_example():
     command = [0, 0, 10, 50]
 
     for i in range(10):
-        print("Iteration " + str(i))
         env.reset()
-        last_pixels = []
-        last_tick = -1
-        for tick in range(100):
-            if tick % 5 == 0:
-                enabled = tick % 2 == 0
-                env.set_sensor_enabled("uav0", Sensors.name(Sensors.RGB_CAMERA), enabled)
-                
+        for _ in range(1000):
             state, reward, terminal, _ = env.step(command)
-
-            pixels = state[Sensors.RGB_CAMERA]
-
-            changed = False
-            if len(last_pixels) == 0:
-                changed = True
-            else:
-                for row in range(len(pixels)):
-                    for col in range(len(pixels[i])):
-                        if pixels[row][col][0] != last_pixels[row][col][0] \
-                                or pixels[row][col][1] != last_pixels[row][col][1] \
-                                or pixels[row][col][2] != last_pixels[row][col][2] \
-                                or pixels[row][col][3] != last_pixels[row][col][3]:
-                            changed = True
-
-            if changed:
-                print("Pixels changed in " + str(tick - last_tick) + " ticks")
-                last_pixels = deepcopy(pixels)
-                last_tick = tick
 
 
 def editor_multi_agent_example():
