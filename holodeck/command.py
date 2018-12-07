@@ -153,6 +153,29 @@ class ChangeFogDensityCommand(Command):
         self.add_number_parameters(density)
 
 
+class DebugDrawCommand(Command):
+
+    def __init__(self, draw_type, start, end, color, thickness):
+        """Draws a debug lines, points, etc... in the world
+
+        Args:
+            draw_type (int) : The type of object to draw, 0: line, 1: arrow, 2: box, 3: point
+            start (list of 3 floats): The start location of the object
+            end (list of 3 floats): The end location of the object (not used for point, and extent for box)
+            color (list of 3 floats): RGB values for the color
+            thickness (float): thickness of the line/object
+        """
+
+        super(DebugDrawCommand, self).__init__()
+        self._command_type = "DebugDraw"
+
+        self.add_number_parameters(draw_type)
+        self.add_number_parameters(start)
+        self.add_number_parameters(end)
+        self.add_number_parameters(color)
+        self.add_number_parameters(thickness)
+
+
 class DayTimeCommand(Command):
     """A command to change the time of day.
 
@@ -305,3 +328,17 @@ class RGBCameraRateCommand(Command):
         agent_name: A string representing the name of the agent
         """
         self.add_string_parameters(agent_name)
+
+        
+class RenderQualityCommand(Command):
+    def __init__(self, render_quality):
+        """Adjusts the rendering quality of Holodeck. 
+        :param render_quality: An integer between 0 and 3. 
+                                    0 = low
+                                    1 = medium
+                                    2 = high
+                                    3 = epic
+        """
+        Command.__init__(self)
+        self.set_command_type("AdjustRenderQuality")
+        self.add_number_parameters(int(render_quality))
