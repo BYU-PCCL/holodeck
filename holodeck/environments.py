@@ -61,8 +61,8 @@ class HolodeckEnvironment(object):
         task_key (str, optional): The name of the map within the binary to load. Defaults to None.
         window_height (int, optional): The height to load the binary at. Defaults to 512.
         window_width (int, optional): The width to load the binary at. Defaults to 512.
-        camera_height (int, optional): The height of all pixel camera sensors. Defaults to 512.
-        camera_width (int, optional): The width of all pixel camera sensors. Defaults to 512.
+        camera_height (int, optional): The height of all pixel camera sensors. Defaults to 256.
+        camera_width (int, optional): The width of all pixel camera sensors. Defaults to 256.
         start_world (bool, optional): Whether to load a binary or not. Defaults to True.
         uuid (str): A unique identifier, used when running multiple instances of holodeck. Defaults to "".
         gl_version (int, optional): The version of OpenGL to use for Linux. Defaults to 4.
