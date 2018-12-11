@@ -61,8 +61,8 @@ class HolodeckEnvironment(object):
         task_key (str, optional): The name of the map within the binary to load. Defaults to None.
         window_height (int, optional): The height to load the binary at. Defaults to 512.
         window_width (int, optional): The width to load the binary at. Defaults to 512.
-        camera_height (int, optional): The height of all pixel camera sensors. Defaults to 512.
-        camera_width (int, optional): The width of all pixel camera sensors. Defaults to 512.
+        camera_height (int, optional): The height of all pixel camera sensors. Defaults to 256.
+        camera_width (int, optional): The width of all pixel camera sensors. Defaults to 256.
         start_world (bool, optional): Whether to load a binary or not. Defaults to True.
         uuid (str): A unique identifier, used when running multiple instances of holodeck. Defaults to "".
         gl_version (int, optional): The version of OpenGL to use for Linux. Defaults to 4.
@@ -260,6 +260,10 @@ class HolodeckEnvironment(object):
                                                                         Sensors.shape(sensors),
                                                                         Sensors.dtype(sensors))
 
+    def _enqueue_command(self, command_to_send):
+        self._should_write_to_command_buffer = True
+        self._commands.add_command(command_to_send)
+
     def spawn_agent(self, agent_definition, location):
         """Queues a spawn agent command. It will be applied when `tick` or `step` is called next.
         The agent won't be able to be used until the next frame.
@@ -268,10 +272,8 @@ class HolodeckEnvironment(object):
             agent_definition (:obj:`AgentDefinition`): The definition of the agent to spawn.
             location (np.ndarray or list): The position to spawn the agent in the world, in XYZ coordinates (in meters).
         """
-        self._should_write_to_command_buffer = True
         self._add_agents(agent_definition)
-        command_to_send = SpawnAgentCommand(location, agent_definition.name, agent_definition.type)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(SpawnAgentCommand(location, agent_definition.name, agent_definition.type))
 
     def set_fog_density(self, density):
         """Queue up a change fog density command. It will be applied when `tick` or `step` is called next.
@@ -285,8 +287,61 @@ class HolodeckEnvironment(object):
         if density < 0 or density > 1:
             raise HolodeckException("Fog density should be between 0 and 1")
 
+        self._enqueue_command(ChangeFogDensityCommand(density))
+
+    def draw_line(self, start, end, color=None, thickness=10.0):
+        """Draws a debug line in the world
+
+        Args:
+            start (list of 3 floats): The start location of the line
+            end (list of 3 floats): The end location of the line
+            color (list of 3 floats): RGB values for the color
+            thickness (float): thickness of the line
+        """
+        color = [255, 0, 0] if color is None else color
         self._should_write_to_command_buffer = True
-        command_to_send = ChangeFogDensityCommand(density)
+        command_to_send = DebugDrawCommand(0, start, end, color, thickness)
+        self._commands.add_command(command_to_send)
+
+    def draw_arrow(self, start, end, color=None, thickness=10.0):
+        """Draws a debug arrow in the world
+
+        Args:
+            start (list of 3 floats): The start location of the arrow
+            end (list of 3 floats): The end location of the arrow
+            color (list of 3 floats): RGB values for the color
+            thickness (float): thickness of the arrow
+        """
+        color = [255, 0, 0] if color is None else color
+        self._should_write_to_command_buffer = True
+        command_to_send = DebugDrawCommand(1, start, end, color, thickness)
+        self._commands.add_command(command_to_send)
+
+    def draw_box(self, center, extent, color=None, thickness=10.0):
+        """Draws a debug box in the world
+
+        Args:
+            center (list of 3 floats): The start location of the box
+            extent (list of 3 floats): The extent of the box
+            color (list of 3 floats): RGB values for the color
+            thickness (float): thickness of the lines
+        """
+        color = [255, 0, 0] if color is None else color
+        self._should_write_to_command_buffer = True
+        command_to_send = DebugDrawCommand(2, center, extent, color, thickness)
+        self._commands.add_command(command_to_send)
+
+    def draw_point(self, loc, color=None, thickness=10.0):
+        """Draws a debug point in the world
+
+        Args:
+            loc (list of 3 floats): The location of the point
+            color (list of 3 floats): RGB values for the color
+            thickness (float): thickness of the point
+        """
+        color = [255, 0, 0] if color is None else color
+        self._should_write_to_command_buffer = True
+        command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
         self._commands.add_command(command_to_send)
 
     def set_day_time(self, hour):
@@ -297,9 +352,7 @@ class HolodeckEnvironment(object):
         Args:
             hour (int): The hour in military time, between 0 and 23 inclusive.
         """
-        self._should_write_to_command_buffer = True
-        command_to_send = DayTimeCommand(hour % 24)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(DayTimeCommand(hour % 24))
 
     def start_day_cycle(self, day_length):
         """Queue up a day cycle command to start the day cycle. It will be applied when `tick` or `step` is called next.
@@ -312,35 +365,39 @@ class HolodeckEnvironment(object):
         if day_length <= 0:
             raise HolodeckException("The given day length should be between above 0!")
 
-        self._should_write_to_command_buffer = True
         command_to_send = DayCycleCommand(True)
         command_to_send.set_day_length(day_length)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(command_to_send)
 
     def stop_day_cycle(self):
         """Queue up a day cycle command to stop the day cycle. It will be applied when `tick` or `step` is called next.
         By the next tick, day cycle will stop where it is.
         """
-        self._should_write_to_command_buffer = True
-        command_to_send = DayCycleCommand(False)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(DayCycleCommand(False))
 
     def teleport_camera(self, location, rotation):
         """Queue up a teleport camera command to stop the day cycle.
         By the next tick, the camera's location and rotation will be updated
         """
-        self._should_write_to_command_buffer = True
-        command_to_send = TeleportCameraCommand(location, rotation)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(TeleportCameraCommand(location, rotation))
 
     def should_render_viewport(self, render_viewport):
         """Controls whether the viewport is rendered or not
         Args:
             render_viewport (boolean): If the viewport should be rendered
         """
-        self._should_write_to_command_buffer = True
-        command_to_send = RenderViewportCommand(render_viewport)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(RenderViewportCommand(render_viewport))
+
+    def set_render_quality(self, render_quality):
+        """Adjusts the rendering quality of Holodeck. 
+        Args:
+            render_quality (int): An integer between 0 and 3. 
+                                    0 = low
+                                    1 = medium
+                                    2 = high
+                                    3 = epic
+        """
+        self._enqueue_command(RenderQualityCommand(render_quality))
 
     def set_weather(self, weather_type):
         """Queue up a set weather command. It will be applied when `tick` or `step` is called next.
@@ -360,9 +417,7 @@ class HolodeckEnvironment(object):
         if not SetWeatherCommand.has_type(weather_type.lower()):
             raise HolodeckException("Invalid weather type " + weather_type)
 
-        self._should_write_to_command_buffer = True
-        command_to_send = SetWeatherCommand(weather_type.lower())
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(SetWeatherCommand(weather_type.lower()))
 
     def set_control_scheme(self, agent_name, control_scheme):
         """Set the control scheme for a specific agent.
