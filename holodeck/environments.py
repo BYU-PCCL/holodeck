@@ -520,11 +520,12 @@ class HolodeckEnvironment(object):
             elif sensor == Sensors.TERMINAL:
                 terminal = self._sensor_map[self._agent.name][sensor][0]
 
-        state = deepcopy(self._sensor_map[self._agent.name]) if self._copy_state else self._sensor_map[self._agent.name]
+        state = deepcopy(self._sensor_map[self._agent.name]) if self._copy_state \
+            else copy(self._sensor_map[self._agent.name])
         return state, reward, terminal, None
 
     def _get_full_state(self):
-        return deepcopy(self._sensor_map) if self._copy_state else self._sensor_map
+        return deepcopy(self._sensor_map) if self._copy_state else copy(self._sensor_map)
 
     def _handle_command_buffer(self):
         """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
