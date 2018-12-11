@@ -329,7 +329,7 @@ class RGBCameraRateCommand(Command):
         """
         self.add_string_parameters(agent_name)
 
-        
+
 class RenderQualityCommand(Command):
     def __init__(self, render_quality):
         """Adjusts the rendering quality of Holodeck. 
