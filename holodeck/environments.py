@@ -73,7 +73,7 @@ class HolodeckEnvironment(object):
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
-                 pre_start_steps=2):
+                 pre_start_steps=2, show_viewport=True):
         """Constructor for HolodeckEnvironment.
         Positional arguments:
         agent_definitions -- A list of AgentDefinition objects for which agents to expect in the environment
@@ -85,6 +85,7 @@ class HolodeckEnvironment(object):
         start_world -- Whether to load a binary or not (default True)
         uuid -- A unique identifier, used when running multiple instances of holodeck (default "")
         gl_version -- The version of OpenGL to use for Linux (default 4)
+        show_viewport -- If the viewport should be shown (Linux only)
         """
         self._window_height = window_height
         self._window_width = window_width
@@ -98,7 +99,7 @@ class HolodeckEnvironment(object):
 
         if start_world:
             if os.name == "posix":
-                self.__linux_start_process__(binary_path, task_key, gl_version, verbose=verbose)
+                self.__linux_start_process__(binary_path, task_key, gl_version, verbose=verbose, show_viewport=show_viewport)
             elif os.name == "nt":
                 self.__windows_start_process__(binary_path, task_key, verbose=verbose)
             else:
@@ -332,6 +333,15 @@ class HolodeckEnvironment(object):
         command_to_send = TeleportCameraCommand(location, rotation)
         self._commands.add_command(command_to_send)
 
+    def should_render_viewport(self, render_viewport):
+        """Controls whether the viewport is rendered or not
+        Args:
+            render_viewport (boolean): If the viewport should be rendered
+        """
+        self._should_write_to_command_buffer = True
+        command_to_send = RenderViewportCommand(render_viewport)
+        self._commands.add_command(command_to_send)
+
     def set_weather(self, weather_type):
         """Queue up a set weather command. It will be applied when `tick` or `step` is called next.
         By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
@@ -380,18 +390,25 @@ class HolodeckEnvironment(object):
             self._should_write_to_command_buffer = True
             command_to_send = SetSensorEnabledCommand(agent_name, sensor_name, enabled)
             self._commands.add_command(command_to_send)
-            
-    def __linux_start_process__(self, binary_path, task_key, gl_version, verbose):
+
+    def __linux_start_process__(self, binary_path, task_key, gl_version, verbose, show_viewport=True):
         import posix_ipc
         out_stream = sys.stdout if verbose else open(os.devnull, 'w')
         loading_semaphore = posix_ipc.Semaphore('/HOLODECK_LOADING_SEM' + self._uuid, os.O_CREAT | os.O_EXCL,
                                                 initial_value=0)
+        # Copy the environment variables to remove the DISPLAY variable if we shouldn't show the viewport
+        # see https://answers.unrealengine.com/questions/815764/in-the-release-notes-it-says-the-engine-can-now-cr.html?sort=oldest
+        environment = dict(copy(os.environ))
+        if (show_viewport):
+            del environment['DISPLAY']
+
         self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
                                                 '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_width),
                                                 '-ResY=' + str(self._window_height),'-CamResX=' + str(self._camera_width),
                                                 '-CamResY=' + str(self._camera_height), '--HolodeckUUID=' + self._uuid],
                                                stdout=out_stream,
-                                               stderr=out_stream)
+                                               stderr=out_stream,
+                                               env=environment)
 
         atexit.register(self.__on_exit__)
 
@@ -420,6 +437,14 @@ class HolodeckEnvironment(object):
             self._world_process.kill()
             self._world_process.wait(5)
         self._client.unlink()
+
+    # Context manager APIs, allows `with` statement to be used
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        # TODO: Surpress exceptions?
+        self.__on_exit__()
 
     def _get_single_state(self):
         reward = None

@@ -304,3 +304,13 @@ class SetSensorEnabledCommand(Command):
         enabled: Boolean representing the new sensor state
         """
         self.add_number_parameters(1 if enabled else 0)
+
+
+class RenderViewportCommand(Command):
+    def __init__(self, render_viewport):
+        """
+        :param render_viewport: Boolean if the viewport should be rendered or not
+        """
+        Command.__init__(self)
+        self.set_command_type("RenderViewport")
+        self.add_number_parameters(int(bool(render_viewport)))
