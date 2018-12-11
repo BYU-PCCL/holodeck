@@ -177,6 +177,9 @@ class HolodeckEnvironment(object):
         for _ in range(self._pre_start_steps + 1):
             self.tick()
 
+        for agent in self.agents:
+            self.set_ticks_per_capture(agent, self.agents[agent].get_ticks_per_capture())
+
         return self._default_state_fn()
 
     def step(self, action):
@@ -282,12 +285,18 @@ class HolodeckEnvironment(object):
         This method must be called after every call to env.reset.
 
         Args:
-            agent_name (str): The name of the agent whose pixel camera should be modified.
+            agent_name (str): The name of the agent whose rgb camera should be modified.
             ticks_per_capture (int): The amount of ticks to wait between camera captures.
         """
-        self._should_write_to_command_buffer = True
-        command_to_send = RGBCameraRateCommand(agent_name, ticks_per_capture)
-        self._commands.add_command(command_to_send)
+        if not isinstance(ticks_per_capture, int) or ticks_per_capture < 1:
+            print("Ticks per capture value " + str(ticks_per_capture) + " invalid")
+        elif agent_name not in self.agents:
+            print("No such agent %s" % agent_name)
+        else:
+            self.agents[agent_name].set_ticks_per_capture(ticks_per_capture)
+            self._should_write_to_command_buffer = True
+            command_to_send = RGBCameraRateCommand(agent_name, ticks_per_capture)
+            self._commands.add_command(command_to_send)
 
     def set_fog_density(self, density):
         """Queue up a change fog density command. It will be applied when `tick` or `step` is called next.

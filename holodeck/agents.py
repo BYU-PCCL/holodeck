@@ -59,6 +59,10 @@ class HolodeckAgent(object):
         self._current_control_scheme = 0
         self.set_control_scheme(0)
 
+        self._ticks_per_capture = 1
+        self.set_ticks_per_capture(1)
+        self.get_ticks_per_capture()
+
     def act(self, action):
         """Sets the command for the agent. Action depends on the current control scheme.
 
@@ -75,6 +79,22 @@ class HolodeckAgent(object):
         """
         self._current_control_scheme = index % self._num_control_schemes
         self._control_scheme_buffer[0] = self._current_control_scheme
+
+    def set_ticks_per_capture(self, ticks_per_capture):
+        """Sets the ticks per capture for the agent's rgb camera.
+
+        Args:
+            ticks_per_capture (int): The ticks per capture for the agent's rgb camera
+        """
+        self._ticks_per_capture = ticks_per_capture
+
+    def get_ticks_per_capture(self):
+        """Gets the ticks per capture for the agent's rgb camera.
+
+        Returns:
+            ticks_per_capture (int): The ticks per capture for the agent's rgb camera
+        """
+        return self._ticks_per_capture
 
     def teleport(self, location=None, rotation=None):
         """Teleports the agent to a specific location, with a specific rotation.
