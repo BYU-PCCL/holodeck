@@ -19,7 +19,8 @@ class GL_VERSION(object):
     OPENGL3 = 3
 
 
-def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=None, verbose=False, show_viewport=True):
+def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=None, verbose=False, show_viewport=True,
+         copy_state=True):
     """Creates a holodeck environment using the supplied world name.
 
     Args:
@@ -30,6 +31,7 @@ def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=Non
         cam_res ((int, int), optional): The resolution to load the pixel camera sensors at. Defaults to (256, 256).
         verbose (bool): Whether to run in verbose mode. Defaults to False.
         show_viewport (bool): If the viewport window should be shown on-screen (Linux only). Defaults to True
+        copy_state (bool): If the state should be copied or passed as a reference when returned. Defaults to True
     Returns:
         HolodeckEnvironment: A holodeck environment instantiated with all the settings necessary for the specified
             world, and other supplied arguments.
@@ -44,6 +46,7 @@ def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=Non
     param_dict["gl_version"] = gl_version
     param_dict["verbose"] = verbose
     param_dict["show_viewport"] = show_viewport
+    param_dict["copy_state"] = copy_state
 
     if window_res is not None:
         param_dict["window_width"] = window_res[0]

@@ -6,7 +6,7 @@ import atexit
 import os
 import subprocess
 import sys
-from copy import copy
+from copy import copy, deepcopy
 
 from holodeck.command import *
 from holodeck.exceptions import HolodeckException
@@ -73,7 +73,7 @@ class HolodeckEnvironment(object):
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
-                 pre_start_steps=2, show_viewport=True):
+                 pre_start_steps=2, show_viewport=True, copy_state=True):
         """Constructor for HolodeckEnvironment.
         Positional arguments:
         agent_definitions -- A list of AgentDefinition objects for which agents to expect in the environment
@@ -86,6 +86,7 @@ class HolodeckEnvironment(object):
         uuid -- A unique identifier, used when running multiple instances of holodeck (default "")
         gl_version -- The version of OpenGL to use for Linux (default 4)
         show_viewport -- If the viewport should be shown (Linux only)
+        copy_state -- If the state should be copied or passed as a reference when returned (default copy)
         """
         self._window_height = window_height
         self._window_width = window_width
@@ -93,6 +94,7 @@ class HolodeckEnvironment(object):
         self._camera_width = camera_width
         self._uuid = uuid
         self._pre_start_steps = pre_start_steps
+        self._copy_state = copy_state
 
         Sensors.set_primary_cam_size(window_height, window_width)
         Sensors.set_pixel_cam_size(camera_height, camera_width)
@@ -518,10 +520,11 @@ class HolodeckEnvironment(object):
             elif sensor == Sensors.TERMINAL:
                 terminal = self._sensor_map[self._agent.name][sensor][0]
 
-        return copy(self._sensor_map[self._agent.name]), reward, terminal, None
+        state = deepcopy(self._sensor_map[self._agent.name]) if self._copy_state else self._sensor_map[self._agent.name]
+        return state, reward, terminal, None
 
     def _get_full_state(self):
-        return copy(self._sensor_map)
+        return deepcopy(self._sensor_map) if self._copy_state else self._sensor_map
 
     def _handle_command_buffer(self):
         """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
