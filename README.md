@@ -61,6 +61,7 @@ Here is a basic walkthrough of an example that runs a Holodeck world:
 import holodeck
 import numpy as np
 env = holodeck.make("UrbanCity")    # Load the environment. This environment contains a UAV in a city.
+env.reset()                         # You must call `.reset()` on a newly created environment before ticking/stepping it
 command = np.array([0, 0, 0, 100])  # The UAV takes 3 torques and a thrust as a command.
 for i in range(30):
     state, reward, terminal, info = env.step(command)  # Pass the command to the environment with step.
