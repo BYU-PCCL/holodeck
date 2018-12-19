@@ -464,6 +464,21 @@ class HolodeckEnvironment(object):
         else:
             self.agents[agent_name].set_control_scheme(control_scheme)
 
+    def set_sensor_enabled(self, agent_name, sensor_name, enabled):
+        """Enable or disable a sensor for an agent.
+
+        Args:
+            agent_name (str): The name of the agent whose sensor will be switched
+            sensor_name (str): The name of the sensor to be switched
+            enabled (bool): Boolean representing whether to enable or disable the sensor
+        """
+        if agent_name not in self._sensor_map:
+            print("No such agent %s" % agent_name)
+        else: 
+            self._should_write_to_command_buffer = True
+            command_to_send = SetSensorEnabledCommand(agent_name, sensor_name, enabled)
+            self._commands.add_command(command_to_send)
+
     def __linux_start_process__(self, binary_path, task_key, gl_version, verbose, show_viewport=True):
         import posix_ipc
         out_stream = sys.stdout if verbose else open(os.devnull, 'w')
