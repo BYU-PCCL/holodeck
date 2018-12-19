@@ -1,6 +1,6 @@
 """Definition of all of the sensor information"""
 import numpy as np
-
+from holodeck.exceptions import HolodeckException
 
 class Sensors:
     """Class information of sensor data with mappings from names to corresponding numbers
@@ -131,7 +131,13 @@ class Sensors:
         Returns:
             int: The index value for the sensor.
         """
-        return Sensors._reverse_name_dict[sensor_name] if sensor_name in Sensors._reverse_name_dict else None
+        if sensor_name in Sensors._reverse_name_dict:
+            return Sensors._reverse_name_dict[sensor_name]
+        else:
+            raise HolodeckException(
+                "Unable to find sensor ID for '{}', are your binaries out of date?".format(sensor_name)
+                )
+
 
     @staticmethod
     def set_primary_cam_size(height, width):

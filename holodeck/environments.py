@@ -130,6 +130,9 @@ class HolodeckEnvironment(object):
         self._should_write_to_command_buffer = False
 
         self._client.acquire()
+        
+        # Flag indicates if the user has called .reset() before .tick() and .step()
+        self._initial_reset = False
 
     @property
     def action_space(self):
@@ -171,11 +174,15 @@ class HolodeckEnvironment(object):
             tuple or dict: For single agent environment, returns the same as `step`.
                 For multi-agent environment, returns the same as `tick`.
         """
+        self._initial_reset = True
         self._reset_ptr[0] = True
         self._commands.clear()
 
         for _ in range(self._pre_start_steps + 1):
             self.tick()
+
+        for agent in self.agents:
+            self.set_ticks_per_capture(agent, self.agents[agent].get_ticks_per_capture())
 
         return self._default_state_fn()
 
@@ -193,6 +200,9 @@ class HolodeckEnvironment(object):
             Terminal is the bool terminal signal returned by the environment.
             Info is any additional info, depending on the world. Defaults to None.
         """
+        if not self._initial_reset:
+            raise HolodeckException("You must call .reset() before .step()")
+
         self._agent.act(action)
 
         self._handle_command_buffer()
@@ -235,6 +245,9 @@ class HolodeckEnvironment(object):
             from :obj:`holodeck.sensors.Sensors` enum to np.ndarray, containing the sensors information
             for each sensor. The sensors always include the reward and terminal sensors.
         """
+        if not self._initial_reset:
+            raise HolodeckException("You must call .reset() before .tick()")
+
         self._handle_command_buffer()
         self._client.release()
         self._client.acquire()
@@ -274,6 +287,26 @@ class HolodeckEnvironment(object):
         """
         self._add_agents(agent_definition)
         self._enqueue_command(SpawnAgentCommand(location, agent_definition.name, agent_definition.type))
+
+    def set_ticks_per_capture(self, agent_name, ticks_per_capture):
+        """Queues a rgb camera rate command. It will be applied when `tick` or `step` is called next.
+        The specified agent's rgb camera will capture images every specified number of ticks.
+        The sensor's image will remain unchanged between captures.
+        This method must be called after every call to env.reset.
+
+        Args:
+            agent_name (str): The name of the agent whose rgb camera should be modified.
+            ticks_per_capture (int): The amount of ticks to wait between camera captures.
+        """
+        if not isinstance(ticks_per_capture, int) or ticks_per_capture < 1:
+            print("Ticks per capture value " + str(ticks_per_capture) + " invalid")
+        elif agent_name not in self.agents:
+            print("No such agent %s" % agent_name)
+        else:
+            self.agents[agent_name].set_ticks_per_capture(ticks_per_capture)
+            self._should_write_to_command_buffer = True
+            command_to_send = RGBCameraRateCommand(agent_name, ticks_per_capture)
+            self._commands.add_command(command_to_send)
 
     def set_fog_density(self, density):
         """Queue up a change fog density command. It will be applied when `tick` or `step` is called next.
