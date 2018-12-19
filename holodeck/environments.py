@@ -130,6 +130,9 @@ class HolodeckEnvironment(object):
         self._should_write_to_command_buffer = False
 
         self._client.acquire()
+        
+        # Flag indicates if the user has called .reset() before .tick() and .step()
+        self._initial_reset = False
 
     @property
     def action_space(self):
@@ -171,6 +174,7 @@ class HolodeckEnvironment(object):
             tuple or dict: For single agent environment, returns the same as `step`.
                 For multi-agent environment, returns the same as `tick`.
         """
+        self._initial_reset = True
         self._reset_ptr[0] = True
         self._commands.clear()
 
@@ -193,6 +197,9 @@ class HolodeckEnvironment(object):
             Terminal is the bool terminal signal returned by the environment.
             Info is any additional info, depending on the world. Defaults to None.
         """
+        if not self._initial_reset:
+            raise HolodeckException("You must call .reset() before .step()")
+
         self._agent.act(action)
 
         self._handle_command_buffer()
@@ -235,6 +242,9 @@ class HolodeckEnvironment(object):
             from :obj:`holodeck.sensors.Sensors` enum to np.ndarray, containing the sensors information
             for each sensor. The sensors always include the reward and terminal sensors.
         """
+        if not self._initial_reset:
+            raise HolodeckException("You must call .reset() before .tick()")
+
         self._handle_command_buffer()
         self._client.release()
         self._client.acquire()
