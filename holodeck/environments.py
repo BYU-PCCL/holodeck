@@ -212,8 +212,21 @@ class HolodeckEnvironment(object):
             rotation (np.ndarray or list): A new rotation target for the agent.
                 If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
         """
-        self.agents[agent_name].teleport(location * 100, rotation)  # * 100 to convert m to cm
+        self.agents[agent_name].teleport(np.array(location) * 100, np.array(rotation))  # * 100 to convert m to cm
         self.tick()
+
+    def set_state(self, agent_name, location, rotation, velocity, angular_velocity):
+        """Teleports the target agent to any given location, and applies a specific rotation.
+
+        Args:
+            agent_name (str): The name of the agent to teleport.
+            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
+                If no location is given, it isn't teleported, but may still be rotated. Defaults to None.
+            rotation (np.ndarray or list): A new rotation target for the agent.
+                If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
+        """
+        self.agents[agent_name].set_state(np.array(location) * 100, np.array(rotation), np.array(velocity), np.array(angular_velocity)*100)  # * 100 to convert m to cm
+        return self.tick()
 
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.

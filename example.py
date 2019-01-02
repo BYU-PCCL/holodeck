@@ -5,6 +5,7 @@ import holodeck
 from holodeck import agents
 from holodeck.environments import *
 from holodeck.sensors import Sensors
+import time
 
 
 def uav_example():
@@ -155,9 +156,11 @@ def editor_example():
 
     for i in range(10):
         env.reset()
-        for _ in range(1000):
-            state, reward, terminal, _ = env.step(command)
-
+        start = time.time()
+        for _ in range(1000000):
+            env.set_state("uav0", [0, 0, 0], [0, 0, 40], [0, 0, 0], [0, 0, 0])
+        end = time.time()
+        print("Finished 10000 steps in ", end-start, " seconds. ", 1000/(end-start), " frames per second.")
 
 def editor_multi_agent_example():
     """This editor example shows how to interact with holodeck worlds that have multiple agents.
@@ -189,4 +192,4 @@ if __name__ == "__main__":
         holodeck.install("DefaultWorlds")
         print(holodeck.package_info("DefaultWorlds"))
 
-    uav_example()
+    editor_example()

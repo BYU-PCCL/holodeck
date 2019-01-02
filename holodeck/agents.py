@@ -52,8 +52,7 @@ class HolodeckAgent(object):
         self._action_buffer = self._client.malloc(name, [self._max_control_scheme_length], np.float32)
         # Teleport flag: 0: do nothing, 1: teleport, 2: rotate, 3: teleport and rotate
         self._teleport_bool_buffer = self._client.malloc(name + "_teleport_flag", [1], np.uint8)
-        self._teleport_buffer = self._client.malloc(name + "_teleport_command", [3], np.float32)
-        self._rotation_buffer = self._client.malloc(name + "_rotation_command", [3], np.float32)
+        self._teleport_buffer = self._client.malloc(name + "_teleport_command", [12], np.float32)
         self._control_scheme_buffer = self._client.malloc(name + "_control_scheme", [1],
                                                           np.uint8)
         self._current_control_scheme = 0
@@ -91,10 +90,18 @@ class HolodeckAgent(object):
         val = 0
         if location is not None:
             val += 1
-            np.copyto(self._teleport_buffer, location)
+            np.copyto(self._teleport_buffer[0:3], location)
         if rotation is not None:
-            np.copyto(self._rotation_buffer, rotation)
+            np.copyto(self._rotation_buffer[3:6], rotation)
             val += 2
+        self._teleport_bool_buffer[0] = val
+
+    def set_state(self, location, rotation, velocity, angular_velocity):
+        val = 4
+        np.copyto(self._teleport_buffer[0:3], location)
+        np.copyto(self._teleport_buffer[3:6], rotation)
+        np.copyto(self._teleport_buffer[6:9], velocity)
+        np.copyto(self._teleport_buffer[9:12], angular_velocity)
         self._teleport_bool_buffer[0] = val
 
     @property
