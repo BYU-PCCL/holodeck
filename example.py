@@ -190,12 +190,3 @@ if __name__ == "__main__":
         print(holodeck.package_info("DefaultWorlds"))
 
     uav_example()
-
-
-if __name__ == "__main__":
-
-    if 'DefaultWorlds' not in holodeck.installed_packages():
-        holodeck.install("DefaultWorlds")
-        print(holodeck.package_info("DefaultWorlds"))
-
-    editor_example()
