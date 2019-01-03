@@ -66,6 +66,8 @@ class HolodeckEnvironment(object):
         start_world (bool, optional): Whether to load a binary or not. Defaults to True.
         uuid (str): A unique identifier, used when running multiple instances of holodeck. Defaults to "".
         gl_version (int, optional): The version of OpenGL to use for Linux. Defaults to 4.
+        show_viewport (bool, optional) If the viewport should be shown (Linux only) Defaults to True.
+        ticks_per_sec (int, optional) Number of frame ticks per unreal second. Defaults to 30.
 
     Returns:
         HolodeckEnvironment: A holodeck environment object.
@@ -73,26 +75,15 @@ class HolodeckEnvironment(object):
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
-                 pre_start_steps=2, show_viewport=True):
-        """Constructor for HolodeckEnvironment.
-        Positional arguments:
-        agent_definitions -- A list of AgentDefinition objects for which agents to expect in the environment
-        Keyword arguments:
-        binary_path -- The path to the binary to load the world from (default None)
-        task_key -- The name of the map within the binary to load (default None)
-        height -- The height to load the binary at (default 512)
-        width -- The width to load the binary at (default 512)
-        start_world -- Whether to load a binary or not (default True)
-        uuid -- A unique identifier, used when running multiple instances of holodeck (default "")
-        gl_version -- The version of OpenGL to use for Linux (default 4)
-        show_viewport -- If the viewport should be shown (Linux only)
-        """
+                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30):
+
         self._window_height = window_height
         self._window_width = window_width
         self._camera_height = camera_height
         self._camera_width = camera_width
         self._uuid = uuid
         self._pre_start_steps = pre_start_steps
+        self._ticks_per_sec = ticks_per_sec
 
         Sensors.set_primary_cam_size(window_height, window_width)
         Sensors.set_pixel_cam_size(camera_height, camera_width)
@@ -446,6 +437,7 @@ class HolodeckEnvironment(object):
                                                 '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_width),
                                                 '-ResY=' + str(self._window_height),'-CamResX=' + str(self._camera_width),
                                                 '-CamResY=' + str(self._camera_height), '--HolodeckUUID=' + self._uuid],
+                                               '-TicksPerSec=' + str(self._ticks_per_sec),
                                                stdout=out_stream,
                                                stderr=out_stream,
                                                env=environment)
@@ -466,6 +458,7 @@ class HolodeckEnvironment(object):
                                                 '-ResX=' + str(self._window_width), "-ResY=" + str(self._window_height),
                                                 '-CamResX=' + str(self._camera_width),
                                                 '-CamResY=' + str(self._camera_height), "--HolodeckUUID=" + self._uuid],
+                                               '-TicksPerSec=' + str(self._ticks_per_sec),
                                                stdout=out_stream, stderr=out_stream)
         atexit.register(self.__on_exit__)
         response = win32event.WaitForSingleObject(loading_semaphore, 100000)  # 100 second timeout
