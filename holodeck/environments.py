@@ -217,14 +217,15 @@ class HolodeckEnvironment(object):
         self.tick()
 
     def set_state(self, agent_name, location, rotation, velocity, angular_velocity):
-        """Teleports the target agent to any given location, and applies a specific rotation.
+        """Sets a new state for any agent given a location, rotation and linear and angular velocity. Will sweep and be
+        blocked by objects in it's way however
 
         Args:
             agent_name (str): The name of the agent to teleport.
             location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
-                If no location is given, it isn't teleported, but may still be rotated. Defaults to None.
             rotation (np.ndarray or list): A new rotation target for the agent.
-                If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
+            velocity (np.ndarray or list): A new velocity for the agent.
+            angular velocity (np.ndarray or list): A new angular velocity for the agent.
         """
         self.agents[agent_name].set_state(np.array(location) * 100, np.array(rotation), np.array(velocity), np.array(angular_velocity)*100)  # * 100 to convert m to cm
         return self.tick()
