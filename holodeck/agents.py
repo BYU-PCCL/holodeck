@@ -42,9 +42,10 @@ class HolodeckAgent(object):
         name (str): The name of the agent.
     """
 
-    def __init__(self, client, name="DefaultAgent"):
+    def __init__(self, client, name="DefaultAgent", sensors=None):
         self.name = name
         self._client = client
+        self.sensors = sensors
 
         self._num_control_schemes = len(self.control_schemes)
         self._max_control_scheme_length = max(map(lambda x: reduce(lambda i, j: i * j, x[1].buffer_shape),
