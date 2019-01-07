@@ -528,10 +528,10 @@ class HolodeckEnvironment(object):
         return self._create_copy(self._sensor_map) if self._copy_state else copy(self._sensor_map)
 
     def _create_copy(self, obj):
-        if type(obj) is dict:  # Deep copy dictionary
+        if isinstance(dict):  # Deep copy dictionary
             cp = dict()
             for k, v in obj.items():
-                if type(v) is dict:
+                if isinstance(dict):
                     cp[k] = self._create_copy(v)
                 else:
                     cp[k] = np.copy(v)
