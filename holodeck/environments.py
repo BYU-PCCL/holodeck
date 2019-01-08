@@ -519,8 +519,8 @@ class HolodeckEnvironment(object):
         self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._window_width), "-ResY=" + str(self._window_height),
                                                 '-CamResX=' + str(self._camera_width),
-                                                '-CamResY=' + str(self._camera_height), "--HolodeckUUID=" + self._uuid],
-                                               '-TicksPerSec=' + str(self._ticks_per_sec),
+                                                '-CamResY=' + str(self._camera_height), "--HolodeckUUID=" + self._uuid,
+                                                '-TicksPerSec=' + str(self._ticks_per_sec)],
                                                stdout=out_stream, stderr=out_stream)
         atexit.register(self.__on_exit__)
         response = win32event.WaitForSingleObject(loading_semaphore, 100000)  # 100 second timeout
