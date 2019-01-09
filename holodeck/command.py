@@ -294,6 +294,41 @@ class TeleportCameraCommand(Command):
         self.add_number_parameters(rotation)
 
 
+class SetSensorEnabledCommand(Command):
+    def __init__(self, agent, sensor, enabled):
+        """Sets the command type to SetSensorEnabled and initializes the object.
+        :param agent: Name of the agent whose sensor will be switched
+        :param sensor: Name of the sensor to be switched
+        :param enabled: Boolean representing the sensor state
+        """
+        Command.__init__(self)
+        self._command_type = "SetSensorEnabled"
+        self.set_agent(agent)
+        self.set_sensor(sensor)
+        self.set_enabled(enabled)
+
+    def set_agent(self, agent):
+        """Set the agent name.
+        Positional Arguments:
+        agent: String representing the name of the agent whose sensor will be switched
+        """
+        self.add_string_parameters(agent)
+
+    def set_sensor(self, sensor):
+        """Set the sensor name.
+        Positional Arguments:
+        sensor: String representing the name of the sensor to be switched
+        """
+        self.add_string_parameters(sensor)
+
+    def set_enabled(self, enabled):
+        """Set sensor state.
+        Positional Arguments:
+        enabled: Boolean representing the new sensor state
+        """
+        self.add_number_parameters(1 if enabled else 0)
+        
+        
 class RenderViewportCommand(Command):
     def __init__(self, render_viewport):
         """
