@@ -66,6 +66,9 @@ class HolodeckEnvironment(object):
         start_world (bool, optional): Whether to load a binary or not. Defaults to True.
         uuid (str): A unique identifier, used when running multiple instances of holodeck. Defaults to "".
         gl_version (int, optional): The version of OpenGL to use for Linux. Defaults to 4.
+        show_viewport (bool, optional) If the viewport should be shown (Linux only) Defaults to True.
+        ticks_per_sec (int, optional) Number of frame ticks per unreal second. Defaults to 30.
+        copy_state (bool, optional) If the state should be copied or returned as a reference. Defaults to True.
 
     Returns:
         HolodeckEnvironment: A holodeck environment object.
@@ -73,21 +76,8 @@ class HolodeckEnvironment(object):
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
-                 pre_start_steps=2, show_viewport=True, copy_state=True):
-        """Constructor for HolodeckEnvironment.
-        Positional arguments:
-        agent_definitions -- A list of AgentDefinition objects for which agents to expect in the environment
-        Keyword arguments:
-        binary_path -- The path to the binary to load the world from (default None)
-        task_key -- The name of the map within the binary to load (default None)
-        height -- The height to load the binary at (default 512)
-        width -- The width to load the binary at (default 512)
-        start_world -- Whether to load a binary or not (default True)
-        uuid -- A unique identifier, used when running multiple instances of holodeck (default "")
-        gl_version -- The version of OpenGL to use for Linux (default 4)
-        show_viewport -- If the viewport should be shown (Linux only)
-        copy_state -- If the state should be copied or passed as a reference when returned (default copy)
-        """
+                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True):
+
         self._window_height = window_height
         self._window_width = window_width
         self._camera_height = camera_height
@@ -95,6 +85,7 @@ class HolodeckEnvironment(object):
         self._uuid = uuid
         self._pre_start_steps = pre_start_steps
         self._copy_state = copy_state
+        self._ticks_per_sec = ticks_per_sec
 
         Sensors.set_primary_cam_size(window_height, window_width)
         Sensors.set_pixel_cam_size(camera_height, camera_width)
@@ -132,6 +123,9 @@ class HolodeckEnvironment(object):
         self._should_write_to_command_buffer = False
 
         self._client.acquire()
+        
+        # Flag indicates if the user has called .reset() before .tick() and .step()
+        self._initial_reset = False
 
     @property
     def action_space(self):
@@ -173,6 +167,7 @@ class HolodeckEnvironment(object):
             tuple or dict: For single agent environment, returns the same as `step`.
                 For multi-agent environment, returns the same as `tick`.
         """
+        self._initial_reset = True
         self._reset_ptr[0] = True
         self._commands.clear()
 
@@ -198,6 +193,9 @@ class HolodeckEnvironment(object):
             Terminal is the bool terminal signal returned by the environment.
             Info is any additional info, depending on the world. Defaults to None.
         """
+        if not self._initial_reset:
+            raise HolodeckException("You must call .reset() before .step()")
+
         self._agent.act(action)
 
         self._handle_command_buffer()
@@ -217,8 +215,22 @@ class HolodeckEnvironment(object):
             rotation (np.ndarray or list): A new rotation target for the agent.
                 If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
         """
-        self.agents[agent_name].teleport(location * 100, rotation)  # * 100 to convert m to cm
+        self.agents[agent_name].teleport(np.array(location) * 100, np.array(rotation))  # * 100 to convert m to cm
         self.tick()
+
+    def set_state(self, agent_name, location, rotation, velocity, angular_velocity):
+        """Sets a new state for any agent given a location, rotation and linear and angular velocity. Will sweep and be
+        blocked by objects in it's way however
+
+        Args:
+            agent_name (str): The name of the agent to teleport.
+            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
+            rotation (np.ndarray or list): A new rotation target for the agent.
+            velocity (np.ndarray or list): A new velocity for the agent.
+            angular velocity (np.ndarray or list): A new angular velocity for the agent.
+        """
+        self.agents[agent_name].set_state(np.array(location) * 100, np.array(rotation), np.array(velocity), np.array(angular_velocity)*100)  # * 100 to convert m to cm
+        return self.tick()
 
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
@@ -240,6 +252,9 @@ class HolodeckEnvironment(object):
             from :obj:`holodeck.sensors.Sensors` enum to np.ndarray, containing the sensors information
             for each sensor. The sensors always include the reward and terminal sensors.
         """
+        if not self._initial_reset:
+            raise HolodeckException("You must call .reset() before .tick()")
+
         self._handle_command_buffer()
         self._client.release()
         self._client.acquire()
@@ -456,6 +471,21 @@ class HolodeckEnvironment(object):
         else:
             self.agents[agent_name].set_control_scheme(control_scheme)
 
+    def set_sensor_enabled(self, agent_name, sensor_name, enabled):
+        """Enable or disable a sensor for an agent.
+
+        Args:
+            agent_name (str): The name of the agent whose sensor will be switched
+            sensor_name (str): The name of the sensor to be switched
+            enabled (bool): Boolean representing whether to enable or disable the sensor
+        """
+        if agent_name not in self._sensor_map:
+            print("No such agent %s" % agent_name)
+        else: 
+            self._should_write_to_command_buffer = True
+            command_to_send = SetSensorEnabledCommand(agent_name, sensor_name, enabled)
+            self._commands.add_command(command_to_send)
+
     def __linux_start_process__(self, binary_path, task_key, gl_version, verbose, show_viewport=True):
         import posix_ipc
         out_stream = sys.stdout if verbose else open(os.devnull, 'w')
@@ -471,6 +501,7 @@ class HolodeckEnvironment(object):
                                                 '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_width),
                                                 '-ResY=' + str(self._window_height),'-CamResX=' + str(self._camera_width),
                                                 '-CamResY=' + str(self._camera_height), '--HolodeckUUID=' + self._uuid],
+                                               '-TicksPerSec=' + str(self._ticks_per_sec),
                                                stdout=out_stream,
                                                stderr=out_stream,
                                                env=environment)
@@ -490,7 +521,8 @@ class HolodeckEnvironment(object):
         self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-LOG=HolodeckLog.txt',
                                                 '-ResX=' + str(self._window_width), "-ResY=" + str(self._window_height),
                                                 '-CamResX=' + str(self._camera_width),
-                                                '-CamResY=' + str(self._camera_height), "--HolodeckUUID=" + self._uuid],
+                                                '-CamResY=' + str(self._camera_height), "--HolodeckUUID=" + self._uuid,
+                                                '-TicksPerSec=' + str(self._ticks_per_sec)],
                                                stdout=out_stream, stderr=out_stream)
         atexit.register(self.__on_exit__)
         response = win32event.WaitForSingleObject(loading_semaphore, 100000)  # 100 second timeout
