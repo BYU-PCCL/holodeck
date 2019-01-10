@@ -6,7 +6,7 @@ import atexit
 import os
 import subprocess
 import sys
-from copy import copy, deepcopy
+from copy import copy
 
 from holodeck.command import *
 from holodeck.exceptions import HolodeckException
@@ -553,11 +553,11 @@ class HolodeckEnvironment(object):
                 terminal = self._sensor_map[self._agent.name][sensor][0]
 
         state = self._create_copy(self._sensor_map[self._agent.name]) if self._copy_state \
-            else copy(self._sensor_map[self._agent.name])
+            else self._sensor_map[self._agent.name]
         return state, reward, terminal, None
 
     def _get_full_state(self):
-        return self._create_copy(self._sensor_map) if self._copy_state else copy(self._sensor_map)
+        return self._create_copy(self._sensor_map) if self._copy_state else self._sensor_map
 
     def _create_copy(self, obj):
         if isinstance(dict):  # Deep copy dictionary

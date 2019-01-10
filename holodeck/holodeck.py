@@ -29,10 +29,10 @@ def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=Non
         gl_version (int, optional): The OpenGL version to use (Linux only). Defaults to GL_VERSION.OPENGL4.
         window_res ((int, int), optional): The resolution to load the game window at. Defaults to (512, 512).
         cam_res ((int, int), optional): The resolution to load the pixel camera sensors at. Defaults to (256, 256).
-        verbose (bool): Whether to run in verbose mode. Defaults to False.
-        show_viewport (bool): If the viewport window should be shown on-screen (Linux only). Defaults to True
+        verbose (bool, optional): Whether to run in verbose mode. Defaults to False.
+        show_viewport (bool, optional): If the viewport window should be shown on-screen (Linux only). Defaults to True
         ticks_per_sec (int, optional): The number of frame ticks per unreal seconds. Defaults to 30.
-        copy_state (bool): If the state should be copied or passed as a reference when returned. Defaults to True
+        copy_state (bool, optional): If the state should be copied or passed as a reference when returned. Defaults to True
     Returns:
         HolodeckEnvironment: A holodeck environment instantiated with all the settings necessary for the specified
             world, and other supplied arguments.
