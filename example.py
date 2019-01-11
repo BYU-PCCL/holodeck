@@ -5,11 +5,13 @@ import holodeck
 from holodeck import agents
 from holodeck.environments import *
 from holodeck.sensors import Sensors
+import random
+import cv2
 
 
 def uav_example():
     """A basic example of how to use the UAV agent."""
-    env = holodeck.make("UrbanCity")
+    env = holodeck.make("CyberPunkCity")
 
     # This changes the control scheme for the uav
     env.set_control_scheme("uav0", ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
@@ -147,16 +149,33 @@ def editor_example():
     """This editor example shows how to interact with holodeck worlds while they are being built
     in the Unreal Engine. Most people that use holodeck will not need this.
     """
-    sensors = [Sensors.RGB_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
-    agent = AgentDefinition("uav0", agents.UavAgent, sensors)
-    env = HolodeckEnvironment(agent, start_world=False)
-    env.agents["uav0"].set_control_scheme(1)
-    command = [0, 0, 10, 50]
+    sensors = [Sensors.RGB_CAMERA]
+    agent_definitions = [
+        AgentDefinition("turtle0", agents.TurtleAgent, sensors),
+        AgentDefinition("turtle1", agents.TurtleAgent, sensors),
+        AgentDefinition("turtle2", agents.TurtleAgent, sensors),
+        AgentDefinition("turtle3", agents.TurtleAgent, sensors),
+        AgentDefinition("turtle4", agents.TurtleAgent, sensors)
+    ]
+    env = HolodeckEnvironment(agent_definitions, start_world=False)
+    command = [0, 10]
 
     for i in range(10):
         env.reset()
-        for _ in range(1000):
-            state, reward, terminal, _ = env.step(command)
+        _ = env.act("turtle0", command)
+        _ = env.act("turtle1", command)
+        _ = env.act("turtle2", command)
+        _ = env.act("turtle3", command)
+        _ = env.act("turtle4", command)
+        for _ in range(10000):
+            states = env.tick()
+            print(states["turtle0"][Sensors.REWARD])
+            # pixels = states["turtle0"][Sensors.RGB_CAMERA]
+            # cv2.namedWindow("Image")
+            # cv2.moveWindow("Image", 500, 500)
+            # cv2.imshow("Image", pixels[:, :, 0:3])
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
 
 
 def editor_multi_agent_example():
@@ -185,8 +204,8 @@ def editor_multi_agent_example():
 
 if __name__ == "__main__":
 
-    if 'DefaultWorlds' not in holodeck.installed_packages():
-        holodeck.install("DefaultWorlds")
-        print(holodeck.package_info("DefaultWorlds"))
+    # if 'DefaultWorlds' not in holodeck.installed_packages():
+    #     holodeck.install("DefaultWorlds")
+    #     print(holodeck.package_info("DefaultWorlds"))
 
-    uav_example()
+    editor_example()

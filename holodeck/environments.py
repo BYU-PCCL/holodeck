@@ -27,11 +27,13 @@ class AgentDefinition(object):
                       "UavAgent": UavAgent,
                       "AndroidAgent": AndroidAgent,
                       "NavAgent": NavAgent,
+                      "TurtleAgent":TurtleAgent,
                       DiscreteSphereAgent: DiscreteSphereAgent,
                       ContinuousSphereAgent: ContinuousSphereAgent,
                       UavAgent: UavAgent,
                       AndroidAgent: AndroidAgent,
-                      NavAgent: NavAgent}
+                      NavAgent: NavAgent,
+                      TurtleAgent: TurtleAgent}
 
     @staticmethod
     def __convert_sensors(sensors):

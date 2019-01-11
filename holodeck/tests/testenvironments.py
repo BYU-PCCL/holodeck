@@ -173,5 +173,5 @@ def test_editor():
 
 if __name__ == "__main__":
 
-    test_default_worlds()
-    # test_editor()
+    # test_default_worlds()
+    test_editor()
