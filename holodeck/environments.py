@@ -68,6 +68,7 @@ class HolodeckEnvironment(object):
         gl_version (int, optional): The version of OpenGL to use for Linux. Defaults to 4.
         show_viewport (bool, optional) If the viewport should be shown (Linux only) Defaults to True.
         ticks_per_sec (int, optional) Number of frame ticks per unreal second. Defaults to 30.
+        copy_state (bool, optional) If the state should be copied or returned as a reference. Defaults to True.
 
     Returns:
         HolodeckEnvironment: A holodeck environment object.
@@ -75,7 +76,7 @@ class HolodeckEnvironment(object):
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
-                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30):
+                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True):
 
         self._window_height = window_height
         self._window_width = window_width
@@ -83,6 +84,7 @@ class HolodeckEnvironment(object):
         self._camera_width = camera_width
         self._uuid = uuid
         self._pre_start_steps = pre_start_steps
+        self._copy_state = copy_state
         self._ticks_per_sec = ticks_per_sec
 
         Sensors.set_primary_cam_size(window_height, window_width)
@@ -550,10 +552,23 @@ class HolodeckEnvironment(object):
             elif sensor == Sensors.TERMINAL:
                 terminal = self._sensor_map[self._agent.name][sensor][0]
 
-        return copy(self._sensor_map[self._agent.name]), reward, terminal, None
+        state = self._create_copy(self._sensor_map[self._agent.name]) if self._copy_state \
+            else self._sensor_map[self._agent.name]
+        return state, reward, terminal, None
 
     def _get_full_state(self):
-        return copy(self._sensor_map)
+        return self._create_copy(self._sensor_map) if self._copy_state else self._sensor_map
+
+    def _create_copy(self, obj):
+        if isinstance(dict):  # Deep copy dictionary
+            cp = dict()
+            for k, v in obj.items():
+                if isinstance(dict):
+                    cp[k] = self._create_copy(v)
+                else:
+                    cp[k] = np.copy(v)
+            return cp
+        return None  # Not implemented for other types
 
     def _handle_command_buffer(self):
         """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then

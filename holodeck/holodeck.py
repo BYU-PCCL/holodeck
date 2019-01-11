@@ -20,7 +20,7 @@ class GL_VERSION(object):
 
 
 def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=None, verbose=False, show_viewport=True,
-         ticks_per_sec=30):
+         ticks_per_sec=30, copy_state=True):
     """Creates a holodeck environment using the supplied world name.
 
     Args:
@@ -32,6 +32,7 @@ def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=Non
         verbose (bool, optional): Whether to run in verbose mode. Defaults to False.
         show_viewport (bool, optional): If the viewport window should be shown on-screen (Linux only). Defaults to True
         ticks_per_sec (int, optional): The number of frame ticks per unreal seconds. Defaults to 30.
+        copy_state (bool, optional): If the state should be copied or passed as a reference when returned. Defaults to True
     Returns:
         HolodeckEnvironment: A holodeck environment instantiated with all the settings necessary for the specified
             world, and other supplied arguments.
@@ -46,6 +47,7 @@ def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=Non
     param_dict["gl_version"] = gl_version
     param_dict["verbose"] = verbose
     param_dict["show_viewport"] = show_viewport
+    param_dict["copy_state"] = copy_state
     param_dict["ticks_per_sec"] = ticks_per_sec
 
     if window_res is not None:
