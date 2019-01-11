@@ -1,8 +1,8 @@
 # Holodeck
 
-[![Holodeck Video](<iframe width="560" height="315" src="https://www.youtube.com/embed/_huewiGqfrs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>)
+[![Holodeck Video](https://img.youtube.com/vi/_huewiGqfrs/0.jpg)](https://www.youtube.com/watch?v=_huewiGqfrs)
 
-[![Read the docs badge](https://readthedocs.org/projects/holodeck/badge/)](https://holodeck.readthedocs.io)
+[![Read the docs badge](https://readthedocs.org/projects/holodeck/badge/)](https://holodeck.readthedocs.io/en/develop/)
 
 Holodeck is a high-fidelity simulator for reinforcement learning built on top of Unreal Engine 4.
 [Read the docs.](https://holodeck.readthedocs.io)
