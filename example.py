@@ -6,7 +6,22 @@ from holodeck import agents
 from holodeck.environments import *
 from holodeck.sensors import Sensors
 import random
-import cv2
+
+
+def turtle_example():
+    env = holodeck.make("MoveBox")
+
+    for _ in range(10):
+        env.reset()
+        env.act("turtle0", [100, 0])
+        for i in range(1000):
+            states = env.tick()
+            reward = states["turtle0"][Sensors.REWARD]
+            pixels = states["turtle0"][Sensors.RGB_CAMERA]
+            location = states["turtle0"][Sensors.LOCATION_SENSOR]
+            rotation = states["turtle0"][Sensors.ROTATION_SENSOR]
+            velocity = states["turtle0"][Sensors.VELOCITY_SENSOR]
+
 
 
 def uav_example():
@@ -208,4 +223,4 @@ if __name__ == "__main__":
     #     holodeck.install("DefaultWorlds")
     #     print(holodeck.package_info("DefaultWorlds"))
 
-    editor_example()
+    turtle_example()

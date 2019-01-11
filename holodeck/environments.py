@@ -494,14 +494,13 @@ class HolodeckEnvironment(object):
         # Copy the environment variables to remove the DISPLAY variable if we shouldn't show the viewport
         # see https://answers.unrealengine.com/questions/815764/in-the-release-notes-it-says-the-engine-can-now-cr.html?sort=oldest
         environment = dict(copy(os.environ))
-        if (show_viewport):
+        if not show_viewport:
             del environment['DISPLAY']
-
         self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
                                                 '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_width),
                                                 '-ResY=' + str(self._window_height),'-CamResX=' + str(self._camera_width),
-                                                '-CamResY=' + str(self._camera_height), '--HolodeckUUID=' + self._uuid],
-                                               '-TicksPerSec=' + str(self._ticks_per_sec),
+                                                '-CamResY=' + str(self._camera_height), '--HolodeckUUID=' + self._uuid,
+                                                '-TicksPerSec=' + str(self._ticks_per_sec)],
                                                stdout=out_stream,
                                                stderr=out_stream,
                                                env=environment)
