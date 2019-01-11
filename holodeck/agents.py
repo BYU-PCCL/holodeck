@@ -31,7 +31,8 @@ class ControlSchemes(object):
 
 
 class HolodeckAgent(object):
-    """Base class for HolodeckAgents.
+    """Holodeck Agents are agents that can act, receive rewards, and receive observations from sensors on them.
+       Examples include the Android, UAV, and SphereRobot
 
     Args:
         client (:obj:`HolodeckClient`): The HolodeckClient that this agent belongs with.
@@ -153,14 +154,17 @@ class HolodeckAgent(object):
 
 
 class UavAgent(HolodeckAgent):
-    """A UAV (quadcopter) agent that can be controlled with direct torques or roll, pitch, yaw rate
-    and altitude targets.
+    """A UAV (quadcopter) agent
+    Action Space: Has two possible continuous action control schemes
+    (0) [pitch_torque, roll_torque, yaw_torque, thrust] and
+    (1) [pitch_target, roll_target, yaw_rate_target, altitude_target]
+    Sensors: RGBCamera, OrientationSensor, LocationSensor, VelocitySensor, IMUSensor
     Inherits from :obj:`HolodeckAgent`."""
     @property
     def control_schemes(self):
         return [("[pitch_torque, roll_torque, yaw_torque, thrust]",
                  ContinuousActionSpace([4])),
-                ("[pitch_target, roll_target, yaw_rate_target, altitude_target",
+                ("[pitch_target, roll_target, yaw_rate_target, altitude_target]",
                  ContinuousActionSpace([4]))]
 
     def __repr__(self):
@@ -168,7 +172,9 @@ class UavAgent(HolodeckAgent):
 
 
 class ContinuousSphereAgent(HolodeckAgent):
-    """A basic sphere robot that moves on a plane. Has a continuous action space.
+    """A basic sphere robot that moves on a plane.
+    Action Space: Continuous control scheme of the form [forward_speed, rot_speed]
+    Sensors: RGBCamera, OrientationSensor, LocationSensor
     Inherits from :obj:`HolodeckAgent`."""
     @property
     def control_schemes(self):
@@ -179,7 +185,13 @@ class ContinuousSphereAgent(HolodeckAgent):
 
 
 class DiscreteSphereAgent(HolodeckAgent):
-    """A basic sphere robot that moves on a plane. Has a discrete action space.
+    """A basic sphere robot that moves on a plane.
+    Action Space: Discrete control scheme of the form [choice] where choice is
+    0: Move forward
+    1: Move backward
+    2: Turn right
+    3: Turn left
+    Sensors: RGBCamera, OrientationSensor, LocationSensor
     Inherits from :obj:`HolodeckAgent`."""
     @property
     def control_schemes(self):
@@ -198,6 +210,11 @@ class DiscreteSphereAgent(HolodeckAgent):
 
 class AndroidAgent(HolodeckAgent):
     """An android agent that can be controlled via torques supplied to its joints.
+    Action Space: 94 dimensional vector of continuous values representing torques to be applied at each joint.
+    The layout of joints can be found
+    [here](https://github.com/BYU-PCCL/holodeck-engine/blob/master/Source/Holodeck/Agents/Private/Android.cpp)
+    Sensors: RGBCamera, OrientationSensor, LocationSensor, VelocitySensor, IMUSensor, JointRotationSensor,
+    PressureSensor RelativeSkeletalPositionSensor
     Inherits from :obj:`HolodeckAgent`."""
     @property
     def control_schemes(self):
@@ -272,7 +289,9 @@ class AndroidAgent(HolodeckAgent):
 
 
 class NavAgent(HolodeckAgent):
-    """A simple navigating agent that can be controlled by target xyz coordinates.
+    """A humanoid character that given a position in the world will try to run to that position
+    Action Space: Continuous control scheme of the form [x_target, y_target, z_target]
+    Sensors: RGBCamera, OrientationSensor, LocationSensor
     Inherits from :obj:`HolodeckAgent`."""
     @property
     def control_schemes(self):
