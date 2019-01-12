@@ -14,6 +14,7 @@ from holodeck.exceptions import HolodeckException
 
 packages = {
     "DefaultWorlds": "DefaultWorlds_0.1.0.zip",
+    "MoveBox": "MoveBox_0.0.1.zip"
 }
 
 
