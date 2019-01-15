@@ -4,7 +4,7 @@ import numpy as np
 import holodeck
 from holodeck import agents
 from holodeck.environments import *
-from holodeck.sensors import Sensors
+from holodeck import sensors
 
 
 def uav_example():
@@ -20,11 +20,11 @@ def uav_example():
         # This command tells the UAV to not roll or pitch, but to constantly yaw left at 10m altitude.
         command = np.array([0, 0, 2, 10])
         for _ in range(1000):
-            state, reward, terminal, _ = env.step(command)
+            states = env.step(command)
 
             # To access specific sensor data:
-            pixels = state[Sensors.RGB_CAMERA]
-            velocity = state[Sensors.VELOCITY_SENSOR]
+            pixels = states[Sensors.RGB_CAMERA]
+            velocity = states[Sensors.VELOCITY_SENSOR]
             # For a full list of sensors the UAV has, view the README
 
     # It is useful to know that you can control the AgentFollower camera(what you see) by pressing V to toggle spectator
@@ -79,17 +79,10 @@ def multi_agent_example():
     for i in range(10):
         env.reset()
         # This will queue up a new agent to spawn into the environment, given that the coordinates are not blocked.
-        sensors = [Sensors.RGB_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
-        agent = AgentDefinition("uav1", agents.UavAgent, sensors)
-        env.spawn_agent(agent, [1, 1, 5])
-
         env.set_control_scheme("uav0", ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
-        env.set_control_scheme("uav1", ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
 
         env.tick()  # Tick the environment once so the second agent spawns before we try to interact with it.
-
         env.act("uav0", cmd0)
-        env.act("uav1", cmd1)
         for _ in range(1000):
             states = env.tick()
             uav0_terminal = states["uav0"][Sensors.TERMINAL]
@@ -147,7 +140,7 @@ def editor_example():
     """This editor example shows how to interact with holodeck worlds while they are being built
     in the Unreal Engine. Most people that use holodeck will not need this.
     """
-    sensors = [Sensors.RGB_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
+    agent_sensors = [sensors.RGBCamera, sensors.LocationSensor, sensors.VelocitySensor]
     agent = AgentDefinition("uav0", agents.UavAgent, sensors)
     env = HolodeckEnvironment(agent, start_world=False)
     env.agents["uav0"].set_control_scheme(1)
