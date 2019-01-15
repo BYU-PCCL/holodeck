@@ -3,6 +3,8 @@ import numpy as np
 from functools import reduce
 
 from holodeck.spaces import ContinuousActionSpace, DiscreteActionSpace
+from holodeck.agents import *
+from holodeck.sensors import *
 
 
 class ControlSchemes(object):
@@ -28,6 +30,42 @@ class ControlSchemes(object):
 
     UAV_TORQUES = 0
     UAV_ROLL_PITCH_YAW_RATE_ALT = 1
+
+
+class AgentDef:
+    """A class for declaring what agents are expected in a particular holodeck Environment.
+
+    Args:
+        agent_name (str): The name of the agent to control.
+        agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
+        sensors (list of (str or type)): A list of HolodeckSensors to read from this agent. Defaults to None.
+    """
+
+    def __init__(self, agent_name, agent_type, sensors=None):
+        sensors = sensors or list()
+        self.name = agent_name
+        self.type = agent_type
+
+
+class AgentFactory:
+
+    __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
+                      "ContinuousSphereAgent": ContinuousSphereAgent,
+                      "UavAgent": UavAgent,
+                      "AndroidAgent": AndroidAgent,
+                      "NavAgent": NavAgent,
+                      DiscreteSphereAgent: DiscreteSphereAgent,
+                      ContinuousSphereAgent: ContinuousSphereAgent,
+                      UavAgent: UavAgent,
+                      AndroidAgent: AndroidAgent,
+                      NavAgent: NavAgent}
+
+    @staticmethod
+    def build_agent(client, agent_def):
+        agent_sensors = dict()
+        for sensor_def in agent_def.sensors:
+            agent_sensors[sensor_def.name] = SensorFactory.build_sensor(client, sensor_def)
+        return AgentFactory.__agent_keys__[agent_def.type](client, agent_def.name, agent_sensors)
 
 
 class HolodeckAgent(object):
@@ -125,6 +163,21 @@ class HolodeckAgent(object):
         np.copyto(self._teleport_buffer[6:9], velocity)
         np.copyto(self._teleport_buffer[9:12], angular_velocity)
         self._teleport_type_buffer[0] = val
+
+    def add_sensors(self, sensor_defs):
+        """Adds a sensor to a particular agent. This only works if the world you are running also includes
+        that particular sensor on the agent.
+
+        Args:
+            sensor_defs (:obj:`HolodeckSensor` or list of :obj:`HolodeckSensor`): Sensors to add to the agent.
+                Should be objects that inherit from :obj:`HolodeckSensor`.
+        """
+        if not isinstance(sensor_defs, list):
+            sensor_defs = [sensor_defs]
+
+        for sensor_def in sensor_defs:
+            self.sensors[sensor_def.name] = SensorFactory.build_sensor(self._client, sensor_def)
+
 
     @property
     def action_space(self):

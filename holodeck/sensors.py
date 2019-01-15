@@ -1,6 +1,25 @@
 """Definition of all of the sensor information"""
 import numpy as np
 from holodeck.exceptions import HolodeckException
+from holodeck.sensors import *
+
+
+class SensorDef(object):
+
+    def __init__(self, sensor_name, sensor_type):
+        self.name = sensor_name
+        self.type = sensor_type
+
+
+class SensorFactory(object):
+
+    __sensor_keys__ = {"RGBCamera": RGBCamera,
+                       RGBCamera: RGBCamera}
+
+    @staticmethod
+    def build_sensor(client, sensor_def):
+        return SensorFactory.__sensor_keys__[sensor_def.type](client, sensor_def.name)
+
 
 class Sensor(object):
 
@@ -179,6 +198,7 @@ class PressureSensor(Sensor):
     @property
     def data_shape(self):
         return [48*(3+1)]
+<<<<<<< HEAD
 
 
 
@@ -343,3 +363,5 @@ class Sensors:
 
     def __init__(self):
         print("No point in instantiating an object.")
+=======
+>>>>>>> Made initial progress restructuring how agents and sensors work
