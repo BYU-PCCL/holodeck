@@ -23,8 +23,8 @@ def uav_example():
             state, reward, terminal, _ = env.step(command)
 
             # To access specific sensor data:
-            pixels = states["RGBCamera"]
-            velocity = states["VelocitySensor"]
+            pixels = state["RGBCamera"]
+            velocity = state["VelocitySensor"]
             # For a full list of sensors the UAV has, view the README
 
     # It is useful to know that you can control the AgentFollower camera(what you see) by pressing V to toggle spectator
