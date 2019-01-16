@@ -6,29 +6,53 @@ from holodeck.sensors import *
 
 class SensorDef(object):
 
-    def __init__(self, sensor_name, sensor_type):
-        self.name = sensor_name
+    def __init__(self, agent_name, sensor_name, sensor_type):
+        self.agent_name = agent_name
+        self.sensor_name = sensor_name
         self.type = sensor_type
 
 
 class SensorFactory(object):
 
     __sensor_keys__ = {"RGBCamera": RGBCamera,
-                       RGBCamera: RGBCamera}
+                       "Terminal": Terminal,
+                       "Reward": Reward,
+                       "ViewportCapture": ViewportCapture,
+                       "OrientationSensor": OrientationSensor,
+                       "IMUSensor": IMUSensor,
+                       "JointRotationSensor": JointRotationSensor,
+                       "RelativeSkeletalPositionSensor": RelativeSkeletalPositionSensor,
+                       "Location": LocationSensor,
+                       "RotationSensor": RotationSensor,
+                       "VelocitySensor": VelocitySensor,
+                       "PressureSensor": PressureSensor,
+                       "ColisionSensor": CollisionSensor}
+
+    __default_names__ = {v: k for k, v in __sensor_keys__.items()}
 
     @staticmethod
     def build_sensor(client, sensor_def):
-        return SensorFactory.__sensor_keys__[sensor_def.type](client, sensor_def.name)
+        if sensor_def.sensor_name is None:
+            sensor_def.name = SensorFactory.__default_names__[sensor_def.type]
+        if isinstance(sensor_def.type, str):
+            sensor_def.type = SensorFactory.__sensor_keys__[sensor_def.type]
+
+        return sensor_def.type(client, sensor_def.agent_name, sensor_def.sensor_name)
 
 
 class Sensor(object):
 
-    def __init__(self, client, name="DefaultSensor"):
+    def __init__(self, client, agent_name=None, name="DefaultSensor"):
         self.name = name
         self._client = client
+        self.agent_name = agent_name
+        self._buffer_name = self.agent_name + "_" + self.name
 
-        self._on_bool_buffer = self._client.malloc(name + "_teleport_flag", [1], np.uint8)
-        self._sensor_data_buffer = self._client.malloc(name, self.data_shape, self.dtype)
+        self._on_bool_buffer = self._client.malloc(self._buffer_name + "_sensor_on_flag", [1], np.uint8)
+        self._sensor_data_buffer = self._client.malloc(self._buffer_name + "_sensor_data", self.data_shape, self.dtype)
+
+    def set_sensor_enable(self, enable):
+        self._on_bool_buffer = enable
 
     @property
     def dtype(self):

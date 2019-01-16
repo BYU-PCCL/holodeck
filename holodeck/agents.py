@@ -41,8 +41,11 @@ class AgentDef:
         sensors (list of (str or type)): A list of HolodeckSensors to read from this agent. Defaults to None.
     """
 
+    # Include in docs: Sensors can either be a list of sensor types or a list of SensorDef objects. If multiple of the
+    #  same sensor type they must be SensorDef objects.
+
     def __init__(self, agent_name, agent_type, sensors=None):
-        sensors = sensors or list()
+        self.sensors = sensors or list()
         self.name = agent_name
         self.type = agent_type
 
@@ -64,7 +67,10 @@ class AgentFactory:
     def build_agent(client, agent_def):
         agent_sensors = dict()
         for sensor_def in agent_def.sensors:
+            if not isinstance(sensor_def, SensorDef):
+                sensor_def = SensorDef(agent_def.name, None, sensor_def)
             agent_sensors[sensor_def.name] = SensorFactory.build_sensor(client, sensor_def)
+
         return AgentFactory.__agent_keys__[agent_def.type](client, agent_def.name, agent_sensors)
 
 
@@ -84,6 +90,9 @@ class HolodeckAgent(object):
         self.name = name
         self._client = client
         self.sensors = sensors
+        self.state_dict = dict()
+        for sensor in sensors:
+            self.state_dict[sensor.name] = sensor.sensor_data_buffer
 
         self._num_control_schemes = len(self.control_schemes)
         self._max_control_scheme_length = max(map(lambda x: reduce(lambda i, j: i * j, x[1].buffer_shape),

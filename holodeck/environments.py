@@ -81,6 +81,7 @@ class HolodeckEnvironment(object):
 
         # Set up agents already in the world
         self.agents = dict()
+        self._state_dict = dict()
         self._add_agents(agent_definitions)
 
         # Spawn agents not yet in the world.
@@ -418,21 +419,6 @@ class HolodeckEnvironment(object):
         self._enqueue_command(SetWeatherCommand(weather_type.lower()))
 
 
-    def set_sensor_enabled(self, agent_name, sensor_name, enabled):
-        """Enable or disable a sensor for an agent.
-
-        Args:
-            agent_name (str): The name of the agent whose sensor will be switched
-            sensor_name (str): The name of the sensor to be switched
-            enabled (bool): Boolean representing whether to enable or disable the sensor
-        """
-        if agent_name not in self._sensor_map:
-            print("No such agent %s" % agent_name)
-        else: 
-            self._should_write_to_command_buffer = True
-            command_to_send = SetSensorEnabledCommand(agent_name, sensor_name, enabled)
-            self._commands.add_command(command_to_send)
-
     def __linux_start_process__(self, binary_path, task_key, gl_version, verbose, show_viewport=True):
         import posix_ipc
         out_stream = sys.stdout if verbose else open(os.devnull, 'w')
@@ -493,18 +479,18 @@ class HolodeckEnvironment(object):
     def _get_single_state(self):
         reward = None
         terminal = None
-        for sensor in self._sensor_map[self._agent.name]:
-            if sensor == Sensors.REWARD:
-                reward = self._sensor_map[self._agent.name][sensor][0]
-            elif sensor == Sensors.TERMINAL:
-                terminal = self._sensor_map[self._agent.name][sensor][0]
+        for sensor in self._state_dict[self._agent.name]:
+            if sensor == Reward:
+                reward = self._state_dict[self._agent.name][sensor][0]
+            elif sensor == Terminal:
+                terminal = self._state_dict[self._agent.name][sensor][0]
 
-        state = self._create_copy(self._sensor_map[self._agent.name]) if self._copy_state \
-            else self._sensor_map[self._agent.name]
+        state = self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
+            else self._state_dict[self._agent.name]
         return state, reward, terminal, None
 
     def _get_full_state(self):
-        return self._create_copy(self._sensor_map) if self._copy_state else self._sensor_map
+        return self._create_copy(self._state_dict) if self._copy_state else self._state_dict
 
     def _create_copy(self, obj):
         if isinstance(obj, dict):  # Deep copy dictionary
@@ -536,9 +522,10 @@ class HolodeckEnvironment(object):
             agent_definitions = [agent_definitions]
         for agent_def in agent_definitions:
             if agent_def.name in self.agents:
-                print("Error agent name duplicate.")
+                print("Error: agent name duplicate.")
             else:
                 self.agents[agent_def.name] = AgentFactory.build_agent(self._client, agent_def)
+                self._state_dict = self.agents[agent_def.name].agent_state
 
     def _write_to_command_buffer(self, to_write):
         """Write input to the command buffer.  Reformat input string to the correct format.

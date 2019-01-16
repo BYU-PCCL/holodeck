@@ -12,7 +12,7 @@ def uav_example():
     env = holodeck.make("UrbanCity")
 
     # This changes the control scheme for the uav
-    env.set_control_scheme("uav0", ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
+    env.agents["uav0"].set_control_scheme(ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
 
     for i in range(10):
         env.reset()
@@ -23,8 +23,8 @@ def uav_example():
             states = env.step(command)
 
             # To access specific sensor data:
-            pixels = states[Sensors.RGB_CAMERA]
-            velocity = states[Sensors.VELOCITY_SENSOR]
+            pixels = states["RGBCamera"]
+            velocity = states["VelocitySensor"]
             # For a full list of sensors the UAV has, view the README
 
     # It is useful to know that you can control the AgentFollower camera(what you see) by pressing V to toggle spectator
@@ -45,8 +45,8 @@ def sphere_example():
             state, reward, terminal, _ = env.step(command)
 
             # To access specific sensor data:
-            pixels = state[Sensors.RGB_CAMERA]
-            orientation = state[Sensors.ORIENTATION_SENSOR]
+            pixels = state["RGBCamera"]
+            orientation = state["OrientationSensor"]
             # For a full list of sensors the sphere robot has, view the README
 
 
@@ -65,8 +65,8 @@ def android_example():
             state, reward, terminal, _ = env.step(command)
 
             # To access specific sensor data:
-            pixels = state[Sensors.RGB_CAMERA]
-            orientation = state[Sensors.ORIENTATION_SENSOR]
+            pixels = state["RGBCamera"]
+            orientation = state["OrientationSensor"]
             # For a full list of sensors the android has, view the README
 
 
@@ -79,15 +79,14 @@ def multi_agent_example():
     for i in range(10):
         env.reset()
         # This will queue up a new agent to spawn into the environment, given that the coordinates are not blocked.
-        env.set_control_scheme("uav0", ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
+        env.agents["uav0"].set_control_scheme(ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
 
         env.tick()  # Tick the environment once so the second agent spawns before we try to interact with it.
         env.act("uav0", cmd0)
         for _ in range(1000):
             states = env.tick()
-            uav0_terminal = states["uav0"][Sensors.TERMINAL]
-            uav1_reward = states["uav1"][Sensors.REWARD]
-
+            uav0_terminal = states["uav0"]["Terminal"]
+            uav1_reward = states["uav1"]["Reward"]
 
 def world_command_examples():
     """A few examples to showcase commands for manipulating the worlds."""
@@ -141,7 +140,7 @@ def editor_example():
     in the Unreal Engine. Most people that use holodeck will not need this.
     """
     agent_sensors = [sensors.RGBCamera, sensors.LocationSensor, sensors.VelocitySensor]
-    agent = AgentDefinition("uav0", agents.UavAgent, sensors)
+    agent = AgentDef("uav0", agents.UavAgent, sensors)
     env = HolodeckEnvironment(agent, start_world=False)
     env.agents["uav0"].set_control_scheme(1)
     command = [0, 0, 10, 50]
@@ -157,8 +156,8 @@ def editor_multi_agent_example():
     This is specifically for when working with UE4 directly and not a prebuilt binary.
     """
     agent_definitions = [
-        AgentDefinition("uav0", agents.UavAgent, [Sensors.RGB_CAMERA, Sensors.LOCATION_SENSOR]),
-        AgentDefinition("uav1", agents.UavAgent, [Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR])
+        AgentDef("uav0", agents.UavAgent, [sensors.RGBCamera, sensors.LocationSensor]),
+        AgentDef("uav1", agents.UavAgent, [sensors.LocationSensor, sensors.VelocitySensor])
     ]
     env = HolodeckEnvironment(agent_definitions, start_world=False)
 
@@ -172,8 +171,8 @@ def editor_multi_agent_example():
         for _ in range(1000):
             states = env.tick()
 
-            uav0_terminal = states["uav0"][Sensors.TERMINAL]
-            uav1_reward = states["uav1"][Sensors.REWARD]
+            uav0_terminal = states["uav0"][sensors.Terminal]
+            uav1_reward = states["uav1"][sensors.Reward]
 
 
 if __name__ == "__main__":
