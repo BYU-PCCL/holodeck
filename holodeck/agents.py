@@ -3,7 +3,6 @@ import numpy as np
 from functools import reduce
 
 from holodeck.spaces import ContinuousActionSpace, DiscreteActionSpace
-from holodeck.agents import *
 from holodeck.sensors import *
 
 
@@ -32,7 +31,7 @@ class ControlSchemes(object):
     UAV_ROLL_PITCH_YAW_RATE_ALT = 1
 
 
-class AgentDef:
+class AgentDefinition:
     """A class for declaring what agents are expected in a particular holodeck Environment.
 
     Args:
@@ -48,30 +47,6 @@ class AgentDef:
         self.sensors = sensors or list()
         self.name = agent_name
         self.type = agent_type
-
-
-class AgentFactory:
-
-    __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
-                      "ContinuousSphereAgent": ContinuousSphereAgent,
-                      "UavAgent": UavAgent,
-                      "AndroidAgent": AndroidAgent,
-                      "NavAgent": NavAgent,
-                      DiscreteSphereAgent: DiscreteSphereAgent,
-                      ContinuousSphereAgent: ContinuousSphereAgent,
-                      UavAgent: UavAgent,
-                      AndroidAgent: AndroidAgent,
-                      NavAgent: NavAgent}
-
-    @staticmethod
-    def build_agent(client, agent_def):
-        agent_sensors = dict()
-        for sensor_def in agent_def.sensors:
-            if not isinstance(sensor_def, SensorDef):
-                sensor_def = SensorDef(agent_def.name, None, sensor_def)
-            agent_sensors[sensor_def.name] = SensorFactory.build_sensor(client, sensor_def)
-
-        return AgentFactory.__agent_keys__[agent_def.type](client, agent_def.name, agent_sensors)
 
 
 class HolodeckAgent(object):
@@ -90,9 +65,9 @@ class HolodeckAgent(object):
         self.name = name
         self._client = client
         self.sensors = sensors
-        self.state_dict = dict()
-        for sensor in sensors:
-            self.state_dict[sensor.name] = sensor.sensor_data_buffer
+        self.agent_state_dict = dict()
+        for _, sensor in sensors.items():
+            self.agent_state_dict[sensor.name] = sensor.sensor_data
 
         self._num_control_schemes = len(self.control_schemes)
         self._max_control_scheme_length = max(map(lambda x: reduce(lambda i, j: i * j, x[1].buffer_shape),
@@ -365,3 +340,37 @@ class NavAgent(HolodeckAgent):
 
     def __act__(self, action):
         np.copyto(self._action_buffer, action)
+
+
+class AgentFactory:
+
+    __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
+                      "ContinuousSphereAgent": ContinuousSphereAgent,
+                      "UavAgent": UavAgent,
+                      "AndroidAgent": AndroidAgent,
+                      "NavAgent": NavAgent,
+                      DiscreteSphereAgent: DiscreteSphereAgent,
+                      ContinuousSphereAgent: ContinuousSphereAgent,
+                      UavAgent: UavAgent,
+                      AndroidAgent: AndroidAgent,
+                      NavAgent: NavAgent}
+
+    @staticmethod
+    def build_agent(client, agent_def):
+        agent_sensors = dict()
+        has_reward, has_terminal = False, False
+        for sensor_def in agent_def.sensors:
+            if not isinstance(sensor_def, SensorDef):
+                sensor_def = SensorDef(agent_def.name, None, sensor_def)
+            agent_sensors[sensor_def.sensor_name] = SensorFactory.build_sensor(client, sensor_def)
+            if sensor_def.type is Reward:
+                has_reward = True
+            if sensor_def.type is Terminal:
+                has_terminal = True
+
+        if not has_reward:
+            agent_sensors["Reward"] = SensorFactory.build_sensor(client, SensorDef(agent_def.name, "Reward", Reward))
+        if not has_reward:
+            agent_sensors["Terminal"] = SensorFactory.build_sensor(client, SensorDef(agent_def.name, "Terminal", Terminal))
+
+        return AgentFactory.__agent_keys__[agent_def.type](client, agent_def.name, agent_sensors)

@@ -1,7 +1,5 @@
 """Definition of all of the sensor information"""
 import numpy as np
-from holodeck.exceptions import HolodeckException
-from holodeck.sensors import *
 
 
 class SensorDef(object):
@@ -12,37 +10,9 @@ class SensorDef(object):
         self.type = sensor_type
 
 
-class SensorFactory(object):
-
-    __sensor_keys__ = {"RGBCamera": RGBCamera,
-                       "Terminal": Terminal,
-                       "Reward": Reward,
-                       "ViewportCapture": ViewportCapture,
-                       "OrientationSensor": OrientationSensor,
-                       "IMUSensor": IMUSensor,
-                       "JointRotationSensor": JointRotationSensor,
-                       "RelativeSkeletalPositionSensor": RelativeSkeletalPositionSensor,
-                       "Location": LocationSensor,
-                       "RotationSensor": RotationSensor,
-                       "VelocitySensor": VelocitySensor,
-                       "PressureSensor": PressureSensor,
-                       "ColisionSensor": CollisionSensor}
-
-    __default_names__ = {v: k for k, v in __sensor_keys__.items()}
-
-    @staticmethod
-    def build_sensor(client, sensor_def):
-        if sensor_def.sensor_name is None:
-            sensor_def.name = SensorFactory.__default_names__[sensor_def.type]
-        if isinstance(sensor_def.type, str):
-            sensor_def.type = SensorFactory.__sensor_keys__[sensor_def.type]
-
-        return sensor_def.type(client, sensor_def.agent_name, sensor_def.sensor_name)
-
-
 class Sensor(object):
 
-    def __init__(self, client, agent_name=None, name="DefaultSensor"):
+    def __init__(self, client, agent_name=None, name="DefaultSensor", custom_shape=None):
         self.name = name
         self._client = client
         self.agent_name = agent_name
@@ -53,6 +23,10 @@ class Sensor(object):
 
     def set_sensor_enable(self, enable):
         self._on_bool_buffer = enable
+
+    @property
+    def sensor_data(self):
+        return self._sensor_data_buffer
 
     @property
     def dtype(self):
@@ -97,9 +71,9 @@ class Reward(Sensor):
 
 class ViewportCapture(Sensor):
 
-    def __init__(self, client, name="ViewportCapture", shape=(512, 512, 4)):
-        super(ViewportCapture, self).__init__(client, name=name)
+    def __init__(self, client, agent_name, name="ViewportCapture", shape=(512, 512, 4)):
         self.shape = shape
+        super(ViewportCapture, self).__init__(client, agent_name, name=name)
 
     @property
     def dtype(self):
@@ -112,9 +86,9 @@ class ViewportCapture(Sensor):
 
 class RGBCamera(Sensor):
 
-    def __init__(self, client, name="ViewportCapture", shape=(256, 256, 4)):
-        super(RGBCamera, self).__init__(client, name=name)
+    def __init__(self, client, agent_name, name="RGBCamera", shape=(256, 256, 4)):
         self.shape = shape
+        super(RGBCamera, self).__init__(client, agent_name, name=name)
 
     @property
     def dtype(self):
@@ -223,79 +197,34 @@ class PressureSensor(Sensor):
     def data_shape(self):
         return [48*(3+1)]
 
-    @staticmethod
-    def shape(sensor_type):
-        """Gets the shape of a particular sensor.
 
-        Args:
-            sensor_type (int): The type of the sensor.
+class SensorFactory(object):
 
-        Returns:
-            List of int: The shape of the sensor data.
-        """
-        return Sensors._shape_dict[sensor_type] if sensor_type in Sensors._shape_dict else None
-
-    @staticmethod
-    def name(sensor_type):
-        """Gets the human readable name for a sensor.
-
-        Args:
-            sensor_type (int): The type of the sensor.
-
-        Returns:
-            str: The name of the sensor.
-        """
-        return Sensors._name_dict[sensor_type] if sensor_type in Sensors._name_dict else None
+    __sensor_keys__ = {"RGBCamera": RGBCamera,
+                       "Terminal": Terminal,
+                       "Reward": Reward,
+                       "ViewportCapture": ViewportCapture,
+                       "OrientationSensor": OrientationSensor,
+                       "IMUSensor": IMUSensor,
+                       "JointRotationSensor": JointRotationSensor,
+                       "RelativeSkeletalPositionSensor": RelativeSkeletalPositionSensor,
+                       "LocationSensor": LocationSensor,
+                       "RotationSensor": RotationSensor,
+                       "VelocitySensor": VelocitySensor,
+                       "PressureSensor": PressureSensor,
+                       "CollisionSensor": CollisionSensor}
 
     @staticmethod
-    def dtype(sensor_type):
-        """Gets the data type of the sensor data (the dtype of the numpy array).
-
-        Args:
-            sensor_type (int): The type of the sensor.
-
-        Returns:
-            type: The type of the sensor data.
-        """
-        return Sensors._type_dict[sensor_type] if sensor_type in Sensors._type_dict else None
+    def _default_name(sensor_type):
+        for k, v in SensorFactory.__sensor_keys__.items():
+            if v is sensor_type:
+                return k
 
     @staticmethod
-    def name_to_sensor(sensor_name):
-        """Gets the index value of a sensor from its human readable name.
+    def build_sensor(client, sensor_def):
+        if isinstance(sensor_def.type, str):
+            sensor_def.type = SensorFactory.__sensor_keys__[sensor_def.type]
+        if sensor_def.sensor_name is None:
+            sensor_def.sensor_name = SensorFactory._default_name(sensor_def.type)
 
-        Args:
-            sensor_name (str): The human readable name of the sensor.
-
-        Returns:
-            int: The index value for the sensor.
-        """
-        if sensor_name in Sensors._reverse_name_dict:
-            return Sensors._reverse_name_dict[sensor_name]
-        else:
-            raise HolodeckException(
-                "Unable to find sensor ID for '{}', are your binaries out of date?".format(sensor_name)
-                )
-
-
-    @staticmethod
-    def set_primary_cam_size(height, width):
-        """Sets the primary camera size for this world. Should only be called by environment.
-
-        Args:
-            height (int): New height value.
-            width (int): New width value.
-        """
-        Sensors._shape_dict[Sensors.VIEWPORT_CAPTURE] = [height, width, 4]
-
-    @staticmethod
-    def set_pixel_cam_size(height, width):
-        """Sets the pixel camera size for this world. Should only be called by Environment.
-
-        Args:
-            height (int): New height value.
-            width (int): New width value.
-        """
-        Sensors._shape_dict[Sensors.RGB_CAMERA] = [height, width, 4]
-
-    def __init__(self):
-        print("No point in instantiating an object.")
+        return sensor_def.type(client, sensor_def.agent_name, sensor_def.sensor_name)
