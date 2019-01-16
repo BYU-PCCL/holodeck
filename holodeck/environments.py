@@ -11,7 +11,6 @@ from copy import copy
 from holodeck.command import *
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
-from holodeck.sensors import *
 from holodeck.agents import *
 
 
@@ -65,11 +64,6 @@ class HolodeckEnvironment(object):
         self._copy_state = copy_state
         self._ticks_per_sec = ticks_per_sec
 
-        # Initialize Client
-        self._client = HolodeckClient(self._uuid)
-        self._reset_ptr = self._client.malloc("RESET", [1], np.bool)
-        self._reset_ptr[0] = False
-
         # Start world based on OS
         if start_world:
             if os.name == "posix":
@@ -78,6 +72,11 @@ class HolodeckEnvironment(object):
                 self.__windows_start_process__(binary_path, task_key, verbose=verbose)
             else:
                 raise HolodeckException("Unknown platform: " + os.name)
+
+        # Initialize Client
+        self._client = HolodeckClient(self._uuid)
+        self._reset_ptr = self._client.malloc("RESET", [1], np.bool)
+        self._reset_ptr[0] = False
 
         # Set up agents already in the world
         self.agents = dict()
@@ -88,10 +87,10 @@ class HolodeckEnvironment(object):
         # TODO implement this section for future build automation update
 
         # Set the main agent
-        self._agent = self._all_agents[0]
+        self._agent = self.agents[agent_definitions[0].name]
 
         # Set the default state function
-        self.num_agents = len(self._all_agents)
+        self.num_agents = len(self.agents)
         self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
         # Set up command buffer
@@ -480,9 +479,9 @@ class HolodeckEnvironment(object):
         reward = None
         terminal = None
         for sensor in self._state_dict[self._agent.name]:
-            if sensor == Reward:
+            if sensor is "Reward":
                 reward = self._state_dict[self._agent.name][sensor][0]
-            elif sensor == Terminal:
+            elif sensor is "Terminal":
                 terminal = self._state_dict[self._agent.name][sensor][0]
 
         state = self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
@@ -525,7 +524,7 @@ class HolodeckEnvironment(object):
                 print("Error: agent name duplicate.")
             else:
                 self.agents[agent_def.name] = AgentFactory.build_agent(self._client, agent_def)
-                self._state_dict = self.agents[agent_def.name].agent_state
+                self._state_dict[agent_def.name] = self.agents[agent_def.name].agent_state_dict
 
     def _write_to_command_buffer(self, to_write):
         """Write input to the command buffer.  Reformat input string to the correct format.

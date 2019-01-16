@@ -20,7 +20,7 @@ def uav_example():
         # This command tells the UAV to not roll or pitch, but to constantly yaw left at 10m altitude.
         command = np.array([0, 0, 2, 10])
         for _ in range(1000):
-            states = env.step(command)
+            state, reward, terminal, _ = env.step(command)
 
             # To access specific sensor data:
             pixels = states["RGBCamera"]
@@ -140,7 +140,7 @@ def editor_example():
     in the Unreal Engine. Most people that use holodeck will not need this.
     """
     agent_sensors = [sensors.RGBCamera, sensors.LocationSensor, sensors.VelocitySensor]
-    agent = AgentDef("uav0", agents.UavAgent, sensors)
+    agent = AgentDefinition("uav0", agents.UavAgent, sensors)
     env = HolodeckEnvironment(agent, start_world=False)
     env.agents["uav0"].set_control_scheme(1)
     command = [0, 0, 10, 50]
@@ -156,8 +156,8 @@ def editor_multi_agent_example():
     This is specifically for when working with UE4 directly and not a prebuilt binary.
     """
     agent_definitions = [
-        AgentDef("uav0", agents.UavAgent, [sensors.RGBCamera, sensors.LocationSensor]),
-        AgentDef("uav1", agents.UavAgent, [sensors.LocationSensor, sensors.VelocitySensor])
+        AgentDefinition("uav0", agents.UavAgent, [sensors.RGBCamera, sensors.LocationSensor]),
+        AgentDefinition("uav1", agents.UavAgent, [sensors.LocationSensor, sensors.VelocitySensor])
     ]
     env = HolodeckEnvironment(agent_definitions, start_world=False)
 
