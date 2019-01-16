@@ -86,6 +86,8 @@ class HolodeckEnvironment(object):
         # Spawn agents not yet in the world.
         # TODO implement this section for future build automation update
 
+        # TODO move command functionality to the HolodeckClient class. 
+
         # Set the main agent
         self._agent = self.agents[agent_definitions[0].name]
 
