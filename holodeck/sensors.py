@@ -198,94 +198,6 @@ class PressureSensor(Sensor):
     @property
     def data_shape(self):
         return [48*(3+1)]
-<<<<<<< HEAD
-
-
-
-
-
-class Sensors:
-    """Class information of sensor data with mappings from names to corresponding numbers
-
-    Attributes:
-        TERMINAL (int): Index for terminal sensor output. Value is 1.
-        REWARD (int): Index for reward sensor output. Value is 2.
-        VIEWPORT_CAPTURE (int): Deprecated. Index for primary player camera sensor. Value is 3.
-        RGB_CAMERA (int): Index for pixel camera sensor. Value is 4.
-        ORIENTATION_SENSOR (int): Index for orientation sensor. Value is 5.
-        IMU_SENSOR (int): Index for IMU sensor. Value is 6.
-        JOINT_ROTATION_SENSOR (int): Index for joint rotation sensor. Value is 7.
-        RELATIVE_SKELETAL_POSITION_SENSOR (int): Index for relative skeletal position sensor. Value is 8.
-        LOCATION_SENSOR (int): Index for location sensor. Value is 9.
-        VELOCITY_SENSOR (int): Index for velocity sensor. Value is 10.
-        ROTATION_SENSOR (int): Index for rotation sensor. Value is 11.
-        COLLISION_SENSOR (int): Index for collision sensor. Value is 12.
-        PRESSURE_SENSOR (int): Index for pressure sensor. Value is 13.
-    """
-    TERMINAL = 1
-    REWARD = 2
-    VIEWPORT_CAPTURE = 3  # default is 512 x 512 RGBA
-    RGB_CAMERA = 4  # default is 512 x 512 RGBA
-    ORIENTATION_SENSOR = 5
-    IMU_SENSOR = 6
-    JOINT_ROTATION_SENSOR = 7
-    RELATIVE_SKELETAL_POSITION_SENSOR = 8
-    LOCATION_SENSOR = 9
-    VELOCITY_SENSOR = 10
-    ROTATION_SENSOR = 11
-    COLLISION_SENSOR = 12
-    PRESSURE_SENSOR = 13
-
-    # Sizes are the number of entries in the numpy array
-    _shape_dict = {
-        TERMINAL: [1],
-        REWARD: [1],
-        VIEWPORT_CAPTURE: [512, 512, 4],
-        RGB_CAMERA: [256, 256, 4],
-        ORIENTATION_SENSOR: [3, 3],
-        IMU_SENSOR: [2, 3],
-        JOINT_ROTATION_SENSOR: [94],
-        RELATIVE_SKELETAL_POSITION_SENSOR: [67, 4],
-        LOCATION_SENSOR: [3],
-        VELOCITY_SENSOR: [3],
-        ROTATION_SENSOR: [3],
-        COLLISION_SENSOR: [1],
-        PRESSURE_SENSOR: [48*(3+1)],
-    }
-
-    _type_dict = {
-        TERMINAL: np.bool,
-        REWARD: np.float32,
-        VIEWPORT_CAPTURE: np.uint8,
-        RGB_CAMERA: np.uint8,
-        ORIENTATION_SENSOR: np.float32,
-        IMU_SENSOR: np.float32,
-        JOINT_ROTATION_SENSOR: np.float32,
-        RELATIVE_SKELETAL_POSITION_SENSOR: np.float32,
-        LOCATION_SENSOR: np.float32,
-        VELOCITY_SENSOR: np.float32,
-        ROTATION_SENSOR: np.float32,
-        COLLISION_SENSOR: np.bool,
-        PRESSURE_SENSOR: np.float32,
-    }
-
-    _name_dict = {
-        TERMINAL: "Terminal",
-        REWARD: "Reward",
-        VIEWPORT_CAPTURE: "ViewportCapture",
-        RGB_CAMERA: "RGBCamera",
-        ORIENTATION_SENSOR: "OrientationSensor",
-        IMU_SENSOR: "IMUSensor",
-        JOINT_ROTATION_SENSOR: "JointRotationSensor",
-        RELATIVE_SKELETAL_POSITION_SENSOR: "RelativeSkeletalPositionSensor",
-        LOCATION_SENSOR: "LocationSensor",
-        VELOCITY_SENSOR: "VelocitySensor",
-        ROTATION_SENSOR: "RotationSensor",
-        COLLISION_SENSOR: "CollisionSensor",
-        PRESSURE_SENSOR: "PressureSensor"
-    }
-
-    _reverse_name_dict = {v: k for k, v in _name_dict.items()}
 
     @staticmethod
     def shape(sensor_type):
@@ -363,5 +275,3 @@ class Sensors:
 
     def __init__(self):
         print("No point in instantiating an object.")
-=======
->>>>>>> Made initial progress restructuring how agents and sensors work
