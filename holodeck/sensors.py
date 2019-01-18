@@ -2,7 +2,7 @@
 import numpy as np
 
 
-class SensorDef(object):
+class SensorDefinition(object):
 
     def __init__(self, agent_name, sensor_name, sensor_type):
         self.agent_name = agent_name
@@ -10,7 +10,7 @@ class SensorDef(object):
         self.type = sensor_type
 
 
-class Sensor(object):
+class HolodeckSensor(object):
 
     def __init__(self, client, agent_name=None, name="DefaultSensor", custom_shape=None):
         self.name = name
@@ -47,7 +47,7 @@ class Sensor(object):
         raise NotImplementedError("Child class must implement this property")
 
 
-class Terminal(Sensor):
+class Terminal(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -58,7 +58,7 @@ class Terminal(Sensor):
         return [1]
 
 
-class Reward(Sensor):
+class Reward(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -69,7 +69,7 @@ class Reward(Sensor):
         return [1]
 
 
-class ViewportCapture(Sensor):
+class ViewportCapture(HolodeckSensor):
 
     def __init__(self, client, agent_name, name="ViewportCapture", shape=(512, 512, 4)):
         self.shape = shape
@@ -84,7 +84,7 @@ class ViewportCapture(Sensor):
         return self.shape
 
 
-class RGBCamera(Sensor):
+class RGBCamera(HolodeckSensor):
 
     def __init__(self, client, agent_name, name="RGBCamera", shape=(256, 256, 4)):
         self.shape = shape
@@ -99,7 +99,7 @@ class RGBCamera(Sensor):
         return self.shape
 
 
-class OrientationSensor(Sensor):
+class OrientationHolodeckSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -110,7 +110,7 @@ class OrientationSensor(Sensor):
         return [3, 3]
 
 
-class IMUSensor(Sensor):
+class IMUHolodeckSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -121,7 +121,7 @@ class IMUSensor(Sensor):
         return [2, 3]
 
 
-class JointRotationSensor(Sensor):
+class JointRotationHolodeckSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -132,7 +132,7 @@ class JointRotationSensor(Sensor):
         return [94]
 
 
-class RelativeSkeletalPositionSensor(Sensor):
+class RelativeSkeletalPositionHolodeckSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -143,7 +143,7 @@ class RelativeSkeletalPositionSensor(Sensor):
         return [67, 4]
 
 
-class LocationSensor(Sensor):
+class LocationHolodeckSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -154,7 +154,7 @@ class LocationSensor(Sensor):
         return [3]
 
 
-class RotationSensor(Sensor):
+class RotationHolodeckSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -165,7 +165,7 @@ class RotationSensor(Sensor):
         return [3]
 
 
-class VelocitySensor(Sensor):
+class VelocityHolodeckSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -176,7 +176,7 @@ class VelocitySensor(Sensor):
         return [3]
 
 
-class CollisionSensor(Sensor):
+class CollisionHolodeckSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -187,7 +187,7 @@ class CollisionSensor(Sensor):
         return [1]
 
 
-class PressureSensor(Sensor):
+class PressureHolodeckSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -204,15 +204,15 @@ class SensorFactory(object):
                        "Terminal": Terminal,
                        "Reward": Reward,
                        "ViewportCapture": ViewportCapture,
-                       "OrientationSensor": OrientationSensor,
-                       "IMUSensor": IMUSensor,
-                       "JointRotationSensor": JointRotationSensor,
-                       "RelativeSkeletalPositionSensor": RelativeSkeletalPositionSensor,
-                       "LocationSensor": LocationSensor,
-                       "RotationSensor": RotationSensor,
-                       "VelocitySensor": VelocitySensor,
-                       "PressureSensor": PressureSensor,
-                       "CollisionSensor": CollisionSensor}
+                       "OrientationSensor": OrientationHolodeckSensor,
+                       "IMUSensor": IMUHolodeckSensor,
+                       "JointRotationSensor": JointRotationHolodeckSensor,
+                       "RelativeSkeletalPositionSensor": RelativeSkeletalPositionHolodeckSensor,
+                       "LocationSensor": LocationHolodeckSensor,
+                       "RotationSensor": RotationHolodeckSensor,
+                       "VelocitySensor": VelocityHolodeckSensor,
+                       "PressureSensor": PressureHolodeckSensor,
+                       "CollisionSensor": CollisionHolodeckSensor}
 
     @staticmethod
     def _default_name(sensor_type):

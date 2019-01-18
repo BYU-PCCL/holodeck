@@ -75,6 +75,8 @@ class HolodeckEnvironment(object):
 
         # Initialize Client
         self._client = HolodeckClient(self._uuid)
+        self._command_buffer = CommandCenter(self._client)
+        self._client.command_buffer = self._command_buffer
         self._reset_ptr = self._client.malloc("RESET", [1], np.bool)
         self._reset_ptr[0] = False
 
@@ -86,21 +88,12 @@ class HolodeckEnvironment(object):
         # Spawn agents not yet in the world.
         # TODO implement this section for future build automation update
 
-        # TODO move command functionality to the HolodeckClient class. 
-
         # Set the main agent
         self._agent = self.agents[agent_definitions[0].name]
 
         # Set the default state function
         self.num_agents = len(self.agents)
         self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
-
-        # Set up command buffer
-        self._command_bool_ptr = self._client.malloc("command_bool", [1], np.bool)
-        megabyte = 1048576  # This is the size of the command buffer that Holodeck expects/will read.
-        self._command_buffer_ptr = self._client.malloc("command_buffer", [megabyte], np.byte)
-        self._commands = CommandsGroup()
-        self._should_write_to_command_buffer = False
 
         self._client.acquire()
         
@@ -149,7 +142,7 @@ class HolodeckEnvironment(object):
         """
         self._initial_reset = True
         self._reset_ptr[0] = True
-        self._commands.clear()
+        self._command_center.clear()
 
         for _ in range(self._pre_start_steps + 1):
             self.tick()
@@ -178,7 +171,7 @@ class HolodeckEnvironment(object):
 
         self._agent.act(action)
 
-        self._handle_command_buffer()
+        self._command_center.handle_buffer()
 
         self._client.release()
         self._client.acquire()
@@ -235,14 +228,14 @@ class HolodeckEnvironment(object):
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .tick()")
 
-        self._handle_command_buffer()
+        self._command_center.handle_buffer()
+
         self._client.release()
         self._client.acquire()
         return self._get_full_state()
 
     def _enqueue_command(self, command_to_send):
-        self._should_write_to_command_buffer = True
-        self._commands.add_command(command_to_send)
+        self._command_center.enqueue_command(command_to_send)
 
     def spawn_agent(self, agent_definition, location):
         """Queues a spawn agent command. It will be applied when `tick` or `step` is called next.
@@ -273,7 +266,7 @@ class HolodeckEnvironment(object):
             self.agents[agent_name].set_ticks_per_capture(ticks_per_capture)
             self._should_write_to_command_buffer = True
             command_to_send = RGBCameraRateCommand(agent_name, ticks_per_capture)
-            self._commands.add_command(command_to_send)
+            self._enqueue_command(command_to_send)
 
     def set_fog_density(self, density):
         """Queue up a change fog density command. It will be applied when `tick` or `step` is called next.
@@ -301,7 +294,7 @@ class HolodeckEnvironment(object):
         color = [255, 0, 0] if color is None else color
         self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(0, start, end, color, thickness)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(command_to_send)
 
     def draw_arrow(self, start, end, color=None, thickness=10.0):
         """Draws a debug arrow in the world
@@ -315,7 +308,7 @@ class HolodeckEnvironment(object):
         color = [255, 0, 0] if color is None else color
         self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(1, start, end, color, thickness)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(command_to_send)
 
     def draw_box(self, center, extent, color=None, thickness=10.0):
         """Draws a debug box in the world
@@ -329,7 +322,7 @@ class HolodeckEnvironment(object):
         color = [255, 0, 0] if color is None else color
         self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(2, center, extent, color, thickness)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(command_to_send)
 
     def draw_point(self, loc, color=None, thickness=10.0):
         """Draws a debug point in the world
@@ -342,7 +335,7 @@ class HolodeckEnvironment(object):
         color = [255, 0, 0] if color is None else color
         self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(command_to_send)
 
     def set_day_time(self, hour):
         """Queue up a change day time command. It will be applied when `tick` or `step` is called next.
@@ -418,7 +411,6 @@ class HolodeckEnvironment(object):
             raise HolodeckException("Invalid weather type " + weather_type)
 
         self._enqueue_command(SetWeatherCommand(weather_type.lower()))
-
 
     def __linux_start_process__(self, binary_path, task_key, gl_version, verbose, show_viewport=True):
         import posix_ipc
@@ -504,14 +496,6 @@ class HolodeckEnvironment(object):
             return cp
         return None  # Not implemented for other types
 
-    def _handle_command_buffer(self):
-        """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
-        clears the contents of the self._commands list"""
-        if self._should_write_to_command_buffer:
-            self._write_to_command_buffer(self._commands.to_json())
-            self._should_write_to_command_buffer = False
-            self._commands.clear()
-
     def _add_agents(self, agent_definitions):
         """Add specified agents to the client. Set up their shared memory and sensor linkages.
         Does not spawn an agent in the Holodeck, this is only for documenting and accessing already existing agents.
@@ -528,15 +512,3 @@ class HolodeckEnvironment(object):
                 self.agents[agent_def.name] = AgentFactory.build_agent(self._client, agent_def)
                 self._state_dict[agent_def.name] = self.agents[agent_def.name].agent_state_dict
 
-    def _write_to_command_buffer(self, to_write):
-        """Write input to the command buffer.  Reformat input string to the correct format.
-
-        Args:
-            to_write (str): The string to write to the command buffer.
-        """
-        # TODO(mitch): Handle the edge case of writing too much data to the buffer.
-        np.copyto(self._command_bool_ptr, True)
-        to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
-        input_bytes = str.encode(to_write)
-        for index, val in enumerate(input_bytes):
-            self._command_buffer_ptr[index] = val
