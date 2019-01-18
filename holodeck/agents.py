@@ -19,29 +19,30 @@ class ControlSchemes(object):
         UAV_TORQUES (int): Default UAV control scheme. Takes torques for roll, pitch, and yaw, as well as thrust.
         UAV_ROLL_PITCH_YAW_RATE_ALT (int): Control scheme for UAV. Takes roll, pitch, yaw rate, and altitude targets.
     """
+    # UAV Control Schemes
     ANDROID_TORQUES = 0
 
-    CONTINUOUS_SPHERE_DEFAULT = 0
+    # Sphere Agent Control Schemes
+    SPHERE_DISCRETE = 0
+    SPHERE_CONTINUOUS = 1
 
-    DISCRETE_SPHERE_DEFAULT = 0
-
+    # Nav Agent Control Schemes
     NAV_TARGET_LOCATION = 0
 
+    # UAV Control Schemes
     UAV_TORQUES = 0
     UAV_ROLL_PITCH_YAW_RATE_ALT = 1
 
 
 class AgentDefinition:
-    """A class for declaring what agents are expected in a particular holodeck Environment.
+    """A class for declaring what agents are expected or should be spawned in a particular holodeck Environment
 
     Args:
         agent_name (str): The name of the agent to control.
         agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
-        sensors (list of (str or type)): A list of HolodeckSensors to read from this agent. Defaults to None.
+        sensors (list of (SensorDefinition or type)): A list of HolodeckSensors to read from this agent.
+         Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
     """
-
-    # Include in docs: Sensors can either be a list of sensor types or a list of SensorDef objects. If multiple of the
-    #  same sensor type they must be SensorDef objects.
 
     def __init__(self, agent_name, agent_type, sensors=None):
         self.sensors = sensors or list()
@@ -56,9 +57,12 @@ class HolodeckAgent(object):
     Args:
         client (:obj:`HolodeckClient`): The HolodeckClient that this agent belongs with.
         name (str, optional): The name of the agent. Must be unique from other agents in the same environment.
+        sensors (list of (HolodeckSensor)): A list of HolodeckSensors to read from this agent.
 
     Attributes:
         name (str): The name of the agent.
+        sensors (list of (HolodeckSensor)): List of HolodeckSensors on this agent.
+        agent_state_dict (dict): A dictionary that maps sensor names to sensor observation data.
     """
 
     def __init__(self, client, name="DefaultAgent", sensors=None):
@@ -87,7 +91,7 @@ class HolodeckAgent(object):
         self.get_ticks_per_capture()
 
     def act(self, action):
-        """Sets the command for the agent. Action depends on the current control scheme.
+        """Sets the command for the agent. Action depends on the agent type and current control scheme.
 
         Args:
             action(np.ndarray): The action to take.
@@ -209,48 +213,39 @@ class UavAgent(HolodeckAgent):
         return "UavAgent " + self.name
 
 
-class ContinuousSphereAgent(HolodeckAgent):
+class SphereAgent(HolodeckAgent):
     """A basic sphere robot that moves on a plane.
-    Action Space: Continuous control scheme of the form [forward_speed, rot_speed]
-    Sensors: RGBCamera, OrientationSensor, LocationSensor
-    Inherits from :obj:`HolodeckAgent`."""
-    @property
-    def control_schemes(self):
-        return [("[forward_movement, rotation]", ContinuousActionSpace([2]))]
-
-    def __repr__(self):
-        return "ContinuousSphereAgent " + self.name
-
-
-class DiscreteSphereAgent(HolodeckAgent):
-    """A basic sphere robot that moves on a plane.
-    Action Space: Discrete control scheme of the form [choice] where choice is
+    Action Space: Has two possible control schemes, one discrete and one continuous:
+    (0) Discrete control scheme of the form [choice] where choice is
     0: Move forward
     1: Move backward
     2: Turn right
     3: Turn left
+    (1) Continuous control scheme of the form [forward_speed, rot_speed]
     Sensors: RGBCamera, OrientationSensor, LocationSensor
     Inherits from :obj:`HolodeckAgent`."""
     @property
     def control_schemes(self):
-        return [("0: Move forward\n1: Move backward\n2: Turn right\n3: Turn left",
+        return [("[forward_movement, rotation]", ContinuousActionSpace([2])),
+                ("0: Move forward\n1: Move backward\n2: Turn right\n3: Turn left",
                  DiscreteActionSpace([1], 0, 4, buffer_shape=[2]))]
 
     def __act__(self, action):
-        actions = np.array([[2, 0], [-2, 0], [0, 2], [0, -2]])
-        to_act = np.array(actions[action, :])
-
-        np.copyto(self._action_buffer, to_act)
+        if self._current_control_scheme is ControlSchemes.SPHERE_DISCRETE:
+            np.copyto(self._action_buffer, action)
+        elif self._current_control_scheme is ControlSchemes.SPHERE_CONTINUOUS:
+            actions = np.array([[2, 0], [-2, 0], [0, 2], [0, -2]])
+            to_act = np.array(actions[action, :])
+            np.copyto(self._action_buffer, to_act)
 
     def __repr__(self):
-        return "DiscreteSphereAgent " + self.name
+        return "SphereAgent " + self.name
 
 
 class AndroidAgent(HolodeckAgent):
     """An android agent that can be controlled via torques supplied to its joints.
     Action Space: 94 dimensional vector of continuous values representing torques to be applied at each joint.
-    The layout of joints can be found
-    [here](https://github.com/BYU-PCCL/holodeck-engine/blob/master/Source/Holodeck/Agents/Private/Android.cpp)
+    The layout of joints can be found <a href="https://github.com/BYU-PCCL/holodeck/blob/master/holodeck/agents.py">here</a>
     Sensors: RGBCamera, OrientationSensor, LocationSensor, VelocitySensor, IMUSensor, JointRotationSensor,
     PressureSensor RelativeSkeletalPositionSensor
     Inherits from :obj:`HolodeckAgent`."""
@@ -344,13 +339,11 @@ class NavAgent(HolodeckAgent):
 
 class AgentFactory:
 
-    __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
-                      "ContinuousSphereAgent": ContinuousSphereAgent,
+    __agent_keys__ = {"SphereAgent": SphereAgent,
                       "UavAgent": UavAgent,
                       "AndroidAgent": AndroidAgent,
                       "NavAgent": NavAgent,
-                      DiscreteSphereAgent: DiscreteSphereAgent,
-                      ContinuousSphereAgent: ContinuousSphereAgent,
+                      SphereAgent: SphereAgent,
                       UavAgent: UavAgent,
                       AndroidAgent: AndroidAgent,
                       NavAgent: NavAgent}
@@ -360,8 +353,8 @@ class AgentFactory:
         agent_sensors = dict()
         has_reward, has_terminal = False, False
         for sensor_def in agent_def.sensors:
-            if not isinstance(sensor_def, SensorDef):
-                sensor_def = SensorDef(agent_def.name, None, sensor_def)
+            if not isinstance(sensor_def, SensorDefinition):
+                sensor_def = SensorDefinition(agent_def.name, None, sensor_def)
             agent_sensors[sensor_def.sensor_name] = SensorFactory.build_sensor(client, sensor_def)
             if sensor_def.type is Reward:
                 has_reward = True
@@ -369,8 +362,10 @@ class AgentFactory:
                 has_terminal = True
 
         if not has_reward:
-            agent_sensors["Reward"] = SensorFactory.build_sensor(client, SensorDef(agent_def.name, "Reward", Reward))
+            agent_sensors["Reward"] = SensorFactory.build_sensor(client, SensorDefinition(agent_def.name,
+                                                                                          "Reward", Reward))
         if not has_reward:
-            agent_sensors["Terminal"] = SensorFactory.build_sensor(client, SensorDef(agent_def.name, "Terminal", Terminal))
+            agent_sensors["Terminal"] = SensorFactory.build_sensor(client, SensorDefinition(agent_def.name,
+                                                                                            "Terminal", Terminal))
 
         return AgentFactory.__agent_keys__[agent_def.type](client, agent_def.name, agent_sensors)

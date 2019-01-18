@@ -139,7 +139,7 @@ def editor_example():
     """This editor example shows how to interact with holodeck worlds while they are being built
     in the Unreal Engine. Most people that use holodeck will not need this.
     """
-    agent_sensors = [sensors.RGBCamera, sensors.LocationSensor, sensors.VelocitySensor]
+    agent_sensors = [sensors.RGBCamera, sensors.LocationHolodeckSensor, sensors.VelocityHolodeckSensor]
     agent = AgentDefinition("uav0", agents.UavAgent, sensors)
     env = HolodeckEnvironment(agent, start_world=False)
     env.agents["uav0"].set_control_scheme(1)
@@ -156,8 +156,8 @@ def editor_multi_agent_example():
     This is specifically for when working with UE4 directly and not a prebuilt binary.
     """
     agent_definitions = [
-        AgentDefinition("uav0", agents.UavAgent, [sensors.RGBCamera, sensors.LocationSensor]),
-        AgentDefinition("uav1", agents.UavAgent, [sensors.LocationSensor, sensors.VelocitySensor])
+        AgentDefinition("uav0", agents.UavAgent, [sensors.RGBCamera, sensors.LocationHolodeckSensor]),
+        AgentDefinition("uav1", agents.UavAgent, [sensors.LocationHolodeckSensor, sensors.VelocityHolodeckSensor])
     ]
     env = HolodeckEnvironment(agent_definitions, start_world=False)
 
