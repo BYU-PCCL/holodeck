@@ -377,3 +377,12 @@ class RenderQualityCommand(Command):
         Command.__init__(self)
         self.set_command_type("AdjustRenderQuality")
         self.add_number_parameters(int(render_quality))
+
+
+class CustomCommand(Command):
+    def __init__(self, name, num_params=[], string_params=[]):
+        Command.__init__(self)
+        self.set_command_type("CustomCommand")
+        self.add_string_parameters(name)
+        self.add_number_parameters(num_params)
+        self.add_string_parameters(string_params)

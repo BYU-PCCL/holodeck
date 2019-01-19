@@ -486,6 +486,11 @@ class HolodeckEnvironment(object):
             command_to_send = SetSensorEnabledCommand(agent_name, sensor_name, enabled)
             self._commands.add_command(command_to_send)
 
+    def send_world_command(self, name, num_params=[], string_params=[]):
+        self._should_write_to_command_buffer = True
+        command_to_send = CustomCommand(name, num_params, string_params)
+        self._commands.add_command(command_to_send)
+
     def __linux_start_process__(self, binary_path, task_key, gl_version, verbose, show_viewport=True):
         import posix_ipc
         out_stream = sys.stdout if verbose else open(os.devnull, 'w')
