@@ -215,7 +215,7 @@ class HolodeckEnvironment(object):
             rotation (np.ndarray or list): A new rotation target for the agent.
                 If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
         """
-        self.agents[agent_name].teleport(np.array(location) * 100, np.array(rotation))  # * 100 to convert m to cm
+        self.agents[agent_name].teleport(location, rotation)
         self.tick()
 
     def set_state(self, agent_name, location, rotation, velocity, angular_velocity):
@@ -229,7 +229,7 @@ class HolodeckEnvironment(object):
             velocity (np.ndarray or list): A new velocity for the agent.
             angular velocity (np.ndarray or list): A new angular velocity for the agent.
         """
-        self.agents[agent_name].set_state(np.array(location) * 100, np.array(rotation), np.array(velocity), np.array(angular_velocity)*100)  # * 100 to convert m to cm
+        self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
         return self.tick()
 
     def act(self, agent_name, action):
