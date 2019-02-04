@@ -75,8 +75,8 @@ class HolodeckEnvironment(object):
 
         # Initialize Client
         self._client = HolodeckClient(self._uuid)
-        self._command_buffer = CommandCenter(self._client)
-        self._client.command_buffer = self._command_buffer
+        self._command_center = CommandCenter(self._client)
+        self._client.command_center = self._command_center
         self._reset_ptr = self._client.malloc("RESET", [1], np.bool)
         self._reset_ptr[0] = False
 
@@ -264,7 +264,6 @@ class HolodeckEnvironment(object):
             print("No such agent %s" % agent_name)
         else:
             self.agents[agent_name].set_ticks_per_capture(ticks_per_capture)
-            self._should_write_to_command_buffer = True
             command_to_send = RGBCameraRateCommand(agent_name, ticks_per_capture)
             self._enqueue_command(command_to_send)
 
@@ -292,7 +291,6 @@ class HolodeckEnvironment(object):
             thickness (float): thickness of the line
         """
         color = [255, 0, 0] if color is None else color
-        self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(0, start, end, color, thickness)
         self._enqueue_command(command_to_send)
 
@@ -306,7 +304,6 @@ class HolodeckEnvironment(object):
             thickness (float): thickness of the arrow
         """
         color = [255, 0, 0] if color is None else color
-        self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(1, start, end, color, thickness)
         self._enqueue_command(command_to_send)
 
@@ -320,7 +317,6 @@ class HolodeckEnvironment(object):
             thickness (float): thickness of the lines
         """
         color = [255, 0, 0] if color is None else color
-        self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(2, center, extent, color, thickness)
         self._enqueue_command(command_to_send)
 
@@ -333,7 +329,6 @@ class HolodeckEnvironment(object):
             thickness (float): thickness of the point
         """
         color = [255, 0, 0] if color is None else color
-        self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
         self._enqueue_command(command_to_send)
 
