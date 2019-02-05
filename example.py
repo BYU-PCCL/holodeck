@@ -140,8 +140,8 @@ def editor_example():
     in the Unreal Engine. Most people that use holodeck will not need this.
     """
     agent_sensors = [sensors.RGBCamera, sensors.LocationHolodeckSensor, sensors.VelocityHolodeckSensor]
-    agent = AgentDefinition("uav0", agents.UavAgent, sensors)
-    env = HolodeckEnvironment(agent, start_world=False)
+    agent = AgentDefinition("uav0", agents.UavAgent, agent_sensors)
+    env = HolodeckEnvironment([agent], start_world=False)
     env.agents["uav0"].set_control_scheme(1)
     command = [0, 0, 10, 50]
 
@@ -181,4 +181,4 @@ if __name__ == "__main__":
         holodeck.install("DefaultWorlds")
         print(holodeck.package_info("DefaultWorlds"))
 
-    uav_example()
+    editor_example()
