@@ -1,5 +1,6 @@
 """Definition of all of the sensor information"""
 import numpy as np
+from holodeck.command import *
 
 
 class SensorDefinition(object):
@@ -18,11 +19,11 @@ class HolodeckSensor(object):
         self.agent_name = agent_name
         self._buffer_name = self.agent_name + "_" + self.name
 
-        self._on_bool_buffer = self._client.malloc(self._buffer_name + "_sensor_on_flag", [1], np.uint8)
         self._sensor_data_buffer = self._client.malloc(self._buffer_name + "_sensor_data", self.data_shape, self.dtype)
 
     def set_sensor_enable(self, enable):
-        self._on_bool_buffer = enable
+        command_to_send = SetSensorEnabledCommand(self.agent_name, self.name, enable)
+        self._client.command_center.enque_command(command_to_send)
 
     @property
     def sensor_data(self):
@@ -47,18 +48,7 @@ class HolodeckSensor(object):
         raise NotImplementedError("Child class must implement this property")
 
 
-class Terminal(HolodeckSensor):
-
-    @property
-    def dtype(self):
-        return np.bool
-
-    @property
-    def data_shape(self):
-        return [1]
-
-
-class Reward(HolodeckSensor):
+class TaskSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -66,7 +56,7 @@ class Reward(HolodeckSensor):
 
     @property
     def data_shape(self):
-        return [1]
+        return [2]
 
 
 class ViewportCapture(HolodeckSensor):
@@ -201,8 +191,7 @@ class PressureHolodeckSensor(HolodeckSensor):
 class SensorFactory(object):
 
     __sensor_keys__ = {"RGBCamera": RGBCamera,
-                       "Terminal": Terminal,
-                       "Reward": Reward,
+                       "TaskSensor": TaskSensor,
                        "ViewportCapture": ViewportCapture,
                        "OrientationSensor": OrientationHolodeckSensor,
                        "IMUSensor": IMUHolodeckSensor,
