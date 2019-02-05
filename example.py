@@ -181,4 +181,4 @@ if __name__ == "__main__":
         holodeck.install("DefaultWorlds")
         print(holodeck.package_info("DefaultWorlds"))
 
-    editor_example()
+    uav_example()
