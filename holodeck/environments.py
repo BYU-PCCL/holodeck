@@ -486,6 +486,20 @@ class HolodeckEnvironment(object):
             command_to_send = SetSensorEnabledCommand(agent_name, sensor_name, enabled)
             self._commands.add_command(command_to_send)
 
+    def send_world_command(self, name, num_params=[], string_params=[]):
+        """Queue up a custom command. A custom command sends an abitrary command that may only exist in a 
+        specific world or package. It is given a name and any amount of string and number parameters that allow
+        it to alter the state of the world.
+
+        Args:
+            name (string): The name of the command. This distinguishes it from different commands.
+            num_params (list of int): The number parameters that correspond to the command. This may be empty.
+            string_params (list of string): The string parameters that correspond to the command. This may be empty.
+        """
+        self._should_write_to_command_buffer = True
+        command_to_send = CustomCommand(name, num_params, string_params)
+        self._commands.add_command(command_to_send)
+
     def __linux_start_process__(self, binary_path, task_key, gl_version, verbose, show_viewport=True):
         import posix_ipc
         out_stream = sys.stdout if verbose else open(os.devnull, 'w')
