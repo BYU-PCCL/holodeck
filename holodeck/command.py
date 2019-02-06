@@ -381,6 +381,11 @@ class RenderQualityCommand(Command):
 
 class CustomCommand(Command):
     def __init__(self, name, num_params=[], string_params=[]):
+        """Send a custom command that is specific to the world in use.
+        :param name: The name of the command, ex "OpenDoor"
+        :param num_params: List of number arbitrary parameters
+        :param string_params: List of string arbitrary parameters
+        """
         Command.__init__(self)
         self.set_command_type("CustomCommand")
         self.add_string_parameters(name)
