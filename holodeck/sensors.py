@@ -89,7 +89,7 @@ class RGBCamera(HolodeckSensor):
         return self.shape
 
 
-class OrientationHolodeckSensor(HolodeckSensor):
+class OrientationSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -100,7 +100,7 @@ class OrientationHolodeckSensor(HolodeckSensor):
         return [3, 3]
 
 
-class IMUHolodeckSensor(HolodeckSensor):
+class IMUSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -111,7 +111,7 @@ class IMUHolodeckSensor(HolodeckSensor):
         return [2, 3]
 
 
-class JointRotationHolodeckSensor(HolodeckSensor):
+class JointRotationSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -122,7 +122,7 @@ class JointRotationHolodeckSensor(HolodeckSensor):
         return [94]
 
 
-class RelativeSkeletalPositionHolodeckSensor(HolodeckSensor):
+class RelativeSkeletalPositionSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -133,7 +133,7 @@ class RelativeSkeletalPositionHolodeckSensor(HolodeckSensor):
         return [67, 4]
 
 
-class LocationHolodeckSensor(HolodeckSensor):
+class LocationSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -144,7 +144,7 @@ class LocationHolodeckSensor(HolodeckSensor):
         return [3]
 
 
-class RotationHolodeckSensor(HolodeckSensor):
+class RotationSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -155,7 +155,7 @@ class RotationHolodeckSensor(HolodeckSensor):
         return [3]
 
 
-class VelocityHolodeckSensor(HolodeckSensor):
+class VelocitySensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -166,7 +166,7 @@ class VelocityHolodeckSensor(HolodeckSensor):
         return [3]
 
 
-class CollisionHolodeckSensor(HolodeckSensor):
+class CollisionSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -177,7 +177,7 @@ class CollisionHolodeckSensor(HolodeckSensor):
         return [1]
 
 
-class PressureHolodeckSensor(HolodeckSensor):
+class PressureSensor(HolodeckSensor):
 
     @property
     def dtype(self):
@@ -193,15 +193,15 @@ class SensorFactory(object):
     __sensor_keys__ = {"RGBCamera": RGBCamera,
                        "TaskSensor": TaskSensor,
                        "ViewportCapture": ViewportCapture,
-                       "OrientationSensor": OrientationHolodeckSensor,
-                       "IMUSensor": IMUHolodeckSensor,
-                       "JointRotationSensor": JointRotationHolodeckSensor,
-                       "RelativeSkeletalPositionSensor": RelativeSkeletalPositionHolodeckSensor,
-                       "LocationSensor": LocationHolodeckSensor,
-                       "RotationSensor": RotationHolodeckSensor,
-                       "VelocitySensor": VelocityHolodeckSensor,
-                       "PressureSensor": PressureHolodeckSensor,
-                       "CollisionSensor": CollisionHolodeckSensor}
+                       "OrientationSensor": OrientationSensor,
+                       "IMUSensor": IMUSensor,
+                       "JointRotationSensor": JointRotationSensor,
+                       "RelativeSkeletalPositionSensor": RelativeSkeletalPositionSensor,
+                       "LocationSensor": LocationSensor,
+                       "RotationSensor": RotationSensor,
+                       "VelocitySensor": VelocitySensor,
+                       "PressureSensor": PressureSensor,
+                       "CollisionSensor": CollisionSensor}
 
     @staticmethod
     def _default_name(sensor_type):
