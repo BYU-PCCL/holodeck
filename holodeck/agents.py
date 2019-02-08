@@ -40,7 +40,7 @@ class AgentDefinition:
     Args:
         agent_name (str): The name of the agent to control.
         agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
-        sensors (list of (SensorDefinition or type)): A list of HolodeckSensors to read from this agent.
+        sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of HolodeckSensors to read from this agent.
          Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
     """
 
@@ -57,11 +57,11 @@ class HolodeckAgent(object):
     Args:
         client (:obj:`HolodeckClient`): The HolodeckClient that this agent belongs with.
         name (str, optional): The name of the agent. Must be unique from other agents in the same environment.
-        sensors (list of (HolodeckSensor)): A list of HolodeckSensors to read from this agent.
+        sensors (dict of (string, HolodeckSensor)): A list of HolodeckSensors to read from this agent.
 
     Attributes:
         name (str): The name of the agent.
-        sensors (list of (HolodeckSensor)): List of HolodeckSensors on this agent.
+        sensors (dict of (string, HolodeckSensor)): List of HolodeckSensors on this agent.
         agent_state_dict (dict): A dictionary that maps sensor names to sensor observation data.
     """
 

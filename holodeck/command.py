@@ -85,8 +85,8 @@ class CommandCenter(object):
 
         # Set up command buffer
         self._command_bool_ptr = self._client.malloc("command_bool", [1], np.bool)
-        megabyte = 1048576  # This is the size of the command buffer that Holodeck expects/will read.
-        self._command_buffer_ptr = self._client.malloc("command_buffer", [megabyte], np.byte)
+        self.max_buffer = 1048576  # This is the size of the command buffer that Holodeck expects/will read.
+        self._command_buffer_ptr = self._client.malloc("command_buffer", [self.max_buffer], np.byte)
         self._commands = CommandsGroup()
         self._should_write_to_command_buffer = False
 
@@ -111,10 +111,12 @@ class CommandCenter(object):
         Args:
             to_write (str): The string to write to the command buffer.
         """
-        # TODO(mitch): Handle the edge case of writing too much data to the buffer.
+
         np.copyto(self._command_bool_ptr, True)
         to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
         input_bytes = str.encode(to_write)
+        if len(input_bytes) > self.max_buffer:
+            raise Exception("Error: Command length exceeds buffer size")
         for index, val in enumerate(input_bytes):
             self._command_buffer_ptr[index] = val
             

@@ -40,19 +40,6 @@ class HolodeckEnvironment(object):
     def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
                  pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True):
-        """Constructor for HolodeckEnvironment.
-        Positional arguments:
-        agent_definitions -- A list of AgentDefinition objects for which agents to expect in the environment
-        Keyword arguments:
-        binary_path -- The path to the binary to load the world from (default None)
-        task_key -- The name of the map within the binary to load (default None)
-        height -- The height to load the binary at (default 512)
-        width -- The width to load the binary at (default 512)
-        start_world -- Whether to load a binary or not (default True)
-        uuid -- A unique identifier, used when running multiple instances of holodeck (default "")
-        gl_version -- The version of OpenGL to use for Linux (default 4)
-        show_viewport -- If the viewport should be shown (Linux only)
-        """
 
         # Initialize variables
         self._window_height = window_height
