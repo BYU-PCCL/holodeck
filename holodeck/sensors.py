@@ -1,163 +1,219 @@
 """Definition of all of the sensor information"""
 import numpy as np
-from holodeck.exceptions import HolodeckException
+from holodeck.command import *
 
-class Sensors:
-    """Class information of sensor data with mappings from names to corresponding numbers
 
-    Attributes:
-        TERMINAL (int): Index for terminal sensor output. Value is 1.
-        REWARD (int): Index for reward sensor output. Value is 2.
-        VIEWPORT_CAPTURE (int): Deprecated. Index for primary player camera sensor. Value is 3.
-        RGB_CAMERA (int): Index for pixel camera sensor. Value is 4.
-        ORIENTATION_SENSOR (int): Index for orientation sensor. Value is 5.
-        IMU_SENSOR (int): Index for IMU sensor. Value is 6.
-        JOINT_ROTATION_SENSOR (int): Index for joint rotation sensor. Value is 7.
-        RELATIVE_SKELETAL_POSITION_SENSOR (int): Index for relative skeletal position sensor. Value is 8.
-        LOCATION_SENSOR (int): Index for location sensor. Value is 9.
-        VELOCITY_SENSOR (int): Index for velocity sensor. Value is 10.
-        ROTATION_SENSOR (int): Index for rotation sensor. Value is 11.
-        COLLISION_SENSOR (int): Index for collision sensor. Value is 12.
-        PRESSURE_SENSOR (int): Index for pressure sensor. Value is 13.
-    """
-    TERMINAL = 1
-    REWARD = 2
-    VIEWPORT_CAPTURE = 3  # default is 512 x 512 RGBA
-    RGB_CAMERA = 4  # default is 512 x 512 RGBA
-    ORIENTATION_SENSOR = 5
-    IMU_SENSOR = 6
-    JOINT_ROTATION_SENSOR = 7
-    RELATIVE_SKELETAL_POSITION_SENSOR = 8
-    LOCATION_SENSOR = 9
-    VELOCITY_SENSOR = 10
-    ROTATION_SENSOR = 11
-    COLLISION_SENSOR = 12
-    PRESSURE_SENSOR = 13
+class SensorDefinition(object):
 
-    # Sizes are the number of entries in the numpy array
-    _shape_dict = {
-        TERMINAL: [1],
-        REWARD: [1],
-        VIEWPORT_CAPTURE: [512, 512, 4],
-        RGB_CAMERA: [256, 256, 4],
-        ORIENTATION_SENSOR: [3, 3],
-        IMU_SENSOR: [2, 3],
-        JOINT_ROTATION_SENSOR: [94],
-        RELATIVE_SKELETAL_POSITION_SENSOR: [67, 4],
-        LOCATION_SENSOR: [3],
-        VELOCITY_SENSOR: [3],
-        ROTATION_SENSOR: [3],
-        COLLISION_SENSOR: [1],
-        PRESSURE_SENSOR: [48*(3+1)],
-    }
+    def __init__(self, agent_name, sensor_name, sensor_type):
+        self.agent_name = agent_name
+        self.sensor_name = sensor_name
+        self.type = sensor_type
 
-    _type_dict = {
-        TERMINAL: np.bool,
-        REWARD: np.float32,
-        VIEWPORT_CAPTURE: np.uint8,
-        RGB_CAMERA: np.uint8,
-        ORIENTATION_SENSOR: np.float32,
-        IMU_SENSOR: np.float32,
-        JOINT_ROTATION_SENSOR: np.float32,
-        RELATIVE_SKELETAL_POSITION_SENSOR: np.float32,
-        LOCATION_SENSOR: np.float32,
-        VELOCITY_SENSOR: np.float32,
-        ROTATION_SENSOR: np.float32,
-        COLLISION_SENSOR: np.bool,
-        PRESSURE_SENSOR: np.float32,
-    }
 
-    _name_dict = {
-        TERMINAL: "Terminal",
-        REWARD: "Reward",
-        VIEWPORT_CAPTURE: "ViewportCapture",
-        RGB_CAMERA: "RGBCamera",
-        ORIENTATION_SENSOR: "OrientationSensor",
-        IMU_SENSOR: "IMUSensor",
-        JOINT_ROTATION_SENSOR: "JointRotationSensor",
-        RELATIVE_SKELETAL_POSITION_SENSOR: "RelativeSkeletalPositionSensor",
-        LOCATION_SENSOR: "LocationSensor",
-        VELOCITY_SENSOR: "VelocitySensor",
-        ROTATION_SENSOR: "RotationSensor",
-        COLLISION_SENSOR: "CollisionSensor",
-        PRESSURE_SENSOR: "PressureSensor"
-    }
+class HolodeckSensor(object):
 
-    _reverse_name_dict = {v: k for k, v in _name_dict.items()}
+    def __init__(self, client, agent_name=None, name="DefaultSensor", custom_shape=None):
+        self.name = name
+        self._client = client
+        self.agent_name = agent_name
+        self._buffer_name = self.agent_name + "_" + self.name
 
-    @staticmethod
-    def shape(sensor_type):
-        """Gets the shape of a particular sensor.
+        self._sensor_data_buffer = self._client.malloc(self._buffer_name + "_sensor_data", self.data_shape, self.dtype)
 
-        Args:
-            sensor_type (int): The type of the sensor.
+    def set_sensor_enable(self, enable):
+        command_to_send = SetSensorEnabledCommand(self.agent_name, self.name, enable)
+        self._client.command_center.enque_command(command_to_send)
+
+    @property
+    def sensor_data(self):
+        return self._sensor_data_buffer
+
+    @property
+    def dtype(self):
+        """The type of data in the sensor
 
         Returns:
-            List of int: The shape of the sensor data.
+            numpy dtype of sensor data
         """
-        return Sensors._shape_dict[sensor_type] if sensor_type in Sensors._shape_dict else None
+        raise NotImplementedError("Child class must implement this property")
 
-    @staticmethod
-    def name(sensor_type):
-        """Gets the human readable name for a sensor.
-
-        Args:
-            sensor_type (int): The type of the sensor.
+    @property
+    def data_shape(self):
+        """The shape of the sensor data
 
         Returns:
-            str: The name of the sensor.
+            tuple representing sensor data shape
         """
-        return Sensors._name_dict[sensor_type] if sensor_type in Sensors._name_dict else None
+        raise NotImplementedError("Child class must implement this property")
+
+
+class TaskSensor(HolodeckSensor):
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [2]
+
+
+class ViewportCapture(HolodeckSensor):
+
+    def __init__(self, client, agent_name, name="ViewportCapture", shape=(512, 512, 4)):
+        self.shape = shape
+        super(ViewportCapture, self).__init__(client, agent_name, name=name)
+
+    @property
+    def dtype(self):
+        return np.uint8
+
+    @property
+    def data_shape(self):
+        return self.shape
+
+
+class RGBCamera(HolodeckSensor):
+
+    def __init__(self, client, agent_name, name="RGBCamera", shape=(256, 256, 4)):
+        self.shape = shape
+        super(RGBCamera, self).__init__(client, agent_name, name=name)
+
+    @property
+    def dtype(self):
+        return np.uint8
+
+    @property
+    def data_shape(self):
+        return self.shape
+
+
+class OrientationSensor(HolodeckSensor):
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [3, 3]
+
+
+class IMUSensor(HolodeckSensor):
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [2, 3]
+
+
+class JointRotationSensor(HolodeckSensor):
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [94]
+
+
+class RelativeSkeletalPositionSensor(HolodeckSensor):
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [67, 4]
+
+
+class LocationSensor(HolodeckSensor):
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [3]
+
+
+class RotationSensor(HolodeckSensor):
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [3]
+
+
+class VelocitySensor(HolodeckSensor):
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [3]
+
+
+class CollisionSensor(HolodeckSensor):
+
+    @property
+    def dtype(self):
+        return np.bool
+
+    @property
+    def data_shape(self):
+        return [1]
+
+
+class PressureSensor(HolodeckSensor):
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [48*(3+1)]
+
+
+class SensorFactory(object):
+
+    __sensor_keys__ = {"RGBCamera": RGBCamera,
+                       "TaskSensor": TaskSensor,
+                       "ViewportCapture": ViewportCapture,
+                       "OrientationSensor": OrientationSensor,
+                       "IMUSensor": IMUSensor,
+                       "JointRotationSensor": JointRotationSensor,
+                       "RelativeSkeletalPositionSensor": RelativeSkeletalPositionSensor,
+                       "LocationSensor": LocationSensor,
+                       "RotationSensor": RotationSensor,
+                       "VelocitySensor": VelocitySensor,
+                       "PressureSensor": PressureSensor,
+                       "CollisionSensor": CollisionSensor}
 
     @staticmethod
-    def dtype(sensor_type):
-        """Gets the data type of the sensor data (the dtype of the numpy array).
-
-        Args:
-            sensor_type (int): The type of the sensor.
-
-        Returns:
-            type: The type of the sensor data.
-        """
-        return Sensors._type_dict[sensor_type] if sensor_type in Sensors._type_dict else None
+    def _default_name(sensor_type):
+        for k, v in SensorFactory.__sensor_keys__.items():
+            if v is sensor_type:
+                return k
 
     @staticmethod
-    def name_to_sensor(sensor_name):
-        """Gets the index value of a sensor from its human readable name.
+    def build_sensor(client, sensor_def):
+        if isinstance(sensor_def.type, str):
+            sensor_def.type = SensorFactory.__sensor_keys__[sensor_def.type]
+        if sensor_def.sensor_name is None:
+            sensor_def.sensor_name = SensorFactory._default_name(sensor_def.type)
 
-        Args:
-            sensor_name (str): The human readable name of the sensor.
-
-        Returns:
-            int: The index value for the sensor.
-        """
-        if sensor_name in Sensors._reverse_name_dict:
-            return Sensors._reverse_name_dict[sensor_name]
-        else:
-            raise HolodeckException(
-                "Unable to find sensor ID for '{}', are your binaries out of date?".format(sensor_name)
-                )
-
-
-    @staticmethod
-    def set_primary_cam_size(height, width):
-        """Sets the primary camera size for this world. Should only be called by environment.
-
-        Args:
-            height (int): New height value.
-            width (int): New width value.
-        """
-        Sensors._shape_dict[Sensors.VIEWPORT_CAPTURE] = [height, width, 4]
-
-    @staticmethod
-    def set_pixel_cam_size(height, width):
-        """Sets the pixel camera size for this world. Should only be called by Environment.
-
-        Args:
-            height (int): New height value.
-            width (int): New width value.
-        """
-        Sensors._shape_dict[Sensors.RGB_CAMERA] = [height, width, 4]
-
-    def __init__(self):
-        print("No point in instantiating an object.")
+        return sensor_def.type(client, sensor_def.agent_name, sensor_def.sensor_name)

@@ -22,6 +22,7 @@ class HolodeckClient:
         self._semaphore1 = None
         self._semaphore2 = None
         self.unlink = None
+        self.command_center = None
 
         self._memory = dict()
         self._sensors = dict()
