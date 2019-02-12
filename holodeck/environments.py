@@ -10,47 +10,8 @@ from copy import copy
 
 from holodeck.command import *
 from holodeck.exceptions import HolodeckException
-from holodeck.sensors import Sensors
 from holodeck.holodeckclient import HolodeckClient
-
-
-class AgentDefinition(object):
-    """A class for declaring what agents are expected in a particular holodeck Environment.
-
-    Args:
-        agent_name (str): The name of the agent to control.
-        agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
-        sensors (list of (str or type)): A list of HolodeckSensors to read from this agent. Defaults to None.
-    """
-    __agent_keys__ = {"DiscreteSphereAgent": DiscreteSphereAgent,
-                      "ContinuousSphereAgent": ContinuousSphereAgent,
-                      "UavAgent": UavAgent,
-                      "AndroidAgent": AndroidAgent,
-                      "NavAgent": NavAgent,
-                      "TurtleAgent":TurtleAgent,
-                      DiscreteSphereAgent: DiscreteSphereAgent,
-                      ContinuousSphereAgent: ContinuousSphereAgent,
-                      UavAgent: UavAgent,
-                      AndroidAgent: AndroidAgent,
-                      NavAgent: NavAgent,
-                      TurtleAgent: TurtleAgent}
-
-    @staticmethod
-    def __convert_sensors(sensors):
-        result = []
-        for sensor in sensors:
-            if isinstance(sensor, str):
-                result.append(Sensors.name_to_sensor(sensor))
-            else:
-                result.append(sensor)
-        return result
-
-    def __init__(self, agent_name, agent_type, sensors=None):
-        super(AgentDefinition, self).__init__()
-        sensors = sensors or list()
-        self.name = agent_name
-        self.type = AgentDefinition.__agent_keys__[agent_type]
-        self.sensors = AgentDefinition.__convert_sensors(sensors)
+from holodeck.agents import *
 
 
 class HolodeckEnvironment(object):
@@ -70,6 +31,7 @@ class HolodeckEnvironment(object):
         gl_version (int, optional): The version of OpenGL to use for Linux. Defaults to 4.
         show_viewport (bool, optional) If the viewport should be shown (Linux only) Defaults to True.
         ticks_per_sec (int, optional) Number of frame ticks per unreal second. Defaults to 30.
+        copy_state (bool, optional) If the state should be copied or returned as a reference. Defaults to True.
 
     Returns:
         HolodeckEnvironment: A holodeck environment object.
@@ -77,19 +39,19 @@ class HolodeckEnvironment(object):
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
-                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30):
+                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True):
 
+        # Initialize variables
         self._window_height = window_height
         self._window_width = window_width
         self._camera_height = camera_height
         self._camera_width = camera_width
         self._uuid = uuid
         self._pre_start_steps = pre_start_steps
+        self._copy_state = copy_state
         self._ticks_per_sec = ticks_per_sec
 
-        Sensors.set_primary_cam_size(window_height, window_width)
-        Sensors.set_pixel_cam_size(camera_height, camera_width)
-
+        # Start world based on OS
         if start_world:
             if os.name == "posix":
                 self.__linux_start_process__(binary_path, task_key, gl_version, verbose=verbose, show_viewport=show_viewport)
@@ -98,29 +60,27 @@ class HolodeckEnvironment(object):
             else:
                 raise HolodeckException("Unknown platform: " + os.name)
 
-        # Set up and add the agents
+        # Initialize Client
         self._client = HolodeckClient(self._uuid)
-        self._sensor_map = dict()
-        self._all_agents = list()
-        self.agents = dict()
-        self._hyperparameters_map = dict()
-        self._add_agents(agent_definitions)
-        self._agent = self._all_agents[0]
-
-        # Set the default state function
-        self.num_agents = len(self._all_agents)
-        self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
-
-        # Subscribe settings
+        self._command_center = CommandCenter(self._client)
+        self._client.command_center = self._command_center
         self._reset_ptr = self._client.malloc("RESET", [1], np.bool)
         self._reset_ptr[0] = False
-        self._command_bool_ptr = self._client.malloc("command_bool", [1], np.bool)
-        megabyte = 1048576  # This is the size of the command buffer that Holodeck expects/will read.
-        self._command_buffer_ptr = self._client.malloc("command_buffer", [megabyte], np.byte)
 
-        # self._commands holds commands that are queued up to write to the command buffer on tick.
-        self._commands = CommandsGroup()
-        self._should_write_to_command_buffer = False
+        # Set up agents already in the world
+        self.agents = dict()
+        self._state_dict = dict()
+        self._add_agents(agent_definitions)
+
+        # Spawn agents not yet in the world.
+        # TODO implement this section for future build automation update
+
+        # Set the main agent
+        self._agent = self.agents[agent_definitions[0].name]
+
+        # Set the default state function
+        self.num_agents = len(self.agents)
+        self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
         self._client.acquire()
         
@@ -154,7 +114,7 @@ class HolodeckEnvironment(object):
             result.append("Sensors:\n")
             for sensor in self._sensor_map[agent.name].keys():
                 result.append("\t\t")
-                result.append(Sensors.name(sensor))
+                result.append(sensor.name)
                 result.append("\n")
         return "".join(result)
 
@@ -169,7 +129,7 @@ class HolodeckEnvironment(object):
         """
         self._initial_reset = True
         self._reset_ptr[0] = True
-        self._commands.clear()
+        self._command_center.clear()
 
         for _ in range(self._pre_start_steps + 1):
             self.tick()
@@ -198,7 +158,7 @@ class HolodeckEnvironment(object):
 
         self._agent.act(action)
 
-        self._handle_command_buffer()
+        self._command_center.handle_buffer()
 
         self._client.release()
         self._client.acquire()
@@ -215,7 +175,7 @@ class HolodeckEnvironment(object):
             rotation (np.ndarray or list): A new rotation target for the agent.
                 If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
         """
-        self.agents[agent_name].teleport(np.array(location) * 100, np.array(rotation))  # * 100 to convert m to cm
+        self.agents[agent_name].teleport(location, rotation)
         self.tick()
 
     def set_state(self, agent_name, location, rotation, velocity, angular_velocity):
@@ -229,7 +189,7 @@ class HolodeckEnvironment(object):
             velocity (np.ndarray or list): A new velocity for the agent.
             angular velocity (np.ndarray or list): A new angular velocity for the agent.
         """
-        self.agents[agent_name].set_state(np.array(location) * 100, np.array(rotation), np.array(velocity), np.array(angular_velocity)*100)  # * 100 to convert m to cm
+        self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
         return self.tick()
 
     def act(self, agent_name, action):
@@ -255,34 +215,14 @@ class HolodeckEnvironment(object):
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .tick()")
 
-        self._handle_command_buffer()
+        self._command_center.handle_buffer()
+
         self._client.release()
         self._client.acquire()
         return self._get_full_state()
 
-    def add_state_sensors(self, agent_name, sensors):
-        """Adds a sensor to a particular agent. This only works if the world you are running also includes
-        that particular sensor on the agent.
-
-        Args:
-            agent_name (str): The name of the agent to add the sensor to.
-            sensors (:obj:`HolodeckSensor` or list of :obj:`HolodeckSensor`): Sensors to add to the agent.
-                Should be objects that inherit from :obj:`HolodeckSensor`.
-        """
-        if isinstance(sensors, list):
-            for sensor in sensors:
-                self.add_state_sensors(agent_name, sensor)
-        else:
-            if agent_name not in self._sensor_map:
-                self._sensor_map[agent_name] = dict()
-
-            self._sensor_map[agent_name][sensors] = self._client.malloc(agent_name + "_" + Sensors.name(sensors),
-                                                                        Sensors.shape(sensors),
-                                                                        Sensors.dtype(sensors))
-
     def _enqueue_command(self, command_to_send):
-        self._should_write_to_command_buffer = True
-        self._commands.add_command(command_to_send)
+        self._command_center.enqueue_command(command_to_send)
 
     def spawn_agent(self, agent_definition, location):
         """Queues a spawn agent command. It will be applied when `tick` or `step` is called next.
@@ -311,9 +251,8 @@ class HolodeckEnvironment(object):
             print("No such agent %s" % agent_name)
         else:
             self.agents[agent_name].set_ticks_per_capture(ticks_per_capture)
-            self._should_write_to_command_buffer = True
             command_to_send = RGBCameraRateCommand(agent_name, ticks_per_capture)
-            self._commands.add_command(command_to_send)
+            self._enqueue_command(command_to_send)
 
     def set_fog_density(self, density):
         """Queue up a change fog density command. It will be applied when `tick` or `step` is called next.
@@ -339,9 +278,8 @@ class HolodeckEnvironment(object):
             thickness (float): thickness of the line
         """
         color = [255, 0, 0] if color is None else color
-        self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(0, start, end, color, thickness)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(command_to_send)
 
     def draw_arrow(self, start, end, color=None, thickness=10.0):
         """Draws a debug arrow in the world
@@ -353,9 +291,8 @@ class HolodeckEnvironment(object):
             thickness (float): thickness of the arrow
         """
         color = [255, 0, 0] if color is None else color
-        self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(1, start, end, color, thickness)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(command_to_send)
 
     def draw_box(self, center, extent, color=None, thickness=10.0):
         """Draws a debug box in the world
@@ -367,9 +304,8 @@ class HolodeckEnvironment(object):
             thickness (float): thickness of the lines
         """
         color = [255, 0, 0] if color is None else color
-        self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(2, center, extent, color, thickness)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(command_to_send)
 
     def draw_point(self, loc, color=None, thickness=10.0):
         """Draws a debug point in the world
@@ -380,9 +316,8 @@ class HolodeckEnvironment(object):
             thickness (float): thickness of the point
         """
         color = [255, 0, 0] if color is None else color
-        self._should_write_to_command_buffer = True
         command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(command_to_send)
 
     def set_day_time(self, hour):
         """Queue up a change day time command. It will be applied when `tick` or `step` is called next.
@@ -486,6 +421,20 @@ class HolodeckEnvironment(object):
             command_to_send = SetSensorEnabledCommand(agent_name, sensor_name, enabled)
             self._commands.add_command(command_to_send)
 
+    def send_world_command(self, name, num_params=[], string_params=[]):
+        """Queue up a custom command. A custom command sends an abitrary command that may only exist in a 
+        specific world or package. It is given a name and any amount of string and number parameters that allow
+        it to alter the state of the world.
+
+        Args:
+            name (string): The name of the command. This distinguishes it from different commands.
+            num_params (list of int): The number parameters that correspond to the command. This may be empty.
+            string_params (list of string): The string parameters that correspond to the command. This may be empty.
+        """
+        self._should_write_to_command_buffer = True
+        command_to_send = CustomCommand(name, num_params, string_params)
+        self._commands.add_command(command_to_send)
+
     def __linux_start_process__(self, binary_path, task_key, gl_version, verbose, show_viewport=True):
         import posix_ipc
         out_stream = sys.stdout if verbose else open(os.devnull, 'w')
@@ -545,29 +494,28 @@ class HolodeckEnvironment(object):
     def _get_single_state(self):
         reward = None
         terminal = None
-        for sensor in self._sensor_map[self._agent.name]:
-            if sensor == Sensors.REWARD:
-                reward = self._sensor_map[self._agent.name][sensor][0]
-            elif sensor == Sensors.TERMINAL:
-                terminal = self._sensor_map[self._agent.name][sensor][0]
+        for sensor in self._state_dict[self._agent.name]:
+            if sensor is "TaskSensor":
+                reward = self._state_dict[self._agent.name][sensor][0]
+                terminal = self._state_dict[self._agent.name][sensor][1] == 1
 
-        return copy(self._sensor_map[self._agent.name]), reward, terminal, None
+        state = self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
+            else self._state_dict[self._agent.name]
+        return state, reward, terminal, None
 
     def _get_full_state(self):
-        return copy(self._sensor_map)
+        return self._create_copy(self._state_dict) if self._copy_state else self._state_dict
 
-    def _handle_command_buffer(self):
-        """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
-        clears the contents of the self._commands list"""
-        if self._should_write_to_command_buffer:
-            self._write_to_command_buffer(self._commands.to_json())
-            self._should_write_to_command_buffer = False
-            self._commands.clear()
-
-    def _prepare_agents(self, agent_definitions):
-        if isinstance(agent_definitions, list):
-            return [self._prepare_agents(x)[0] for x in agent_definitions]
-        return [agent_definitions.type(client=self._client, name=agent_definitions.name)]
+    def _create_copy(self, obj):
+        if isinstance(obj, dict):  # Deep copy dictionary
+            cp = dict()
+            for k, v in obj.items():
+                if isinstance(v, dict):
+                    cp[k] = self._create_copy(v)
+                else:
+                    cp[k] = np.copy(v)
+            return cp
+        return None  # Not implemented for other types
 
     def _add_agents(self, agent_definitions):
         """Add specified agents to the client. Set up their shared memory and sensor linkages.
@@ -578,23 +526,10 @@ class HolodeckEnvironment(object):
         """
         if not isinstance(agent_definitions, list):
             agent_definitions = [agent_definitions]
-        prepared_agents = self._prepare_agents(agent_definitions)
-        self._all_agents.extend(prepared_agents)
-        for agent in prepared_agents:
-            self.agents[agent.name] = agent
-        for agent in agent_definitions:
-            self.add_state_sensors(agent.name, [Sensors.TERMINAL, Sensors.REWARD])
-            self.add_state_sensors(agent.name, agent.sensors)
+        for agent_def in agent_definitions:
+            if agent_def.name in self.agents:
+                print("Error: agent name duplicate.")
+            else:
+                self.agents[agent_def.name] = AgentFactory.build_agent(self._client, agent_def)
+                self._state_dict[agent_def.name] = self.agents[agent_def.name].agent_state_dict
 
-    def _write_to_command_buffer(self, to_write):
-        """Write input to the command buffer.  Reformat input string to the correct format.
-
-        Args:
-            to_write (str): The string to write to the command buffer.
-        """
-        # TODO(mitch): Handle the edge case of writing too much data to the buffer.
-        np.copyto(self._command_bool_ptr, True)
-        to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
-        input_bytes = str.encode(to_write)
-        for index, val in enumerate(input_bytes):
-            self._command_buffer_ptr[index] = val

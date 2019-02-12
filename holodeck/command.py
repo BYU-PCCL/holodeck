@@ -78,6 +78,49 @@ class Command(object):
         return to_return
 
 
+class CommandCenter(object):
+
+    def __init__(self, client):
+        self._client = client
+
+        # Set up command buffer
+        self._command_bool_ptr = self._client.malloc("command_bool", [1], np.bool)
+        self.max_buffer = 1048576  # This is the size of the command buffer that Holodeck expects/will read.
+        self._command_buffer_ptr = self._client.malloc("command_buffer", [self.max_buffer], np.byte)
+        self._commands = CommandsGroup()
+        self._should_write_to_command_buffer = False
+
+    def clear(self):
+        self._commands.clear()
+
+    def handle_buffer(self):
+        """Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
+        clears the contents of the self._commands list"""
+        if self._should_write_to_command_buffer:
+            self._write_to_command_buffer(self._commands.to_json())
+            self._should_write_to_command_buffer = False
+            self._commands.clear()
+
+    def enqueue_command(self, command_to_send):
+        self._should_write_to_command_buffer = True
+        self._commands.add_command(command_to_send)
+
+    def _write_to_command_buffer(self, to_write):
+        """Write input to the command buffer.  Reformat input string to the correct format.
+
+        Args:
+            to_write (str): The string to write to the command buffer.
+        """
+
+        np.copyto(self._command_bool_ptr, True)
+        to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
+        input_bytes = str.encode(to_write)
+        if len(input_bytes) > self.max_buffer:
+            raise Exception("Error: Command length exceeds buffer size")
+        for index, val in enumerate(input_bytes):
+            self._command_buffer_ptr[index] = val
+            
+
 class SpawnAgentCommand(Command):
     """Holds the information to be sent to Holodeck that is needed for spawning an agent.
 
@@ -87,7 +130,7 @@ class SpawnAgentCommand(Command):
         agent_type (str): The type of agent to spawn (UAVAgent, NavAgent, ...)
     """
     __type_keys = {
-        DiscreteSphereAgent: "SphereRobot",
+        SphereAgent: "SphereRobot",
         UavAgent: "UAV",
         NavAgent: "NavAgent",
         AndroidAgent: "Android"
@@ -377,3 +420,17 @@ class RenderQualityCommand(Command):
         Command.__init__(self)
         self.set_command_type("AdjustRenderQuality")
         self.add_number_parameters(int(render_quality))
+
+
+class CustomCommand(Command):
+    def __init__(self, name, num_params=[], string_params=[]):
+        """Send a custom command that is specific to the world in use.
+        :param name: The name of the command, ex "OpenDoor"
+        :param num_params: List of number arbitrary parameters
+        :param string_params: List of string arbitrary parameters
+        """
+        Command.__init__(self)
+        self.set_command_type("CustomCommand")
+        self.add_string_parameters(name)
+        self.add_number_parameters(num_params)
+        self.add_string_parameters(string_params)
