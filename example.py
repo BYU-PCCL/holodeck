@@ -7,23 +7,6 @@ from holodeck.environments import *
 from holodeck.sensors import Sensors
 import random
 
-
-def turtle_example():
-    env = holodeck.make("MoveBox")
-
-    for _ in range(10):
-        env.reset()
-        env.act("turtle0", [100, 0])
-        for i in range(1000):
-            states = env.tick()
-            reward = states["turtle0"][Sensors.REWARD]
-            pixels = states["turtle0"][Sensors.RGB_CAMERA]
-            location = states["turtle0"][Sensors.LOCATION_SENSOR]
-            rotation = states["turtle0"][Sensors.ROTATION_SENSOR]
-            velocity = states["turtle0"][Sensors.VELOCITY_SENSOR]
-
-
-
 def uav_example():
     """A basic example of how to use the UAV agent."""
     env = holodeck.make("CyberPunkCity")
@@ -164,33 +147,17 @@ def editor_example():
     """This editor example shows how to interact with holodeck worlds while they are being built
     in the Unreal Engine. Most people that use holodeck will not need this.
     """
-    sensors = [Sensors.RGB_CAMERA]
-    agent_definitions = [
-        AgentDefinition("turtle0", agents.TurtleAgent, sensors),
-        AgentDefinition("turtle1", agents.TurtleAgent, sensors),
-        AgentDefinition("turtle2", agents.TurtleAgent, sensors),
-        AgentDefinition("turtle3", agents.TurtleAgent, sensors),
-        AgentDefinition("turtle4", agents.TurtleAgent, sensors)
-    ]
-    env = HolodeckEnvironment(agent_definitions, start_world=False)
-    command = [0, 10]
+    sensors = [Sensors.RGB_CAMERA, Sensors.LOCATION_SENSOR, Sensors.VELOCITY_SENSOR]
+    agent = AgentDefinition("uav0", agents.UavAgent, sensors)
+    env = HolodeckEnvironment(agent, start_world=False)
+    env.agents["uav0"].set_control_scheme(1)
+    command = [0, 0, 10, 50]
 
     for i in range(10):
         env.reset()
-        _ = env.act("turtle0", command)
-        _ = env.act("turtle1", command)
-        _ = env.act("turtle2", command)
-        _ = env.act("turtle3", command)
-        _ = env.act("turtle4", command)
-        for _ in range(10000):
-            states = env.tick()
-            print(states["turtle0"][Sensors.REWARD])
-            # pixels = states["turtle0"][Sensors.RGB_CAMERA]
-            # cv2.namedWindow("Image")
-            # cv2.moveWindow("Image", 500, 500)
-            # cv2.imshow("Image", pixels[:, :, 0:3])
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
+        env.send_world_command("SetWeather", string_params=["rain"])
+        for _ in range(1000):
+            state, reward, terminal, _ = env.step(command)
 
 
 def editor_multi_agent_example():
@@ -223,4 +190,4 @@ if __name__ == "__main__":
     #     holodeck.install("DefaultWorlds")
     #     print(holodeck.package_info("DefaultWorlds"))
 
-    turtle_example()
+    editor_example()
