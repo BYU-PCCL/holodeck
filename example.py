@@ -155,7 +155,6 @@ def editor_example():
 
     for i in range(10):
         env.reset()
-        env.send_world_command("SetWeather", string_params=["rain"])
         for _ in range(1000):
             state, reward, terminal, _ = env.step(command)
 
