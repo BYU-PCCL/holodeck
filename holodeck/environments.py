@@ -254,20 +254,6 @@ class HolodeckEnvironment(object):
             command_to_send = RGBCameraRateCommand(agent_name, ticks_per_capture)
             self._enqueue_command(command_to_send)
 
-    def set_fog_density(self, density):
-        """Queue up a change fog density command. It will be applied when `tick` or `step` is called next.
-        By the next tick, the exponential height fog in the world will have the new density. If there is no fog in the
-        world, it will be automatically created with the given density.
-
-        Args:
-            density (float): The new density value, between 0 and 1. The command will not be sent if the given
-        density is invalid.
-        """
-        if density < 0 or density > 1:
-            raise HolodeckException("Fog density should be between 0 and 1")
-
-        self._enqueue_command(ChangeFogDensityCommand(density))
-
     def draw_line(self, start, end, color=None, thickness=10.0):
         """Draws a debug line in the world
 
@@ -319,20 +305,36 @@ class HolodeckEnvironment(object):
         command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
         self._enqueue_command(command_to_send)
 
+    def set_fog_density(self, density):
+        """Queue up a change fog density command. It will be applied when `tick` or `step` is called next.
+        By the next tick, the exponential height fog in the world will have the new density. If there is no fog in the
+        world, it will be automatically created with the given density.
+
+        Args:
+            density (float): The new density value, between 0 and 1. The command will not be sent if the given
+        density is invalid.
+        """
+        if density < 0 or density > 1:
+            raise HolodeckException("Fog density should be between 0 and 1")
+
+        self.send_world_command("SetFogDensity", num_params=[density])
+
     def set_day_time(self, hour):
         """Queue up a change day time command. It will be applied when `tick` or `step` is called next.
-        By the next tick, the lighting and the skysphere will be updated with the new hour. If there is no skysphere
-        or directional light in the world, the command will not function properly but will not cause a crash.
+        By the next tick, the lighting and the skysphere will be updated with the new hour. If there is no skysphere,
+        skylight, or directional source light in the world, this command will fail silently.
+
 
         Args:
             hour (int): The hour in military time, between 0 and 23 inclusive.
         """
-        self._enqueue_command(DayTimeCommand(hour % 24))
+        self.send_world_command("SetHour", num_params=[hour % 24])
 
     def start_day_cycle(self, day_length):
-        """Queue up a day cycle command to start the day cycle. It will be applied when `tick` or `step` is called next.
+        """Queue up a custom day cycle command to start the day cycle. It will be applied when `tick` or `step` is called next.
         The sky sphere will now update each tick with an updated sun angle as it moves about the sky. The length of a
-        day will be roughly equivalent to the number of minutes given.
+        day will be roughly equivalent to the number of minutes given. If there is no skysphere,
+        skylight, or directional source light in the world, this command will fail silently.
 
         Args:
             day_length (int): The number of minutes each day will be.
@@ -340,15 +342,34 @@ class HolodeckEnvironment(object):
         if day_length <= 0:
             raise HolodeckException("The given day length should be between above 0!")
 
-        command_to_send = DayCycleCommand(True)
-        command_to_send.set_day_length(day_length)
-        self._enqueue_command(command_to_send)
+        self.send_world_command("SetDayCycle", num_params=[1, day_length])
 
     def stop_day_cycle(self):
-        """Queue up a day cycle command to stop the day cycle. It will be applied when `tick` or `step` is called next.
-        By the next tick, day cycle will stop where it is.
+        """Queue up a custom day cycle command to stop the day cycle. It will be applied when `tick` or `step` is called next.
+        By the next tick, day cycle will stop where it is. If there is no skysphere, skylight, or directional source
+        light in the world, this command will fail silently.
         """
-        self._enqueue_command(DayCycleCommand(False))
+        self.send_world_command("SetDayCycle", num_params=[0, -1])
+
+    def set_weather(self, weather_type):
+        """Queue up a custom set weather command. It will be applied when `tick` or `step` is called next.
+        By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
+        to the given weather. If there is no skysphere, skylight, or directional source light in the world, this command
+         will fail silently.
+
+        NOTE: Because this command can effect the fog density, any changes made by a change_fog_density command before
+        a set_weather command called will be undone. It is recommended to call change_fog_density after calling set
+        weather if you wish to apply your specific changes.
+
+        Args:
+            weather_type (str): The type of weather, which can be 'Rain' or 'Cloudy'. In all downloadable worlds,
+            the weather is clear by default. If the given type string is not available, the command will not be sent.
+
+        """
+        if not weather_type.lower() in ["rain", "cloudy"]:
+            raise HolodeckException("Invalid weather type " + weather_type)
+
+        self.send_world_command("SetWeather", string_params=[weather_type])
 
     def teleport_camera(self, location, rotation):
         """Queue up a teleport camera command to stop the day cycle.
@@ -374,26 +395,6 @@ class HolodeckEnvironment(object):
         """
         self._enqueue_command(RenderQualityCommand(render_quality))
 
-    def set_weather(self, weather_type):
-        """Queue up a set weather command. It will be applied when `tick` or `step` is called next.
-        By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
-        to the given weather. If there is no skysphere or directional light in the world, the command may not function
-        properly but will not cause a crash.
-
-        NOTE: Because this command can effect the fog density, any changes made by a change_fog_density command before
-        a set_weather command called will be undone. It is recommended to call change_fog_density after calling set
-        weather.
-
-        Args:
-            weather_type (str): The type of weather, which can be 'Rain' or 'Cloudy'. In all downloadable worlds,
-            the weather is clear by default. If the given type string is not available, the command will not be sent.
-
-        """
-        if not SetWeatherCommand.has_type(weather_type.lower()):
-            raise HolodeckException("Invalid weather type " + weather_type)
-
-        self._enqueue_command(SetWeatherCommand(weather_type.lower()))
-
     def set_control_scheme(self, agent_name, control_scheme):
         """Set the control scheme for a specific agent.
 
@@ -416,10 +417,9 @@ class HolodeckEnvironment(object):
         """
         if agent_name not in self._sensor_map:
             print("No such agent %s" % agent_name)
-        else: 
-            self._should_write_to_command_buffer = True
+        else:
             command_to_send = SetSensorEnabledCommand(agent_name, sensor_name, enabled)
-            self._commands.add_command(command_to_send)
+            self._enqueue_command(command_to_send)
 
     def send_world_command(self, name, num_params=[], string_params=[]):
         """Queue up a custom command. A custom command sends an abitrary command that may only exist in a 
@@ -431,9 +431,8 @@ class HolodeckEnvironment(object):
             num_params (list of int): The number parameters that correspond to the command. This may be empty.
             string_params (list of string): The string parameters that correspond to the command. This may be empty.
         """
-        self._should_write_to_command_buffer = True
         command_to_send = CustomCommand(name, num_params, string_params)
-        self._commands.add_command(command_to_send)
+        self._enqueue_command(command_to_send)
 
     def __linux_start_process__(self, binary_path, task_key, gl_version, verbose, show_viewport=True):
         import posix_ipc

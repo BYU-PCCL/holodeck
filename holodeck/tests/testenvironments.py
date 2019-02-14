@@ -1,10 +1,11 @@
 import holodeck
 from holodeck import agents
 from holodeck.environments import *
-from holodeck.sensors import Sensors
 import cv2
 
 """
+    **** TODO: Sensor testing needs to be updated to the refactored sensor system ****
+    
     Future Tests to Implement:
         Test to be run when releasing a new version:
 
@@ -74,7 +75,7 @@ def spawn_test(env, agent_name, command):
 
 
 def world_command_test(env, agent_name, command, test_time):
-
+    env.reset()
     env.act(agent_name, command)
 
     print("Testing teleport camera")
