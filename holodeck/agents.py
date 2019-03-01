@@ -4,6 +4,7 @@ from functools import reduce
 
 from holodeck.spaces import ContinuousActionSpace, DiscreteActionSpace
 from holodeck.sensors import *
+from holodeck.command import AddSensorCommand, RemoveSensorCommand
 
 
 class ControlSchemes(object):
@@ -32,22 +33,6 @@ class ControlSchemes(object):
     # UAV Control Schemes
     UAV_TORQUES = 0
     UAV_ROLL_PITCH_YAW_RATE_ALT = 1
-
-
-class AgentDefinition:
-    """A class for declaring what agents are expected or should be spawned in a particular holodeck Environment
-
-    Args:
-        agent_name (str): The name of the agent to control.
-        agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
-        sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of HolodeckSensors to read from this agent.
-         Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
-    """
-
-    def __init__(self, agent_name, agent_type, sensors=None):
-        self.sensors = sensors or list()
-        self.name = agent_name
-        self.type = agent_type
 
 
 class HolodeckAgent(object):
@@ -153,7 +138,7 @@ class HolodeckAgent(object):
         self._teleport_type_buffer[0] = val
 
     def add_sensors(self, sensor_defs):
-        """Adds a sensor to a particular agent. This only works if the world you are running also includes
+        """Adds a sensor to a particular agent object. This only works if the world you are running also includes
         that particular sensor on the agent.
 
         Args:
@@ -166,6 +151,38 @@ class HolodeckAgent(object):
         for sensor_def in sensor_defs:
             self.sensors[sensor_def.name] = SensorFactory.build_sensor(self._client, sensor_def)
 
+    def add_new_sensors(self, sensor_defs):
+        """Adds a sensor to a particular agent object and attaches an instance of the sensor to the agent in the world.
+
+        Args:
+            sensor_defs (:obj:`HolodeckSensor` or list of :obj:`HolodeckSensor`): Sensors to add to the agent.
+                Should be objects that inherit from :obj:`HolodeckSensor`.
+        """
+        if not isinstance(sensor_defs, list):
+            sensor_defs = [sensor_defs]
+
+        for sensor_def in sensor_defs:
+            sensor = SensorFactory.build_sensor(self._client, sensor_def)
+            self.sensors[sensor_def.sensor_name] = sensor
+            self.agent_state_dict[sensor_def.sensor_name] = sensor.sensor_data
+            command_to_send = AddSensorCommand(self.name, sensor_def.sensor_name, sensor_def.type.sensor_type)
+            self._client.command_center.enqueue_command(command_to_send)
+
+    def remove_sensors(self, sensor_defs):
+        """Removes a sensor from a particular agent object and detaches it from the agent in the world.
+
+        Args:
+            sensor_defs (:obj:`HolodeckSensor` or list of :obj:`HolodeckSensor`): Sensors to add to the agent.
+                Should be objects that inherit from :obj:`HolodeckSensor`.
+        """
+        if not isinstance(sensor_defs, list):
+            sensor_defs = [sensor_defs]
+
+        for sensor_def in sensor_defs:
+            self.sensors.pop(sensor_def.sensor_name, None)
+            self.agent_state_dict.pop(sensor_def.sensor_name, None)
+            command_to_send = RemoveSensorCommand(self.name, sensor_def.sensor_name)
+            self._client.command_center.enqueue_command(command_to_send)
 
     @property
     def action_space(self):
@@ -202,6 +219,9 @@ class UavAgent(HolodeckAgent):
     (1) [pitch_target, roll_target, yaw_rate_target, altitude_target]
     Sensors: RGBCamera, OrientationSensor, LocationSensor, VelocitySensor, IMUSensor
     Inherits from :obj:`HolodeckAgent`."""
+
+    agent_type = "UAV"
+
     @property
     def control_schemes(self):
         return [("[pitch_torque, roll_torque, yaw_torque, thrust]",
@@ -224,6 +244,9 @@ class SphereAgent(HolodeckAgent):
     (1) Continuous control scheme of the form [forward_speed, rot_speed]
     Sensors: RGBCamera, OrientationSensor, LocationSensor
     Inherits from :obj:`HolodeckAgent`."""
+
+    agent_type = "SphereRobot"
+
     @property
     def control_schemes(self):
         return [("[forward_movement, rotation]", ContinuousActionSpace([2])),
@@ -249,6 +272,9 @@ class AndroidAgent(HolodeckAgent):
     Sensors: RGBCamera, OrientationSensor, LocationSensor, VelocitySensor, IMUSensor, JointRotationSensor,
     PressureSensor RelativeSkeletalPositionSensor
     Inherits from :obj:`HolodeckAgent`."""
+
+    agent_type = "Android"
+
     @property
     def control_schemes(self):
         return [("[Bone Torques] * 94", ContinuousActionSpace([94]))]
@@ -326,6 +352,9 @@ class NavAgent(HolodeckAgent):
     Action Space: Continuous control scheme of the form [x_target, y_target, z_target]
     Sensors: RGBCamera, OrientationSensor, LocationSensor
     Inherits from :obj:`HolodeckAgent`."""
+
+    agent_type = "NavAgent"
+
     @property
     def control_schemes(self):
         return [("[x_target, y_target, z_target]", ContinuousActionSpace([3]))]
@@ -352,19 +381,28 @@ class TurtleAgent(HolodeckAgent):
         np.copyto(self._action_buffer, action)
 
 
+class AgentDefinition:
+    """A class for declaring what agents are expected or should be spawned in a particular holodeck Environment
+    Args:
+        agent_name (str): The name of the agent to control.
+        agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
+        sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of HolodeckSensors to read from this agent.
+         Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
+    """
+    __type_keys = {
+        "SphereAgent": SphereAgent,
+        "UavAgent": UavAgent,
+        "NavAgent": NavAgent,
+        "AndroidAgent": AndroidAgent
+    }
+
+    def __init__(self, agent_name, agent_type, sensors=None):
+        self.sensors = sensors or list()
+        self.name = agent_name
+        self.type = AgentDefinition.__type_keys[agent_type] if isinstance(agent_type, str) else agent_type
+
+
 class AgentFactory:
-
-    __agent_keys__ = {"SphereAgent": SphereAgent,
-                      "UavAgent": UavAgent,
-                      "AndroidAgent": AndroidAgent,
-                      "NavAgent": NavAgent,
-                      "TurtleAgent": TurtleAgent,
-                      SphereAgent: SphereAgent,
-                      UavAgent: UavAgent,
-                      AndroidAgent: AndroidAgent,
-                      NavAgent: NavAgent,
-                      TurtleAgent: TurtleAgent}
-
     @staticmethod
     def build_agent(client, agent_def):
         agent_sensors = dict()
@@ -380,4 +418,4 @@ class AgentFactory:
             agent_sensors["TaskSensor"] = SensorFactory.build_sensor(client, SensorDefinition(agent_def.name,
                                                                                               "TaskSensor", TaskSensor))
 
-        return AgentFactory.__agent_keys__[agent_def.type](client, agent_def.name, agent_sensors)
+        return agent_def.type(client, agent_def.name, agent_sensors)
