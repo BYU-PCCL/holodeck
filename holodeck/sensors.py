@@ -223,6 +223,7 @@ class SensorDefinition(object):
         self.agent_name = agent_name
         self.sensor_name = sensor_name
         self.type = SensorDefinition.__sensor_keys__[sensor_type] if isinstance(sensor_type, str) else sensor_type
+        self.socket = socket
 
 
 class SensorFactory(object):
