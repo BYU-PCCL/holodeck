@@ -2,6 +2,9 @@
 *.xml
 *.xmi
 .idea/
+.vscode/
 .tflogs/
 worlds/
 build/
+env/
+venv/
