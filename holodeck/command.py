@@ -3,7 +3,8 @@
 To create a new command to send to the Holodeck backend, simply subclass from command.
 """
 
-from holodeck.agents import *
+
+import numpy as np
 
 
 class CommandsGroup(object):
@@ -129,12 +130,6 @@ class SpawnAgentCommand(Command):
         name (str): The name of the agent.
         agent_type (str): The type of agent to spawn (UAVAgent, NavAgent, ...)
     """
-    __type_keys = {
-        SphereAgent: "SphereRobot",
-        UavAgent: "UAV",
-        NavAgent: "NavAgent",
-        AndroidAgent: "Android"
-    }
 
     def __init__(self, location, name, agent_type):
         super(SpawnAgentCommand, self).__init__()
@@ -169,8 +164,7 @@ class SpawnAgentCommand(Command):
         Args:
             agent_type (str): The type of agent to spawn.
         """
-        type_str = SpawnAgentCommand.__type_keys[agent_type]
-        self.add_string_parameters(type_str)
+        self.add_string_parameters(agent_type)
 
 
 class ChangeFogDensityCommand(Command):

@@ -233,7 +233,7 @@ class HolodeckEnvironment(object):
             location (np.ndarray or list): The position to spawn the agent in the world, in XYZ coordinates (in meters).
         """
         self._add_agents(agent_definition)
-        self._enqueue_command(SpawnAgentCommand(location, agent_definition.name, agent_definition.type))
+        self._enqueue_command(SpawnAgentCommand(location, agent_definition.name, agent_definition.type.agent_type))
 
     def set_ticks_per_capture(self, agent_name, ticks_per_capture):
         """Queues a rgb camera rate command. It will be applied when `tick` or `step` is called next.

@@ -3,14 +3,6 @@ import numpy as np
 from holodeck.command import *
 
 
-class SensorDefinition(object):
-
-    def __init__(self, agent_name, sensor_name, sensor_type):
-        self.agent_name = agent_name
-        self.sensor_name = sensor_name
-        self.type = sensor_type
-
-
 class HolodeckSensor(object):
 
     def __init__(self, client, agent_name=None, name="DefaultSensor", custom_shape=None):
@@ -50,6 +42,8 @@ class HolodeckSensor(object):
 
 class TaskSensor(HolodeckSensor):
 
+    sensor_type = "TaskSensor"
+
     @property
     def dtype(self):
         return np.float32
@@ -60,6 +54,8 @@ class TaskSensor(HolodeckSensor):
 
 
 class ViewportCapture(HolodeckSensor):
+
+    sensor_type = "ViewportCapture"
 
     def __init__(self, client, agent_name, name="ViewportCapture", shape=(512, 512, 4)):
         self.shape = shape
@@ -76,6 +72,8 @@ class ViewportCapture(HolodeckSensor):
 
 class RGBCamera(HolodeckSensor):
 
+    sensor_type = "RGBCamera"
+
     def __init__(self, client, agent_name, name="RGBCamera", shape=(256, 256, 4)):
         self.shape = shape
         super(RGBCamera, self).__init__(client, agent_name, name=name)
@@ -91,6 +89,8 @@ class RGBCamera(HolodeckSensor):
 
 class OrientationSensor(HolodeckSensor):
 
+    sensor_type = "OrientationSensor"
+
     @property
     def dtype(self):
         return np.float32
@@ -101,6 +101,8 @@ class OrientationSensor(HolodeckSensor):
 
 
 class IMUSensor(HolodeckSensor):
+
+    sensor_type = "IMUSensor"
 
     @property
     def dtype(self):
@@ -113,6 +115,8 @@ class IMUSensor(HolodeckSensor):
 
 class JointRotationSensor(HolodeckSensor):
 
+    sensor_type = "JointRotationSensor"
+
     @property
     def dtype(self):
         return np.float32
@@ -123,6 +127,8 @@ class JointRotationSensor(HolodeckSensor):
 
 
 class RelativeSkeletalPositionSensor(HolodeckSensor):
+
+    sensor_type = "RelativeSkeletalPositionSensor"
 
     @property
     def dtype(self):
@@ -135,6 +141,8 @@ class RelativeSkeletalPositionSensor(HolodeckSensor):
 
 class LocationSensor(HolodeckSensor):
 
+    sensor_type = "LocationSensor"
+
     @property
     def dtype(self):
         return np.float32
@@ -145,6 +153,8 @@ class LocationSensor(HolodeckSensor):
 
 
 class RotationSensor(HolodeckSensor):
+
+    sensor_type = "RotationSensor"
 
     @property
     def dtype(self):
@@ -157,6 +167,8 @@ class RotationSensor(HolodeckSensor):
 
 class VelocitySensor(HolodeckSensor):
 
+    sensor_type = "VelocitySensor"
+
     @property
     def dtype(self):
         return np.float32
@@ -167,6 +179,8 @@ class VelocitySensor(HolodeckSensor):
 
 
 class CollisionSensor(HolodeckSensor):
+
+    sensor_type = "CollisionSensor"
 
     @property
     def dtype(self):
@@ -179,6 +193,8 @@ class CollisionSensor(HolodeckSensor):
 
 class PressureSensor(HolodeckSensor):
 
+    sensor_type = "PressureSensor"
+
     @property
     def dtype(self):
         return np.float32
@@ -188,7 +204,7 @@ class PressureSensor(HolodeckSensor):
         return [48*(3+1)]
 
 
-class SensorFactory(object):
+class SensorDefinition(object):
 
     __sensor_keys__ = {"RGBCamera": RGBCamera,
                        "TaskSensor": TaskSensor,
@@ -203,16 +219,20 @@ class SensorFactory(object):
                        "PressureSensor": PressureSensor,
                        "CollisionSensor": CollisionSensor}
 
+    def __init__(self, agent_name, sensor_name, sensor_type, socket=""):
+        self.agent_name = agent_name
+        self.sensor_name = sensor_name
+        self.type = SensorDefinition.__sensor_keys__[sensor_type] if isinstance(sensor_type, str) else sensor_type
+
+
+class SensorFactory(object):
+
     @staticmethod
-    def _default_name(sensor_type):
-        for k, v in SensorFactory.__sensor_keys__.items():
-            if v is sensor_type:
-                return k
+    def _default_name(sensor_class):
+        return sensor_class.sensor_type
 
     @staticmethod
     def build_sensor(client, sensor_def):
-        if isinstance(sensor_def.type, str):
-            sensor_def.type = SensorFactory.__sensor_keys__[sensor_def.type]
         if sensor_def.sensor_name is None:
             sensor_def.sensor_name = SensorFactory._default_name(sensor_def.type)
 
