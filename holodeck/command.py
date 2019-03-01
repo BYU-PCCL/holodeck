@@ -370,6 +370,76 @@ class SetSensorEnabledCommand(Command):
         enabled: Boolean representing the new sensor state
         """
         self.add_number_parameters(1 if enabled else 0)
+
+
+class AddSensorCommand(Command):
+    def __init__(self, agent, sensor, sensor_type, socket=""):
+        """Sets the command type to AddSensor and initializes the object.
+        :param agent: Name of the agent to add sensor to
+        :param sensor: Name of the sensor to add
+        :param sensor_type: Class name of the sensor to add
+        :param socket: Name of the socket. Default none
+        """
+        Command.__init__(self)
+        self._command_type = "AddSensor"
+        self.set_agent(agent)
+        self.set_socket(socket)
+        self.set_sensor(sensor)
+        self.set_sensor_type(sensor_type)
+
+    def set_agent(self, agent):
+        """Set the agent name.
+        Positional Arguments:
+        agent: String representing the name of the agent to add sensor to
+        """
+        self.add_string_parameters(agent)
+
+    def set_socket(self, socket):
+        """Set the socket name.
+        Positional Arguments:
+        sensor: String representing the name of the socket to add to
+        """
+        self.add_string_parameters(socket)
+
+    def set_sensor(self, sensor):
+        """Set the sensor name.
+        Positional Arguments:
+        sensor: String representing the name of the sensor to be added
+        """
+        self.add_string_parameters(sensor)
+
+    def set_sensor_type(self, sensor_type):
+        """Set the sensor type.
+        Positional Arguments:
+        sensor: String representing the class of the sensor add
+        """
+        self.add_string_parameters(sensor_type)
+
+
+class RemoveSensorCommand(Command):
+    def __init__(self, agent, sensor):
+        """Sets the command type to RemoveSensor and initializes the object.
+        :param agent: Name of the agent whose sensor will be removed
+        :param sensor: Name of the sensor to be removed
+        """
+        Command.__init__(self)
+        self._command_type = "RemoveSensor"
+        self.set_agent(agent)
+        self.set_sensor(sensor)
+
+    def set_agent(self, agent):
+        """Set the agent name.
+        Positional Arguments:
+        agent: String representing the name of the agent whose sensor will be removed
+        """
+        self.add_string_parameters(agent)
+
+    def set_sensor(self, sensor):
+        """Set the sensor name.
+        Positional Arguments:
+        sensor: String representing the name of the sensor to be removed
+        """
+        self.add_string_parameters(sensor)
         
         
 class RenderViewportCommand(Command):
