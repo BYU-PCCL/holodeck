@@ -165,7 +165,8 @@ class HolodeckAgent(object):
             sensor = SensorFactory.build_sensor(self._client, sensor_def)
             self.sensors[sensor_def.sensor_name] = sensor
             self.agent_state_dict[sensor_def.sensor_name] = sensor.sensor_data
-            command_to_send = AddSensorCommand(self.name, sensor_def.sensor_name, sensor_def.type.sensor_type)
+            command_to_send = AddSensorCommand(self.name, sensor_def.sensor_name, sensor_def.type.sensor_type,
+                                               socket=sensor_def.socket)
             self._client.command_center.enqueue_command(command_to_send)
 
     def remove_sensors(self, sensor_defs):
