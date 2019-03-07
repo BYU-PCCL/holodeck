@@ -334,6 +334,21 @@ class NavAgent(HolodeckAgent):
         return "NavAgent " + self.name
 
     def __act__(self, action):
+        np.copyto(self._action_buffer, np.array(action) * 100)
+
+
+class TurtleAgent(HolodeckAgent):
+    """A simple agent that can have forces applied to it and move around.
+    Inherits from :obj:`HolodeckAgent`."""
+    @property
+    def control_schemes(self):
+        return [("[forward_force, rot_force]", ContinuousActionSpace([2]))]
+
+    def __repr__(self):
+        return "TurtleAgent " + self.name
+
+    def __act__(self, action):
+        np.copyto(self._action_buffer, np.array(action))
         np.copyto(self._action_buffer, action)
 
 
@@ -343,10 +358,12 @@ class AgentFactory:
                       "UavAgent": UavAgent,
                       "AndroidAgent": AndroidAgent,
                       "NavAgent": NavAgent,
+                      "TurtleAgent": TurtleAgent,
                       SphereAgent: SphereAgent,
                       UavAgent: UavAgent,
                       AndroidAgent: AndroidAgent,
-                      NavAgent: NavAgent}
+                      NavAgent: NavAgent,
+                      TurtleAgent: TurtleAgent}
 
     @staticmethod
     def build_agent(client, agent_def):

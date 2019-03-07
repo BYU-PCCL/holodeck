@@ -9,7 +9,7 @@ from holodeck import sensors
 
 def uav_example():
     """A basic example of how to use the UAV agent."""
-    env = holodeck.make("UrbanCity")
+    env = holodeck.make("CyberPunkCity")
 
     # This changes the control scheme for the uav
     env.agents["uav0"].set_control_scheme(ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
@@ -185,4 +185,4 @@ if __name__ == "__main__":
         holodeck.install("DefaultWorlds")
         print(holodeck.package_info("DefaultWorlds"))
 
-    uav_example()
+    editor_example()
