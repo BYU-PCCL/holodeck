@@ -3,7 +3,8 @@
 To create a new command to send to the Holodeck backend, simply subclass from command.
 """
 
-from holodeck.agents import *
+
+import numpy as np
 
 
 class CommandsGroup(object):
@@ -119,7 +120,7 @@ class CommandCenter(object):
             raise Exception("Error: Command length exceeds buffer size")
         for index, val in enumerate(input_bytes):
             self._command_buffer_ptr[index] = val
-            
+
 
 class SpawnAgentCommand(Command):
     """Holds the information to be sent to Holodeck that is needed for spawning an agent.
@@ -127,14 +128,8 @@ class SpawnAgentCommand(Command):
     Args:
         location (list of float): The place to spawn the agent in XYZ coordinates (meters).
         name (str): The name of the agent.
-        agent_type (str): The type of agent to spawn (UAVAgent, NavAgent, ...)
+        agent_type (str or type): The type of agent to spawn (UAVAgent, NavAgent, ...)
     """
-    __type_keys = {
-        SphereAgent: "SphereRobot",
-        UavAgent: "UAV",
-        NavAgent: "NavAgent",
-        AndroidAgent: "Android"
-    }
 
     def __init__(self, location, name, agent_type):
         super(SpawnAgentCommand, self).__init__()
@@ -167,10 +162,11 @@ class SpawnAgentCommand(Command):
         and AndroidAgent.
 
         Args:
-            agent_type (str): The type of agent to spawn.
+            agent_type (str or type): The type of agent to spawn.
         """
-        type_str = SpawnAgentCommand.__type_keys[agent_type]
-        self.add_string_parameters(type_str)
+        if not isinstance(str, agent_type):
+            agent_type = agent_type.agent_type  # Get str from type
+        self.add_string_parameters(agent_type)
 
 
 class ChangeFogDensityCommand(Command):
@@ -370,8 +366,78 @@ class SetSensorEnabledCommand(Command):
         enabled: Boolean representing the new sensor state
         """
         self.add_number_parameters(1 if enabled else 0)
-        
-        
+
+
+class AddSensorCommand(Command):
+    def __init__(self, agent, sensor, sensor_type, socket=""):
+        """Sets the command type to AddSensor and initializes the object.
+        :param agent: Name of the agent to add sensor to
+        :param sensor: Name of the sensor to add
+        :param sensor_type: Class name of the sensor to add
+        :param socket: Name of the socket. Default none
+        """
+        Command.__init__(self)
+        self._command_type = "AddSensor"
+        self.set_agent(agent)
+        self.set_socket(socket)
+        self.set_sensor(sensor)
+        self.set_sensor_type(sensor_type)
+
+    def set_agent(self, agent):
+        """Set the agent name.
+        Positional Arguments:
+        agent: String representing the name of the agent to add sensor to
+        """
+        self.add_string_parameters(agent)
+
+    def set_socket(self, socket):
+        """Set the socket name.
+        Positional Arguments:
+        sensor: String representing the name of the socket to add to
+        """
+        self.add_string_parameters(socket)
+
+    def set_sensor(self, sensor):
+        """Set the sensor name.
+        Positional Arguments:
+        sensor: String representing the name of the sensor to be added
+        """
+        self.add_string_parameters(sensor)
+
+    def set_sensor_type(self, sensor_type):
+        """Set the sensor type.
+        Positional Arguments:
+        sensor: String representing the class of the sensor add
+        """
+        self.add_string_parameters(sensor_type)
+
+
+class RemoveSensorCommand(Command):
+    def __init__(self, agent, sensor):
+        """Sets the command type to RemoveSensor and initializes the object.
+        :param agent: Name of the agent whose sensor will be removed
+        :param sensor: Name of the sensor to be removed
+        """
+        Command.__init__(self)
+        self._command_type = "RemoveSensor"
+        self.set_agent(agent)
+        self.set_sensor(sensor)
+
+    def set_agent(self, agent):
+        """Set the agent name.
+        Positional Arguments:
+        agent: String representing the name of the agent whose sensor will be removed
+        """
+        self.add_string_parameters(agent)
+
+    def set_sensor(self, sensor):
+        """Set the sensor name.
+        Positional Arguments:
+        sensor: String representing the name of the sensor to be removed
+        """
+        self.add_string_parameters(sensor)
+
+
 class RenderViewportCommand(Command):
     def __init__(self, render_viewport):
         """
@@ -410,8 +476,8 @@ class RGBCameraRateCommand(Command):
 
 class RenderQualityCommand(Command):
     def __init__(self, render_quality):
-        """Adjusts the rendering quality of Holodeck. 
-        :param render_quality: An integer between 0 and 3. 
+        """Adjusts the rendering quality of Holodeck.
+        :param render_quality: An integer between 0 and 3.
                                     0 = low
                                     1 = medium
                                     2 = high
