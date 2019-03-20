@@ -137,7 +137,7 @@ class HolodeckAgent(object):
         np.copyto(self._teleport_buffer[9:12], angular_velocity)
         self._teleport_type_buffer[0] = val
 
-    def add_sensors(self, sensor_defs):
+    def add_existing_sensors(self, sensor_defs):
         """Adds a sensor to a particular agent object. This only works if the world you are running also includes
         that particular sensor on the agent.
 
@@ -390,7 +390,7 @@ class AgentDefinition:
         sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of HolodeckSensors to read from this agent.
          Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
     """
-    __type_keys = {
+    _type_keys = {
         "SphereAgent": SphereAgent,
         "UavAgent": UavAgent,
         "NavAgent": NavAgent,
@@ -400,7 +400,7 @@ class AgentDefinition:
     def __init__(self, agent_name, agent_type, sensors=None):
         self.sensors = sensors or list()
         self.name = agent_name
-        self.type = AgentDefinition.__type_keys[agent_type] if isinstance(agent_type, str) else agent_type
+        self.type = AgentDefinition._type_keys[agent_type] if isinstance(agent_type, str) else agent_type
 
 
 class AgentFactory:

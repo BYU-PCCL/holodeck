@@ -120,7 +120,7 @@ class CommandCenter(object):
             raise Exception("Error: Command length exceeds buffer size")
         for index, val in enumerate(input_bytes):
             self._command_buffer_ptr[index] = val
-            
+
 
 class SpawnAgentCommand(Command):
     """Holds the information to be sent to Holodeck that is needed for spawning an agent.
@@ -128,7 +128,7 @@ class SpawnAgentCommand(Command):
     Args:
         location (list of float): The place to spawn the agent in XYZ coordinates (meters).
         name (str): The name of the agent.
-        agent_type (str): The type of agent to spawn (UAVAgent, NavAgent, ...)
+        agent_type (str or type): The type of agent to spawn (UAVAgent, NavAgent, ...)
     """
 
     def __init__(self, location, name, agent_type):
@@ -162,8 +162,10 @@ class SpawnAgentCommand(Command):
         and AndroidAgent.
 
         Args:
-            agent_type (str): The type of agent to spawn.
+            agent_type (str or type): The type of agent to spawn.
         """
+        if not isinstance(str, agent_type):
+            agent_type = agent_type.agent_type  # Get str from type
         self.add_string_parameters(agent_type)
 
 
@@ -434,8 +436,8 @@ class RemoveSensorCommand(Command):
         sensor: String representing the name of the sensor to be removed
         """
         self.add_string_parameters(sensor)
-        
-        
+
+
 class RenderViewportCommand(Command):
     def __init__(self, render_viewport):
         """
@@ -474,8 +476,8 @@ class RGBCameraRateCommand(Command):
 
 class RenderQualityCommand(Command):
     def __init__(self, render_quality):
-        """Adjusts the rendering quality of Holodeck. 
-        :param render_quality: An integer between 0 and 3. 
+        """Adjusts the rendering quality of Holodeck.
+        :param render_quality: An integer between 0 and 3.
                                     0 = low
                                     1 = medium
                                     2 = high
