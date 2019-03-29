@@ -185,6 +185,15 @@ class HolodeckAgent(object):
             command_to_send = RemoveSensorCommand(self.name, sensor_def.sensor_name)
             self._client.command_center.enqueue_command(command_to_send)
 
+    def has_camera(self):
+        """ Returns boolean indicating whether this sensor has a camera
+        """
+        for sensor_type in self.sensors.items():
+            if sensor_type is RGBCamera:
+                return True
+
+        return False
+
     @property
     def action_space(self):
         """Gets an :obj:ActionSpace object for the particular agent and control scheme.

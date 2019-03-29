@@ -135,7 +135,8 @@ class HolodeckEnvironment(object):
             self.tick()
 
         for agent in self.agents:
-            self.set_ticks_per_capture(agent, self.agents[agent].get_ticks_per_capture())
+            if self.agents[agent].has_camera():
+                self.set_ticks_per_capture(agent, self.agents[agent].get_ticks_per_capture())
 
         return self._default_state_fn()
 
