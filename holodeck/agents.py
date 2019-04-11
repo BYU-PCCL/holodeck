@@ -21,7 +21,8 @@ class ControlSchemes(object):
         UAV_ROLL_PITCH_YAW_RATE_ALT (int): Control scheme for UAV. Takes roll, pitch, yaw rate, and altitude targets.
     """
     # UAV Control Schemes
-    ANDROID_TORQUES = 0
+    ANDROID_DIRECT_TORQUES = 0
+    ANDROID_MAX_SCALED_TORQUES = 1
 
     # Sphere Agent Control Schemes
     SPHERE_DISCRETE = 0
@@ -278,7 +279,8 @@ class AndroidAgent(HolodeckAgent):
 
     @property
     def control_schemes(self):
-        return [("[Bone Torques] * 94", ContinuousActionSpace([94]))]
+        return [("[Raw Bone Torques] * 94", ContinuousActionSpace([94])),
+                ("[-1 to 1] * 94, where 1 is the maximum torque for a given joint (based on mass of bone)", ContinuousActionSpace([94]))]
 
     def __repr__(self):
         return "AndroidAgent " + self.name
@@ -322,7 +324,7 @@ class AndroidAgent(HolodeckAgent):
         "ring_01_r": 70,
         "pinky_01_r": 72,
 
-        # Second joint of each finger.Has only[swing1]
+        # Second joint of each finger. Has only[swing1]
         "thumb_02_l": 74,
         "index_02_l": 75,
         "middle_02_l": 76,
@@ -334,7 +336,7 @@ class AndroidAgent(HolodeckAgent):
         "ring_02_r": 82,
         "pinky_02_r": 83,
 
-        # Third joint of each finger.Has only[swing1]
+        # Third joint of each finger. Has only[swing1]
         "thumb_03_l": 84,
         "index_03_l": 85,
         "middle_03_l": 86,
