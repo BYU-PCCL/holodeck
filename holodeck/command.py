@@ -169,29 +169,6 @@ class SpawnAgentCommand(Command):
         self.add_string_parameters(agent_type)
 
 
-class ChangeFogDensityCommand(Command):
-    """A command for changing the fog density in the world.
-
-    Args:
-        density (float): A value between 0 and 1.
-    """
-    def __init__(self, density):
-        super(ChangeFogDensityCommand, self).__init__()
-        self._command_type = "ChangeFogDensity"
-        self.set_density(density)
-
-    def set_density(self, density):
-        """Set the density for the fog.
-
-        Args:
-            density (float): A value between 0 and 1.
-        """
-        if density < 0 or density > 1:
-            print("Fog density should be between 0 and 1")
-            return
-        self.add_number_parameters(density)
-
-
 class DebugDrawCommand(Command):
 
     def __init__(self, draw_type, start, end, color, thickness):
@@ -213,98 +190,6 @@ class DebugDrawCommand(Command):
         self.add_number_parameters(end)
         self.add_number_parameters(color)
         self.add_number_parameters(thickness)
-
-
-class DayTimeCommand(Command):
-    """A command to change the time of day.
-
-    Args:
-        hour (int): The hour in military time, should be something between 0-23
-    """
-    def __init__(self, hour):
-        super(DayTimeCommand, self).__init__()
-        self._command_type = "DayTime"
-        self.set_hour(hour)
-
-    def set_hour(self, hour):
-        """Set the hour.
-
-        Args:
-            hour (int): The hour in military time, should be something between 0-23
-        """
-        if hour < 0 or hour > 23:
-            print("The hour should be in military time; between 0 and 23")
-            return
-        self.add_number_parameters(hour)
-
-
-class DayCycleCommand(Command):
-    """A command for turning on and off the day/night cycle.
-
-    Args:
-        start (bool): Whether to start or stop the day night cycle
-    """
-    def __init__(self, start):
-        super(DayCycleCommand, self).__init__()
-        self._command_type = "DayCycle"
-        self.set_command(start)
-
-    def set_day_length(self, day_length):
-        """Set the day length in minutes.
-        Positional Arguments:
-        hour -- The day length in minutes. Cannot be at or below 0
-        """
-        if day_length <= 0:
-            print("The day length should not be equal to or below 0")
-            return
-        self.add_number_parameters(day_length)
-
-    def set_command(self, start):
-        """Start or stop the command
-        Positional Arguments:
-        start -- Bool for whether to start(true) the day cycle or stop(false).
-        """
-        if start:
-            self.add_string_parameters("start")
-        else:
-            self.add_string_parameters("stop")
-
-
-class SetWeatherCommand(Command):
-    """A command to set the weather type.
-
-    Args:
-        weather_type (str): The weather type. Can be "rain" or "cloudy".
-    """
-    _types = [
-        "rain",
-        "cloudy"
-    ]
-
-    def __init__(self, weather_type):
-        Command.__init__(self)
-        self._command_type = "SetWeather"
-        self.set_type(weather_type)
-
-    def set_type(self, weather_type):
-        """Set the weather type.
-
-        Args:
-            weather_type (str): The weather type.
-        """
-        weather_type.lower()
-        exists = self.has_type(weather_type)
-        if exists:
-            self.add_string_parameters(weather_type)
-
-    @staticmethod
-    def has_type(weather_type):
-        """Checks the validity of the type. Returns true if it exists in the type array
-
-        Args:
-            weather_type (str): The weather type, should be one of the above array
-        """
-        return weather_type in SetWeatherCommand._types
 
 
 class TeleportCameraCommand(Command):
@@ -492,8 +377,8 @@ class CustomCommand(Command):
     def __init__(self, name, num_params=[], string_params=[]):
         """Send a custom command that is specific to the world in use.
         :param name: The name of the command, ex "OpenDoor"
-        :param num_params: List of number arbitrary parameters
-        :param string_params: List of string arbitrary parameters
+        :param num_params: List of arbitrary number parameters
+        :param string_params: List of arbitrary string parameters
         """
         Command.__init__(self)
         self.set_command_type("CustomCommand")
