@@ -407,16 +407,9 @@ class AgentFactory:
     @staticmethod
     def build_agent(client, agent_def):
         agent_sensors = dict()
-        has_task = False
         for sensor_def in agent_def.sensors:
             if not isinstance(sensor_def, SensorDefinition):
                 sensor_def = SensorDefinition(agent_def.name, None, sensor_def)
             agent_sensors[sensor_def.sensor_name] = SensorFactory.build_sensor(client, sensor_def)
-            if sensor_def.type is TaskSensor:
-                has_task = True
-
-        if not has_task:
-            agent_sensors["TaskSensor"] = SensorFactory.build_sensor(client, SensorDefinition(agent_def.name,
-                                                                                              "TaskSensor", TaskSensor))
 
         return agent_def.type(client, agent_def.name, agent_sensors)

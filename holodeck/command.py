@@ -164,7 +164,7 @@ class SpawnAgentCommand(Command):
         Args:
             agent_type (str or type): The type of agent to spawn.
         """
-        if not isinstance(str, agent_type):
+        if not isinstance(agent_type, str):
             agent_type = agent_type.agent_type  # Get str from type
         self.add_string_parameters(agent_type)
 

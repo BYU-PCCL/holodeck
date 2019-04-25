@@ -134,9 +134,6 @@ class HolodeckEnvironment(object):
         for _ in range(self._pre_start_steps + 1):
             self.tick()
 
-        for agent in self.agents:
-            self.set_ticks_per_capture(agent, self.agents[agent].get_ticks_per_capture())
-
         return self._default_state_fn()
 
     def step(self, action):
@@ -494,7 +491,7 @@ class HolodeckEnvironment(object):
         reward = None
         terminal = None
         for sensor in self._state_dict[self._agent.name]:
-            if sensor is "TaskSensor":
+            if "Task" in sensor:
                 reward = self._state_dict[self._agent.name][sensor][0]
                 terminal = self._state_dict[self._agent.name][sensor][1] == 1
 
