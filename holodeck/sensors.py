@@ -15,7 +15,7 @@ class HolodeckSensor(object):
 
     def set_sensor_enable(self, enable):
         command_to_send = SetSensorEnabledCommand(self.agent_name, self.name, enable)
-        self._client.command_center.enque_command(command_to_send)
+        self._client.command_center.enqueue_command(command_to_send)
 
     @property
     def sensor_data(self):
@@ -40,9 +40,22 @@ class HolodeckSensor(object):
         raise NotImplementedError("Child class must implement this property")
 
 
-class TaskSensor(HolodeckSensor):
+class DistanceTask(HolodeckSensor):
 
-    sensor_type = "TaskSensor"
+    sensor_type = "DistanceTask"
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [2]
+
+
+class FollowTask(HolodeckSensor):
+
+    sensor_type = "FollowTask"
 
     @property
     def dtype(self):
@@ -205,23 +218,24 @@ class PressureSensor(HolodeckSensor):
 
 
 class SensorDefinition(object):
-    __sensor_keys__ = {"RGBCamera": RGBCamera,
-                       "TaskSensor": TaskSensor,
-                       "ViewportCapture": ViewportCapture,
-                       "OrientationSensor": OrientationSensor,
-                       "IMUSensor": IMUSensor,
-                       "JointRotationSensor": JointRotationSensor,
-                       "RelativeSkeletalPositionSensor": RelativeSkeletalPositionSensor,
-                       "LocationSensor": LocationSensor,
-                       "RotationSensor": RotationSensor,
-                       "VelocitySensor": VelocitySensor,
-                       "PressureSensor": PressureSensor,
-                       "CollisionSensor": CollisionSensor}
+    _sensor_keys_ = {"RGBCamera": RGBCamera,
+                     "DistanceTask": DistanceTask,
+                     "FollowTask": FollowTask,
+                     "ViewportCapture": ViewportCapture,
+                     "OrientationSensor": OrientationSensor,
+                     "IMUSensor": IMUSensor,
+                     "JointRotationSensor": JointRotationSensor,
+                     "RelativeSkeletalPositionSensor": RelativeSkeletalPositionSensor,
+                     "LocationSensor": LocationSensor,
+                     "RotationSensor": RotationSensor,
+                     "VelocitySensor": VelocitySensor,
+                     "PressureSensor": PressureSensor,
+                     "CollisionSensor": CollisionSensor}
 
     def __init__(self, agent_name, sensor_name, sensor_type, socket=""):
         self.agent_name = agent_name
         self.sensor_name = sensor_name
-        self.type = SensorDefinition.__sensor_keys__[sensor_type] if isinstance(sensor_type, str) else sensor_type
+        self.type = SensorDefinition._sensor_keys_[sensor_type] if isinstance(sensor_type, str) else sensor_type
         self.socket = socket
 
 
