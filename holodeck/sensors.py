@@ -232,11 +232,13 @@ class SensorDefinition(object):
                      "PressureSensor": PressureSensor,
                      "CollisionSensor": CollisionSensor}
 
-    def __init__(self, agent_name, sensor_name, sensor_type, socket=""):
+    def __init__(self, agent_name, sensor_name, sensor_type, location=(0,0,0), rotation=(0,0,0), params=""):
         self.agent_name = agent_name
         self.sensor_name = sensor_name
         self.type = SensorDefinition._sensor_keys_[sensor_type] if isinstance(sensor_type, str) else sensor_type
-        self.socket = socket
+        self.location = location
+        self.rotation = rotation
+        self.params = params
 
 
 class SensorFactory(object):
