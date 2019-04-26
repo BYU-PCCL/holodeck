@@ -256,10 +256,7 @@ class SetSensorEnabledCommand(Command):
 class AddSensorCommand(Command):
     def __init__(self, sensor_definition):
         """Sets the command type to AddSensor and initializes the object.
-        :param agent: Name of the agent to add sensor to
-        :param sensor: Name of the sensor to add
-        :param sensor_type: Class name of the sensor to add
-        :param socket: Name of the socket. Default none
+        :param sensor_definition: Definition for sensor to add.
         """
         Command.__init__(self)
         self._command_type = "AddSensor"
