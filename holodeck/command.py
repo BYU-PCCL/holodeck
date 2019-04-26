@@ -267,6 +267,7 @@ class AddSensorCommand(Command):
         self.set_sensor(sensor_definition.sensor_name)
         self.set_type(sensor_definition.type.sensor_type)
         self.set_params(sensor_definition.params)
+        self.set_socket(sensor_definition.socket)
         self.set_location(sensor_definition.location)
         self.set_rotation(sensor_definition.rotation)
 
@@ -297,6 +298,13 @@ class AddSensorCommand(Command):
         sensor_params: Json string of sensor parameters
         """
         self.add_string_parameters(sensor_params)
+
+    def set_socket(self, sensor_socket):
+        """Set the sensor socket.
+        Positional Arguments:
+        sensor_socket: String representing name of the socket where sensor will be attached
+        """
+        self.add_string_parameters(sensor_socket)
 
     def set_location(self, sensor_location):
         """Set the sensor location.
