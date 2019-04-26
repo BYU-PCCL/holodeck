@@ -59,6 +59,7 @@ class HolodeckAgent(object):
         for _, sensor in sensors.items():
             self.agent_state_dict[sensor.name] = sensor.sensor_data
 
+
         self._num_control_schemes = len(self.control_schemes)
         self._max_control_scheme_length = max(map(lambda x: reduce(lambda i, j: i * j, x[1].buffer_shape),
                                                   self.control_schemes))
