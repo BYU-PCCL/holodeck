@@ -163,12 +163,13 @@ class HolodeckAgent(object):
             sensor_defs = [sensor_defs]
 
         for sensor_def in sensor_defs:
-            sensor = SensorFactory.build_sensor(self._client, sensor_def)
-            self.sensors[sensor_def.sensor_name] = sensor
-            self.agent_state_dict[sensor_def.sensor_name] = sensor.sensor_data
-            command_to_send = AddSensorCommand(self.name, sensor_def.sensor_name, sensor_def.type.sensor_type,
-                                               socket=sensor_def.socket)
-            self._client.command_center.enqueue_command(command_to_send)
+            if sensor_def.agent_name == self.name:
+                sensor = SensorFactory.build_sensor(self._client, sensor_def)
+                self.sensors[sensor_def.sensor_name] = sensor
+                self.agent_state_dict[sensor_def.sensor_name] = sensor.sensor_data
+
+                command_to_send = AddSensorCommand(sensor_def)
+                self._client.command_center.enqueue_command(command_to_send)
 
     def remove_sensors(self, sensor_defs):
         """Removes a sensor from a particular agent object and detaches it from the agent in the world.

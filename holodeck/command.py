@@ -254,47 +254,72 @@ class SetSensorEnabledCommand(Command):
 
 
 class AddSensorCommand(Command):
-    def __init__(self, agent, sensor, sensor_type, socket=""):
+    def __init__(self, sensor_definition):
         """Sets the command type to AddSensor and initializes the object.
-        :param agent: Name of the agent to add sensor to
-        :param sensor: Name of the sensor to add
-        :param sensor_type: Class name of the sensor to add
-        :param socket: Name of the socket. Default none
+        :param sensor_definition: Definition for sensor to add.
         """
         Command.__init__(self)
         self._command_type = "AddSensor"
-        self.set_agent(agent)
-        self.set_socket(socket)
-        self.set_sensor(sensor)
-        self.set_sensor_type(sensor_type)
+        self.set_agent(sensor_definition.agent_name)
+        self.set_sensor(sensor_definition.sensor_name)
+        self.set_type(sensor_definition.type.sensor_type)
+        self.set_params(sensor_definition.params)
+        self.set_socket(sensor_definition.socket)
+        self.set_location(sensor_definition.location)
+        self.set_rotation(sensor_definition.rotation)
 
     def set_agent(self, agent):
         """Set the agent name.
         Positional Arguments:
-        agent: String representing the name of the agent to add sensor to
+        agent: String representing the name of the agent to add sensor
         """
         self.add_string_parameters(agent)
-
-    def set_socket(self, socket):
-        """Set the socket name.
-        Positional Arguments:
-        sensor: String representing the name of the socket to add to
-        """
-        self.add_string_parameters(socket)
 
     def set_sensor(self, sensor):
         """Set the sensor name.
         Positional Arguments:
-        sensor: String representing the name of the sensor to be added
+        sensor: String representing the name of the sensor
         """
         self.add_string_parameters(sensor)
 
-    def set_sensor_type(self, sensor_type):
+    def set_type(self, sensor_type):
         """Set the sensor type.
         Positional Arguments:
-        sensor: String representing the class of the sensor add
+        sensor_type: String representing the class of the sensor
         """
         self.add_string_parameters(sensor_type)
+
+    def set_params(self, sensor_params):
+        """Set the sensor params.
+        Positional Arguments:
+        sensor_params: Json string of sensor parameters
+        """
+        self.add_string_parameters(sensor_params)
+
+    def set_socket(self, sensor_socket):
+        """Set the sensor socket.
+        Positional Arguments:
+        sensor_socket: String representing name of the socket where sensor will be attached
+        """
+        self.add_string_parameters(sensor_socket)
+
+    def set_location(self, sensor_location):
+        """Set the sensor location.
+        Positional Arguments:
+        sensor_location: Tuple of floats representing the location of the sensor
+        """
+        self.add_number_parameters(sensor_location[0])
+        self.add_number_parameters(sensor_location[1])
+        self.add_number_parameters(sensor_location[2])
+
+    def set_rotation(self, sensor_rotation):
+        """Set the sensor rotation.
+        Positional Arguments:
+        sensor_rotation: Tuple of floats representing the rotation of the sensor
+        """
+        self.add_number_parameters(sensor_rotation[0])
+        self.add_number_parameters(sensor_rotation[1])
+        self.add_number_parameters(sensor_rotation[2])
 
 
 class RemoveSensorCommand(Command):
