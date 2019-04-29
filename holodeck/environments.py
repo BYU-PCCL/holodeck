@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 from copy import copy
+import json
 
 from holodeck.command import *
 from holodeck.exceptions import HolodeckException
@@ -39,7 +40,7 @@ class HolodeckEnvironment(object):
 
     def __init__(self, agent_definitions=None, binary_path=None, task_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
-                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True):
+                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True, scenario='default/path'):
 
         if agent_definitions is None:
             agent_definitions = []
@@ -53,6 +54,7 @@ class HolodeckEnvironment(object):
         self._pre_start_steps = pre_start_steps
         self._copy_state = copy_state
         self._ticks_per_sec = ticks_per_sec
+        self._scenario_path = scenario
 
         # Start world based on OS
         if start_world:
@@ -78,14 +80,13 @@ class HolodeckEnvironment(object):
         # Spawn agents not yet in the world.
         # TODO implement this section for future build automation update
 
+        # Set the main agent
+        self._agent = None
+        if len(self.agents) > 0:
+            self._agent = self.agents[agent_definitions[0].name]
+
         # Set the default state function
         self.num_agents = len(self.agents)
-
-        # Set the main agent
-        if self.num_agents > 0:
-            self._agent = self.agents[agent_definitions[0].name]
-        else:
-            self._agent = None
 
         self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
@@ -125,6 +126,25 @@ class HolodeckEnvironment(object):
                 result.append("\n")
         return "".join(result)
 
+    def load_scenario(self):
+        with open(self._scenario_path) as file:
+            scenario = json.load(file)
+
+            for agent in scenario['agents']:
+                agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'])
+                self.spawn_agent(agent_def, agent['location'])
+                self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
+                sensors = []
+                for sensor in agent['sensors']:
+                    params = json.dumps(sensor['configuration'])
+                    params = params.replace("\"", "\\\"")
+                    sensors.append(SensorDefinition(agent['agent_name'], sensor['sensor_name'], sensor['sensor_type'],
+                                                    socket=sensor['socket'],
+                                                    location=sensor['location'],
+                                                    rotation=sensor['rotation'],
+                                                    params=params))
+                self.agents[agent['agent_name']].add_new_sensors(sensors)
+
     def reset(self):
         """Resets the environment, and returns the state.
         If it is a single agent environment, it returns that state for that agent. Otherwise, it returns a dict from
@@ -137,13 +157,10 @@ class HolodeckEnvironment(object):
         self._initial_reset = True
         self._reset_ptr[0] = True
         self._command_center.clear()
+        self.load_scenario()
 
         for _ in range(self._pre_start_steps + 1):
             self.tick()
-
-        for agent in self.agents:
-            if self.agents[agent].has_camera():
-                self.set_ticks_per_capture(agent, self.agents[agent].get_ticks_per_capture())
 
         return self._default_state_fn()
 
@@ -246,6 +263,8 @@ class HolodeckEnvironment(object):
             location (np.ndarray or list): The position to spawn the agent in the world, in XYZ coordinates (in meters).
         """
         self._add_agents(agent_definition)
+        if self._agent is None:
+            self._agent = self.agents[agent_definition.name]
         self._enqueue_command(SpawnAgentCommand(location, agent_definition.name, agent_definition.type.agent_type))
 
         if self._agent is None:

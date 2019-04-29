@@ -1,7 +1,6 @@
 """Module containing high level interface for loading environments."""
 import os
 import uuid
-import json
 from copy import copy
 
 from holodeck.environments import HolodeckEnvironment
@@ -22,27 +21,8 @@ class GL_VERSION(object):
     OPENGL3 = 3
 
 
-def make(world_name, scenario_path=None):
-    if scenario_path is None:
-        scenario_path = "default/path"  # TODO set to default path
-
-    env = make_world(world_name)
-
-    with open(scenario_path) as file:
-        scenario = json.load(file)
-
-        for agent in scenario['agents']:
-            agent_def = AgentDefinition(agent['name'], agent['type'])
-            env.spawn_agent(agent_def, agent['location'])
-            for sensor in agent['sensors']:
-                sensor_def = SensorDefinition(agent['name'], sensor['name'], sensor['type'], socket=sensor['socket'],
-                                              location=sensor['location'], rotation=sensor['rotation'],
-                                              params=sensor['params'])
-                env.agents[agent['name']].add_new_sensor(sensor_def)
-
-
-def make_world(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=None, verbose=False, show_viewport=True,
-         ticks_per_sec=30, copy_state=True):
+def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=None, verbose=False, show_viewport=True,
+               ticks_per_sec=30, copy_state=True, scenario='default/path'):
     """Creates a holodeck environment using the supplied world name.
 
     Args:
@@ -71,6 +51,7 @@ def make_world(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_r
     param_dict["show_viewport"] = show_viewport
     param_dict["copy_state"] = copy_state
     param_dict["ticks_per_sec"] = ticks_per_sec
+    param_dict["scenario"] = scenario
 
     if window_res is not None:
         param_dict["window_width"] = window_res[0]
