@@ -76,6 +76,7 @@ class HolodeckEnvironment(object):
         self.agents = dict()
         self._state_dict = dict()
         self._add_agents(agent_definitions)
+        self._initial_agents = self.agents
 
         # Spawn agents not yet in the world.
         # TODO implement this section for future build automation update
@@ -156,9 +157,17 @@ class HolodeckEnvironment(object):
         """
         self._initial_reset = True
         self._reset_ptr[0] = True
-        self._command_center.clear()
-        self.load_scenario()
 
+        if self._command_center.queue_size > 0:
+            print("Warning: Reset called before all commands could be sent. Discarding",
+                  self._command_center.queue_size, "commands.")
+        self._command_center.clear()
+
+        for _ in range(self._pre_start_steps + 1):
+            self.tick()
+
+        self.agents = self._initial_agents
+        self.load_scenario()
         for _ in range(self._pre_start_steps + 1):
             self.tick()
 
