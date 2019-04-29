@@ -8,3 +8,4 @@ worlds/
 build/
 env/
 venv/
+docs/_build

@@ -7,3 +7,4 @@ Package Manager
 
 .. automodule:: holodeck.packagemanager
     :members:
+    :special-members:
