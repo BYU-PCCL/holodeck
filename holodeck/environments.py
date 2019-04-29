@@ -37,9 +37,12 @@ class HolodeckEnvironment(object):
         HolodeckEnvironment: A holodeck environment object.
     """
 
-    def __init__(self, agent_definitions=[], binary_path=None, task_key=None, window_height=512, window_width=512,
+    def __init__(self, agent_definitions=None, binary_path=None, task_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
                  pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True):
+
+        if agent_definitions is None:
+            agent_definitions = []
 
         # Initialize variables
         self._window_height = window_height
