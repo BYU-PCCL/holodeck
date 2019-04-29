@@ -15,19 +15,20 @@
 import os
 import sys
 import guzzle_sphinx_theme
-sys.path.insert(0, os.path.abspath('.'))
 
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
 project = 'Holodeck'
-copyright = '2018, Joshua Greaves, Max Robinson, Nick Walton'
-author = 'Joshua Greaves, Max Robinson, Nick Walton'
+copyright = 'BYU PCCL'
+author = 'Joshua Greaves, Max Robinson, Nick Walton, Jayden Milne'
 
 # The short X.Y version
-version = '0.1.0'
+version = '0.2.0'
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = '0.2.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -83,9 +84,8 @@ pygments_style =  None
 # a list of builtin themes.
 #
 
-# For guzzle theme
-html_theme_path = guzzle_sphinx_theme.html_theme_path()
-html_theme = 'guzzle_sphinx_theme'
+# html_theme_path = guzzle_sphinx_theme.html_theme_path()
+html_theme = 'sphinx_rtd_theme'
 
 # Guzzle theme options (see theme.conf for more information)
 html_theme_options = {

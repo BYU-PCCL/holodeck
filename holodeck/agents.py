@@ -396,12 +396,7 @@ class TurtleAgent(HolodeckAgent):
 
 
 class AgentDefinition:
-    """A class for declaring what agents are expected or should be spawned in a particular holodeck Environment
-    Args:
-        agent_name (str): The name of the agent to control.
-        agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
-        sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of HolodeckSensors to read from this agent.
-         Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
+    """Keeps track of which 
     """
     _type_keys = {
         "SphereAgent": SphereAgent,
@@ -411,6 +406,13 @@ class AgentDefinition:
     }
 
     def __init__(self, agent_name, agent_type, sensors=None):
+        """
+        Args:
+            agent_name (str): The name of the agent to control.
+            agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
+            sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of HolodeckSensors to read from this agent.
+                Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
+        """
         self.sensors = sensors or list()
         self.name = agent_name
         self.type = AgentDefinition._type_keys[agent_type] if isinstance(agent_type, str) else agent_type
