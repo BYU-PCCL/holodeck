@@ -77,20 +77,20 @@ configuration file defines the worlds that are in that package, and defines the
     "platform":"{Linux | Windows}",
     "version":"{package_version}",
     "path" : "{path to binary within the archive}",
-    "maps": [  
-        "{map-objects}",
+    "worlds": [  
+        "{world-objects}",
     ]
 }
 ```
 
-### `map` object
-The `map` object defines the maps that are available in a package. 
+### `world` object
+The `world` object defines the worlds that are available in a package. 
 
-Here is an example of a complete map object
+Here is an example of a complete world object
 
 ```json
 {  
-    "name": "{map_name}",
+    "name": "{world_name}",
     "pre_start_steps": 2,
     "default_scenario": "{name of default scenario - eg Follow}"
 }
@@ -98,7 +98,7 @@ Here is an example of a complete map object
 
 ## Scenario Config File Format
 
-A map may have several different scenarios associated with it. The filename of 
+A world may have several different scenarios associated with it. The filename of 
 a scenario file distributed in a package must be `%WORLD_NAME%-%SCENARIO_NAME%.json`, 
 for example `UrbanCity-Follow.json`. The scenario defines the agents and tasks
  that should be spawned in the world when an object is created.
@@ -108,7 +108,7 @@ Here is the file format for a scenario:
 ```json
 {
     "name": "{Scenario Name}",
-    "world": "{Map it is associated with}",
+    "world": "{world it is associated with}",
 
     "agents":[
         "array of agent objects"

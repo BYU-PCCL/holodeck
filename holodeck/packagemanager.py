@@ -44,7 +44,7 @@ def available_packages():
         index = json.loads(index)
     except urllib.error.URLError as err:
         print("Unable to communicate with backend ({}), {}".format(url, err.reason), file=sys.stderr)
-        return
+        raise
 
     return index["packages"]
 
@@ -72,7 +72,7 @@ def package_info(pkg_name):
             print(indent, "Version:", config["version"])
             print(indent, "Path:", config["path"])
             print(indent, "Worlds:")
-            for world in config["maps"]:
+            for world in config["worlds"]:
                 world_info(world["name"], world_config=world, base_indent=4)
 
 
@@ -97,7 +97,7 @@ def world_info(world_name, world_config=None, base_indent=0):
     """
     if world_config is None:
         for config, _ in _iter_packages():
-            for world in config["maps"]:
+            for world in config["worlds"]:
                 if world["name"] == world_name:
                     world_config = world
 
@@ -117,9 +117,18 @@ def world_info(world_name, world_config=None, base_indent=0):
 
 
 def _find_file_in_worlds_dir(filename):
+    """
+    Recursively tries to find filename in the worlds directory of holodeck
+    Args:
+        filename: Pattern to try and match (fnmatch)
+
+    Returns: The path or an empty string if the file was not found
+
+    """
     for root, dirnames, filenames in os.walk(util.get_holodeck_path(), "worlds"):
         for match in fnmatch.filter(filenames, filename):
             return os.path.join(root, match)
+    return ""
 
 
 def scenario_info(world_name="", scenario_name="", scenario=None, base_indent=0):
@@ -141,8 +150,7 @@ def scenario_info(world_name="", scenario_name="", scenario=None, base_indent=0)
         if scenario_file == "":
             raise FileNotFoundError("The file {} could not be found".format(filename))
 
-        with open(scenario_file, 'r') as f:
-            scenario = json.load(f)
+        scenario = load_scenario_file(scenario_file)
 
     print(base_indent*' ', "{}-{}:".format(scenario["world"], scenario["name"]))
     base_indent += 2
@@ -194,6 +202,57 @@ def remove_all_packages():
     """Removes all holodeck packages."""
     for _, path in _iter_packages():
         shutil.rmtree(path)
+
+
+def load_scenario_file(scenario_path):
+    """
+    Loads the scenario config file and returns a dictionary containing the configuration
+    Args:
+        scenario_path (str): Path to the configuration file
+
+    Returns (dict): A dictionary containing the configuration file
+
+    """
+    with open(scenario_path, 'r') as f:
+        return json.load(f)
+
+
+def get_scenario(scenario_name):
+    """
+    Gets the scenario configuration associated with the given name
+    Args:
+        scenario_name (str): name of the configuration to load - eg "UrbanCity-Follow"
+                     Must be an exact match. Name must be unique among all installed packages
+
+    Returns (dict): A dictionary containing the configuration file
+
+    """
+    config_path = _find_file_in_worlds_dir(scenario_name + ".json")
+
+    if config_path == "":
+        raise FileNotFoundError("The file {} could not be found in {}".format(scenario_name + '.json', util.get_holodeck_path()))
+
+    return load_scenario_file(config_path)
+
+
+def get_package_config_for_scenario(scenario):
+    """
+    For the given scenario, returns the package config associated with it (config.json)
+    Args:
+        scenario (dict): scenario dict to look up the package for
+
+    Returns (dict): package configuration dictionary
+
+    """
+
+    world_name = scenario["world"]
+
+    for config, path in _iter_packages():
+        for world in config["worlds"]:
+            if world["name"] == world_name:
+                return config
+
+    raise HolodeckException("Could not find a package that contains world {}".format(world_name))
 
 
 def _iter_packages():
@@ -294,3 +353,5 @@ def _download_binary(binary_location, install_location, block_size=1000000):
     print("Finished.")
 
 
+scene = get_scenario("CyberPunkCity-Follow")
+config = get_package_config_for_scenario(scene)
