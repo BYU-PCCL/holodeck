@@ -351,7 +351,3 @@ def _download_binary(binary_location, install_location, block_size=1000000):
     with zipfile.ZipFile(tmp_fd, 'r') as zip_file:
         zip_file.extractall(install_location)
     print("Finished.")
-
-
-scene = get_scenario("CyberPunkCity-Follow")
-config = get_package_config_for_scenario(scene)
