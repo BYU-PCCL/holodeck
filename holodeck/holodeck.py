@@ -4,10 +4,8 @@ import uuid
 from copy import copy
 
 from holodeck.environments import HolodeckEnvironment
-from holodeck.agents import AgentDefinition
-from holodeck.sensors import SensorDefinition
 from holodeck.exceptions import HolodeckException
-from holodeck.packagemanager import _iter_packages
+from holodeck.packagemanager import _iter_packages, _iter_scenarios
 
 
 class GL_VERSION(object):
@@ -21,16 +19,15 @@ class GL_VERSION(object):
     OPENGL3 = 3
 
 
-def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=None, verbose=False, show_viewport=True,
-               ticks_per_sec=30, copy_state=True, scenario='default/path'):
+def make(scenario_name, gl_version=GL_VERSION.OPENGL4, window_res=None, verbose=False, show_viewport=True,
+         ticks_per_sec=30, copy_state=True):
     """Creates a holodeck environment using the supplied world name.
 
     Args:
-        world_name (str): The name of the world to load as an environment. Must match the name of a world in an
+        scenario_name (str): The name of the world to load as an environment. Must match the name of a world in an
             installed package.
         gl_version (int, optional): The OpenGL version to use (Linux only). Defaults to GL_VERSION.OPENGL4.
         window_res ((int, int), optional): The resolution to load the game window at. Defaults to (512, 512).
-        cam_res ((int, int), optional): The resolution to load the pixel camera sensors at. Defaults to (256, 256).
         verbose (bool, optional): Whether to run in verbose mode. Defaults to False.
         show_viewport (bool, optional): If the viewport window should be shown on-screen (Linux only). Defaults to True
         ticks_per_sec (int, optional): The number of frame ticks per unreal seconds. Defaults to 30.
@@ -39,11 +36,11 @@ def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=Non
         HolodeckEnvironment: A holodeck environment instantiated with all the settings necessary for the specified
             world, and other supplied arguments.
     """
-    holodeck_worlds = _get_worlds_map()
-    if world_name not in holodeck_worlds:
-        raise HolodeckException("Invalid World Name")
+    holodeck_scenarios = _get_scenarios_map()
+    if scenario_name not in holodeck_scenarios:
+        raise HolodeckException("Invalid Scenario Name")
 
-    param_dict = copy(holodeck_worlds[world_name])
+    param_dict = copy(holodeck_scenarios[scenario_name])
     param_dict["start_world"] = True
     param_dict["uuid"] = str(uuid.uuid4())
     param_dict["gl_version"] = gl_version
@@ -51,30 +48,24 @@ def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=Non
     param_dict["show_viewport"] = show_viewport
     param_dict["copy_state"] = copy_state
     param_dict["ticks_per_sec"] = ticks_per_sec
-    param_dict["scenario"] = scenario
 
     if window_res is not None:
         param_dict["window_width"] = window_res[0]
         param_dict["window_height"] = window_res[1]
 
-    if cam_res is not None:
-        param_dict["camera_width"] = cam_res[0]
-        param_dict["camera_height"] = cam_res[1]
-
     return HolodeckEnvironment(**param_dict)
 
 
-def _get_worlds_map():
+def _get_scenarios_map():
     holodeck_worlds = dict()
-    for config, path in _iter_packages():
-        for level in config["worlds"]:
-            holodeck_worlds[level["name"]] = {
-                "agent_definitions": [AgentDefinition(**x) for x in level["agents"]],
-                "binary_path": os.path.join(path, config["path"]),
-                "task_key": level["name"],
-                "window_height": level["window_height"],
-                "window_width": level["window_width"],
-                "camera_height": level["camera_height"],
-                "camera_width": level["camera_width"],
-                "pre_start_steps": level["pre_start_steps"]}
+    for pack_config, pack_path in _iter_packages():
+        for scenario_config in _iter_scenarios(pack_config["name"]):
+            scenario_key = pack_config["name"] + "-" + scenario_config["name"]
+
+            holodeck_worlds[scenario_key] = {
+                "binary_path": os.path.join(pack_path, pack_config["path"]),
+                "scenario_key": scenario_key,
+                "window_height": scenario_config["window_height"],
+                "window_width": scenario_config["window_width"]
+            }
     return holodeck_worlds

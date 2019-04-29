@@ -6,10 +6,10 @@ import atexit
 import os
 import subprocess
 import sys
-from copy import copy
+from copy import copy, deepcopy
 import json
 
-from holodeck.command import *
+from holodeck.packagemanager import get_scenario
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import *
@@ -22,7 +22,7 @@ class HolodeckEnvironment(object):
     Args:
         agent_definitions (list of :obj:`AgentDefinition`): Which agents to expect in the environment.
         binary_path (str, optional): The path to the binary to load the world from. Defaults to None.
-        task_key (str, optional): The name of the map within the binary to load. Defaults to None.
+        scenario_key (str, optional): The name of the map within the binary to load. Defaults to None.
         window_height (int, optional): The height to load the binary at. Defaults to 512.
         window_width (int, optional): The width to load the binary at. Defaults to 512.
         camera_height (int, optional): The height of all pixel camera sensors. Defaults to 256.
@@ -38,9 +38,9 @@ class HolodeckEnvironment(object):
         HolodeckEnvironment: A holodeck environment object.
     """
 
-    def __init__(self, agent_definitions=None, binary_path=None, task_key=None, window_height=512, window_width=512,
+    def __init__(self, agent_definitions=None, binary_path=None, scenario_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
-                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True, scenario='default/path'):
+                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True):
 
         if agent_definitions is None:
             agent_definitions = []
@@ -54,14 +54,14 @@ class HolodeckEnvironment(object):
         self._pre_start_steps = pre_start_steps
         self._copy_state = copy_state
         self._ticks_per_sec = ticks_per_sec
-        self._scenario_path = scenario
+        self._scenario_key = scenario_key
 
         # Start world based on OS
         if start_world:
             if os.name == "posix":
-                self.__linux_start_process__(binary_path, task_key, gl_version, verbose=verbose, show_viewport=show_viewport)
+                self.__linux_start_process__(binary_path, scenario_key, gl_version, verbose=verbose, show_viewport=show_viewport)
             elif os.name == "nt":
-                self.__windows_start_process__(binary_path, task_key, verbose=verbose)
+                self.__windows_start_process__(binary_path, scenario_key, verbose=verbose)
             else:
                 raise HolodeckException("Unknown platform: " + os.name)
 
@@ -76,7 +76,7 @@ class HolodeckEnvironment(object):
         self.agents = dict()
         self._state_dict = dict()
         self._add_agents(agent_definitions)
-        self._initial_agents = self.agents
+        self._initial_agents = deepcopy(self.agents)
 
         # Spawn agents not yet in the world.
         # TODO implement this section for future build automation update
@@ -128,23 +128,22 @@ class HolodeckEnvironment(object):
         return "".join(result)
 
     def load_scenario(self):
-        with open(self._scenario_path) as file:
-            scenario = json.load(file)
+        scenario = get_scenario(self._scenario_key)
 
-            for agent in scenario['agents']:
-                agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'])
-                self.spawn_agent(agent_def, agent['location'])
-                self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
-                sensors = []
-                for sensor in agent['sensors']:
-                    params = json.dumps(sensor['configuration'])
-                    params = params.replace("\"", "\\\"")
-                    sensors.append(SensorDefinition(agent['agent_name'], sensor['sensor_name'], sensor['sensor_type'],
-                                                    socket=sensor['socket'],
-                                                    location=sensor['location'],
-                                                    rotation=sensor['rotation'],
-                                                    params=params))
-                self.agents[agent['agent_name']].add_new_sensors(sensors)
+        for agent in scenario['agents']:
+            agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'])
+            self.spawn_agent(agent_def, agent['location'])
+            self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
+            sensors = []
+            for sensor in agent['sensors']:
+                params = json.dumps(sensor['configuration'])
+                params = params.replace("\"", "\\\"")
+                sensors.append(SensorDefinition(agent['agent_name'], sensor['sensor_name'], sensor['sensor_type'],
+                                                socket=sensor['socket'],
+                                                location=sensor['location'],
+                                                rotation=sensor['rotation'],
+                                                params=params))
+            self.agents[agent['agent_name']].add_new_sensors(sensors)
 
     def reset(self):
         """Resets the environment, and returns the state.
@@ -156,18 +155,16 @@ class HolodeckEnvironment(object):
                 For multi-agent environment, returns the same as `tick`.
         """
         self._initial_reset = True
+        self.agents = self._initial_agents
         self._reset_ptr[0] = True
 
         if self._command_center.queue_size > 0:
             print("Warning: Reset called before all commands could be sent. Discarding",
                   self._command_center.queue_size, "commands.")
+
         self._command_center.clear()
-
-        for _ in range(self._pre_start_steps + 1):
-            self.tick()
-
-        self.agents = self._initial_agents
         self.load_scenario()
+
         for _ in range(self._pre_start_steps + 1):
             self.tick()
 

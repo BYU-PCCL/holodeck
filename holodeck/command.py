@@ -133,7 +133,7 @@ class CommandCenter(object):
         """
         Returns:
             int: Size of commands queue"""
-        return self._commands
+        return self._commands.size
 
 
 class SpawnAgentCommand(Command):
