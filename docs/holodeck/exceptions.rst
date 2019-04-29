@@ -7,3 +7,4 @@ Exceptions
 
 .. automodule:: holodeck.exceptions
     :members:
+    :special-members:

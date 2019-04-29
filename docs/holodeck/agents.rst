@@ -7,3 +7,4 @@ Agents
 
 .. automodule:: holodeck.agents
     :members:
+    :special-members:

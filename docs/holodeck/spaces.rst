@@ -7,3 +7,4 @@ Spaces
 
 .. automodule:: holodeck.spaces
     :members:
+    :special-members:
