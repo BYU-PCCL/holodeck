@@ -165,7 +165,7 @@ def install(package_name, version=None):
         return
 
     if version is None:
-        # TODO: More robust verison parsing
+        # TODO: More robust version parsing
         version = max(packages[package_name])
 
     # example: %backend%/packages/0.1.0/DefaultWorlds/Linux/1.0.2.zip
