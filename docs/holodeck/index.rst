@@ -12,3 +12,4 @@ Holodeck
 
 .. automodule:: holodeck.holodeck
     :members:
+    :special-members:
