@@ -37,9 +37,12 @@ class HolodeckEnvironment(object):
         HolodeckEnvironment: A holodeck environment object.
     """
 
-    def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
+    def __init__(self, agent_definitions=None, binary_path=None, task_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
                  pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True):
+
+        if agent_definitions is None:
+            agent_definitions = []
 
         # Initialize variables
         self._window_height = window_height
@@ -75,11 +78,15 @@ class HolodeckEnvironment(object):
         # Spawn agents not yet in the world.
         # TODO implement this section for future build automation update
 
-        # Set the main agent
-        self._agent = self.agents[agent_definitions[0].name]
-
         # Set the default state function
         self.num_agents = len(self.agents)
+
+        # Set the main agent
+        if self.num_agents > 0:
+            self._agent = self.agents[agent_definitions[0].name]
+        else:
+            self._agent = None
+
         self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
         self._client.acquire()
@@ -157,14 +164,19 @@ class HolodeckEnvironment(object):
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .step()")
 
-        self._agent.act(action)
+        if self._agent is not None:
+            self._agent.act(action)
 
-        self._command_center.handle_buffer()
+            self._command_center.handle_buffer()
+            self._client.release()
+            self._client.acquire()
+            return self._get_single_state()
 
-        self._client.release()
-        self._client.acquire()
-
-        return self._get_single_state()
+        else:
+            self._command_center.handle_buffer()
+            self._client.release()
+            self._client.acquire()
+            return self._get_full_state()
 
     def teleport(self, agent_name, location=None, rotation=None):
         """Teleports the target agent to any given location, and applies a specific rotation.
@@ -235,6 +247,9 @@ class HolodeckEnvironment(object):
         """
         self._add_agents(agent_definition)
         self._enqueue_command(SpawnAgentCommand(location, agent_definition.name, agent_definition.type.agent_type))
+
+        if self._agent is None:
+            self._agent = self.agents[agent_definition.name]
 
     def set_ticks_per_capture(self, agent_name, ticks_per_capture):
         """Queues a rgb camera rate command. It will be applied when `tick` or `step` is called next.
