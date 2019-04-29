@@ -64,7 +64,7 @@ def make(world_name, gl_version=GL_VERSION.OPENGL4, window_res=None, cam_res=Non
 def _get_worlds_map():
     holodeck_worlds = dict()
     for config, path in _iter_packages():
-        for level in config["maps"]:
+        for level in config["worlds"]:
             holodeck_worlds[level["name"]] = {
                 "agent_definitions": [AgentDefinition(**x) for x in level["agents"]],
                 "binary_path": os.path.join(path, config["path"]),
