@@ -361,12 +361,9 @@ class RGBCameraRateCommand(Command):
 
 class RenderQualityCommand(Command):
     def __init__(self, render_quality):
-        """Adjusts the rendering quality of Holodeck.
-        :param render_quality: An integer between 0 and 3.
-                                    0 = low
-                                    1 = medium
-                                    2 = high
-                                    3 = epic
+        """Adjusts the rendering quality of Holodeck
+        Args:
+            render_quality (int): 0 = low, 1 = medium, 3 = high, 3 = epic
         """
         Command.__init__(self)
         self.set_command_type("AdjustRenderQuality")
