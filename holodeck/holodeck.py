@@ -7,8 +7,6 @@ from holodeck.environments import HolodeckEnvironment, AgentDefinition
 from holodeck.exceptions import HolodeckException
 from holodeck.packagemanager import _iter_packages
 
-print("Yee haw")
-
 class GL_VERSION(object):
     """OpenGL Version enum.
 
