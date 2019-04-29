@@ -164,6 +164,7 @@ All coordinates are right handed. Note that the coordinates are
 ```json
 {
     "sensor_type": "RGBCamera",
+    "sensor_name": "FrontCamera",
     "location": [1.0, 2.0, 3.0],
     "rotation": [1.0, 2.0, 3.0],
     "socket": "socket name or """,
