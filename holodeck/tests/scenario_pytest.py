@@ -1,7 +1,6 @@
 import holodeck
 from holodeck.packagemanager import load_config
 from holodeck.tests.test_utils import *
-from copy import deep copy
 
 
 scenario_list = ["MazeWorld-default", "AndroidPlayground-default", "CyberPunkCity-default", 
