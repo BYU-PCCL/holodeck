@@ -7,22 +7,30 @@ import math
 
 editor_test = True
 
+# LHS Version
+def eulerAnglesToRotationMatrix(theta):
+    theta = np.copy(np.array(theta))
+    theta[0] *= -1
+    theta[2] *= -1
 
-def rot_matrix_to_euler_angles(R):
-    sy = math.sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
+    R_x = np.array([[1, 0, 0],
+                    [0, math.cos(theta[0]), -math.sin(theta[0])],
+                    [0, math.sin(theta[0]), math.cos(theta[0])]
+                    ])
 
-    singular = sy < 1e-6
+    R_y = np.array([[math.cos(theta[1]), 0, math.sin(theta[1])],
+                    [0, 1, 0],
+                    [-math.sin(theta[1]), 0, math.cos(theta[1])]
+                    ])
 
-    if not singular:
-        x = math.atan2(R[2, 1], R[2, 2])
-        y = math.atan2(-R[2, 0], sy)
-        z = math.atan2(R[1, 0], R[0, 0])
-    else:
-        x = math.atan2(-R[1, 2], R[1, 1])
-        y = math.atan2(-R[2, 0], sy)
-        z = 0
+    R_z = np.array([[math.cos(theta[2]), -math.sin(theta[2]), 0],
+                    [math.sin(theta[2]), math.cos(theta[2]), 0],
+                    [0, 0, 1]
+                    ])
 
-    return np.array([x, y, z])
+    R = np.dot(R_z, np.dot(R_y, R_x))
+
+    return R
 
 
 def test_sensor_coords():
@@ -46,7 +54,7 @@ def test_sensor_coords():
     assert almost_equal(loc, sensed_loc)
 
     # Test teleport units
-    loc = [138, 303, 10560]
+    loc = [138, 303, 902]
     env.teleport("uav0", loc)
     state = env.tick()
     sensed_loc = state["uav0"]["LocationSensor"]
@@ -54,14 +62,15 @@ def test_sensor_coords():
 
     # Test teleport and rotate and units
     loc = [123, 3740, 1030]
-    rot = [1,6,4]
-    env.teleport("uav0", loc, rot)
+    rot_deg = np.array([0, 0, 90])
+    rot_rad = rot_deg * math.pi / 180.0
+    rot_matrix = eulerAnglesToRotationMatrix(rot_rad)
+    env.teleport("uav0", loc, rot_deg)
     state = env.tick()
     sensed_loc = state["uav0"]["LocationSensor"]
     sensed_rot = state["uav0"]["OrientationSensor"]
-    sensed_rot = rot_matrix_to_euler_angles(sensed_rot)
     assert almost_equal(loc, sensed_loc)
-    assert almost_equal(rot, sensed_rot)
+    assert almost_equal(rot_matrix, sensed_rot)
 
     print("done")
 
