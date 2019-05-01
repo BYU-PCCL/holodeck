@@ -1,3 +1,5 @@
+.. _packagemanager:
+
 Package Manager
 ===============
 

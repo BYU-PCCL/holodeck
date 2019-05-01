@@ -21,6 +21,7 @@ backend_url = "https://s3.amazonaws.com/holodeckworlds/"
 def _get_from_backend(rel_url):
     """
     Gets the resource given at rel_url, assumes it is a text file
+    
     Args:
         rel_url (str): url relative to backend_url to fetch
 
@@ -106,7 +107,6 @@ def world_info(world_name, world_config=None, base_indent=0):
 
     print(base_indent*' ', world_config["name"])
     base_indent += 4
-    print(base_indent*' ', "Resolution:", world_config["window_width"], "x", world_config["window_height"])
 
     if "agents" in world_config:
         _print_agent_info(world_config["agents"], base_indent)
@@ -119,8 +119,9 @@ def world_info(world_name, world_config=None, base_indent=0):
 def _find_file_in_worlds_dir(filename):
     """
     Recursively tries to find filename in the worlds directory of holodeck
+
     Args:
-        filename: Pattern to try and match (fnmatch)
+        filename (str): Pattern to try and match (fnmatch)
 
     Returns: The path or an empty string if the file was not found
 
@@ -131,12 +132,11 @@ def _find_file_in_worlds_dir(filename):
     return ""
 
 
-def scenario_info(world_name="", scenario_name="", scenario=None, base_indent=0):
+def scenario_info(scenario_name="", scenario=None, base_indent=0):
     """Gets and prints information for a particular scenario file
-    Must match this format: world_name-scenario_name.json
+    Must match this format: scenario_name.json
 
     Args:
-        world_name (str): The name of the world
         scenario_name (str): The name of the scenario
         scenario: Loaded dictionary config (overrides world_name and scenario_name)
         base_indent: How much to indent output by
@@ -144,7 +144,7 @@ def scenario_info(world_name="", scenario_name="", scenario=None, base_indent=0)
     scenario_file = ""
     if scenario is None:
         # Find this file in the worlds/ directory
-        filename = '{}-{}.json'.format(world_name, scenario_name)
+        filename = '{}.json'.format(scenario_name)
         scenario_file = _find_file_in_worlds_dir(filename)
 
         if scenario_file == "":
@@ -207,6 +207,7 @@ def remove_all_packages():
 def load_scenario_file(scenario_path):
     """
     Loads the scenario config file and returns a dictionary containing the configuration
+
     Args:
         scenario_path (str): Path to the configuration file
 
@@ -218,11 +219,11 @@ def load_scenario_file(scenario_path):
 
 
 def get_scenario(scenario_name):
-    """
-    Gets the scenario configuration associated with the given name
+    """Gets the scenario configuration associated with the given name
+
     Args:
         scenario_name (str): name of the configuration to load - eg "UrbanCity-Follow"
-                     Must be an exact match. Name must be unique among all installed packages
+            Must be an exact match. Name must be unique among all installed packages
 
     Returns (dict): A dictionary containing the configuration file
 

@@ -7,8 +7,9 @@ Welcome to Holodeck's documentation!
    :caption: Holodeck Documentation
    
    usage/installation
-   usage/gettingstarted
-   usage/examples
+   usage/getting-started
+   packages/packages
+   agents/agents
    changelog/changelog
 
 .. toctree::

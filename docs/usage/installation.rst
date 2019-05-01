@@ -1,9 +1,11 @@
+.. _installation:
+
 ============
 Installation
 ============
 
-Holodeck is installed in two portions: a client python library (holodeck) is 
-installed first, which downloads world packages. The python portion is very 
+Holodeck is installed in two portions: a client python library (``holodeck``) is 
+installed first, which then downloads world packages. The python portion is very 
 small, while the world packages ("binaries") can be several gigabytes.
 
 Requirements
@@ -11,26 +13,175 @@ Requirements
 
 - Python 3
 - Several gigabytes of storage
-- Pip3
+- pip3
 - Linux: OpenGL 3+
 
-Install Client via Pip
+Install Client via pip
 ======================
 
 The latest stable Holodeck package is available in a pip repository:
 
 ``pip install holodeck``
 
-Install Client via Git
+Install Client via git
 =======================
 
 To use the latest version of Holodeck, you can install and use Holodeck simply by 
 cloning the `BYU-PCCL/holodeck`_ repository, and ensuring it is on your ``sys.path``.
 
-.. TODO: Tag different commits in GitHub so users can easily clone specific versions of Holodeck
-
-
 .. _`BYU-PCCL/holodeck`: https://github.com/BYU-PCCL/holodeck
 
-Install World Packages
-======================
+The ``master`` branch is kept in sync with the pip repository, the ``develop`` branch
+is the bleeding edge of development.
+
+.. TODO: Tag different commits in GitHub so users can easily clone specific versions of Holodeck
+
+Docker Installation
+===================
+
+Holodeck's docker image is only supported on Linux hosts.
+
+You will need ``nvidia-docker`` installed.
+
+The repository on DockerHub is `pccl/holodeck`_.
+
+Currently the following tags are availible:
+
+- ``ubuntu18.04-with-worlds`` 
+- ``ubuntu18.04-without-worlds``
+- ``ubuntu16.04-without-worlds``
+- ``ubuntu16.04-with-worlds``
+
+.. _`pccl/holodeck`: https://hub.docker.com/r/pccl/holodeck
+
+.. note::
+   Holodeck cannot be run with root privileges, so the user ``holodeckuser`` with  
+   password ``holodeck`` is provided in the docker image.
+
+Managing World Packages
+=======================
+
+The ``holodeck`` python package includes a :ref:`packagemanager` that is used to
+download and install world packages. Below are some example usages, but see 
+:ref:`packagemanager` for complete documentation.
+
+Install a Package Automatically
+-------------------------------
+::
+
+   >>> from holodeck import packagemanager
+   >>> packagemanager.installed_packages()
+   []
+   >>> packagemanager.available_packages()
+   {'DefaultWorlds': ['0.1.0', '0.1.1'], 'MoveBox': ['0.0.1']}
+   >>> packagemanager.install("DefaultWorlds")
+   Installing DefaultWorlds ver. 0.1.1 from http://localhost:8080/packages/0.2.0/DefaultWorlds/Linux/0.1.1.zip
+   File size: 1.55 GB
+   |████████████████████████| 100%
+   Unpacking worlds...
+   Finished.
+   >>> packagemanager.installed_packages()
+   ['DefaultWorlds']
+
+.. _installation-location:
+
+Installation Location
+---------------------
+
+Holodeck packages are by default saved in the current user profile, depending on
+the platform. 
+
+========== =======================================================
+ Platform   Location
+========== =======================================================
+Linux      ``~/.local/share/holodeck/{holodeck_version}/worlds/``
+Windows    ``~\AppData\Local\holodeck\{holodeck_version}\worlds``
+========== =======================================================
+
+The environment variable ``HOLODECKPATH`` can be set to override this location.
+
+Note that the packages are saved in different subfolders based on the version of
+Holodeck. This allows multiple versions of Holodeck to coexist, without causing
+version incompatibility conflicts. 
+
+.. caution::
+   If ``HOLODECKPATH`` is used, it will override
+   this version partitioning, so ensure that ``HOLODECKPATH`` only points to packages
+   that are compatible with your version of Holodeck.
+
+Manually Installing a Package
+-----------------------------
+
+To manually install a package, you will be provided a ``.zip`` file. 
+Simply extract it into the ``worlds`` folder in your
+Holodeck installation location (see :ref:`installation-location`)
+
+.. note::
+
+   Ensure that the file structure is as follows:
+
+   ::
+
+      + worlds
+      +-- YourManuallyInstalledPackage
+      |   +-- config.json
+      |    +-- etc...
+      +-- AnotherPackage
+      |   +-- config.json
+      |   +-- etc...
+
+   Not
+
+   ::
+
+      + worlds
+      +-- YourManuallyInstalledPackage
+      |   +-- YourManuallyInstalledPackage
+      |       +-- config.json
+      |   +-- etc...
+      +-- AnotherPackage
+      |   +-- config.json
+      |   +-- etc...
+
+Print Information
+-----------------
+
+There are several convenience functions provided to allow packages, worlds, and
+scenarios to be easily inspected.
+
+::
+
+   >>> packagemanager.package_info("DefaultWorlds")
+   Package: DefaultWorlds
+      Platform: Linux
+      Version: 1.04
+      Path: LinuxNoEditor/Holodeck/Binaries/Linux/Holodeck
+      Worlds:
+      UrbanCity
+            Scenarios:
+            UrbanCity-Follow:
+               Agents:
+                  Name: ThisIsAScenario
+                  Type: UavAgent
+                  Sensors:
+                  RGBCamera
+                  OrientationSensor
+                  LocationSensor
+      CyberPunkCity
+            Scenarios:
+            CyberPunkCity-Follow:
+               Agents:
+                  Name: ThisIsAScenario
+                  Type: UavAgent
+                  Sensors:
+                  RGBCamera
+                  OrientationSensor
+                  LocationSensor
+
+
+You can also look for information for a specific world or scenario
+
+::
+
+   packagemanager.world_info("UrbanCity")
+   packagemanager.scenario_info("UrbanCity-Follow")
