@@ -355,7 +355,7 @@ class HolodeckEnvironment(object):
         """Queue up a custom set weather command. It will be applied when `tick` or `step` is called next.
         By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
         to the given weather. If there is no skysphere, skylight, or directional source light in the world, this command
-         will fail silently.
+        will fail silently.
 
         NOTE: Because this command can effect the fog density, any changes made by a change_fog_density command before
         a set_weather command called will be undone. It is recommended to call change_fog_density after calling set
@@ -387,11 +387,7 @@ class HolodeckEnvironment(object):
     def set_render_quality(self, render_quality):
         """Adjusts the rendering quality of Holodeck. 
         Args:
-            render_quality (int): An integer between 0 and 3. 
-                                    0 = low
-                                    1 = medium
-                                    2 = high
-                                    3 = epic
+            render_quality (int): An integer between 0 = Low Quality and 3 = Epic quality. 
         """
         self._enqueue_command(RenderQualityCommand(render_quality))
 

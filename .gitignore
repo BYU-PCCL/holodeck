@@ -5,6 +5,7 @@
 .vscode/
 .tflogs/
 worlds/
+!docs/worlds
 build/
 env/
 venv/

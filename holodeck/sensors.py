@@ -4,7 +4,8 @@ from holodeck.command import *
 
 
 class HolodeckSensor(object):
-
+    """Base class for a sensor in Holodeck
+    """
     def __init__(self, client, agent_name=None, name="DefaultSensor", custom_shape=None):
         self.name = name
         self._client = client
