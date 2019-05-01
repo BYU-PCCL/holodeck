@@ -86,7 +86,6 @@ class HolodeckEnvironment(object):
 
         # Set the default state function
         self.num_agents = len(self.agents)
-
         self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
         self._client.acquire()
@@ -171,6 +170,9 @@ class HolodeckEnvironment(object):
         if self._scenario_path is not None or self._scenario_key is not None:
             self.load_scenario()
 
+        self.num_agents = len(self.agents)
+        self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
+
         for _ in range(self._pre_start_steps + 1):
             self.tick()
 
@@ -196,43 +198,12 @@ class HolodeckEnvironment(object):
         if self._agent is not None:
             self._agent.act(action)
 
-            self._command_center.handle_buffer()
-            self._client.release()
-            self._client.acquire()
-            return self._get_single_state()
-
-        else:
-            self._command_center.handle_buffer()
-            self._client.release()
-            self._client.acquire()
-            return self._get_full_state()
-
-    def teleport(self, agent_name, location=None, rotation=None):
-        """Teleports the target agent to any given location, and applies a specific rotation.
-
-        Args:
-            agent_name (str): The name of the agent to teleport.
-            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
-                If no location is given, it isn't teleported, but may still be rotated. Defaults to None.
-            rotation (np.ndarray or list): A new rotation target for the agent.
-                If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
-        """
-        self.agents[agent_name].teleport(location, rotation)
-        self.tick()
-
-    def set_state(self, agent_name, location, rotation, velocity, angular_velocity):
-        """Sets a new state for any agent given a location, rotation and linear and angular velocity. Will sweep and be
-        blocked by objects in it's way however
-
-        Args:
-            agent_name (str): The name of the agent to teleport.
-            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
-            rotation (np.ndarray or list): A new rotation target for the agent.
-            velocity (np.ndarray or list): A new velocity for the agent.
-            angular velocity (np.ndarray or list): A new angular velocity for the agent.
-        """
-        self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
-        return self.tick()
+        self._command_center.handle_buffer()
+        self._client.release()
+        self._client.acquire()
+        
+        reward, terminal = self._get_reward_terminal()
+        return self._default_state_fn(), reward, terminal, None
 
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
@@ -261,7 +232,36 @@ class HolodeckEnvironment(object):
 
         self._client.release()
         self._client.acquire()
-        return self._get_full_state()
+
+        reward, terminal = self._get_reward_terminal()
+        return self._default_state_fn()
+
+    def teleport(self, agent_name, location=None, rotation=None):
+        """Teleports the target agent to any given location, and applies a specific rotation.
+
+        Args:
+            agent_name (str): The name of the agent to teleport.
+            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
+                If no location is given, it isn't teleported, but may still be rotated. Defaults to None.
+            rotation (np.ndarray or list): A new rotation target for the agent.
+                If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
+        """
+        self.agents[agent_name].teleport(location, rotation)
+        self.tick()
+
+    def set_state(self, agent_name, location, rotation, velocity, angular_velocity):
+        """Sets a new state for any agent given a location, rotation and linear and angular velocity. Will sweep and be
+        blocked by objects in it's way however
+
+        Args:
+            agent_name (str): The name of the agent to teleport.
+            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
+            rotation (np.ndarray or list): A new rotation target for the agent.
+            velocity (np.ndarray or list): A new velocity for the agent.
+            angular velocity (np.ndarray or list): A new angular velocity for the agent.
+        """
+        self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
+        return self.tick()
 
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
@@ -538,19 +538,23 @@ class HolodeckEnvironment(object):
         self.__on_exit__()
 
     def _get_single_state(self):
+        state = self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
+            else self._state_dict[self._agent.name]
+        return state
+
+    def _get_full_state(self):
+        return self._create_copy(self._state_dict) if self._copy_state else self._state_dict
+
+    def _get_reward_terminal(self):
+        if self._agent is None:
+            return 0, 0
         reward = None
         terminal = None
         for sensor in self._state_dict[self._agent.name]:
             if "Task" in sensor:
                 reward = self._state_dict[self._agent.name][sensor][0]
                 terminal = self._state_dict[self._agent.name][sensor][1] == 1
-
-        state = self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
-            else self._state_dict[self._agent.name]
-        return state, reward, terminal, None
-
-    def _get_full_state(self):
-        return self._create_copy(self._state_dict) if self._copy_state else self._state_dict
+        return reward, terminal
 
     def _create_copy(self, obj):
         if isinstance(obj, dict):  # Deep copy dictionary

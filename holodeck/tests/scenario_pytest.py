@@ -6,7 +6,9 @@ from holodeck.tests.test_utils import *
 # scenario_list = ["MazeWorld-default", "AndroidPlayground-default", "CyberPunkCity-default", 
 #                  "EuropeanForest-default", "InfiniteForest-default", "RedwoodForest-default", 
 #                  "UrbanCity-default"]
-scenario_list = ["AndroidPlayground-default"]
+scenario_list = ["AndroidPlayground-default", "CyberPunkCity-default", 
+                  "EuropeanForest-default", "RedwoodForest-default", 
+                  "UrbanCity-default"]
 
 def test_loading():
     for scenario_name in scenario_list:
@@ -45,7 +47,7 @@ def test_reset():
             env.tick()
             state = env.reset()
 
-            assert state_almost_equal(init_state, state)
+            assert state_almost_equal(init_state, state, 0.9)
             assert agent_count == len(env.agents)
             assert sensor_count == sum([len(env.agents[agent].sensors) for agent in env.agents])
 
@@ -53,7 +55,7 @@ def test_reset():
 
 
 def test_sensors():	
-    num_ticks = 5
+    num_ticks = 50
 
     for scenario_name in scenario_list:
         
@@ -64,8 +66,10 @@ def test_sensors():
 
         for _ in range(num_ticks):
             state = env.tick()
+        print(init_state)
+        print(state)
 
-        if isinstance(state[next(iter(state))], dict):
+        if is_full_state(state):
             for agent in state:
                 for sensor in state[agent]:
                     # Sensor values should change after ticks
