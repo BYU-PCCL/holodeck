@@ -14,7 +14,6 @@
 
 import os
 import sys
-import guzzle_sphinx_theme
 
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
@@ -47,7 +46,6 @@ extensions = [
     'sphinx.ext.imgmath',
     'sphinx.ext.ifconfig',
     'sphinx.ext.napoleon',
-    'guzzle_sphinx_theme'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -84,13 +82,9 @@ pygments_style =  None
 # a list of builtin themes.
 #
 
-# html_theme_path = guzzle_sphinx_theme.html_theme_path()
 html_theme = 'sphinx_rtd_theme'
 
-# Guzzle theme options (see theme.conf for more information)
 html_theme_options = {
-    # Set the name of the project to appear in the sidebar
-    # "project_nav_name": " Holodeck",
 }
 
 # Theme options are theme-specific and customize the look and feel of a theme
