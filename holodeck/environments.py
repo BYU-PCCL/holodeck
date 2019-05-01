@@ -6,10 +6,10 @@ import atexit
 import os
 import subprocess
 import sys
-from copy import copy, deepcopy
+from copy import copy
 import json
 
-from holodeck.packagemanager import get_scenario
+from holodeck.packagemanager import get_scenario, load_scenario_file
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import *
@@ -40,7 +40,7 @@ class HolodeckEnvironment(object):
 
     def __init__(self, agent_definitions=None, binary_path=None, scenario_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
-                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True):
+                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True, scenario_path=None):
 
         if agent_definitions is None:
             agent_definitions = []
@@ -55,6 +55,8 @@ class HolodeckEnvironment(object):
         self._copy_state = copy_state
         self._ticks_per_sec = ticks_per_sec
         self._scenario_key = scenario_key
+        self._scenario_path = scenario_path
+        self._initial_agents = agent_definitions
 
         # Start world based on OS
         if start_world:
@@ -76,15 +78,11 @@ class HolodeckEnvironment(object):
         # Set up agents already in the world
         self.agents = dict()
         self._state_dict = dict()
-        self._add_agents(agent_definitions)
+        self._agent = None
+        self._load_existing_agents(agent_definitions)
 
         # Spawn agents not yet in the world.
         # TODO implement this section for future build automation update
-
-        # Set the main agent
-        self._agent = None
-        if len(self.agents) > 0:
-            self._agent = self.agents[agent_definitions[0].name]
 
         # Set the default state function
         self.num_agents = len(self.agents)
@@ -128,7 +126,10 @@ class HolodeckEnvironment(object):
         return "".join(result)
 
     def load_scenario(self):
-        scenario = get_scenario(self._scenario_key)
+        if self._scenario_path is None:
+            scenario = get_scenario(self._scenario_key)
+        else:
+            scenario = load_scenario_file(self._scenario_path)
 
         for agent in scenario['agents']:
             agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'])
@@ -156,15 +157,19 @@ class HolodeckEnvironment(object):
         """
         self._initial_reset = True
         self._reset_ptr[0] = True
+        self.tick()  # Must tick once to send reset before sending spawning commands
 
         if self._command_center.queue_size > 0:
             print("Warning: Reset called before all commands could be sent. Discarding",
                   self._command_center.queue_size, "commands.")
-
         self._command_center.clear()
+
         self.agents = dict()
         self._state_dict = dict()
-        self.load_scenario()
+        self._load_existing_agents(self._initial_agents)
+
+        if self._scenario_path is not None or self._scenario_key is not None:
+            self.load_scenario()
 
         for _ in range(self._pre_start_steps + 1):
             self.tick()
@@ -557,6 +562,14 @@ class HolodeckEnvironment(object):
                     cp[k] = np.copy(v)
             return cp
         return None  # Not implemented for other types
+
+    def _load_existing_agents(self, agent_definitions):
+        self._add_agents(agent_definitions)
+
+        # Set the main agent
+        self._agent = None
+        if len(self.agents) > 0:
+            self._agent = self.agents[agent_definitions[0].name]
 
     def _add_agents(self, agent_definitions):
         """Add specified agents to the client. Set up their shared memory and sensor linkages.
