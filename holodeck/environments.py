@@ -58,10 +58,11 @@ class HolodeckEnvironment(object):
 
         # Start world based on OS
         if start_world:
+            world_key = scenario_key.split("-")[0]
             if os.name == "posix":
-                self.__linux_start_process__(binary_path, scenario_key, gl_version, verbose=verbose, show_viewport=show_viewport)
+                self.__linux_start_process__(binary_path, world_key, gl_version, verbose=verbose, show_viewport=show_viewport)
             elif os.name == "nt":
-                self.__windows_start_process__(binary_path, scenario_key, verbose=verbose)
+                self.__windows_start_process__(binary_path, world_key, verbose=verbose)
             else:
                 raise HolodeckException("Unknown platform: " + os.name)
 
@@ -76,7 +77,6 @@ class HolodeckEnvironment(object):
         self.agents = dict()
         self._state_dict = dict()
         self._add_agents(agent_definitions)
-        self._initial_agents = deepcopy(self.agents)
 
         # Spawn agents not yet in the world.
         # TODO implement this section for future build automation update
@@ -155,7 +155,6 @@ class HolodeckEnvironment(object):
                 For multi-agent environment, returns the same as `tick`.
         """
         self._initial_reset = True
-        self.agents = self._initial_agents
         self._reset_ptr[0] = True
 
         if self._command_center.queue_size > 0:
@@ -163,6 +162,8 @@ class HolodeckEnvironment(object):
                   self._command_center.queue_size, "commands.")
 
         self._command_center.clear()
+        self.agents = dict()
+        self._state_dict = dict()
         self.load_scenario()
 
         for _ in range(self._pre_start_steps + 1):

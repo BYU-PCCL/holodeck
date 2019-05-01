@@ -5,7 +5,7 @@ from copy import copy
 
 from holodeck.environments import HolodeckEnvironment
 from holodeck.exceptions import HolodeckException
-from holodeck.packagemanager import _iter_packages, _iter_scenarios
+from holodeck.packagemanager import _iter_packages, _iter_scenarios, get_scenario, get_world_path
 
 
 class GL_VERSION(object):
@@ -36,11 +36,14 @@ def make(scenario_name, gl_version=GL_VERSION.OPENGL4, window_res=None, verbose=
         HolodeckEnvironment: A holodeck environment instantiated with all the settings necessary for the specified
             world, and other supplied arguments.
     """
-    holodeck_scenarios = _get_scenarios_map()
-    if scenario_name not in holodeck_scenarios:
-        raise HolodeckException("Invalid Scenario Name")
+    scenario = get_scenario(scenario_name)
+    binary_path = get_world_path(scenario_name)
 
-    param_dict = copy(holodeck_scenarios[scenario_name])
+    param_dict = dict()
+    param_dict["binary_path"] = binary_path
+    param_dict["scenario_key"] = scenario_name
+    param_dict["window_height"] = scenario["window_height"]
+    param_dict["window_width"] = scenario["window_width"]
     param_dict["start_world"] = True
     param_dict["uuid"] = str(uuid.uuid4())
     param_dict["gl_version"] = gl_version
@@ -54,18 +57,3 @@ def make(scenario_name, gl_version=GL_VERSION.OPENGL4, window_res=None, verbose=
         param_dict["window_height"] = window_res[1]
 
     return HolodeckEnvironment(**param_dict)
-
-
-def _get_scenarios_map():
-    holodeck_worlds = dict()
-    for pack_config, pack_path in _iter_packages():
-        for scenario_config in _iter_scenarios(pack_config["name"]):
-            scenario_key = pack_config["name"] + "-" + scenario_config["name"]
-
-            holodeck_worlds[scenario_key] = {
-                "binary_path": os.path.join(pack_path, pack_config["path"]),
-                "scenario_key": scenario_key,
-                "window_height": scenario_config["window_height"],
-                "window_width": scenario_config["window_width"]
-            }
-    return holodeck_worlds

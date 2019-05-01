@@ -1,5 +1,19 @@
 import numpy as np
 
+
+def state_almost_equal(state1, state2, thresh=0.1):
+    if isinstance(state1[next(iter(state1))], dict):
+        for agent in state1:
+            for sensor in state1[agent]:
+                if not almost_equal(state1[agent][sensor], state2[agent][sensor], thresh):
+                    return False
+    else:
+        for sensor in state:
+            if not almost_equal(state1[sensor], state2[sensor]):
+                return False
+    return True
+
+
 def almost_equal(item1, item2, thresh=0.01):
 
     item1 = np.array(item1).flatten()
