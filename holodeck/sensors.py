@@ -53,6 +53,19 @@ class DistanceTask(HolodeckSensor):
         return [2]
 
 
+class LocationTask(HolodeckSensor):
+
+    sensor_type = "LocationTask"
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [2]
+
+
 class FollowTask(HolodeckSensor):
 
     sensor_type = "FollowTask"
@@ -231,6 +244,7 @@ class SensorDefinition(object):
 
     _sensor_keys_ = {"RGBCamera": RGBCamera,
                      "DistanceTask": DistanceTask,
+                     "LocationTask": LocationTask,
                      "FollowTask": FollowTask,
                      "ViewportCapture": ViewportCapture,
                      "OrientationSensor": OrientationSensor,
