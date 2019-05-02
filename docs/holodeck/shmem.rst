@@ -7,3 +7,4 @@ Shared Memory
 
 .. automodule:: holodeck.shmem
     :members:
+    :special-members:

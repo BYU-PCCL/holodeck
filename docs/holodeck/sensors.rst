@@ -7,3 +7,4 @@ Sensors
 
 .. automodule:: holodeck.sensors
     :members:
+    :special-members:

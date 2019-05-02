@@ -14,20 +14,20 @@
 
 import os
 import sys
-import guzzle_sphinx_theme
-sys.path.insert(0, os.path.abspath('.'))
 
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
 project = 'Holodeck'
-copyright = '2018, Joshua Greaves, Max Robinson, Nick Walton'
-author = 'Joshua Greaves, Max Robinson, Nick Walton'
+copyright = 'BYU PCCL'
+author = 'Joshua Greaves, Max Robinson, Nick Walton, Jayden Milne'
 
 # The short X.Y version
-version = '0.1.0'
+version = '0.2.0'
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = '0.2.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -45,8 +45,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.imgmath',
     'sphinx.ext.ifconfig',
-    'sphinx.ext.napoleon',
-    'guzzle_sphinx_theme'
+    'sphinx.ext.napoleon'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -83,14 +82,9 @@ pygments_style =  None
 # a list of builtin themes.
 #
 
-# For guzzle theme
-html_theme_path = guzzle_sphinx_theme.html_theme_path()
-html_theme = 'guzzle_sphinx_theme'
+html_theme = 'sphinx_rtd_theme'
 
-# Guzzle theme options (see theme.conf for more information)
 html_theme_options = {
-    # Set the name of the project to appear in the sidebar
-    "project_nav_name": " Holodeck",
 }
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -102,7 +96,7 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.

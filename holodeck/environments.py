@@ -7,8 +7,10 @@ import os
 import subprocess
 import sys
 from copy import copy
+import json
 
 from holodeck.command import *
+from holodeck.packagemanager import get_scenario, load_scenario_file
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import *
@@ -21,7 +23,7 @@ class HolodeckEnvironment(object):
     Args:
         agent_definitions (list of :obj:`AgentDefinition`): Which agents to expect in the environment.
         binary_path (str, optional): The path to the binary to load the world from. Defaults to None.
-        task_key (str, optional): The name of the map within the binary to load. Defaults to None.
+        scenario_key (str, optional): The name of the map within the binary to load. Defaults to None.
         window_height (int, optional): The height to load the binary at. Defaults to 512.
         window_width (int, optional): The width to load the binary at. Defaults to 512.
         camera_height (int, optional): The height of all pixel camera sensors. Defaults to 256.
@@ -37,9 +39,9 @@ class HolodeckEnvironment(object):
         HolodeckEnvironment: A holodeck environment object.
     """
 
-    def __init__(self, agent_definitions=None, binary_path=None, task_key=None, window_height=512, window_width=512,
+    def __init__(self, agent_definitions=None, binary_path=None, scenario_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
-                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True):
+                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True, scenario_path=None):
 
         if agent_definitions is None:
             agent_definitions = []
@@ -53,13 +55,17 @@ class HolodeckEnvironment(object):
         self._pre_start_steps = pre_start_steps
         self._copy_state = copy_state
         self._ticks_per_sec = ticks_per_sec
+        self._scenario_key = scenario_key
+        self._scenario_path = scenario_path
+        self._initial_agents = agent_definitions
 
         # Start world based on OS
         if start_world:
+            world_key = scenario_key.split("-")[0]
             if os.name == "posix":
-                self.__linux_start_process__(binary_path, task_key, gl_version, verbose=verbose, show_viewport=show_viewport)
+                self.__linux_start_process__(binary_path, world_key, gl_version, verbose=verbose, show_viewport=show_viewport)
             elif os.name == "nt":
-                self.__windows_start_process__(binary_path, task_key, verbose=verbose)
+                self.__windows_start_process__(binary_path, world_key, verbose=verbose)
             else:
                 raise HolodeckException("Unknown platform: " + os.name)
 
@@ -73,20 +79,14 @@ class HolodeckEnvironment(object):
         # Set up agents already in the world
         self.agents = dict()
         self._state_dict = dict()
-        self._add_agents(agent_definitions)
+        self._agent = None
+        self._load_existing_agents(agent_definitions)
 
         # Spawn agents not yet in the world.
         # TODO implement this section for future build automation update
 
         # Set the default state function
         self.num_agents = len(self.agents)
-
-        # Set the main agent
-        if self.num_agents > 0:
-            self._agent = self.agents[agent_definitions[0].name]
-        else:
-            self._agent = None
-
         self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
         self._client.acquire()
@@ -125,6 +125,29 @@ class HolodeckEnvironment(object):
                 result.append("\n")
         return "".join(result)
 
+    def load_scenario(self):
+        if self._scenario_key is not None:
+            scenario = get_scenario(self._scenario_key)
+        elif self._scenario_path is not None:
+            scenario = load_scenario_file(self._scenario_path)
+        else:
+            return
+
+        for agent in scenario['agents']:
+            agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'])
+            self.spawn_agent(agent_def, agent['location'])
+            self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
+            sensors = []
+            for sensor in agent['sensors']:
+                params = json.dumps(sensor['configuration'])
+                params = params.replace("\"", "\\\"")
+                sensors.append(SensorDefinition(agent['agent_name'], sensor['sensor_name'], sensor['sensor_type'],
+                                                socket=sensor['socket'],
+                                                location=sensor['location'],
+                                                rotation=sensor['rotation'],
+                                                params=params))
+            self.agents[agent['agent_name']].add_new_sensors(sensors)
+
     def reset(self):
         """Resets the environment, and returns the state.
         If it is a single agent environment, it returns that state for that agent. Otherwise, it returns a dict from
@@ -134,16 +157,27 @@ class HolodeckEnvironment(object):
             tuple or dict: For single agent environment, returns the same as `step`.
                 For multi-agent environment, returns the same as `tick`.
         """
+        # Reset level
         self._initial_reset = True
         self._reset_ptr[0] = True
+        self.tick()  # Must tick once to send reset before sending spawning commands
+
+        # Clear command queue
+        if self._command_center.queue_size > 0:
+            print("Warning: Reset called before all commands could be sent. Discarding",
+                  self._command_center.queue_size, "commands.")
         self._command_center.clear()
+
+        # Load agents
+        self.agents = dict()
+        self._state_dict = dict()
+        self._load_existing_agents(self._initial_agents)
+        self.load_scenario()
+        self.num_agents = len(self.agents)
+        self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
         for _ in range(self._pre_start_steps + 1):
             self.tick()
-
-        for agent in self.agents:
-            if self.agents[agent].has_camera():
-                self.set_ticks_per_capture(agent, self.agents[agent].get_ticks_per_capture())
 
         return self._default_state_fn()
 
@@ -167,43 +201,12 @@ class HolodeckEnvironment(object):
         if self._agent is not None:
             self._agent.act(action)
 
-            self._command_center.handle_buffer()
-            self._client.release()
-            self._client.acquire()
-            return self._get_single_state()
-
-        else:
-            self._command_center.handle_buffer()
-            self._client.release()
-            self._client.acquire()
-            return self._get_full_state()
-
-    def teleport(self, agent_name, location=None, rotation=None):
-        """Teleports the target agent to any given location, and applies a specific rotation.
-
-        Args:
-            agent_name (str): The name of the agent to teleport.
-            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
-                If no location is given, it isn't teleported, but may still be rotated. Defaults to None.
-            rotation (np.ndarray or list): A new rotation target for the agent. Rotation is [roll, pitch, yaw] in degrees.
-                If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
-        """
-        self.agents[agent_name].teleport(location, rotation)
-        self.tick()
-
-    def set_state(self, agent_name, location, rotation, velocity, angular_velocity):
-        """Sets a new state for any agent given a location, rotation and linear and angular velocity. Will sweep and be
-        blocked by objects in it's way however
-
-        Args:
-            agent_name (str): The name of the agent to teleport.
-            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
-            rotation (np.ndarray or list): A new rotation target for the agent.
-            velocity (np.ndarray or list): A new velocity for the agent.
-            angular velocity (np.ndarray or list): A new angular velocity for the agent.
-        """
-        self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
-        return self.tick()
+        self._command_center.handle_buffer()
+        self._client.release()
+        self._client.acquire()
+        
+        reward, terminal = self._get_reward_terminal()
+        return self._default_state_fn(), reward, terminal, None
 
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
@@ -232,7 +235,35 @@ class HolodeckEnvironment(object):
 
         self._client.release()
         self._client.acquire()
-        return self._get_full_state()
+
+        return self._default_state_fn()
+
+    def teleport(self, agent_name, location=None, rotation=None):
+        """Teleports the target agent to any given location, and applies a specific rotation.
+
+        Args:
+            agent_name (str): The name of the agent to teleport.
+            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
+                If no location is given, it isn't teleported, but may still be rotated. Defaults to None.
+            rotation (np.ndarray or list): A new rotation target for the agent.
+                If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
+        """
+        self.agents[agent_name].teleport(location, rotation)
+        self.tick()
+
+    def set_state(self, agent_name, location, rotation, velocity, angular_velocity):
+        """Sets a new state for any agent given a location, rotation and linear and angular velocity. Will sweep and be
+        blocked by objects in it's way however
+
+        Args:
+            agent_name (str): The name of the agent to teleport.
+            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
+            rotation (np.ndarray or list): A new rotation target for the agent.
+            velocity (np.ndarray or list): A new velocity for the agent.
+            angular velocity (np.ndarray or list): A new angular velocity for the agent.
+        """
+        self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
+        return self.tick()
 
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
@@ -246,6 +277,8 @@ class HolodeckEnvironment(object):
             location (np.ndarray or list): The position to spawn the agent in the world, in XYZ coordinates (in meters).
         """
         self._add_agents(agent_definition)
+        if self._agent is None:
+            self._agent = self.agents[agent_definition.name]
         self._enqueue_command(SpawnAgentCommand(location, agent_definition.name, agent_definition.type.agent_type))
 
         if self._agent is None:
@@ -371,7 +404,7 @@ class HolodeckEnvironment(object):
         """Queue up a custom set weather command. It will be applied when `tick` or `step` is called next.
         By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
         to the given weather. If there is no skysphere, skylight, or directional source light in the world, this command
-         will fail silently.
+        will fail silently.
 
         NOTE: Because this command can effect the fog density, any changes made by a change_fog_density command before
         a set_weather command called will be undone. It is recommended to call change_fog_density after calling set
@@ -403,11 +436,7 @@ class HolodeckEnvironment(object):
     def set_render_quality(self, render_quality):
         """Adjusts the rendering quality of Holodeck. 
         Args:
-            render_quality (int): An integer between 0 and 3. 
-                                    0 = low
-                                    1 = medium
-                                    2 = high
-                                    3 = epic
+            render_quality (int): An integer between 0 = Low Quality and 3 = Epic quality. 
         """
         self._enqueue_command(RenderQualityCommand(render_quality))
 
@@ -507,19 +536,21 @@ class HolodeckEnvironment(object):
         self.__on_exit__()
 
     def _get_single_state(self):
-        reward = None
-        terminal = None
-        for sensor in self._state_dict[self._agent.name]:
-            if "Task" in sensor:
-                reward = self._state_dict[self._agent.name][sensor][0]
-                terminal = self._state_dict[self._agent.name][sensor][1] == 1
-
-        state = self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
+        return self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
             else self._state_dict[self._agent.name]
-        return state, reward, terminal, None
 
     def _get_full_state(self):
         return self._create_copy(self._state_dict) if self._copy_state else self._state_dict
+
+    def _get_reward_terminal(self):
+        reward = None
+        terminal = None
+        if self._agent is not None:
+            for sensor in self._state_dict[self._agent.name]:
+                if "Task" in sensor:
+                    reward = self._state_dict[self._agent.name][sensor][0]
+                    terminal = self._state_dict[self._agent.name][sensor][1] == 1
+        return reward, terminal
 
     def _create_copy(self, obj):
         if isinstance(obj, dict):  # Deep copy dictionary
@@ -531,6 +562,14 @@ class HolodeckEnvironment(object):
                     cp[k] = np.copy(v)
             return cp
         return None  # Not implemented for other types
+
+    def _load_existing_agents(self, agent_definitions):
+        self._add_agents(agent_definitions)
+
+        # Set the main agent
+        self._agent = None
+        if len(self.agents) > 0:
+            self._agent = self.agents[agent_definitions[0].name]
 
     def _add_agents(self, agent_definitions):
         """Add specified agents to the client. Set up their shared memory and sensor linkages.

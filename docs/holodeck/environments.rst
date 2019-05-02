@@ -7,3 +7,4 @@ Environments
 
 .. automodule:: holodeck.environments
     :members:
+    :special-members:

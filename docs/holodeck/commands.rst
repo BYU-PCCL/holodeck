@@ -7,3 +7,4 @@ Commands
 
 .. automodule:: holodeck.command
     :members:
+    :special-members:

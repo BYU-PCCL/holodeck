@@ -37,17 +37,18 @@ class ControlSchemes(object):
 
 
 class HolodeckAgent(object):
-    """Holodeck Agents are agents that can act, receive rewards, and receive observations from sensors on them.
-       Examples include the Android, UAV, and SphereRobot
+    """An agents that can act, receive rewards, and receive observations from sensors on them.
+   Examples include the Android, UAV, and SphereRobot
 
     Args:
-        client (:obj:`HolodeckClient`): The HolodeckClient that this agent belongs with.
+        client (:class:`~holodeck.holodeckclient.HolodeckClient`): The HolodeckClient that this agent belongs with.
         name (str, optional): The name of the agent. Must be unique from other agents in the same environment.
-        sensors (dict of (string, HolodeckSensor)): A list of HolodeckSensors to read from this agent.
+        sensors (dict of (string, :class:`~holodeck.sensors.HolodeckSensor`)): A list of HolodeckSensors to read from
+            this agent.
 
     Attributes:
         name (str): The name of the agent.
-        sensors (dict of (string, HolodeckSensor)): List of HolodeckSensors on this agent.
+        sensors (dict of (string, :class:`~holodeck.sensors.HolodeckSensor`)): List of HolodeckSensors on this agent.
         agent_state_dict (dict): A dictionary that maps sensor names to sensor observation data.
     """
 
@@ -81,7 +82,7 @@ class HolodeckAgent(object):
         """Sets the command for the agent. Action depends on the agent type and current control scheme.
 
         Args:
-            action(np.ndarray): The action to take.
+            action(:class:`np.ndarray`): The action to take.
         """
         self.__act__(action)
 
@@ -164,12 +165,13 @@ class HolodeckAgent(object):
             sensor_defs = [sensor_defs]
 
         for sensor_def in sensor_defs:
-            sensor = SensorFactory.build_sensor(self._client, sensor_def)
-            self.sensors[sensor_def.sensor_name] = sensor
-            self.agent_state_dict[sensor_def.sensor_name] = sensor.sensor_data
-            command_to_send = AddSensorCommand(self.name, sensor_def.sensor_name, sensor_def.type.sensor_type,
-                                               socket=sensor_def.socket)
-            self._client.command_center.enqueue_command(command_to_send)
+            if sensor_def.agent_name == self.name:
+                sensor = SensorFactory.build_sensor(self._client, sensor_def)
+                self.sensors[sensor_def.sensor_name] = sensor
+                self.agent_state_dict[sensor_def.sensor_name] = sensor.sensor_data
+
+                command_to_send = AddSensorCommand(sensor_def)
+                self._client.command_center.enqueue_command(command_to_send)
 
     def remove_sensors(self, sensor_defs):
         """Removes a sensor from a particular agent object and detaches it from the agent in the world.
@@ -229,8 +231,10 @@ class UavAgent(HolodeckAgent):
     Action Space: Has two possible continuous action control schemes
     (0) [pitch_torque, roll_torque, yaw_torque, thrust] and
     (1) [pitch_target, roll_target, yaw_rate_target, altitude_target]
-    Sensors: RGBCamera, OrientationSensor, LocationSensor, VelocitySensor, IMUSensor
-    Inherits from :obj:`HolodeckAgent`."""
+
+    See :ref:`uav-agent` for more details.
+
+-     Inherits from :obj:`HolodeckAgent`."""
 
     agent_type = "UAV"
 
@@ -247,6 +251,9 @@ class UavAgent(HolodeckAgent):
 
 class SphereAgent(HolodeckAgent):
     """A basic sphere robot that moves on a plane.
+
+    See :ref:`sphere-agent` for more details.
+
     Action Space: Has two possible control schemes, one discrete and one continuous:
     (0) Discrete control scheme of the form [choice] where choice is
     0: Move forward
@@ -254,7 +261,6 @@ class SphereAgent(HolodeckAgent):
     2: Turn right
     3: Turn left
     (1) Continuous control scheme of the form [forward_speed, rot_speed]
-    Sensors: RGBCamera, OrientationSensor, LocationSensor
     Inherits from :obj:`HolodeckAgent`."""
 
     agent_type = "SphereRobot"
@@ -279,11 +285,15 @@ class SphereAgent(HolodeckAgent):
 
 class AndroidAgent(HolodeckAgent):
     """An android agent that can be controlled via torques supplied to its joints.
-    Action Space: 94 dimensional vector of continuous values representing torques to be applied at each joint.
-    The layout of joints can be found <a href="https://github.com/BYU-PCCL/holodeck/blob/master/holodeck/agents.py">here</a>
-    Sensors: RGBCamera, OrientationSensor, LocationSensor, VelocitySensor, IMUSensor, JointRotationSensor,
-    PressureSensor RelativeSkeletalPositionSensor
-    Inherits from :obj:`HolodeckAgent`."""
+   
+    See :ref:`android-agent` for more details.
+
+    Action Space: 94 dimensional vector of continuous values representing torques to be 
+    applied at each joint. The layout of joints can be found here:
+
+    https://github.com/BYU-PCCL/holodeck/blob/master/holodeck/agents.py
+
+    Inherits from :class:`HolodeckAgent`."""
 
     agent_type = "Android"
 
@@ -362,9 +372,12 @@ class AndroidAgent(HolodeckAgent):
 
 class NavAgent(HolodeckAgent):
     """A humanoid character that given a position in the world will try to run to that position
-    Action Space: Continuous control scheme of the form [x_target, y_target, z_target]
-    Sensors: RGBCamera, OrientationSensor, LocationSensor
-    Inherits from :obj:`HolodeckAgent`."""
+
+       See :ref:`nav-agent` for more details.
+
+       Action Space: Continuous control scheme of the form [x_target, y_target, z_target]
+
+       Inherits from :obj:`HolodeckAgent`."""
 
     agent_type = "NavAgent"
 
@@ -381,6 +394,9 @@ class NavAgent(HolodeckAgent):
 
 class TurtleAgent(HolodeckAgent):
     """A simple agent that can have forces applied to it and move around.
+
+    See :ref:`turtle-agent` for more details.
+
     Inherits from :obj:`HolodeckAgent`."""
     @property
     def control_schemes(self):
@@ -395,12 +411,7 @@ class TurtleAgent(HolodeckAgent):
 
 
 class AgentDefinition:
-    """A class for declaring what agents are expected or should be spawned in a particular holodeck Environment
-    Args:
-        agent_name (str): The name of the agent to control.
-        agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
-        sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of HolodeckSensors to read from this agent.
-         Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
+    """Keeps track of which 
     """
     _type_keys = {
         "SphereAgent": SphereAgent,
@@ -410,6 +421,13 @@ class AgentDefinition:
     }
 
     def __init__(self, agent_name, agent_type, sensors=None):
+        """
+        Args:
+            agent_name (str): The name of the agent to control.
+            agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
+            sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of HolodeckSensors to read from this agent.
+                Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
+        """
         self.sensors = sensors or list()
         self.name = agent_name
         self.type = AgentDefinition._type_keys[agent_type] if isinstance(agent_type, str) else agent_type

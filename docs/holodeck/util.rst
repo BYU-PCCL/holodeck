@@ -7,3 +7,4 @@ Util
 
 .. automodule:: holodeck.util
     :members:
+    :special-members:

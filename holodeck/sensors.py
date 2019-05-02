@@ -4,7 +4,8 @@ from holodeck.command import *
 
 
 class HolodeckSensor(object):
-
+    """Base class for a sensor in Holodeck
+    """
     def __init__(self, client, agent_name=None, name="DefaultSensor", custom_shape=None):
         self.name = name
         self._client = client
@@ -43,6 +44,19 @@ class HolodeckSensor(object):
 class DistanceTask(HolodeckSensor):
 
     sensor_type = "DistanceTask"
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [2]
+
+
+class LocationTask(HolodeckSensor):
+
+    sensor_type = "LocationTask"
 
     @property
     def dtype(self):
@@ -218,8 +232,20 @@ class PressureSensor(HolodeckSensor):
 
 
 class SensorDefinition(object):
+    """A class for new sensors and their parameters, to be used for adding new sensors.
+    Args:
+        agent_name (str): The name of the parent agent.
+        sensor_name (str): The name of the sensor.
+        sensor_type (str or HolodeckSensor): The type of the sensor.
+        socket (str, optional): The name of the socket to attach sensor to.
+        location (Tuple of floats, optional): x, y, and z coordinates to place sensor relative to agent (or socket).
+        rotation (Tuple of floats, optional): roll, pitch, and yaw to rotate sensor relative to agent.
+        params (str, optional): Json representation of parameters with which to initialize sensor.
+    """
+
     _sensor_keys_ = {"RGBCamera": RGBCamera,
                      "DistanceTask": DistanceTask,
+                     "LocationTask": LocationTask,
                      "FollowTask": FollowTask,
                      "ViewportCapture": ViewportCapture,
                      "OrientationSensor": OrientationSensor,
@@ -232,11 +258,14 @@ class SensorDefinition(object):
                      "PressureSensor": PressureSensor,
                      "CollisionSensor": CollisionSensor}
 
-    def __init__(self, agent_name, sensor_name, sensor_type, socket=""):
+    def __init__(self, agent_name, sensor_name, sensor_type, socket="", location=(0,0,0), rotation=(0,0,0), params=""):
         self.agent_name = agent_name
         self.sensor_name = sensor_name
         self.type = SensorDefinition._sensor_keys_[sensor_type] if isinstance(sensor_type, str) else sensor_type
         self.socket = socket
+        self.location = location
+        self.rotation = rotation
+        self.params = params
 
 
 class SensorFactory(object):

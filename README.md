@@ -1,59 +1,28 @@
 # Holodeck
 
-[![Holodeck Video](https://img.youtube.com/vi/_huewiGqfrs/0.jpg)](https://www.youtube.com/watch?v=_huewiGqfrs)
+[![Holodeck Video](docs/images/sunrise_Moment.jpg)](https://www.youtube.com/watch?v=_huewiGqfrs)
 
-[![Read the docs badge](https://readthedocs.org/projects/holodeck/badge/)](https://holodeck.readthedocs.io/en/develop/)
+[![Read the docs badge](https://readthedocs.org/projects/holodeck/badge/)](https://holodeck.readthedocs.io/en/develop/) ![Build Status](https://jenkins.holodeck.ml/buildStatus/icon?job=holodeck-engine%2Fdevelop)
 
 Holodeck is a high-fidelity simulator for reinforcement learning built on top of Unreal Engine 4.
 [Read the docs.](https://holodeck.readthedocs.io)
 
 ## Installation
-### Requirements
-Windows and Linux:
-* Python 3.5 or higher
-* Pip3
-* At least 3gb storage
+`pip install holodeck`
 
-Linux:
-* OpenGL version 3 or higher
+(requires Python 3)
 
-### Pip Installation
-To install the python bindings, simply run
-`pip3 install holodeck`
+See [Installation](https://holodeck.readthedocs.io/en/latest/usage/installation.html) for complete instructions (including Docker).
 
-Note: for some versions of pip you may see a warning, but holodeck will be installed anyway.
+## Features
+ - 7+ rich worlds for training agents in, and many scenarios for those worlds
+ - Easily extend and modify training scenarios
+ - Train and control more than one agent at once
+ - Simple, OpenAI Gym-like interface
+ - High performance - simulation speeds of up to 2x real time are possible
+ - Run headless or watch your agents learn
 
-### Docker Installation
-For Ubuntu 16.04 and Cuda 9.0*:
-1. Install [nvidia-docker](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)) (holodeck will not be able to run without it.)
-2. Pull the docker repository and run it. (replace "*without*" with "*with*" to install with the `DefaultWorlds` package)
-3. Holodeck cannot be run with root privileges so after entering the container and before you use holodeck you must login to a normal user. The `holodeckuser` with password `"holodeck"` has been provided. This account must be used if the `with-worlds` version is selected.
-```
-docker pull pccl/holodeck:ubuntu16.04-without-worlds
-nvidia-docker run -it pccl/holodeck:ubuntu16.04-without-worlds
-```
-
-*For versions other than Ubuntu 16.04 and Cuda 9.0 see [here.](https://hub.docker.com/r/pccl/holodeck/).
-
-### Installing Packages
-Holodeck currently contains one package, the `DefaultWorlds` package.
-Each package in turn contains a number of worlds.
-Holodeck has an internal package manager for handling packages.
-The most important commands for managing these are as follows:
-```
-import holodeck
-print(holodeck.all_packages())                 # View all packages that are available to be downloaded.
-print(holodeck.installed_packages())           # View which packages are currently installed.
-holodeck.install('DefaultWorlds')              # Installs the DefaultWorlds package.
-print(holodeck.package_info('DefaultWorlds'))  # View information on what worlds this package
-                                               # contains, and what agents are in those worlds.
-holodeck.remove('DefaultWorlds')               # Removes a package.
-```
-You only need to install packages once. You should make sure to remove them with
-`holodeck.remove(package_name)` or `holodeck.remove_all_packages()` before removing
-holodeck with pip.
-
-## Basic Usage
+## Usage
 Holodeck's interface is designed in the same vein as [OpenAI's Gym](https://gym.openai.com/).
 The quickest way to get acquainted with Holodeck use is to view the example.py file.
 Here is a basic walkthrough of an example that runs a Holodeck world:
@@ -148,7 +117,7 @@ Holodeck can run on headless machines with GPU accelerated rendering. This requi
 ## Citation:
 ```
 @misc{HolodeckPCCL,
-  Author = {Joshua Greaves and Max Robinson and Nick Walton and Mitchell Mortensen and Robert Pottorff and Connor Christopherson and Derek Hancock and David Wingate},
+  Author = {Joshua Greaves and Max Robinson and Nick Walton and Mitchell Mortensen and Robert Pottorff and Connor Christopherson and Derek Hancock and Jayden Milne David Wingate},
   Title = {Holodeck: A High Fidelity Simulator},
   Year = {2018},
 }
