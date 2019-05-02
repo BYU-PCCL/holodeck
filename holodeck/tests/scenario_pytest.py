@@ -3,12 +3,9 @@ from holodeck.packagemanager import get_scenario
 from holodeck.tests.test_utils import *
 
 
-# scenario_list = ["MazeWorld-default", "AndroidPlayground-default", "CyberPunkCity-default", 
-#                  "EuropeanForest-default", "InfiniteForest-default", "RedwoodForest-default", 
-#                  "UrbanCity-default"]
-scenario_list = ["AndroidPlayground-default", "CyberPunkCity-default", 
-                  "EuropeanForest-default", "RedwoodForest-default", 
-                  "UrbanCity-default"]
+scenario_list = ["MazeWorld-default", "AndroidPlayground-default", "CyberPunkCity-default", 
+                 "EuropeanForest-default", "InfiniteForest-default", "RedwoodForest-default", 
+                 "UrbanCity-default"]
 
 def test_loading():
     for scenario_name in scenario_list:
@@ -47,7 +44,7 @@ def test_reset():
             env.tick()
             state = env.reset()
 
-            assert state_almost_equal(init_state, state, 0.9)
+            assert state_almost_equal(init_state, state, 0.3)
             assert agent_count == len(env.agents)
             assert sensor_count == sum([len(env.agents[agent].sensors) for agent in env.agents])
 
