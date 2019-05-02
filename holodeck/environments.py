@@ -233,7 +233,6 @@ class HolodeckEnvironment(object):
         self._client.release()
         self._client.acquire()
 
-        reward, terminal = self._get_reward_terminal()
         return self._default_state_fn()
 
     def teleport(self, agent_name, location=None, rotation=None):

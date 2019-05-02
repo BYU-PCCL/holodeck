@@ -5,7 +5,7 @@ from copy import copy
 
 from holodeck.environments import HolodeckEnvironment
 from holodeck.exceptions import HolodeckException
-from holodeck.packagemanager import _iter_packages, _iter_scenarios, get_scenario, get_world_path
+from holodeck.packagemanager import get_scenario, get_world_path
 
 
 class GL_VERSION(object):

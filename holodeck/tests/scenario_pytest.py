@@ -3,8 +3,8 @@ from holodeck.packagemanager import get_scenario
 from holodeck.tests.test_utils import *
 
 
-scenario_list = ["MazeWorld-default", "AndroidPlayground-default", "CyberPunkCity-default", 
-                 "EuropeanForest-default", "InfiniteForest-default", "RedwoodForest-default", 
+scenario_list = ["MazeWorld-default", "AndroidPlayground-default", "CyberPunkCity-default",
+                 "EuropeanForest-default", "InfiniteForest-default", "RedwoodForest-default",
                  "UrbanCity-default"]
 
 def test_loading():
@@ -51,13 +51,11 @@ def test_reset():
     print("done")
 
 
-def test_sensors():	
+def test_sensors():
     num_ticks = 50
 
-    for scenario_name in scenario_list:
-        
+    for scenario_name in scenario_list:       
         env = holodeck.make(scenario_name)
-        scenario = get_scenario(scenario_name)
 
         init_state = env.reset()
 
