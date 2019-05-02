@@ -116,7 +116,7 @@ class HolodeckAgent(object):
         Args:
             location (np.ndarray, optional): An array with three elements specifying the target world coordinate in meters.
             If None, keeps the current location. Defaults to None.
-            rotation (np.ndarray, optional): An array with three elements specifying the target rotation of the agent.
+            rotation (np.ndarray, optional): An array with three elements specifying roll, pitch, and yaw in degrees of the agent.
             If None, keeps the current rotation. Defaults to None.
 
         Returns:

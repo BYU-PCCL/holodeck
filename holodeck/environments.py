@@ -185,7 +185,7 @@ class HolodeckEnvironment(object):
             agent_name (str): The name of the agent to teleport.
             location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
                 If no location is given, it isn't teleported, but may still be rotated. Defaults to None.
-            rotation (np.ndarray or list): A new rotation target for the agent.
+            rotation (np.ndarray or list): A new rotation target for the agent. Rotation is [roll, pitch, yaw] in degrees.
                 If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
         """
         self.agents[agent_name].teleport(location, rotation)
@@ -388,7 +388,7 @@ class HolodeckEnvironment(object):
         self.send_world_command("SetWeather", string_params=[weather_type])
 
     def teleport_camera(self, location, rotation):
-        """Queue up a teleport camera command to stop the day cycle.
+        """Queue up a teleport camera command. Rotation is [roll, pitch, yaw] in degrees.
         By the next tick, the camera's location and rotation will be updated
         """
         self._enqueue_command(TeleportCameraCommand(location, rotation))
