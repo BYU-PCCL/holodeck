@@ -421,7 +421,7 @@ class HolodeckEnvironment(object):
         self.send_world_command("SetWeather", string_params=[weather_type])
 
     def teleport_camera(self, location, rotation):
-        """Queue up a teleport camera command to stop the day cycle.
+        """Queue up a teleport camera command. Rotation is [roll, pitch, yaw] in degrees.
         By the next tick, the camera's location and rotation will be updated
         """
         self._enqueue_command(TeleportCameraCommand(location, rotation))
