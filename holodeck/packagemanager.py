@@ -23,9 +23,10 @@ def _get_from_backend(rel_url):
     Gets the resource given at rel_url, assumes it is a text file
     
     Args:
-        rel_url (str): url relative to backend_url to fetch
+        rel_url (:obj:`str`): url relative to backend_url to fetch
 
-    Returns (str): The resource at rel_url as a string
+    Returns:
+        :obj:`str`: The resource at rel_url as a string
     """
     r = urllib.request.urlopen(backend_url + rel_url)
     data = r.read()
@@ -35,8 +36,8 @@ def _get_from_backend(rel_url):
 def available_packages():
     """Returns a dictionary of package name to list of versions for all downloadable packages
 
-    Returns:
-        (list): Dictionary of package name : [versions]
+    Returns (:obj:`dict` of :obj:`str` to :obj:`list` of :obj:`str`):
+        Dictionary of package name to a list of version strings
     """
     # Get the index json file from the backend
     url = "packages/{ver}/available".format(ver=util.get_holodeck_version())
@@ -54,7 +55,7 @@ def installed_packages():
     """Returns a list of all installed packages
 
     Returns:
-        (list): List of all the currently installed packages
+        :obj:`list` of :obj:`str`: List of all the currently installed packages
     """
     return [x["name"] for x, _ in _iter_packages()]
 
@@ -63,7 +64,7 @@ def package_info(pkg_name):
     """Prints the information of a package.
 
     Args:
-        pkg_name (str): The name of the desired package to get information
+        pkg_name (:obj:`str`): The name of the desired package to get information
     """
     indent = "  "
     for config, _ in _iter_packages():
@@ -92,9 +93,9 @@ def world_info(world_name, world_config=None, base_indent=0):
     """Gets and prints the information of a world.
 
     Args:
-        world_name (str): the name of the world to retrieve information for
-        world_config (dict optional): A dictionary containing the world's configuration. Will find the config if None. Defaults to None.
-        base_indent (int): How much to indent output
+        world_name (:obj:`str`): the name of the world to retrieve information for
+        world_config (:obj:`dict`, optional): A dictionary containing the world's configuration. Will find the config if None. Defaults to None.
+        base_indent (:obj:`int`, optional): How much to indent output
     """
     if world_config is None:
         for config, _ in _iter_packages():
@@ -121,9 +122,10 @@ def _find_file_in_worlds_dir(filename):
     Recursively tries to find filename in the worlds directory of holodeck
 
     Args:
-        filename (str): Pattern to try and match (fnmatch)
+        filename (:obj:`str`): Pattern to try and match (fnmatch)
 
-    Returns: The path or an empty string if the file was not found
+    Returns:
+        :obj:`str`: The path or an empty string if the file was not found
 
     """
     for root, dirnames, filenames in os.walk(util.get_holodeck_path(), "worlds"):
@@ -137,9 +139,9 @@ def scenario_info(scenario_name="", scenario=None, base_indent=0):
     Must match this format: scenario_name.json
 
     Args:
-        scenario_name (str): The name of the scenario
-        scenario: Loaded dictionary config (overrides world_name and scenario_name)
-        base_indent: How much to indent output by
+        scenario_name (:obj:`str`): The name of the scenario
+        scenario (:obj:`dict`, optional): Loaded dictionary config (overrides world_name and scenario_name)
+        base_indent (:obj:`int`, optional): How much to indent output by
     """
     scenario_file = ""
     if scenario is None:
@@ -162,7 +164,7 @@ def install(package_name, version=None):
     """Installs a holodeck package.
 
     Args:
-        package_name (str): The name of the package to install
+        package_name (:obj:`str`): The name of the package to install
     """
     holodeck_path = util.get_holodeck_path()
 
@@ -191,7 +193,7 @@ def remove(package_name):
     """Removes a holodeck package.
 
     Args:
-        package_name (str): the name of the package to remove
+        package_name (:obj:`str`): the name of the package to remove
     """
     for config, path in _iter_packages():
         if config["name"] == package_name:
@@ -199,7 +201,9 @@ def remove(package_name):
 
 
 def remove_all_packages():
-    """Removes all holodeck packages."""
+    """Removes all holodeck packages.
+    
+    """
     for _, path in _iter_packages():
         shutil.rmtree(path)
 
@@ -209,9 +213,10 @@ def load_scenario_file(scenario_path):
     Loads the scenario config file and returns a dictionary containing the configuration
 
     Args:
-        scenario_path (str): Path to the configuration file
+        scenario_path (:obj:`str`): Path to the configuration file
 
-    Returns (dict): A dictionary containing the configuration file
+    Returns:
+        :obj:`dict`: A dictionary containing the configuration file
 
     """
     with open(scenario_path, 'r') as f:
@@ -222,10 +227,11 @@ def get_scenario(scenario_name):
     """Gets the scenario configuration associated with the given name
 
     Args:
-        scenario_name (str): name of the configuration to load - eg "UrbanCity-Follow"
+        scenario_name (:obj:`str`): name of the configuration to load - eg "UrbanCity-Follow"
             Must be an exact match. Name must be unique among all installed packages
 
-    Returns (dict): A dictionary containing the configuration file
+    Returns:
+        :obj:`dict`: A dictionary containing the configuration file
 
     """
     config_path = _find_file_in_worlds_dir(scenario_name + ".json")
@@ -237,12 +243,13 @@ def get_scenario(scenario_name):
 
 
 def get_package_config_for_scenario(scenario):
-    """
-    For the given scenario, returns the package config associated with it (config.json)
-    Args:
-        scenario (dict): scenario dict to look up the package for
+    """For the given scenario, returns the package config associated with it (config.json)
 
-    Returns (dict): package configuration dictionary
+    Args:
+        scenario (:obj:`dict`): scenario dict to look up the package for
+
+    Returns:
+        :obj:`dict`: package configuration dictionary
 
     """
 
@@ -279,7 +286,7 @@ def _iter_scenarios(world_name):
     Note that world_name needs to be unique among all packages
 
     Args:
-        world_name (str): name of the world
+        world_name (:obj:`str`): name of the world
 
     Returns: config_dict, path_to_config
     """

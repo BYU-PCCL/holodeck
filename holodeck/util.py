@@ -15,7 +15,7 @@ def get_holodeck_path():
     """Gets the path of the holodeck environment
 
     Returns:
-        (str): path to the current holodeck environment
+        (:obj:`str`): path to the current holodeck environment
     """
     if "HOLODECKPATH" in os.environ and os.environ["HOLODECKPATH"] != "":
         return os.environ["HOLODECKPATH"]
@@ -32,10 +32,10 @@ def convert_unicode(value):
     """Resolves python 2 issue with json loading in unicode instead of string
 
     Args:
-        value (str): Unicode value to be converted
+        value (:obj:`str`): Unicode value to be converted
 
     Returns:
-        (str): converted string
+        (:obj:`str`): Converted string
 
     """
     if isinstance(value, dict):
@@ -53,24 +53,24 @@ def get_os_key():
     """Gets the key for the OS.
 
     Returns:
-        str: "Linux" or "Windows". Throws NotImplementedError for other systems.
+        :obj:`str`: ``Linux`` or ``Windows``. Throws ``NotImplementedError`` for other systems.
     """
     if os.name == "posix":
         return "Linux"
     elif os.name == "nt":
         return "Windows"
     else:
-        raise NotImplementedError("holodeck is only supported for Linux and Windows")
+        raise NotImplementedError("Holodeck is only supported for Linux and Windows")
 
 
 def human_readable_size(size_bytes):
     """Gets a number of bytes as a human readable string.
 
     Args:
-        size_bytes (int): The number of bytes to get as human readable.
+        size_bytes (:obj:`int`): The number of bytes to get as human readable.
 
     Returns:
-        str: The number of bytes in a human readable form.
+        :obj:`str`: The number of bytes in a human readable form.
     """
     if size_bytes == 0:
         return "0B"

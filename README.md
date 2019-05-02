@@ -26,7 +26,7 @@ See [Installation](https://holodeck.readthedocs.io/en/latest/usage/installation.
 Holodeck's interface is designed in the same vein as [OpenAI's Gym](https://gym.openai.com/).
 The quickest way to get acquainted with Holodeck use is to view the example.py file.
 Here is a basic walkthrough of an example that runs a Holodeck world:
-```
+```python
 import holodeck
 import numpy as np
 env = holodeck.make("UrbanCity")    # Load the environment. This environment contains a UAV in a city.
@@ -44,7 +44,7 @@ Info contains additional environment specific information.
 If you want to access the data of a specific sensor, it is as simple as import Sensors and
 retrieving the correct value from the state dictionary:
 
-```
+```python
 from holodeck.sensors import Sensors
 print(state[Sensors.LOCATION_SENSOR])
 ```
@@ -53,7 +53,7 @@ print(state[Sensors.LOCATION_SENSOR])
 Holodeck supports different control schemes for different agents.
 Currently the only agent with multiple control schemes is the UAV agent.
 The control scheme can be switched as follows:
-```
+```python
 from holodeck.agents import ControlSchemes
 
 env.set_control_scheme('uav0', ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
@@ -67,7 +67,7 @@ Instead of calling `step` which passes a command to the main agent and ticks the
 Once all agents have received their actions, you can call `tick` to tick the game.
 After act, every time you call tick the same command will be supplied to the agent.
 To change the command, just call act again.
-```
+```python
 env = holodeck.make('CyberPunkCity')
 env.reset()
 
