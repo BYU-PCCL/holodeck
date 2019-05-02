@@ -131,7 +131,7 @@ class HolodeckAgent(object):
         self._teleport_type_buffer[0] = val
 
     def set_state(self, location, rotation, velocity, angular_velocity):
-        val = 15
+        val = 4
         np.copyto(self._teleport_buffer[0:3], location)
         np.copyto(self._teleport_buffer[3:6], rotation)
         np.copyto(self._teleport_buffer[6:9], velocity)
