@@ -3,7 +3,6 @@ from holodeck import agents
 from holodeck import sensors
 from holodeck.environments import *
 from holodeck.tests.test_utils import *
-import math
 
 editor_test = True
 
@@ -25,8 +24,6 @@ def test_sensor_coords():
     env.spawn_agent(agent, loc)
     state = env.tick()
     sensed_loc = state["uav0"]["LocationSensor"]
-    initial_rot = state["uav0"]["RotationSensor"]
-    initial_or = state["uav0"]["OrientationSensor"]
     assert almost_equal(loc, sensed_loc)
 
     # Test teleport units
