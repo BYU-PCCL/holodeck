@@ -33,8 +33,6 @@ class HolodeckEnvironment(object):
         ticks_per_sec (int, optional) Number of frame ticks per unreal second. Defaults to 30.
         copy_state (bool, optional) If the state should be copied or returned as a reference. Defaults to True.
 
-    Returns:
-        HolodeckEnvironment: A holodeck environment object.
     """
 
     def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
@@ -92,7 +90,7 @@ class HolodeckEnvironment(object):
         """Gives the action space for the main agent.
 
         Returns:
-            ActionSpace: The action space for the main agent.
+            :class:`~holodeck.spaces.ActionSpace`: The action space for the main agent.
         """
         return self._agent.action_space
 
@@ -100,8 +98,8 @@ class HolodeckEnvironment(object):
         """Returns a string with specific information about the environment.
         This information includes which agents are in the environment and which sensors they have.
 
-        Returns:
-            str: The information in a string format.
+        Returns (str):
+            Information in a string format.
         """
         result = list()
         result.append("Agents:\n")
@@ -123,9 +121,10 @@ class HolodeckEnvironment(object):
         If it is a single agent environment, it returns that state for that agent. Otherwise, it returns a dict from
         agent name to state.
 
-        Returns:
-            tuple or dict: For single agent environment, returns the same as `step`.
-                For multi-agent environment, returns the same as `tick`.
+        Returns (tuple or dict):
+            For single agent environment, returns the same as `step`.
+
+            For multi-agent environment, returns the same as `tick`.
         """
         self._initial_reset = True
         self._reset_ptr[0] = True
@@ -146,12 +145,12 @@ class HolodeckEnvironment(object):
         Args:
             action (np.ndarray): An action for the main agent to carry out on the next tick.
 
-        Returns:
-            tuple: The (state, reward, terminal, info) tuple for the agent. State is a dictionary
-            from sensor enum (see :obj:`holodeck.sensors.Sensors`) to np.ndarray.
-            Reward is the float reward returned by the environment.
-            Terminal is the bool terminal signal returned by the environment.
-            Info is any additional info, depending on the world. Defaults to None.
+        Returns (dict, float, bool, None):
+            Contents of tuple:
+            - State: Dictionary from sensor enum (see :class:`holodeck.sensors.Sensors`) to np.ndarray.
+            - Reward (float): Reward returned by the environment.
+            - Terminal: The bool terminal signal returned by the environment.
+            - Info: Any additional info, depending on the world. Defaults to None.
         """
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .step()")

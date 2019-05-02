@@ -206,6 +206,8 @@ class PressureSensor(HolodeckSensor):
 
 
 class SensorDefinition(object):
+    """Used to initialize the type of sensor on an agent
+    """
     __sensor_keys__ = {"RGBCamera": RGBCamera,
                        "TaskSensor": TaskSensor,
                        "ViewportCapture": ViewportCapture,
