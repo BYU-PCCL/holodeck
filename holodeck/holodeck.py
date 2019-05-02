@@ -1,10 +1,7 @@
 """Module containing high level interface for loading environments."""
-import os
 import uuid
-from copy import copy
 
 from holodeck.environments import HolodeckEnvironment
-from holodeck.exceptions import HolodeckException
 from holodeck.packagemanager import get_scenario, get_world_path
 
 

@@ -9,6 +9,7 @@ import sys
 from copy import copy
 import json
 
+from holodeck.command import *
 from holodeck.packagemanager import get_scenario, load_scenario_file
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
@@ -125,10 +126,12 @@ class HolodeckEnvironment(object):
         return "".join(result)
 
     def load_scenario(self):
-        if self._scenario_path is None:
+        if self._scenario_key is not None:
             scenario = get_scenario(self._scenario_key)
-        else:
+        elif self._scenario_path is not None:
             scenario = load_scenario_file(self._scenario_path)
+        else:
+            return
 
         for agent in scenario['agents']:
             agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'])
@@ -154,22 +157,22 @@ class HolodeckEnvironment(object):
             tuple or dict: For single agent environment, returns the same as `step`.
                 For multi-agent environment, returns the same as `tick`.
         """
+        # Reset level
         self._initial_reset = True
         self._reset_ptr[0] = True
         self.tick()  # Must tick once to send reset before sending spawning commands
 
+        # Clear command queue
         if self._command_center.queue_size > 0:
             print("Warning: Reset called before all commands could be sent. Discarding",
                   self._command_center.queue_size, "commands.")
         self._command_center.clear()
 
+        # Load agents
         self.agents = dict()
         self._state_dict = dict()
         self._load_existing_agents(self._initial_agents)
-
-        if self._scenario_path is not None or self._scenario_key is not None:
-            self.load_scenario()
-
+        self.load_scenario()
         self.num_agents = len(self.agents)
         self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
@@ -537,22 +540,20 @@ class HolodeckEnvironment(object):
         self.__on_exit__()
 
     def _get_single_state(self):
-        state = self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
+        return self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
             else self._state_dict[self._agent.name]
-        return state
 
     def _get_full_state(self):
         return self._create_copy(self._state_dict) if self._copy_state else self._state_dict
 
     def _get_reward_terminal(self):
-        if self._agent is None:
-            return 0, 0
         reward = None
         terminal = None
-        for sensor in self._state_dict[self._agent.name]:
-            if "Task" in sensor:
-                reward = self._state_dict[self._agent.name][sensor][0]
-                terminal = self._state_dict[self._agent.name][sensor][1] == 1
+        if self._agent is not None:
+            for sensor in self._state_dict[self._agent.name]:
+                if "Task" in sensor:
+                    reward = self._state_dict[self._agent.name][sensor][0]
+                    terminal = self._state_dict[self._agent.name][sensor][1] == 1
         return reward, terminal
 
     def _create_copy(self, obj):
