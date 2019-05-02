@@ -31,6 +31,13 @@ class CommandsGroup(object):
         """Clear the list of commands."""
         self._commands.clear()
 
+    @property
+    def size(self):
+        """
+        Returns:
+            int: Size of commands group"""
+        return len(self._commands)
+
 
 class Command(object):
     """Base class for Command objects. Commands are used for IPC between the holodeck python bindings and holodeck
@@ -120,6 +127,13 @@ class CommandCenter(object):
             raise Exception("Error: Command length exceeds buffer size")
         for index, val in enumerate(input_bytes):
             self._command_buffer_ptr[index] = val
+
+    @property
+    def queue_size(self):
+        """
+        Returns:
+            int: Size of commands queue"""
+        return self._commands.size
 
 
 class SpawnAgentCommand(Command):

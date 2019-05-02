@@ -236,6 +236,24 @@ def get_scenario(scenario_name):
     return load_scenario_file(config_path)
 
 
+def get_world_path(scenario_name):
+    """
+    Gets the scenario configuration associated with the given name
+    Args:
+        scenario_name (str): name of the configuration to load - eg "UrbanCity-Follow"
+                     Must be an exact match. Name must be unique among all installed packages
+
+    Returns (dict): A dictionary containing the configuration file
+
+    """
+    scenario_path = _find_file_in_worlds_dir(scenario_name + ".json")
+    root = os.path.dirname(scenario_path)
+    config_path = os.path.join(root, "config.json")
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+        return os.path.join(root, config["path"])
+
+
 def get_package_config_for_scenario(scenario):
     """
     For the given scenario, returns the package config associated with it (config.json)
