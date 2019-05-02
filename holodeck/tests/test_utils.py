@@ -27,7 +27,7 @@ def almost_equal(item1, item2, thresh=0.01):
     item2 = np.array(item2).flatten()
     if len(item1) != len(item2):
         return False
-    return all(np.isclose(item1, item2, rtol=thresh))
+    return all(np.isclose(item1, item2, rtol=thresh,atol=1e-5))
 
 
 def is_full_state(state):

@@ -7,32 +7,6 @@ import math
 
 editor_test = True
 
-# LHS Version
-def eulerAnglesToRotationMatrix(theta):
-    theta = np.copy(np.array(theta))
-    theta[0] *= -1
-    theta[2] *= -1
-
-    R_x = np.array([[1, 0, 0],
-                    [0, math.cos(theta[0]), -math.sin(theta[0])],
-                    [0, math.sin(theta[0]), math.cos(theta[0])]
-                    ])
-
-    R_y = np.array([[math.cos(theta[1]), 0, math.sin(theta[1])],
-                    [0, 1, 0],
-                    [-math.sin(theta[1]), 0, math.cos(theta[1])]
-                    ])
-
-    R_z = np.array([[math.cos(theta[2]), -math.sin(theta[2]), 0],
-                    [math.sin(theta[2]), math.cos(theta[2]), 0],
-                    [0, 0, 1]
-                    ])
-
-    R = np.dot(R_z, np.dot(R_y, R_x))
-
-    return R
-
-
 def test_sensor_coords():
 
     if editor_test:
@@ -43,7 +17,7 @@ def test_sensor_coords():
 
     env.reset()
 
-    agent_sensors = [sensors.RGBCamera, sensors.LocationSensor, sensors.VelocitySensor, sensors.OrientationSensor, sensors.IMUSensor]
+    agent_sensors = [sensors.RGBCamera, sensors.LocationSensor, sensors.OrientationSensor, sensors.VelocitySensor, sensors.RotationSensor, sensors.IMUSensor]
     agent = AgentDefinition("uav0", agents.UavAgent, agent_sensors)
 
     # Test spawning units
@@ -51,6 +25,8 @@ def test_sensor_coords():
     env.spawn_agent(agent, loc)
     state = env.tick()
     sensed_loc = state["uav0"]["LocationSensor"]
+    initial_rot = state["uav0"]["RotationSensor"]
+    initial_or = state["uav0"]["OrientationSensor"]
     assert almost_equal(loc, sensed_loc)
 
     # Test teleport units
@@ -62,16 +38,30 @@ def test_sensor_coords():
 
     # Test teleport and rotate and units
     loc = [123, 3740, 1030]
-    rot_deg = np.array([0, 0, 90])
-    rot_rad = rot_deg * math.pi / 180.0
-    rot_matrix = eulerAnglesToRotationMatrix(rot_rad)
+    rot_deg = np.array([34, 25, 67])
     env.teleport("uav0", loc, rot_deg)
     state = env.tick()
     sensed_loc = state["uav0"]["LocationSensor"]
-    sensed_rot = state["uav0"]["OrientationSensor"]
+    sensed_rot = state["uav0"]["RotationSensor"]
     assert almost_equal(loc, sensed_loc)
-    assert almost_equal(rot_matrix, sensed_rot)
+    assert almost_equal(rot_deg, sensed_rot)
 
+
+    # Test orientation sensor
+    loc = [123, 3740, 1030]
+    rot_deg = np.array([0, 90, 0])
+    env.teleport("uav0", loc, rot_deg)
+    state = env.tick()
+    sensed_loc = state["uav0"]["LocationSensor"]
+    sensed_or = state["uav0"]["OrientationSensor"]
+    assert almost_equal(loc, sensed_loc)
+
+    accurate_or = np.zeros((3,3))
+    accurate_or[0,2] = 1.0
+    accurate_or[1,1] = 1.0
+    accurate_or[2,0] = -1.0
+
+    assert almost_equal(accurate_or, sensed_or)
     print("done")
 
 
