@@ -301,8 +301,8 @@ class AndroidAgent(HolodeckAgent):
 
     **Action Space:** 94 dimensional vector of continuous values representing torques to be 
     applied at each joint. The layout of joints can be found here:
-
-    https://github.com/BYU-PCCL/holodeck/blob/master/holodeck/agents.py
+    
+    There are 18 joints with 3 DOF, 10 with 2 DOF, and 20 with 1 DOF.
 
     Inherits from :class:`HolodeckAgent`."""
 

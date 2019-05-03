@@ -38,7 +38,8 @@ New Features
 - Add the ability to draw points, lines, arrows and boxes in the worlds
   (`#144 <https://github.com/BYU-PCCL/holodeck/pull/144>`_)
 - Added new tasks for use with scenarios 
-
+- Added new scaled torque control scheme to the Android
+  (`#150 <https://github.com/BYU-PCCL/holodeck/pull/144>`_)
 .. TODO: Add links to tasks!
 
 Bug Fixes

@@ -31,6 +31,8 @@ When you call ``holodeck.make()`` to create an environment, you pass in the name
 of a scenario, eg ``holodeck.make("UrbanCity-Follow")``. This tells Holodeck
 which world to load and where to place agents.
 
+.. _`scenario-files`:
+
 Scenario File Format
 --------------------
 
