@@ -85,24 +85,12 @@ s['uav0'][Sensors.TERMINAL]
 s['uav0'][Sensors.LOCATION_SENSOR]
 ```
 
-## Basic Controls
-### HotKeys 
-* `C` - toggles between a directly attached camera, which allows you to see more or less what the agent sees, and relative attach, 
-which is the default camera attachment.
-* `V` - toggles spectator mode, which allows you detach from the agent and explore the world without affecting the agent's vision.  
-### Stats
-You can view stats by entering console commands. When an environment is running, type `~` to open the console and enter a command. A common one to use is `stat FPS` to display the frames per second. More commands can be found in [UDK documentation](https://api.unrealengine.com/udk/Three/ConsoleCommands.html).
-
 
 ## Documentation
 * [Agents](https://github.com/byu-pccl/holodeck/blob/master/docs/agents.md)
 * [Sensors](https://github.com/byu-pccl/holodeck/blob/master/docs/sensors.md)
 * [Environment configuration](https://github.com/byu-pccl/holodeck/blob/master/docs/worlds.md)
 * [Docs](https://holodeck.readthedocs.io/en/latest/)
-
-
-## Custom World Creation
-To create custom worlds with variable start positions, number and type of agents, and different environments see the [Holodeck Engine](https://github.com/byu-pccl/holodeck-engine) and follow the [Packaging and Using Custom Worlds wiki](https://github.com/byu-pccl/holodeck-engine/wiki/Packaging-and-Using-Custom-Worlds) to use Holodeck for editing worlds with the Unreal editor.
 
 ## Using OpenGL3 in Linux
 To use OpenGL3 in linux, change the argument in Holodeck.make:
