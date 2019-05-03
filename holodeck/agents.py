@@ -56,7 +56,7 @@ class HolodeckAgent(object):
         self.name = name
         self._client = client
         self.agent_state_dict = dict()
-        self.sensors = []
+        self.sensors = dict()
 
         self._num_control_schemes = len(self.control_schemes)
         self._max_control_scheme_length = max(map(lambda x: reduce(lambda i, j: i * j, x[1].buffer_shape),
@@ -404,7 +404,7 @@ class AgentDefinition:
         "AndroidAgent": AndroidAgent
     }
 
-    def __init__(self, agent_name, agent_type, sensors=None, existing=False):
+    def __init__(self, agent_name, agent_type, sensors=None, starting_loc=(0,0,0), existing=False):
         """
         Args:
             agent_name (str): The name of the agent to control.
@@ -412,7 +412,12 @@ class AgentDefinition:
             sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of HolodeckSensors to read from this agent.
                 Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
         """
+        self.starting_loc = starting_loc
+        self.existing = existing
         self.sensors = sensors or list()
+        for i, sensor_def in enumerate(self.sensors):
+            if not isinstance(sensor_def, SensorDefinition):
+                self.sensors[i] = SensorDefinition(agent_name, None, sensor_def)
         self.name = agent_name
         self.type = AgentDefinition._type_keys[agent_type] if isinstance(agent_type, str) else agent_type
 
