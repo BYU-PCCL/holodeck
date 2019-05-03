@@ -52,14 +52,11 @@ class HolodeckAgent(object):
         agent_state_dict (dict): A dictionary that maps sensor names to sensor observation data.
     """
 
-    def __init__(self, client, name="DefaultAgent", sensors=None):
+    def __init__(self, client, name="DefaultAgent"):
         self.name = name
         self._client = client
-        self.sensors = sensors
         self.agent_state_dict = dict()
-        for _, sensor in sensors.items():
-            self.agent_state_dict[sensor.name] = sensor.sensor_data
-
+        self.sensors = []
 
         self._num_control_schemes = len(self.control_schemes)
         self._max_control_scheme_length = max(map(lambda x: reduce(lambda i, j: i * j, x[1].buffer_shape),
@@ -140,21 +137,7 @@ class HolodeckAgent(object):
         np.copyto(self._teleport_buffer[9:12], angular_velocity)
         self._teleport_type_buffer[0] = val
 
-    def add_existing_sensors(self, sensor_defs):
-        """Adds a sensor to a particular agent object. This only works if the world you are running also includes
-        that particular sensor on the agent.
-
-        Args:
-            sensor_defs (:obj:`HolodeckSensor` or list of :obj:`HolodeckSensor`): Sensors to add to the agent.
-                Should be objects that inherit from :obj:`HolodeckSensor`.
-        """
-        if not isinstance(sensor_defs, list):
-            sensor_defs = [sensor_defs]
-
-        for sensor_def in sensor_defs:
-            self.sensors[sensor_def.name] = SensorFactory.build_sensor(self._client, sensor_def)
-
-    def add_new_sensors(self, sensor_defs):
+    def add_sensors(self, sensor_defs):
         """Adds a sensor to a particular agent object and attaches an instance of the sensor to the agent in the world.
 
         Args:
@@ -170,8 +153,9 @@ class HolodeckAgent(object):
                 self.sensors[sensor_def.sensor_name] = sensor
                 self.agent_state_dict[sensor_def.sensor_name] = sensor.sensor_data
 
-                command_to_send = AddSensorCommand(sensor_def)
-                self._client.command_center.enqueue_command(command_to_send)
+                if not sensor_def.existing:
+                    command_to_send = AddSensorCommand(sensor_def)
+                    self._client.command_center.enqueue_command(command_to_send)
 
     def remove_sensors(self, sensor_defs):
         """Removes a sensor from a particular agent object and detaches it from the agent in the world.
@@ -420,7 +404,7 @@ class AgentDefinition:
         "AndroidAgent": AndroidAgent
     }
 
-    def __init__(self, agent_name, agent_type, sensors=None):
+    def __init__(self, agent_name, agent_type, sensors=None, existing=False):
         """
         Args:
             agent_name (str): The name of the agent to control.
@@ -436,10 +420,4 @@ class AgentDefinition:
 class AgentFactory:
     @staticmethod
     def build_agent(client, agent_def):
-        agent_sensors = dict()
-        for sensor_def in agent_def.sensors:
-            if not isinstance(sensor_def, SensorDefinition):
-                sensor_def = SensorDefinition(agent_def.name, None, sensor_def)
-            agent_sensors[sensor_def.sensor_name] = SensorFactory.build_sensor(client, sensor_def)
-
-        return agent_def.type(client, agent_def.name, agent_sensors)
+        return agent_def.type(client, agent_def.name)

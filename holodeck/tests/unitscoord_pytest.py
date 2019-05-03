@@ -21,7 +21,7 @@ def test_sensor_coords():
 
     # Test spawning units
     loc = [12, 30, 100]
-    env.spawn_agent(agent, loc)
+    env.add_agent(agent, loc)
     state = env.tick()
     sensed_loc = state["uav0"]["LocationSensor"]
     assert almost_equal(loc, sensed_loc)
