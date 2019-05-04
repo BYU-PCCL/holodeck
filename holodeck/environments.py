@@ -94,9 +94,6 @@ class HolodeckEnvironment(object):
         self._initial_reset = False
         self.reset()
 
-        for agent_def in agent_definitions:
-            self.add_agent(agent_def)
-
     @property
     def action_space(self):
         """Gives the action space for the main agent.
@@ -122,7 +119,7 @@ class HolodeckEnvironment(object):
             result.append(type(agent).__name__)
             result.append("\n\t")
             result.append("Sensors:\n")
-            for sensor in agent.sensors.items():
+            for _, sensor in agent.sensors.items():
                 result.append("\t\t")
                 result.append(sensor.name)
                 result.append("\n")
@@ -148,7 +145,7 @@ class HolodeckEnvironment(object):
                                                 rotation=sensor['rotation'],
                                                 params=params))
 
-            agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'], starting_loc = agent["location"], sensors=sensors)
+            agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'], starting_loc=agent["location"], sensors=sensors)
             self.add_agent(agent_def)
             self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
 
@@ -175,9 +172,10 @@ class HolodeckEnvironment(object):
         # Load agents
         self.agents = dict()
         self._state_dict = dict()
-        self.load_scenario()
         for agent_def in self._initial_agents:
             self.add_agent(agent_def)
+
+        self.load_scenario()
 
         self.num_agents = len(self.agents)
         self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
@@ -276,7 +274,7 @@ class HolodeckEnvironment(object):
     def add_agent(self, agent_def):
 
         if agent_def.name in self.agents:
-            print("Error: agent name duplicate.")
+            raise Exception("Error. Duplicate agent name. ")
         else:
             self.agents[agent_def.name] = AgentFactory.build_agent(self._client, agent_def)
             self._state_dict[agent_def.name] = self.agents[agent_def.name].agent_state_dict
