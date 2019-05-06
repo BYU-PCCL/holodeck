@@ -39,7 +39,7 @@ and the agent has travelled far enough away.
 MaximizeDistance
 ~~~~~~~~~~~~~~~~
 
-Boolean value to indicate if the distance should be maximized or not.
+Boolean value to indicate if the distance should be maximized or minimized.
 
 ``"MaximizeDistance": true``
 

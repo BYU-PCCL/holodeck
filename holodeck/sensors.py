@@ -422,6 +422,7 @@ class PressureSensor(HolodeckSensor):
 
 class SensorDefinition(object):
     """A class for new sensors and their parameters, to be used for adding new sensors.
+    
     Args:
         agent_name (str): The name of the parent agent.
         sensor_name (str): The name of the sensor.
