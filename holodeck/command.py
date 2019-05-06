@@ -39,6 +39,13 @@ class CommandsGroup(object):
         """
         self._commands.clear()
 
+    @property
+    def size(self):
+        """
+        Returns:
+            int: Size of commands group"""
+        return len(self._commands)
+
 
 class Command(object):
     """Base class for Command objects.
@@ -169,6 +176,13 @@ class CommandCenter(object):
         for index, val in enumerate(input_bytes):
             self._command_buffer_ptr[index] = val
 
+    @property
+    def queue_size(self):
+        """
+        Returns:
+            int: Size of commands queue"""
+        return self._commands.size
+
 
 class SpawnAgentCommand(Command):
     """Spawn an agent in the world.
@@ -215,7 +229,7 @@ class SpawnAgentCommand(Command):
             agent_type (:obj:`str` or :obj:`type`): The type of agent to spawn.
 
         """
-        if not isinstance(str, agent_type):
+        if not isinstance(agent_type, str):
             agent_type = agent_type.agent_type  # Get str from type
         self.add_string_parameters(agent_type)
 
@@ -275,22 +289,72 @@ class SetSensorEnabledCommand(Command):
 
 
 class AddSensorCommand(Command):
-    """Add a sensor to an agent
-
-    Args:
-        agent (:obj:`str`): Name of agent to modify
-        sensor (:obj:`str`): Name of new sensor
-        sensor_type (:obj:`str`): Name of the class of the sensor type to add
-        socket (:obj:`str`): Name of the socket to use
-
-    """
-    def __init__(self, agent, sensor, sensor_type, socket=""):
+    def __init__(self, sensor_definition):
+        """Sets the command type to AddSensor and initializes the object.
+        :param sensor_definition: Definition for sensor to add.
+        """
         Command.__init__(self)
         self._command_type = "AddSensor"
+        self.set_agent(sensor_definition.agent_name)
+        self.set_sensor(sensor_definition.sensor_name)
+        self.set_type(sensor_definition.type.sensor_type)
+        self.set_params(sensor_definition.params)
+        self.set_socket(sensor_definition.socket)
+        self.set_location(sensor_definition.location)
+        self.set_rotation(sensor_definition.rotation)
+
+    def set_agent(self, agent):
+        """Set the agent name.
+        Positional Arguments:
+        agent: String representing the name of the agent to add sensor
+        """
         self.add_string_parameters(agent)
-        self.add_string_parameters(socket)
+
+    def set_sensor(self, sensor):
+        """Set the sensor name.
+        Positional Arguments:
+        sensor: String representing the name of the sensor
+        """
         self.add_string_parameters(sensor)
+
+    def set_type(self, sensor_type):
+        """Set the sensor type.
+        Positional Arguments:
+        sensor_type: String representing the class of the sensor
+        """
         self.add_string_parameters(sensor_type)
+
+    def set_params(self, sensor_params):
+        """Set the sensor params.
+        Positional Arguments:
+        sensor_params: Json string of sensor parameters
+        """
+        self.add_string_parameters(sensor_params)
+
+    def set_socket(self, sensor_socket):
+        """Set the sensor socket.
+        Positional Arguments:
+        sensor_socket: String representing name of the socket where sensor will be attached
+        """
+        self.add_string_parameters(sensor_socket)
+
+    def set_location(self, sensor_location):
+        """Set the sensor location.
+        Positional Arguments:
+        sensor_location: Tuple of floats representing the location of the sensor
+        """
+        self.add_number_parameters(sensor_location[0])
+        self.add_number_parameters(sensor_location[1])
+        self.add_number_parameters(sensor_location[2])
+
+    def set_rotation(self, sensor_rotation):
+        """Set the sensor rotation.
+        Positional Arguments:
+        sensor_rotation: Tuple of floats representing the rotation of the sensor
+        """
+        self.add_number_parameters(sensor_rotation[0])
+        self.add_number_parameters(sensor_rotation[1])
+        self.add_number_parameters(sensor_rotation[2])
 
 
 class RemoveSensorCommand(Command):

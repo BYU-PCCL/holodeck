@@ -7,8 +7,10 @@ import os
 import subprocess
 import sys
 from copy import copy
+import json
 
 from holodeck.command import *
+from holodeck.packagemanager import get_scenario, load_scenario_file
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import *
@@ -61,9 +63,13 @@ class HolodeckEnvironment(object):
 
     """
 
-    def __init__(self, agent_definitions, binary_path=None, task_key=None, window_height=512, window_width=512,
+    def __init__(self, agent_definitions=None, binary_path=None, scenario_key=None, window_height=512, window_width=512,
                  camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
-                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True):
+                 pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True, scenario_path=None):
+
+        if agent_definitions is None:
+            agent_definitions = []
+
         # Initialize variables
         self._window_height = window_height
         self._window_width = window_width
@@ -73,13 +79,17 @@ class HolodeckEnvironment(object):
         self._pre_start_steps = pre_start_steps
         self._copy_state = copy_state
         self._ticks_per_sec = ticks_per_sec
+        self._scenario_key = scenario_key
+        self._scenario_path = scenario_path
+        self._initial_agents = agent_definitions
 
         # Start world based on OS
         if start_world:
+            world_key = scenario_key.split("-")[0]
             if os.name == "posix":
-                self.__linux_start_process__(binary_path, task_key, gl_version, verbose=verbose, show_viewport=show_viewport)
+                self.__linux_start_process__(binary_path, world_key, gl_version, verbose=verbose, show_viewport=show_viewport)
             elif os.name == "nt":
-                self.__windows_start_process__(binary_path, task_key, verbose=verbose)
+                self.__windows_start_process__(binary_path, world_key, verbose=verbose)
             else:
                 raise HolodeckException("Unknown platform: " + os.name)
 
@@ -93,13 +103,11 @@ class HolodeckEnvironment(object):
         # Set up agents already in the world
         self.agents = dict()
         self._state_dict = dict()
-        self._add_agents(agent_definitions)
+        self._agent = None
+        self._load_existing_agents(agent_definitions)
 
         # Spawn agents not yet in the world.
         # TODO implement this section for future build automation update
-
-        # Set the main agent
-        self._agent = self.agents[agent_definitions[0].name]
 
         # Set the default state function
         self.num_agents = len(self.agents)
@@ -141,6 +149,29 @@ class HolodeckEnvironment(object):
                 result.append("\n")
         return "".join(result)
 
+    def load_scenario(self):
+        if self._scenario_key is not None:
+            scenario = get_scenario(self._scenario_key)
+        elif self._scenario_path is not None:
+            scenario = load_scenario_file(self._scenario_path)
+        else:
+            return
+
+        for agent in scenario['agents']:
+            agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'])
+            self.spawn_agent(agent_def, agent['location'])
+            self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
+            sensors = []
+            for sensor in agent['sensors']:
+                params = json.dumps(sensor['configuration'])
+                params = params.replace("\"", "\\\"")
+                sensors.append(SensorDefinition(agent['agent_name'], sensor['sensor_name'], sensor['sensor_type'],
+                                                socket=sensor['socket'],
+                                                location=sensor['location'],
+                                                rotation=sensor['rotation'],
+                                                params=params))
+            self.agents[agent['agent_name']].add_new_sensors(sensors)
+
     def reset(self):
         """Resets the environment, and returns the state.
         If it is a single agent environment, it returns that state for that agent. Otherwise, it returns a dict from
@@ -151,15 +182,27 @@ class HolodeckEnvironment(object):
 
             For multi-agent environment, returns the same as `tick`.
         """
+        # Reset level
         self._initial_reset = True
         self._reset_ptr[0] = True
+        self.tick()  # Must tick once to send reset before sending spawning commands
+
+        # Clear command queue
+        if self._command_center.queue_size > 0:
+            print("Warning: Reset called before all commands could be sent. Discarding",
+                  self._command_center.queue_size, "commands.")
         self._command_center.clear()
+
+        # Load agents
+        self.agents = dict()
+        self._state_dict = dict()
+        self._load_existing_agents(self._initial_agents)
+        self.load_scenario()
+        self.num_agents = len(self.agents)
+        self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
         for _ in range(self._pre_start_steps + 1):
             self.tick()
-
-        for agent in self.agents:
-            self.set_ticks_per_capture(agent, self.agents[agent].get_ticks_per_capture())
 
         return self._default_state_fn()
 
@@ -180,14 +223,45 @@ class HolodeckEnvironment(object):
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .step()")
 
-        self._agent.act(action)
+        if self._agent is not None:
+            self._agent.act(action)
+
+        self._command_center.handle_buffer()
+        self._client.release()
+        self._client.acquire()
+        
+        reward, terminal = self._get_reward_terminal()
+        return self._default_state_fn(), reward, terminal, None
+
+    def act(self, agent_name, action):
+        """Supplies an action to a particular agent, but doesn't tick the environment.
+        Primary mode of interaction for multi-agent environments. After all agent commands are supplied,
+        they can be applied with a call to `tick`.
+
+        Args:
+            agent_name (str): The name of the agent to supply an action for.
+            action (np.ndarray or list): The action to apply to the agent. This action will be applied every
+                time `tick` is called, until a new action is supplied with another call to act.
+        """
+        self.agents[agent_name].act(action)
+
+    def tick(self):
+        """Ticks the environment once. Normally used for multi-agent environments.
+
+        Returns:
+            dict: A dictionary from agent name to its full state. The full state is another dictionary
+            from :obj:`holodeck.sensors.Sensors` enum to np.ndarray, containing the sensors information
+            for each sensor. The sensors always include the reward and terminal sensors.
+        """
+        if not self._initial_reset:
+            raise HolodeckException("You must call .reset() before .tick()")
 
         self._command_center.handle_buffer()
 
         self._client.release()
         self._client.acquire()
 
-        return self._get_single_state()
+        return self._default_state_fn()
 
     def teleport(self, agent_name, location=None, rotation=None):
         """Teleports the target agent to any given location, and applies a specific rotation.
@@ -260,7 +334,12 @@ class HolodeckEnvironment(object):
             location (:obj:`np.ndarray` or :obj:`list`): The position to spawn the agent in the world, in XYZ coordinates (in meters).
         """
         self._add_agents(agent_definition)
+        if self._agent is None:
+            self._agent = self.agents[agent_definition.name]
         self._enqueue_command(SpawnAgentCommand(location, agent_definition.name, agent_definition.type.agent_type))
+
+        if self._agent is None:
+            self._agent = self.agents[agent_definition.name]
 
     def set_ticks_per_capture(self, agent_name, ticks_per_capture):
         """Queues a rgb camera rate command. It will be applied when :meth:`tick` or :meth:`step` is called next.
@@ -544,19 +623,21 @@ class HolodeckEnvironment(object):
         self.__on_exit__()
 
     def _get_single_state(self):
-        reward = None
-        terminal = None
-        for sensor in self._state_dict[self._agent.name]:
-            if sensor is "TaskSensor":
-                reward = self._state_dict[self._agent.name][sensor][0]
-                terminal = self._state_dict[self._agent.name][sensor][1] == 1
-
-        state = self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
+        return self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
             else self._state_dict[self._agent.name]
-        return state, reward, terminal, None
 
     def _get_full_state(self):
         return self._create_copy(self._state_dict) if self._copy_state else self._state_dict
+
+    def _get_reward_terminal(self):
+        reward = None
+        terminal = None
+        if self._agent is not None:
+            for sensor in self._state_dict[self._agent.name]:
+                if "Task" in sensor:
+                    reward = self._state_dict[self._agent.name][sensor][0]
+                    terminal = self._state_dict[self._agent.name][sensor][1] == 1
+        return reward, terminal
 
     def _create_copy(self, obj):
         if isinstance(obj, dict):  # Deep copy dictionary
@@ -568,6 +649,14 @@ class HolodeckEnvironment(object):
                     cp[k] = np.copy(v)
             return cp
         return None  # Not implemented for other types
+
+    def _load_existing_agents(self, agent_definitions):
+        self._add_agents(agent_definitions)
+
+        # Set the main agent
+        self._agent = None
+        if len(self.agents) > 0:
+            self._agent = self.agents[agent_definitions[0].name]
 
     def _add_agents(self, agent_definitions):
         """Add specified agents to the client. Set up their shared memory and sensor linkages.

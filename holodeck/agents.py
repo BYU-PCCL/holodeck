@@ -21,7 +21,8 @@ class ControlSchemes(object):
         UAV_ROLL_PITCH_YAW_RATE_ALT (int): Control scheme for UAV. Takes roll, pitch, yaw rate, and altitude targets.
     """
     # UAV Control Schemes
-    ANDROID_TORQUES = 0
+    ANDROID_DIRECT_TORQUES = 0
+    ANDROID_MAX_SCALED_TORQUES = 1
 
     # Sphere Agent Control Schemes
     SPHERE_DISCRETE = 0
@@ -60,6 +61,7 @@ class HolodeckAgent(object):
         self.agent_state_dict = dict()
         for _, sensor in sensors.items():
             self.agent_state_dict[sensor.name] = sensor.sensor_data
+
 
         self._num_control_schemes = len(self.control_schemes)
         self._max_control_scheme_length = max(map(lambda x: reduce(lambda i, j: i * j, x[1].buffer_shape),
@@ -117,7 +119,7 @@ class HolodeckAgent(object):
         Args:
             location (np.ndarray, optional): An array with three elements specifying the target world coordinate in meters.
             If None, keeps the current location. Defaults to None.
-            rotation (np.ndarray, optional): An array with three elements specifying the target rotation of the agent.
+            rotation (np.ndarray, optional): An array with three elements specifying roll, pitch, and yaw in degrees of the agent.
             If None, keeps the current rotation. Defaults to None.
 
         """
@@ -171,12 +173,13 @@ class HolodeckAgent(object):
             sensor_defs = [sensor_defs]
 
         for sensor_def in sensor_defs:
-            sensor = SensorFactory.build_sensor(self._client, sensor_def)
-            self.sensors[sensor_def.sensor_name] = sensor
-            self.agent_state_dict[sensor_def.sensor_name] = sensor.sensor_data
-            command_to_send = AddSensorCommand(self.name, sensor_def.sensor_name, sensor_def.type.sensor_type,
-                                               socket=sensor_def.socket)
-            self._client.command_center.enqueue_command(command_to_send)
+            if sensor_def.agent_name == self.name:
+                sensor = SensorFactory.build_sensor(self._client, sensor_def)
+                self.sensors[sensor_def.sensor_name] = sensor
+                self.agent_state_dict[sensor_def.sensor_name] = sensor.sensor_data
+
+                command_to_send = AddSensorCommand(sensor_def)
+                self._client.command_center.enqueue_command(command_to_send)
 
     def remove_sensors(self, sensor_defs):
         """Removes a sensor from a particular agent object and detaches it from the agent in the world.
@@ -193,6 +196,15 @@ class HolodeckAgent(object):
             self.agent_state_dict.pop(sensor_def.sensor_name, None)
             command_to_send = RemoveSensorCommand(self.name, sensor_def.sensor_name)
             self._client.command_center.enqueue_command(command_to_send)
+
+    def has_camera(self):
+        """ Returns boolean indicating whether this sensor has a camera
+        """
+        for sensor_type in self.sensors.items():
+            if sensor_type is RGBCamera:
+                return True
+
+        return False
 
     @property
     def action_space(self):
@@ -310,7 +322,8 @@ class AndroidAgent(HolodeckAgent):
 
     @property
     def control_schemes(self):
-        return [("[Bone Torques] * 94", ContinuousActionSpace([94]))]
+        return [("[Raw Bone Torques] * 94", ContinuousActionSpace([94])),
+                ("[-1 to 1] * 94, where 1 is the maximum torque for a given joint (based on mass of bone)", ContinuousActionSpace([94]))]
 
     def __repr__(self):
         return "AndroidAgent " + self.name
@@ -354,7 +367,7 @@ class AndroidAgent(HolodeckAgent):
         "ring_01_r": 70,
         "pinky_01_r": 72,
 
-        # Second joint of each finger.Has only[swing1]
+        # Second joint of each finger. Has only[swing1]
         "thumb_02_l": 74,
         "index_02_l": 75,
         "middle_02_l": 76,
@@ -366,7 +379,7 @@ class AndroidAgent(HolodeckAgent):
         "ring_02_r": 82,
         "pinky_02_r": 83,
 
-        # Third joint of each finger.Has only[swing1]
+        # Third joint of each finger. Has only[swing1]
         "thumb_03_l": 84,
         "index_03_l": 85,
         "middle_03_l": 86,
@@ -442,6 +455,13 @@ class AgentDefinition:
     }
 
     def __init__(self, agent_name, agent_type, sensors=None):
+        """
+        Args:
+            agent_name (str): The name of the agent to control.
+            agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
+            sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of HolodeckSensors to read from this agent.
+                Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
+        """
         self.sensors = sensors or list()
         self.name = agent_name
         self.type = AgentDefinition._type_keys[agent_type] if isinstance(agent_type, str) else agent_type
@@ -451,16 +471,9 @@ class AgentFactory:
     @staticmethod
     def build_agent(client, agent_def):
         agent_sensors = dict()
-        has_task = False
         for sensor_def in agent_def.sensors:
             if not isinstance(sensor_def, SensorDefinition):
                 sensor_def = SensorDefinition(agent_def.name, None, sensor_def)
             agent_sensors[sensor_def.sensor_name] = SensorFactory.build_sensor(client, sensor_def)
-            if sensor_def.type is TaskSensor:
-                has_task = True
-
-        if not has_task:
-            agent_sensors["TaskSensor"] = SensorFactory.build_sensor(client, SensorDefinition(agent_def.name,
-                                                                                              "TaskSensor", TaskSensor))
 
         return agent_def.type(client, agent_def.name, agent_sensors)
