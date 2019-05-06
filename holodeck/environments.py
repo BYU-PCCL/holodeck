@@ -125,7 +125,13 @@ class HolodeckEnvironment(object):
                 result.append("\n")
         return "".join(result)
 
-    def load_scenario(self):
+    def _load_scenario(self):
+        """Loads the scenario defined in self._scenario_key.
+
+        Instantiates all agents and sensors.
+
+        If no scenario is defined, does nothing.
+        """
         if self._scenario_key is not None:
             scenario = get_scenario(self._scenario_key)
         elif self._scenario_path is not None:
@@ -137,12 +143,31 @@ class HolodeckEnvironment(object):
 
             sensors = []
             for sensor in agent['sensors']:
+                if 'sensor_type' not in sensor:
+                    raise HolodeckException(
+                        "Sensor for agent {} is missing required key 'sensor_type'".format(agent['agent_name']))
+                
+                # Default values for a sensor
+                sensor_config = {
+                    'location': [0, 0, 0],
+                    'rotation': [0, 0, 0],
+                    'socket': "",
+                    'configuration': {},
+                    'sensor_name': sensor['sensor_type']
+                }
+                # Overwrite the default values with what is defined in the scenario config
+                sensor_config.update(sensor)
+
                 params = json.dumps(sensor['configuration'])
+                # Prepare configuration string for transport to the engine
                 params = params.replace("\"", "\\\"")
-                sensors.append(SensorDefinition(agent['agent_name'], sensor['sensor_name'], sensor['sensor_type'],
-                                                socket=sensor['socket'],
-                                                location=sensor['location'],
-                                                rotation=sensor['rotation'],
+                
+                sensors.append(SensorDefinition(agent['agent_name'], 
+                                                sensor_config['sensor_name'], 
+                                                sensor_config['sensor_type'],
+                                                socket=sensor_config['socket'],
+                                                location=sensor_config['location'],
+                                                rotation=sensor_config['rotation'],
                                                 params=params))
 
             agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'], starting_loc=agent["location"], sensors=sensors)
@@ -175,7 +200,7 @@ class HolodeckEnvironment(object):
         for agent_def in self._initial_agents:
             self.add_agent(agent_def)
 
-        self.load_scenario()
+        self._load_scenario()
 
         self.num_agents = len(self.agents)
         self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
