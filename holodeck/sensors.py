@@ -389,7 +389,7 @@ class SensorDefinition(object):
                      "PressureSensor": PressureSensor,
                      "CollisionSensor": CollisionSensor}
 
-    def __init__(self, agent_name, sensor_name, sensor_type, socket="", location=(0,0,0), rotation=(0,0,0), params=""):
+    def __init__(self, agent_name, sensor_name, sensor_type, socket="", location=(0,0,0), rotation=(0,0,0), params="", existing=False):
         self.agent_name = agent_name
         self.sensor_name = sensor_name
         self.type = SensorDefinition._sensor_keys_[sensor_type] if isinstance(sensor_type, str) else sensor_type
@@ -397,6 +397,7 @@ class SensorDefinition(object):
         self.location = location
         self.rotation = rotation
         self.params = params
+        self.existing = existing
 
 
 class SensorFactory(object):

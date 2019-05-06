@@ -80,10 +80,9 @@ def multi_agent_example():
     cmd1 = np.array([0, 0, 5, 10])
     for i in range(10):
         env.reset()
-        # This will queue up a new agent to spawn into the environment, given that the coordinates are not blocked.
         env.agents["uav0"].set_control_scheme(ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
 
-        env.tick()  # Tick the environment once so the second agent spawns before we try to interact with it.
+        env.tick()
         env.act("uav0", cmd0)
         for _ in range(1000):
             states = env.tick()
