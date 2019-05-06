@@ -132,6 +132,19 @@ Sensor Objects
       }
    }
 
+The only keys that are required in a sensor object is ``"sensor_type"``, the 
+rest will default as shown below
+
+.. code-block:: json
+
+   {
+      "sensor_name": "sensor_type",
+      "location": [0, 0, 0],
+      "rotation": [0, 0, 0],
+      "socket": "",
+      "configuration": {}
+   }
+
 The contents of the ``configuration`` block are sensor-specific. That block is
 passed verbatim to the sensor itself, which parses it.
 
