@@ -19,7 +19,7 @@ from holodeck.agents import *
 class HolodeckEnvironment(object):
     """Proxy for communicating with a Holodeck world
 
-    It is reccommended to instantiate this object using :meth:`holodeck.holodeck.make`.
+    Instantiate this object using :meth:`holodeck.holodeck.make`.
 
     Args:
         agent_definitions (:obj:`list` of :class:`~holodeck.agents.AgentDefinition`):
@@ -38,10 +38,10 @@ class HolodeckEnvironment(object):
             The width to load the binary at. Defaults to 512.
 
         camera_height (:obj:`int`, optional):
-            The height of all pixel camera sensors. Defaults to 256.
+            The height of all RBG camera sensors. Defaults to 256.
 
         camera_width (:obj:`int`, optional):
-            The width of all pixel camera sensors. Defaults to 256.
+            The width of all RBG camera sensors. Defaults to 256.
 
         start_world (:obj:`bool`, optional):
             Whether to load a binary or not. Defaults to True.

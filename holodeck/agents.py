@@ -45,12 +45,12 @@ class HolodeckAgent(object):
     Args:
         client (:class:`~holodeck.holodeckclient.HolodeckClient`): The HolodeckClient that this agent belongs with.
         name (:obj:`str`, optional): The name of the agent. Must be unique from other agents in the same environment.
-        sensors (:obj:`dict` of (:obj:`str`, :class:`~~holodeck.sensors.HolodeckSensor`)): A list of HolodeckSensors to read from
+        sensors (:obj:`dict` of (:obj:`str`, :class:`~holodeck.sensors.HolodeckSensor`)): A list of HolodeckSensors to read from
             this agent.
 
     Attributes:
         name (:obj:`str`): The name of the agent.
-        sensors (dict of (string, :class:`~~holodeck.sensors.HolodeckSensor`)): List of HolodeckSensors on this agent.
+        sensors (dict of (string, :class:`~holodeck.sensors.HolodeckSensor`)): List of HolodeckSensors on this agent.
         agent_state_dict (dict): A dictionary that maps sensor names to sensor observation data.
     """
 
