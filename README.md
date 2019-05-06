@@ -26,7 +26,7 @@ See [Installation](https://holodeck.readthedocs.io/en/latest/usage/installation.
 Holodeck's interface is designed in the same vein as [OpenAI's Gym](https://gym.openai.com/).
 The quickest way to get acquainted with Holodeck use is to view the example.py file.
 Here is a basic walkthrough of an example that runs a Holodeck world:
-```
+```python
 import holodeck
 import numpy as np
 env = holodeck.make("UrbanCity")    # Load the environment. This environment contains a UAV in a city.
@@ -44,7 +44,7 @@ Info contains additional environment specific information.
 If you want to access the data of a specific sensor, it is as simple as import Sensors and
 retrieving the correct value from the state dictionary:
 
-```
+```python
 from holodeck.sensors import Sensors
 print(state[Sensors.LOCATION_SENSOR])
 ```
@@ -53,7 +53,7 @@ print(state[Sensors.LOCATION_SENSOR])
 Holodeck supports different control schemes for different agents.
 Currently the only agent with multiple control schemes is the UAV agent.
 The control scheme can be switched as follows:
-```
+```python
 from holodeck.agents import ControlSchemes
 
 env.set_control_scheme('uav0', ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
@@ -67,7 +67,7 @@ Instead of calling `step` which passes a command to the main agent and ticks the
 Once all agents have received their actions, you can call `tick` to tick the game.
 After act, every time you call tick the same command will be supplied to the agent.
 To change the command, just call act again.
-```
+```python
 env = holodeck.make('CyberPunkCity')
 env.reset()
 
@@ -85,24 +85,12 @@ s['uav0'][Sensors.TERMINAL]
 s['uav0'][Sensors.LOCATION_SENSOR]
 ```
 
-## Basic Controls
-### HotKeys 
-* `C` - toggles between a directly attached camera, which allows you to see more or less what the agent sees, and relative attach, 
-which is the default camera attachment.
-* `V` - toggles spectator mode, which allows you detach from the agent and explore the world without affecting the agent's vision.  
-### Stats
-You can view stats by entering console commands. When an environment is running, type `~` to open the console and enter a command. A common one to use is `stat FPS` to display the frames per second. More commands can be found in [UDK documentation](https://api.unrealengine.com/udk/Three/ConsoleCommands.html).
-
 
 ## Documentation
 * [Agents](https://github.com/byu-pccl/holodeck/blob/master/docs/agents.md)
 * [Sensors](https://github.com/byu-pccl/holodeck/blob/master/docs/sensors.md)
 * [Environment configuration](https://github.com/byu-pccl/holodeck/blob/master/docs/worlds.md)
 * [Docs](https://holodeck.readthedocs.io/en/latest/)
-
-
-## Custom World Creation
-To create custom worlds with variable start positions, number and type of agents, and different environments see the [Holodeck Engine](https://github.com/byu-pccl/holodeck-engine) and follow the [Packaging and Using Custom Worlds wiki](https://github.com/byu-pccl/holodeck-engine/wiki/Packaging-and-Using-Custom-Worlds) to use Holodeck for editing worlds with the Unreal editor.
 
 ## Using OpenGL3 in Linux
 To use OpenGL3 in linux, change the argument in Holodeck.make:

@@ -32,13 +32,14 @@ New Features
   (`#151 <https://github.com/BYU-PCCL/holodeck/issues/151>`_)
 - Packages are not hard-coded on server, binaries are saved in version-specific
   folder to prevent crosstalk 
-  (`#192 <https://github.com/BYU-PCCL/holodeck/pull/192>`_)
+  (`#188 <https://github.com/BYU-PCCL/holodeck/pull/188>`_)
 - Sensors can be disabled to improve performance
   (`#152 <https://github.com/BYU-PCCL/holodeck/pull/152>`_)
 - Add the ability to draw points, lines, arrows and boxes in the worlds
   (`#144 <https://github.com/BYU-PCCL/holodeck/pull/144>`_)
 - Added new tasks for use with scenarios 
-
+- Added new scaled torque control scheme to the Android
+  (`#150 <https://github.com/BYU-PCCL/holodeck/pull/144>`_)
 .. TODO: Add links to tasks!
 
 Bug Fixes

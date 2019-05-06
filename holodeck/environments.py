@@ -17,26 +17,50 @@ from holodeck.agents import *
 
 
 class HolodeckEnvironment(object):
-    """The high level interface for interacting with a Holodeck world.
-    Most users will want an environment created for them via `holodeck.make`.
+    """Proxy for communicating with a Holodeck world
+
+    Instantiate this object using :meth:`holodeck.holodeck.make`.
 
     Args:
-        agent_definitions (list of :obj:`AgentDefinition`): Which agents to expect in the environment.
-        binary_path (str, optional): The path to the binary to load the world from. Defaults to None.
-        scenario_key (str, optional): The name of the map within the binary to load. Defaults to None.
-        window_height (int, optional): The height to load the binary at. Defaults to 512.
-        window_width (int, optional): The width to load the binary at. Defaults to 512.
-        camera_height (int, optional): The height of all pixel camera sensors. Defaults to 256.
-        camera_width (int, optional): The width of all pixel camera sensors. Defaults to 256.
-        start_world (bool, optional): Whether to load a binary or not. Defaults to True.
-        uuid (str): A unique identifier, used when running multiple instances of holodeck. Defaults to "".
-        gl_version (int, optional): The version of OpenGL to use for Linux. Defaults to 4.
-        show_viewport (bool, optional) If the viewport should be shown (Linux only) Defaults to True.
-        ticks_per_sec (int, optional) Number of frame ticks per unreal second. Defaults to 30.
-        copy_state (bool, optional) If the state should be copied or returned as a reference. Defaults to True.
+        agent_definitions (:obj:`list` of :class:ntDefinition`):
+            Which agents to expect in the environment.
 
-    Returns:
-        HolodeckEnvironment: A holodeck environment object.
+        binary_path (:obj:`str`, optional):
+            The path to the binary to load the world from. Defaults to None.
+
+        task_key (:obj:`str`, optional):
+            The name of the map within the binary to load. Defaults to None.
+
+        window_height (:obj:`int`, optional):
+            The height to load the binary at. Defaults to 512.
+
+        window_width (:obj:`int`, optional):
+            The width to load the binary at. Defaults to 512.
+
+        camera_height (:obj:`int`, optional):
+            The height of all RBG camera sensors. Defaults to 256.
+
+        camera_width (:obj:`int`, optional):
+            The width of all RBG camera sensors. Defaults to 256.
+
+        start_world (:obj:`bool`, optional):
+            Whether to load a binary or not. Defaults to True.
+
+        uuid (:obj:`str`):
+            A unique identifier, used when running multiple instances of holodeck. Defaults to "".
+
+        gl_version (:obj:`int`, optional):
+            The version of OpenGL to use for Linux. Defaults to 4.
+
+        show_viewport (:obj:`bool`, optional):
+            If the viewport should be shown (Linux only) Defaults to True.
+
+        ticks_per_sec (:obj:`int`, optional):
+            Number of frame ticks per unreal second. Defaults to 30.
+
+        copy_state (:obj:`bool`, optional):
+            If the state should be copied or returned as a reference. Defaults to True.
+
     """
 
     def __init__(self, agent_definitions=None, binary_path=None, scenario_key=None, window_height=512, window_width=512,
@@ -89,7 +113,7 @@ class HolodeckEnvironment(object):
         self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
         self._client.acquire()
-        
+
         # Flag indicates if the user has called .reset() before .tick() and .step()
         self._initial_reset = False
         self.reset()
@@ -99,7 +123,7 @@ class HolodeckEnvironment(object):
         """Gives the action space for the main agent.
 
         Returns:
-            ActionSpace: The action space for the main agent.
+            :class:`~holodeck.spaces.ActionSpace`: The action space for the main agent.
         """
         return self._agent.action_space
 
@@ -108,7 +132,7 @@ class HolodeckEnvironment(object):
         This information includes which agents are in the environment and which sensors they have.
 
         Returns:
-            str: The information in a string format.
+            :obj:`str`: Information in a string format.
         """
         result = list()
         result.append("Agents:\n")
@@ -179,9 +203,10 @@ class HolodeckEnvironment(object):
         If it is a single agent environment, it returns that state for that agent. Otherwise, it returns a dict from
         agent name to state.
 
-        Returns:
-            tuple or dict: For single agent environment, returns the same as `step`.
-                For multi-agent environment, returns the same as `tick`.
+        Returns (tuple or dict):
+            For single agent environment, returns the same as `step`.
+
+            For multi-agent environment, returns the same as `tick`.
         """
         # Reset level
         self._initial_reset = True
@@ -215,14 +240,14 @@ class HolodeckEnvironment(object):
         Primary mode of interaction for single agent environments.
 
         Args:
-            action (np.ndarray): An action for the main agent to carry out on the next tick.
+            action (:obj:`np.ndarray`): An action for the main agent to carry out on the next tick.
 
         Returns:
-            tuple: The (state, reward, terminal, info) tuple for the agent. State is a dictionary
-            from sensor enum (see :obj:`holodeck.sensors.Sensors`) to np.ndarray.
-            Reward is the float reward returned by the environment.
-            Terminal is the bool terminal signal returned by the environment.
-            Info is any additional info, depending on the world. Defaults to None.
+            (:obj:`dict`, :obj:`float`, :obj:`bool`, info): A 4tuple:
+                - State: Dictionary from sensor enum (see :class:`~holodeck.sensors.HolodeckSensor`) to :obj:`np.ndarray`.
+                - Reward (:obj:`float`): Reward returned by the environment.
+                - Terminal: The bool terminal signal returned by the environment.
+                - Info: Any additional info, depending on the world. Defaults to None.
         """
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .step()")
@@ -271,10 +296,10 @@ class HolodeckEnvironment(object):
         """Teleports the target agent to any given location, and applies a specific rotation.
 
         Args:
-            agent_name (str): The name of the agent to teleport.
-            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
+            agent_name (:obj:`str`): The name of the agent to teleport.
+            location (:obj:`np.ndarray` or :obj:`list`): XYZ coordinates (in meters) for the agent to be teleported to.
                 If no location is given, it isn't teleported, but may still be rotated. Defaults to None.
-            rotation (np.ndarray or list): A new rotation target for the agent.
+            rotation (:obj:`np.ndarray` or :obj:`list`): A new rotation target for the agent.
                 If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
         """
         self.agents[agent_name].teleport(location, rotation)
@@ -284,20 +309,56 @@ class HolodeckEnvironment(object):
         blocked by objects in it's way however
 
         Args:
-            agent_name (str): The name of the agent to teleport.
-            location (np.ndarray or list): XYZ coordinates (in meters) for the agent to be teleported to.
-            rotation (np.ndarray or list): A new rotation target for the agent.
-            velocity (np.ndarray or list): A new velocity for the agent.
-            angular velocity (np.ndarray or list): A new angular velocity for the agent.
+            agent_name (:obj:`str`): The name of the agent to teleport.
+            location (:obj:`np.ndarray` or :obj:`list`): XYZ coordinates (in meters) for the agent to be teleported to.
+            rotation (:obj:`np.ndarray` or :obj:`list`): A new rotation target for the agent.
+            velocity (:obj:`np.ndarray` or :obj:`list`): A new velocity for the agent.
+            angular velocity (:obj:`np.ndarray` or :obj:`list`): A new angular velocity for the agent.
         """
         self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
+
+    def act(self, agent_name, action):
+        """Supplies an action to a particular agent, but doesn't tick the environment.
+        Primary mode of interaction for multi-agent environments. After all agent commands are supplied,
+        they can be applied with a call to `tick`.
+
+        Args:
+            agent_name (:obj:`str`): The name of the agent to supply an action for.
+            action (:obj:`np.ndarray` or :obj:`list`): The action to apply to the agent. This action will be applied every
+                time `tick` is called, until a new action is supplied with another call to act.
+        """
+        self.agents[agent_name].act(action)
+
+    def tick(self):
+        """Ticks the environment once. Normally used for multi-agent environments.
+
+        Returns:
+            :obj:`dict`: A dictionary from agent name to its full state. The full state is another dictionary
+                from :obj:`holodeck.sensors.Sensors` enum to np.ndarray, containing the sensors information
+                for each sensor. The sensors always include the reward and terminal sensors.
+        """
+        if not self._initial_reset:
+            raise HolodeckException("You must call .reset() before .tick()")
+
+        self._command_center.handle_buffer()
+
+        self._client.release()
+        self._client.acquire()
+        return self._get_full_state()
 
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
 
-
     def add_agent(self, agent_def):
+        """Add an agent in the world. 
+        
+        It will be spawn when :meth:`tick` or :meth:`step` is called next.
 
+        The agent won't be able to be used until the next frame.
+
+        Args:
+            agent_def (:class:`~holodeck.agents.AgentDefinition`): The definition of the agent to spawn.
+        """
         if agent_def.name in self.agents:
             raise Exception("Error. Duplicate agent name. ")
         else:
@@ -307,20 +368,17 @@ class HolodeckEnvironment(object):
             if not agent_def.existing:
                 command_to_send = SpawnAgentCommand(agent_def.starting_loc, agent_def.name, agent_def.type.agent_type)
                 self._client.command_center.enqueue_command(command_to_send)
-
-
             self.agents[agent_def.name].add_sensors(agent_def.sensors)
 
-
     def set_ticks_per_capture(self, agent_name, ticks_per_capture):
-        """Queues a rgb camera rate command. It will be applied when `tick` or `step` is called next.
+        """Queues a rgb camera rate command. It will be applied when :meth:`tick` or :meth:`step` is called next.
         The specified agent's rgb camera will capture images every specified number of ticks.
         The sensor's image will remain unchanged between captures.
         This method must be called after every call to env.reset.
 
         Args:
-            agent_name (str): The name of the agent whose rgb camera should be modified.
-            ticks_per_capture (int): The amount of ticks to wait between camera captures.
+            agent_name (:obj:`str`): The name of the agent whose rgb camera should be modified.
+            ticks_per_capture (:obj:`int`): The amount of ticks to wait between camera captures.
         """
         if not isinstance(ticks_per_capture, int) or ticks_per_capture < 1:
             print("Ticks per capture value " + str(ticks_per_capture) + " invalid")
@@ -335,10 +393,10 @@ class HolodeckEnvironment(object):
         """Draws a debug line in the world
 
         Args:
-            start (list of 3 floats): The start location of the line
-            end (list of 3 floats): The end location of the line
-            color (list of 3 floats): RGB values for the color
-            thickness (float): thickness of the line
+            start (:obj:`list`): The start location of the line, ``[x, y, z]``
+            end (:obj:`list`): The end location of the line, ``[x, y, z]``
+            color (:obj:`list``): RGB values for the color, ``[r, g, b]``
+            thickness (:obj:`float`): thickness of the line
         """
         color = [255, 0, 0] if color is None else color
         command_to_send = DebugDrawCommand(0, start, end, color, thickness)
@@ -348,10 +406,10 @@ class HolodeckEnvironment(object):
         """Draws a debug arrow in the world
 
         Args:
-            start (list of 3 floats): The start location of the arrow
-            end (list of 3 floats): The end location of the arrow
-            color (list of 3 floats): RGB values for the color
-            thickness (float): thickness of the arrow
+            start (:obj:`list`): The start location of the arrow, ``[x, y, z]``
+            end (:obj:`list`): The end location of the arrow, ``[x, y, z]``
+            color (:obj:`list`): RGB values for the color, ``[x, y, z]``
+            thickness (:obj:`float`): thickness of the arrow
         """
         color = [255, 0, 0] if color is None else color
         command_to_send = DebugDrawCommand(1, start, end, color, thickness)
@@ -361,10 +419,10 @@ class HolodeckEnvironment(object):
         """Draws a debug box in the world
 
         Args:
-            center (list of 3 floats): The start location of the box
-            extent (list of 3 floats): The extent of the box
-            color (list of 3 floats): RGB values for the color
-            thickness (float): thickness of the lines
+            center (:obj:`list`): The start location of the box, ``[x, y, z]``
+            extent (:obj:`list`): The extent of the box, ``[x, y, z]``
+            color (:obj:`list`): RGB values for the color, ``[x, y, z]``
+            thickness (:obj:`float`): thickness of the lines
         """
         color = [255, 0, 0] if color is None else color
         command_to_send = DebugDrawCommand(2, center, extent, color, thickness)
@@ -374,22 +432,25 @@ class HolodeckEnvironment(object):
         """Draws a debug point in the world
 
         Args:
-            loc (list of 3 floats): The location of the point
-            color (list of 3 floats): RGB values for the color
-            thickness (float): thickness of the point
+            loc (:obj:`list`): The location of the point, ``[x, y, z]``
+            color (:obj:`list`): RGB values for the color, ``[x, y, z]``
+            thickness (:obj:`float`): thickness of the point, ``[x, y, z]``
         """
         color = [255, 0, 0] if color is None else color
         command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
         self._enqueue_command(command_to_send)
 
     def set_fog_density(self, density):
-        """Queue up a change fog density command. It will be applied when `tick` or `step` is called next.
+        """Change the fog density.
+
+        The change will occur when :meth:`tick` or :meth:`step` is called next.
+
         By the next tick, the exponential height fog in the world will have the new density. If there is no fog in the
-        world, it will be automatically created with the given density.
+        world, it will be created with the given density.
 
         Args:
-            density (float): The new density value, between 0 and 1. The command will not be sent if the given
-        density is invalid.
+            density (:obj:`float`): The new density value, between 0 and 1. The command will not be sent if the given
+                density is invalid.
         """
         if density < 0 or density > 1:
             raise HolodeckException("Fog density should be between 0 and 1")
@@ -397,24 +458,31 @@ class HolodeckEnvironment(object):
         self.send_world_command("SetFogDensity", num_params=[density])
 
     def set_day_time(self, hour):
-        """Queue up a change day time command. It will be applied when `tick` or `step` is called next.
-        By the next tick, the lighting and the skysphere will be updated with the new hour. If there is no skysphere,
-        skylight, or directional source light in the world, this command will fail silently.
+        """Change the time of day.
 
+        Daytime will change when :meth:`tick` or :meth:`step` is called next.
+
+        By the next tick, the lighting and the skysphere will be updated with the new hour.
+
+        If there is no skysphere, skylight, or directional source light in the world, this command will fail silently.
 
         Args:
-            hour (int): The hour in military time, between 0 and 23 inclusive.
+            hour (:obj:`int`): The hour in 24-hour format, between 0 and 23 inclusive.
         """
         self.send_world_command("SetHour", num_params=[hour % 24])
 
     def start_day_cycle(self, day_length):
-        """Queue up a custom day cycle command to start the day cycle. It will be applied when `tick` or `step` is called next.
-        The sky sphere will now update each tick with an updated sun angle as it moves about the sky. The length of a
-        day will be roughly equivalent to the number of minutes given. If there is no skysphere,
-        skylight, or directional source light in the world, this command will fail silently.
+        """Start the day cycle.
+
+        The cycle will start when :meth:`tick` or :meth:`step` is called next.
+
+        The sky sphere will then update each tick with an updated sun angle as it moves about the sky. The length of a
+        day will be roughly equivalent to the number of minutes given.
+
+        If there is no skysphere, skylight, or directional source light in the world, this command will fail silently.
 
         Args:
-            day_length (int): The number of minutes each day will be.
+            day_length (:obj:`int`): The number of minutes each day will be.
         """
         if day_length <= 0:
             raise HolodeckException("The given day length should be between above 0!")
@@ -422,26 +490,38 @@ class HolodeckEnvironment(object):
         self.send_world_command("SetDayCycle", num_params=[1, day_length])
 
     def stop_day_cycle(self):
-        """Queue up a custom day cycle command to stop the day cycle. It will be applied when `tick` or `step` is called next.
-        By the next tick, day cycle will stop where it is. If there is no skysphere, skylight, or directional source
-        light in the world, this command will fail silently.
+        """Stop the day cycle.
+
+        The cycle will stop when :meth:`tick` or :meth:`step` is called next.
+
+        By the next tick, day cycle will stop where it is.
+
+        If there is no skysphere, skylight, or directional source light in the world, this command will fail silently.
         """
         self.send_world_command("SetDayCycle", num_params=[0, -1])
 
     def set_weather(self, weather_type):
-        """Queue up a custom set weather command. It will be applied when `tick` or `step` is called next.
-        By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
-        to the given weather. If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
+        """Set the world's weather.
 
-        NOTE: Because this command can effect the fog density, any changes made by a change_fog_density command before
-        a set_weather command called will be undone. It is recommended to call change_fog_density after calling set
-        weather if you wish to apply your specific changes.
+        The new weather will be applied when :meth:`tick` or :meth:`step` is called next.
+
+        By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
+        to the given weather. 
+        
+        If there is no skysphere, skylight, or directional source light in the world, this command will fail silently.
+
+        ..note::
+            Because this command can affect the fog density, any changes made by a change_fog_density command before
+            a set_weather command called will be undone. It is recommended to call change_fog_density after calling set
+            weather if you wish to apply your specific changes.
+
+        In all downloadable worlds, the weather is clear by default. 
+
+        If the given type string is not available, the command will not be sent.
 
         Args:
-            weather_type (str): The type of weather, which can be 'Rain' or 'Cloudy'. In all downloadable worlds,
-            the weather is clear by default. If the given type string is not available, the command will not be sent.
-
+            weather_type (:obj:`str`): The type of weather, which can be ``rain`` or ``cloudy``. 
+                
         """
         if not weather_type.lower() in ["rain", "cloudy"]:
             raise HolodeckException("Invalid weather type " + weather_type)
@@ -449,22 +529,29 @@ class HolodeckEnvironment(object):
         self.send_world_command("SetWeather", string_params=[weather_type])
 
     def teleport_camera(self, location, rotation):
-        """Queue up a teleport camera command. Rotation is [roll, pitch, yaw] in degrees.
+        """Teleport the camera to the given location
+
         By the next tick, the camera's location and rotation will be updated
+
+        Args:
+            location (:obj:`list` of size 3): The location to give the camera
+            rotation (:obj:`list` of size 3): The rotation to give the camera
+
         """
         self._enqueue_command(TeleportCameraCommand(location, rotation))
 
     def should_render_viewport(self, render_viewport):
         """Controls whether the viewport is rendered or not
+        
         Args:
-            render_viewport (boolean): If the viewport should be rendered
+            render_viewport (:obj:`boolean`): If the viewport should be rendered
         """
         self._enqueue_command(RenderViewportCommand(render_viewport))
 
     def set_render_quality(self, render_quality):
-        """Adjusts the rendering quality of Holodeck. 
+        """Adjusts the rendering quality of Holodeck.
         Args:
-            render_quality (int): An integer between 0 = Low Quality and 3 = Epic quality. 
+            render_quality (:obj:`int`): An integer between 0 = Low Quality and 3 = Epic quality.
         """
         self._enqueue_command(RenderQualityCommand(render_quality))
 
@@ -472,8 +559,8 @@ class HolodeckEnvironment(object):
         """Set the control scheme for a specific agent.
 
         Args:
-            agent_name (str): The name of the agent to set the control scheme for.
-            control_scheme (int): A control scheme value (see :obj:`holodeck.agents.ControlSchemes`)
+            agent_name (:obj:`str`): The name of the agent to set the control scheme for.
+            control_scheme (:obj:`int`): A control scheme value (see :class:`~holodeck.agents.ControlSchemes`)
         """
         if agent_name not in self.agents:
             print("No such agent %s" % agent_name)
@@ -481,12 +568,12 @@ class HolodeckEnvironment(object):
             self.agents[agent_name].set_control_scheme(control_scheme)
 
     def set_sensor_enabled(self, agent_name, sensor_name, enabled):
-        """Enable or disable a sensor for an agent.
+        """Enable or disable an agent's sensor.
 
         Args:
-            agent_name (str): The name of the agent whose sensor will be switched
-            sensor_name (str): The name of the sensor to be switched
-            enabled (bool): Boolean representing whether to enable or disable the sensor
+            agent_name (:obj:`str`): The name of the agent whose sensor will be switched
+            sensor_name (:obj:`str`): The name of the sensor to be switched
+            enabled (:obj:`bool`): Boolean representing whether to enable or disable the sensor
         """
         if agent_name not in self._sensor_map:
             print("No such agent %s" % agent_name)
@@ -495,14 +582,15 @@ class HolodeckEnvironment(object):
             self._enqueue_command(command_to_send)
 
     def send_world_command(self, name, num_params=[], string_params=[]):
-        """Queue up a custom command. A custom command sends an abitrary command that may only exist in a 
-        specific world or package. It is given a name and any amount of string and number parameters that allow
-        it to alter the state of the world.
+        """Send a custom command.
+
+        A custom command sends an abitrary command that may only exist in a specific world or package. It is given a
+        name and any amount of string and number parameters that allow it to alter the state of the world.
 
         Args:
-            name (string): The name of the command. This distinguishes it from different commands.
-            num_params (list of int): The number parameters that correspond to the command. This may be empty.
-            string_params (list of string): The string parameters that correspond to the command. This may be empty.
+            name (:obj:`str`): The name of the command, ex "OpenDoor"
+            num_params (obj:`list` of :obj:`int`): List of arbitrary number parameters
+            string_params (obj:`list` of :obj:`int`): List of arbitrary string parameters
         """
         command_to_send = CustomCommand(name, num_params, string_params)
         self._enqueue_command(command_to_send)

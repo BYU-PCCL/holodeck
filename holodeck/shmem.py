@@ -14,10 +14,10 @@ class Shmem:
 
 
     Args:
-        name (str): Name the points to the beginning of the shared memory block
-        shape (int): Shape of the memory block
-        dtype (type optional): data type of the shared memory. Defaults to np.float32
-        uuid (str optional): UUID of the memory block. Defaults to ""
+        name (:obj:`str`): Name the points to the beginning of the shared memory block
+        shape (:obj:`int`): Shape of the memory block
+        dtype (type, optional): data type of the shared memory. Defaults to np.float32
+        uuid (:obj:`str`, optional): UUID of the memory block. Defaults to ""
     """
     _numpy_to_ctype = {
         np.float32: ctypes.c_float,

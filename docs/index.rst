@@ -8,6 +8,7 @@ Welcome to Holodeck's documentation!
    
    usage/installation
    usage/getting-started
+   usage/usage
    packages/packages
    agents/agents
    changelog/changelog

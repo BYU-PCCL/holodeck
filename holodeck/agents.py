@@ -37,17 +37,19 @@ class ControlSchemes(object):
 
 
 class HolodeckAgent(object):
-    """An agents that can act, receive rewards, and receive observations from sensors on them.
-   Examples include the Android, UAV, and SphereRobot
+    """An learning agent in Holodeck
+    
+    Agents can act, receive rewards, and receive observations from their sensors.
+    Examples include the Android, UAV, and SphereRobot.
 
     Args:
         client (:class:`~holodeck.holodeckclient.HolodeckClient`): The HolodeckClient that this agent belongs with.
-        name (str, optional): The name of the agent. Must be unique from other agents in the same environment.
-        sensors (dict of (string, :class:`~holodeck.sensors.HolodeckSensor`)): A list of HolodeckSensors to read from
+        name (:obj:`str`, optional): The name of the agent. Must be unique from other agents in the same environment.
+        sensors (:obj:`dict` of (:obj:`str`, :class:`~holodeck.sensors.HolodeckSensor`)): A list of HolodeckSensors to read from
             this agent.
 
     Attributes:
-        name (str): The name of the agent.
+        name (:obj:`str`): The name of the agent.
         sensors (dict of (string, :class:`~holodeck.sensors.HolodeckSensor`)): List of HolodeckSensors on this agent.
         agent_state_dict (dict): A dictionary that maps sensor names to sensor observation data.
     """
@@ -79,15 +81,15 @@ class HolodeckAgent(object):
         """Sets the command for the agent. Action depends on the agent type and current control scheme.
 
         Args:
-            action(:class:`np.ndarray`): The action to take.
+            action(:obj:`np.ndarray`): The action to take.
         """
         self.__act__(action)
 
     def set_control_scheme(self, index):
-        """Sets the control scheme for the agent. See :obj:`ControlSchemes`.
+        """Sets the control scheme for the agent. See :class:`ControlSchemes`.
 
         Args:
-            index (int): The control scheme to use. Should be set with an enum from :obj:`ControlSchemes`.
+            index (:obj:`int`): The control scheme to use. Should be set with an enum from :class:`ControlSchemes`.
         """
         self._current_control_scheme = index % self._num_control_schemes
         self._control_scheme_buffer[0] = self._current_control_scheme
@@ -96,7 +98,7 @@ class HolodeckAgent(object):
         """Sets the ticks per capture for the agent's rgb camera.
 
         Args:
-            ticks_per_capture (int): The ticks per capture for the agent's rgb camera
+            ticks_per_capture (:obj:`int`): The ticks per capture for the agent's rgb camera
         """
         self._ticks_per_capture = ticks_per_capture
 
@@ -104,7 +106,7 @@ class HolodeckAgent(object):
         """Gets the ticks per capture for the agent's rgb camera.
 
         Returns:
-            ticks_per_capture (int): The ticks per capture for the agent's rgb camera
+            :obj:`int`: The ticks per capture for the agent's rgb camera
         """
         return self._ticks_per_capture
 
@@ -117,8 +119,6 @@ class HolodeckAgent(object):
             rotation (np.ndarray, optional): An array with three elements specifying roll, pitch, and yaw in degrees of the agent.
             If None, keeps the current rotation. Defaults to None.
 
-        Returns:
-            None
         """
         val = 0
         if location is not None:
@@ -129,20 +129,28 @@ class HolodeckAgent(object):
             val += 2
         self._teleport_type_buffer[0] = val
 
-    def set_state(self, location, rotation, velocity, angular_velocity):
-        val = 4
+    def set_physics_state(self, location, rotation, velocity, angular_velocity):
+        """Sets the location, rotation, velocity and angular velocity of an agent.
+
+        Args:
+            location (np.ndarray): New location (3 elements)
+            rotation (np.ndarray): New rotation (3 elements)
+            velocity (np.ndarray): New velocity (3 elements)
+            angular_velocity (np.ndarray): New angular velocity (3 elements)
+
+        """
         np.copyto(self._teleport_buffer[0:3], location)
         np.copyto(self._teleport_buffer[3:6], rotation)
         np.copyto(self._teleport_buffer[6:9], velocity)
         np.copyto(self._teleport_buffer[9:12], angular_velocity)
-        self._teleport_type_buffer[0] = val
+        self._teleport_type_buffer[0] = 15
 
     def add_sensors(self, sensor_defs):
         """Adds a sensor to a particular agent object and attaches an instance of the sensor to the agent in the world.
 
         Args:
-            sensor_defs (:obj:`HolodeckSensor` or list of :obj:`HolodeckSensor`): Sensors to add to the agent.
-                Should be objects that inherit from :obj:`HolodeckSensor`.
+            sensor_defs (:class:`~holodeck.sensors.HolodeckSensor` or list of :class:`~holodeck.sensors.HolodeckSensor`): 
+                Sensors to add to the agent.
         """
         if not isinstance(sensor_defs, list):
             sensor_defs = [sensor_defs]
@@ -161,8 +169,8 @@ class HolodeckAgent(object):
         """Removes a sensor from a particular agent object and detaches it from the agent in the world.
 
         Args:
-            sensor_defs (:obj:`HolodeckSensor` or list of :obj:`HolodeckSensor`): Sensors to add to the agent.
-                Should be objects that inherit from :obj:`HolodeckSensor`.
+            sensor_defs (:class:`~holodeck.sensors.HolodeckSensor` or list of :class:`~holodeck.sensors.HolodeckSensor`): 
+                Sensors to remove from the agent.
         """
         if not isinstance(sensor_defs, list):
             sensor_defs = [sensor_defs]
@@ -184,10 +192,10 @@ class HolodeckAgent(object):
 
     @property
     def action_space(self):
-        """Gets an :obj:ActionSpace object for the particular agent and control scheme.
+        """Gets the action space for the current agent and control scheme.
 
         Returns:
-            :obj:ActionSpace child object: The action space for this agent and control scheme."""
+            :class:`~holodeck.spaces.ActionSpace`: The action space for this agent and control scheme."""
         return self.control_schemes[self._current_control_scheme][1]
 
     @property
@@ -197,7 +205,8 @@ class HolodeckAgent(object):
         element containing the :obj:`ActionSpace` for the control scheme.
 
         Returns:
-            list of tuples: 2-tuples of short description and :obj:`ActionSpace`
+            (:obj:`str`, :class:`~holodeck.spaces.ActionSpace`):
+                Each tuple contains a short description and the ActionSpace
         """
         raise NotImplementedError("Child class must implement this function")
 
@@ -212,13 +221,15 @@ class HolodeckAgent(object):
 
 class UavAgent(HolodeckAgent):
     """A UAV (quadcopter) agent
-    Action Space: Has two possible continuous action control schemes
-    (0) [pitch_torque, roll_torque, yaw_torque, thrust] and
-    (1) [pitch_target, roll_target, yaw_rate_target, altitude_target]
+
+    **Action Space:** Has two possible continuous action control schemes
+    0. [pitch_torque, roll_torque, yaw_torque, thrust] and
+    1. [pitch_target, roll_target, yaw_rate_target, altitude_target]
 
     See :ref:`uav-agent` for more details.
-
--     Inherits from :obj:`HolodeckAgent`."""
+    
+    Inherits from :class:`HolodeckAgent`.
+    """
 
     agent_type = "UAV"
 
@@ -234,18 +245,28 @@ class UavAgent(HolodeckAgent):
 
 
 class SphereAgent(HolodeckAgent):
-    """A basic sphere robot that moves on a plane.
+    """A basic sphere robot.
 
     See :ref:`sphere-agent` for more details.
 
-    Action Space: Has two possible control schemes, one discrete and one continuous:
-    (0) Discrete control scheme of the form [choice] where choice is
-    0: Move forward
-    1: Move backward
-    2: Turn right
-    3: Turn left
-    (1) Continuous control scheme of the form [forward_speed, rot_speed]
-    Inherits from :obj:`HolodeckAgent`."""
+    **Action Space:** Has two possible control schemes, one discrete and one continuous:
+
+    +-------------------+---------+----------------------+
+    | Control Scheme    | Value   | Action               |
+    +-------------------+---------+----------------------+
+    | Discrete (``0``)  | ``[0]`` | Move forward         |
+    |                   +---------+----------------------+
+    |                   | ``[1]`` | Move backward        |
+    |                   +---------+----------------------+
+    |                   | ``[2]`` | Turn right           |
+    |                   +---------+----------------------+
+    |                   | ``[3]`` | Turn left            |
+    +-------------------+---------+----------------------+
+    | Continuous (``1``)| ``[forward_speed, rot_speed]`` |
+    +-------------------+--------------------------------+
+
+    Inherits from :class:`HolodeckAgent`.
+    """
 
     agent_type = "SphereRobot"
 
@@ -268,14 +289,16 @@ class SphereAgent(HolodeckAgent):
 
 
 class AndroidAgent(HolodeckAgent):
-    """An android agent that can be controlled via torques supplied to its joints.
+    """An humanoid android agent.
+    
+    Can be controlled via torques supplied to its joints.
    
     See :ref:`android-agent` for more details.
 
-    Action Space: 94 dimensional vector of continuous values representing torques to be 
+    **Action Space:** 94 dimensional vector of continuous values representing torques to be 
     applied at each joint. The layout of joints can be found here:
-
-    https://github.com/BYU-PCCL/holodeck/blob/master/holodeck/agents.py
+    
+    There are 18 joints with 3 DOF, 10 with 2 DOF, and 20 with 1 DOF.
 
     Inherits from :class:`HolodeckAgent`."""
 
@@ -355,13 +378,13 @@ class AndroidAgent(HolodeckAgent):
 
 
 class NavAgent(HolodeckAgent):
-    """A humanoid character that given a position in the world will try to run to that position
+    """A humanoid character capable of intelligent navigation.
 
        See :ref:`nav-agent` for more details.
 
-       Action Space: Continuous control scheme of the form [x_target, y_target, z_target]
+       **Action Space:** Continuous control scheme of the form [x_target, y_target, z_target]
 
-       Inherits from :obj:`HolodeckAgent`."""
+       Inherits from :class:`HolodeckAgent`."""
 
     agent_type = "NavAgent"
 
@@ -377,11 +400,13 @@ class NavAgent(HolodeckAgent):
 
 
 class TurtleAgent(HolodeckAgent):
-    """A simple agent that can have forces applied to it and move around.
+    """A simple turtle bot.
 
     See :ref:`turtle-agent` for more details.
 
-    Inherits from :obj:`HolodeckAgent`."""
+    **Action Space**: ``[forward_force, rot_force]``
+
+    Inherits from :class:`HolodeckAgent`."""
     @property
     def control_schemes(self):
         return [("[forward_force, rot_force]", ContinuousActionSpace([2]))]
@@ -395,8 +420,17 @@ class TurtleAgent(HolodeckAgent):
 
 
 class AgentDefinition:
-    """Keeps track of which 
+    """Represents information needed to initialize agent.
+
+    Args:
+        agent_name (str): The name of the agent to control.
+        agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
+        sensors (list of :class:`~holodeck.sensors.SensorDefinition` or class type (if no duplicate sensors): 
+            A list of HolodeckSensors to read from this agent.
+            Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
+            
     """
+    
     _type_keys = {
         "SphereAgent": SphereAgent,
         "UavAgent": UavAgent,
