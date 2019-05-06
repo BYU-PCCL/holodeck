@@ -22,12 +22,12 @@ def compare_states(state1, state2, thresh=0.01, is_close=True):
     return True
 
 
-def almost_equal(item1, item2, thresh=0.01):
+def almost_equal(item1, item2, r_thresh=0.01, a_thresh=1e-4):
     item1 = np.array(item1).flatten()
     item2 = np.array(item2).flatten()
     if len(item1) != len(item2):
         return False
-    return all(np.isclose(item1, item2, rtol=thresh,atol=1e-5))
+    return all(np.isclose(item1, item2, rtol=r_thresh,atol=a_thresh))
 
 
 def is_full_state(state):

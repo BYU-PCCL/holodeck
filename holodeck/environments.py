@@ -80,7 +80,6 @@ class HolodeckEnvironment(object):
         self.agents = dict()
         self._state_dict = dict()
         self._agent = None
-        self._load_existing_agents(agent_definitions)
 
         # Spawn agents not yet in the world.
         # TODO implement this section for future build automation update
@@ -93,6 +92,7 @@ class HolodeckEnvironment(object):
         
         # Flag indicates if the user has called .reset() before .tick() and .step()
         self._initial_reset = False
+        self.reset()
 
     @property
     def action_space(self):
@@ -112,14 +112,14 @@ class HolodeckEnvironment(object):
         """
         result = list()
         result.append("Agents:\n")
-        for agent in self._all_agents:
+        for agent in self.agents:
             result.append("\tName: ")
             result.append(agent.name)
             result.append("\n\tType: ")
             result.append(type(agent).__name__)
             result.append("\n\t")
             result.append("Sensors:\n")
-            for sensor in self._sensor_map[agent.name].keys():
+            for _, sensor in agent.sensors.items():
                 result.append("\t\t")
                 result.append(sensor.name)
                 result.append("\n")
@@ -134,9 +134,7 @@ class HolodeckEnvironment(object):
             return
 
         for agent in scenario['agents']:
-            agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'])
-            self.spawn_agent(agent_def, agent['location'])
-            self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
+
             sensors = []
             for sensor in agent['sensors']:
                 params = json.dumps(sensor['configuration'])
@@ -146,7 +144,10 @@ class HolodeckEnvironment(object):
                                                 location=sensor['location'],
                                                 rotation=sensor['rotation'],
                                                 params=params))
-            self.agents[agent['agent_name']].add_new_sensors(sensors)
+
+            agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'], starting_loc=agent["location"], sensors=sensors)
+            self.add_agent(agent_def)
+            self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
 
     def reset(self):
         """Resets the environment, and returns the state.
@@ -171,8 +172,11 @@ class HolodeckEnvironment(object):
         # Load agents
         self.agents = dict()
         self._state_dict = dict()
-        self._load_existing_agents(self._initial_agents)
+        for agent_def in self._initial_agents:
+            self.add_agent(agent_def)
+
         self.load_scenario()
+
         self.num_agents = len(self.agents)
         self._default_state_fn = self._get_single_state if self.num_agents == 1 else self._get_full_state
 
@@ -249,7 +253,6 @@ class HolodeckEnvironment(object):
                 If no rotation is given, it isn't rotated, but may still be teleported. Defaults to None.
         """
         self.agents[agent_name].teleport(location, rotation)
-        self.tick()
 
     def set_state(self, agent_name, location, rotation, velocity, angular_velocity):
         """Sets a new state for any agent given a location, rotation and linear and angular velocity. Will sweep and be
@@ -263,26 +266,26 @@ class HolodeckEnvironment(object):
             angular velocity (np.ndarray or list): A new angular velocity for the agent.
         """
         self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
-        return self.tick()
 
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
 
-    def spawn_agent(self, agent_definition, location):
-        """Queues a spawn agent command. It will be applied when `tick` or `step` is called next.
-        The agent won't be able to be used until the next frame.
 
-        Args:
-            agent_definition (:obj:`AgentDefinition`): The definition of the agent to spawn.
-            location (np.ndarray or list): The position to spawn the agent in the world, in XYZ coordinates (in meters).
-        """
-        self._add_agents(agent_definition)
-        if self._agent is None:
-            self._agent = self.agents[agent_definition.name]
-        self._enqueue_command(SpawnAgentCommand(location, agent_definition.name, agent_definition.type.agent_type))
+    def add_agent(self, agent_def):
 
-        if self._agent is None:
-            self._agent = self.agents[agent_definition.name]
+        if agent_def.name in self.agents:
+            raise Exception("Error. Duplicate agent name. ")
+        else:
+            self.agents[agent_def.name] = AgentFactory.build_agent(self._client, agent_def)
+            self._state_dict[agent_def.name] = self.agents[agent_def.name].agent_state_dict
+
+            if not agent_def.existing:
+                command_to_send = SpawnAgentCommand(agent_def.starting_loc, agent_def.name, agent_def.type.agent_type)
+                self._client.command_center.enqueue_command(command_to_send)
+
+
+            self.agents[agent_def.name].add_sensors(agent_def.sensors)
+
 
     def set_ticks_per_capture(self, agent_name, ticks_per_capture):
         """Queues a rgb camera rate command. It will be applied when `tick` or `step` is called next.
@@ -536,8 +539,12 @@ class HolodeckEnvironment(object):
         self.__on_exit__()
 
     def _get_single_state(self):
-        return self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
-            else self._state_dict[self._agent.name]
+
+        if self._agent is not None:
+            return self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
+                else self._state_dict[self._agent.name]
+        else:
+            return self._get_full_state()
 
     def _get_full_state(self):
         return self._create_copy(self._state_dict) if self._copy_state else self._state_dict
@@ -562,28 +569,3 @@ class HolodeckEnvironment(object):
                     cp[k] = np.copy(v)
             return cp
         return None  # Not implemented for other types
-
-    def _load_existing_agents(self, agent_definitions):
-        self._add_agents(agent_definitions)
-
-        # Set the main agent
-        self._agent = None
-        if len(self.agents) > 0:
-            self._agent = self.agents[agent_definitions[0].name]
-
-    def _add_agents(self, agent_definitions):
-        """Add specified agents to the client. Set up their shared memory and sensor linkages.
-        Does not spawn an agent in the Holodeck, this is only for documenting and accessing already existing agents.
-        This is an internal function.
-        Positional Arguments:
-        agent_definitions -- The agent(s) to add.
-        """
-        if not isinstance(agent_definitions, list):
-            agent_definitions = [agent_definitions]
-        for agent_def in agent_definitions:
-            if agent_def.name in self.agents:
-                print("Error: agent name duplicate.")
-            else:
-                self.agents[agent_def.name] = AgentFactory.build_agent(self._client, agent_def)
-                self._state_dict[agent_def.name] = self.agents[agent_def.name].agent_state_dict
-
