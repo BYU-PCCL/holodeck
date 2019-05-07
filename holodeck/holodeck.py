@@ -2,7 +2,7 @@
 import uuid
 
 from holodeck.environments import HolodeckEnvironment
-from holodeck.packagemanager import get_scenario, get_world_path
+from holodeck.packagemanager import get_scenario, get_world_path, get_package_config_for_scenario
 
 
 class GL_VERSION(object):
@@ -54,6 +54,12 @@ def make(scenario_name, gl_version=GL_VERSION.OPENGL4, window_res=None, verbose=
     binary_path = get_world_path(scenario_name)
 
     param_dict = dict()
+    
+    # Get pre-start steps
+    package_config = get_package_config_for_scenario(scenario)
+    world = [world for world in package_config["worlds"] if world["name"] == scenario["world"]][0]
+    param_dict["pre_start_steps"] = world["pre_start_steps"]
+    
     param_dict["binary_path"] = binary_path
     param_dict["scenario_key"] = scenario_name
     param_dict["window_height"] = scenario["window_height"]
