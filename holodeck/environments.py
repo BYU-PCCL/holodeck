@@ -182,7 +182,7 @@ class HolodeckEnvironment(object):
                 # Overwrite the default values with what is defined in the scenario config
                 sensor_config.update(sensor)
 
-                params = json.dumps(sensor['configuration'])
+                params = json.dumps(sensor_config['configuration'])
                 # Prepare configuration string for transport to the engine
                 params = params.replace("\"", "\\\"")
                 
