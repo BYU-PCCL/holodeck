@@ -277,10 +277,10 @@ class SphereAgent(HolodeckAgent):
                  DiscreteActionSpace([1], 0, 4, buffer_shape=[2]))]
 
     def __act__(self, action):
-        if self._current_control_scheme is ControlSchemes.SPHERE_DISCRETE:
+        if self._current_control_scheme is ControlSchemes.SPHERE_CONTINUOUS:
             np.copyto(self._action_buffer, action)
-        elif self._current_control_scheme is ControlSchemes.SPHERE_CONTINUOUS:
-            actions = np.array([[2, 0], [-2, 0], [0, 2], [0, -2]])
+        elif self._current_control_scheme is ControlSchemes.SPHERE_DISCRETE:
+            actions = np.array([[.2, 0], [-.2, 0], [0, .2], [0, -.2]])
             to_act = np.array(actions[action, :])
             np.copyto(self._action_buffer, to_act)
 
