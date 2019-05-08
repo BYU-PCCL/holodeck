@@ -30,9 +30,6 @@ def make(scenario_name, gl_version=GL_VERSION.OPENGL4, window_res=None, verbose=
         window_res ((:obj:`int`, :obj:`int`), optional):
             The resolution to load the game window at. Defaults to (512, 512).
 
-        cam_res ((:obj:`int`, :obj:`int`), optional):
-            The resolution to load the RGB camera sensors at. Defaults to (256, 256).
-
         verbose (:obj:`bool`, optional):
             Whether to run in verbose mode. Defaults to False.
 
