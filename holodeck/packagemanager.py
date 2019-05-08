@@ -237,7 +237,9 @@ def get_scenario(scenario_name):
     config_path = _find_file_in_worlds_dir(scenario_name + ".json")
 
     if config_path == "":
-        raise FileNotFoundError("The file {} could not be found in {}".format(scenario_name + '.json', util.get_holodeck_path()))
+        raise FileNotFoundError(
+            "The file `{file}.json` could not be found in {path}. Make sure the package that contains {file} " \
+            "is installed.".format(file=scenario_name, path=util.get_holodeck_path()))
 
     return load_scenario_file(config_path)
 
