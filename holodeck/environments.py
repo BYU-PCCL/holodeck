@@ -216,7 +216,7 @@ class HolodeckEnvironment(object):
         self._reset_ptr[0] = True
         self.tick()  # Must tick once to send reset before sending spawning commands
         self.tick()  # Bad fix to potential race condition. See issue https://github.com/BYU-PCCL/holodeck/issues/224
-        self.tick()  
+        self.tick()
         # Clear command queue
         if self._command_center.queue_size > 0:
             print("Warning: Reset called before all commands could be sent. Discarding",
