@@ -9,7 +9,7 @@ from holodeck import sensors
 
 def uav_example():
     """A basic example of how to use the UAV agent."""
-    env = holodeck.make("CyberPunkCity-default")
+    env = holodeck.make("InfiniteForest-MaxDistance")
 
     # This changes the control scheme for the uav
     env.agents["uav0"].set_control_scheme(ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
@@ -25,7 +25,8 @@ def uav_example():
             # To access specific sensor data:
             pixels = state["RGBCamera"]
             velocity = state["VelocitySensor"]
-            # For a full list of sensors the UAV has, view the README
+            print(pixels)
+            # For a full list of sensors the UAV has, view the docs
 
     # You can control the AgentFollower camera (what you see) by pressing V to toggle spectator
     # mode. This detaches the camera and allows you to move freely about the world.
@@ -35,25 +36,25 @@ def uav_example():
 
 def sphere_example():
     """A basic example of how to use the sphere agent."""
-    env = holodeck.make("MazeWorld-default")
+    env = holodeck.make("MazeWorld-FinishMazeSphere")
 
     # This command is to constantly rotate to the right
-    command = 2
+    command = 1
     for i in range(10):
         env.reset()
         for _ in range(1000):
             state, reward, terminal, _ = env.step(command)
 
             # To access specific sensor data:
-            # pixels = state["RGBCamera"]
-            # orientation = state["OrientationSensor"]
+            pixels = state["RGBCamera"]
+            orientation = state["OrientationSensor"]
 
     # For a full list of sensors the sphere robot has, view the README
 
 
 def android_example():
     """A basic example of how to use the android agent."""
-    env = holodeck.make("AndroidPlayground-default")
+    env = holodeck.make("AndroidPlayground-MaxDistance")
 
     # The Android's command is a 94 length vector representing torques to be applied at each of his joints
     command = np.ones(94) * 10
