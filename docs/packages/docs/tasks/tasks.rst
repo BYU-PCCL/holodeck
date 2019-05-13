@@ -12,4 +12,4 @@ Below are the different tasks available for use in Holodeck.
    location-task
    follow-task
 
-These tasks can be configured and used in :ref:`scenario files <scenarios.rst>`.
+These tasks can be configured and used in :ref:`scenario files <scenarios>`.

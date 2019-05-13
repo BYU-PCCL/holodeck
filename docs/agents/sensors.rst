@@ -1,3 +1,0 @@
-Agent Sensors and Tasks
-=======================
-
