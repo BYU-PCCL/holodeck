@@ -1,24 +1,18 @@
 import numpy as np
 
 
-def compare_states(state1, state2, thresh=0.01, is_close=True):
-    if is_full_state(state1):
-        for agent in state1:
-            for sensor in state1[agent]:
-                if sensor == "RGBCamera":
-                    continue
-                close = almost_equal(state1[agent][sensor], state2[agent][sensor], thresh)
-                if is_close != close:
-                    print(sensor)
-                    return False
-    else:
-        for sensor in state1:
-            if sensor == "RGBCamera":
-                continue
-            close = almost_equal(state1[sensor], state2[sensor], thresh)
-            if is_close != close:
-                print(sensor)
-                return False
+def compare_agent_states(state1, state2, thresh=0.01, is_close=True, to_ignore=None):
+    if to_ignore is None:
+        to_ignore = []
+        
+    for sensor in state1:
+        if sensor in to_ignore:
+            continue
+        close = almost_equal(state1[sensor], state2[sensor], thresh)
+        if is_close != close:
+            print(state1[sensor])
+            print(state2[sensor])
+            return False
     return True
 
 

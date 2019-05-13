@@ -184,7 +184,7 @@ def install(package_name, version=None):
 
     print("Installing {} ver. {} from {}".format(package_name, version, binary_url))
 
-    install_path = os.path.join(holodeck_path, "worlds", package_name)
+    install_path = os.path.join(holodeck_path, "worlds")
 
     _download_binary(binary_url, install_path)
 
