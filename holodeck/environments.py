@@ -156,7 +156,6 @@ class HolodeckEnvironment(object):
             return
 
         for agent in scenario['agents']:
-
             sensors = []
             for sensor in agent['sensors']:
                 if 'sensor_type' not in sensor:
@@ -181,9 +180,12 @@ class HolodeckEnvironment(object):
                                                 location=sensor_config['location'],
                                                 rotation=sensor_config['rotation'],
                                                 config=sensor_config['configuration']))
-
+                
             agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'], starting_loc=agent["location"], sensors=sensors)
-            self.add_agent(agent_def)
+            is_main_agent = False
+            if "main_agent" in scenario:
+                is_main_agent = scenario["main_agent"] == agent["agent_name"]
+            self.add_agent(agent_def, is_main_agent)
             self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
 
     def reset(self):
@@ -200,7 +202,8 @@ class HolodeckEnvironment(object):
         self._initial_reset = True
         self._reset_ptr[0] = True
         self.tick()  # Must tick once to send reset before sending spawning commands
-
+        self.tick()  # Bad fix to potential race condition. See issue https://github.com/BYU-PCCL/holodeck/issues/224
+        self.tick()
         # Clear command queue
         if self._command_center.queue_size > 0:
             print("Warning: Reset called before all commands could be sent. Discarding",
@@ -337,9 +340,9 @@ class HolodeckEnvironment(object):
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
 
-    def add_agent(self, agent_def):
-        """Add an agent in the world.
-
+    def add_agent(self, agent_def, is_main_agent=False):
+        """Add an agent in the world. 
+        
         It will be spawn when :meth:`tick` or :meth:`step` is called next.
 
         The agent won't be able to be used until the next frame.
@@ -357,6 +360,8 @@ class HolodeckEnvironment(object):
                 command_to_send = SpawnAgentCommand(agent_def.starting_loc, agent_def.name, agent_def.type.agent_type)
                 self._client.command_center.enqueue_command(command_to_send)
             self.agents[agent_def.name].add_sensors(agent_def.sensors)
+            if is_main_agent:
+                self._agent = self.agents[agent_def.name]
 
     def set_ticks_per_capture(self, agent_name, ticks_per_capture):
         """Queues a rgb camera rate command. It will be applied when :meth:`tick` or :meth:`step` is called next.

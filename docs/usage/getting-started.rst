@@ -54,7 +54,7 @@ Code Examples
 Below are some snippets that show how to use different aspects of Holodeck.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
    :glob:
 
