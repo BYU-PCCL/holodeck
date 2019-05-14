@@ -245,8 +245,8 @@ def get_scenario(scenario_name):
 
 
 def get_world_path(scenario_name):
-    """
-    Gets the world path associated with the given scenario name
+    """Gets the scenario configuration associated with the given name
+
     Args:
         scenario_name (str): name of the configuration to load - eg "UrbanCity-Follow"
                      Must be an exact match. Name must be unique among all installed packages

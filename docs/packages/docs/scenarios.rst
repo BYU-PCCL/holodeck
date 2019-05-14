@@ -145,6 +145,25 @@ rest will default as shown below
       "configuration": {}
    }
 
+.. _`configuration-block`:
+
+Configuration Block 
+~~~~~~~~~~~~~~~~~~~
+
 The contents of the ``configuration`` block are sensor-specific. That block is
 passed verbatim to the sensor itself, which parses it.
 
+For example, the docstring for :class:`~holodeck.sensors.RGBCamera` states that
+it accepts ``CaptureWidth`` and ``CaptureHeight`` parameters, so an example
+sensor configuration would be:
+
+.. code-block:: json
+
+   {
+      "sensor_name": "RBGCamera",
+      "socket": "CameraSocket",
+      "configuration": {
+         "CaptureHeight": 1920,
+         "CaptureWidth": 1080
+      }
+   }

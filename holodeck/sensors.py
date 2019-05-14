@@ -119,17 +119,27 @@ class ViewportCapture(HolodeckSensor):
 
 
 class RGBCamera(HolodeckSensor):
-    sensor_type = "RGBCamera"
-
-    def __init__(self, client, agent_name, name="RGBCamera", shape=(256, 256, 4)):
         """Captures agent's view.
+    
         The default capture resolution is 256x256x256x4, corresponding to the RGBA channels.
         The resolution can be increased, but will significantly impact performance.
+
+    **Configuration**
+
+    The ``configuration`` block (see :ref:`configuration-block`) accepts the following
+    options:
+
+    - ``CaptureWidth``: Width of captured image
+    - ``CaptureHeight``: Height of captured image
 
         Args:
             shape (:obj:`tuple`): Dimensions of the capture
 
         """
+
+    sensor_type = "RGBCamera"
+
+    def __init__(self, client, agent_name, name="RGBCamera", shape=(256, 256, 4)):
         self.shape = shape
         super(RGBCamera, self).__init__(client, agent_name, name=name)
 
@@ -424,13 +434,13 @@ class SensorDefinition(object):
     """A class for new sensors and their parameters, to be used for adding new sensors.
     
     Args:
-        agent_name (str): The name of the parent agent.
-        sensor_name (str): The name of the sensor.
-        sensor_type (str or HolodeckSensor): The type of the sensor.
-        socket (str, optional): The name of the socket to attach sensor to.
-        location (Tuple of floats, optional): x, y, and z coordinates to place sensor relative to agent (or socket).
-        rotation (Tuple of floats, optional): roll, pitch, and yaw to rotate sensor relative to agent.
-        params (str, optional): Json representation of parameters with which to initialize sensor.
+        agent_name (:obj:`str`): The name of the parent agent.
+        sensor_name (:obj:`str`): The name of the sensor.
+        sensor_type (:obj:`str` or :class:`HolodeckSensor`): The type of the sensor.
+        socket (:obj:`str`, optional): The name of the socket to attach sensor to.
+        location (Tuple of :obj:`float`, optional): x, y, and z coordinates to place sensor relative to agent (or socket).
+        rotation (Tuple of :obj:`float`, optional): roll, pitch, and yaw to rotate sensor relative to agent.
+        config (:obj:`dict`): Configuration dictionary for the sensor, to pass to engine
     """
 
     _sensor_keys_ = {"RGBCamera": RGBCamera,
