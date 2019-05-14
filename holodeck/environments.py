@@ -73,7 +73,8 @@ class HolodeckEnvironment(object):
         self._ticks_per_sec = ticks_per_sec
         self._scenario_key = scenario_key
         self._scenario_path = scenario_path
-        self._initial_agents = agent_definitions
+        self._initial_agent_defs = agent_definitions
+        self._spawned_agent_defs = []
 
         # Start world based on OS
         if start_world:
@@ -187,6 +188,7 @@ class HolodeckEnvironment(object):
                 is_main_agent = scenario["main_agent"] == agent["agent_name"]
             self.add_agent(agent_def, is_main_agent)
             self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
+            self._spawned_agent_defs.append(agent_def)
 
     def reset(self):
         """Resets the environment, and returns the state.
@@ -211,9 +213,10 @@ class HolodeckEnvironment(object):
         self._command_center.clear()
 
         # Load agents
+        self._spawned_agent_defs = []
         self.agents = dict()
         self._state_dict = dict()
-        for agent_def in self._initial_agents:
+        for agent_def in self._initial_agent_defs:
             self.add_agent(agent_def)
 
         self._load_scenario()
@@ -223,6 +226,9 @@ class HolodeckEnvironment(object):
 
         for _ in range(self._pre_start_steps + 1):
             self.tick()
+        
+        for agent_def in self._spawned_agent_defs:
+            self.teleport(agent_def.name, agent_def.starting_loc, [0.0, 0.0, 0.0])
 
         return self._default_state_fn()
 
