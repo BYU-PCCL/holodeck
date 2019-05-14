@@ -11,17 +11,13 @@ def uav_example():
     """A basic example of how to use the UAV agent."""
     env = holodeck.make("UrbanCity-MaxDistance")
 
-    # This changes the control scheme for the uav
-    # env.agents["uav0"].set_control_scheme(ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
-
     for i in range(10):
         env.reset()
 
         # This command tells the UAV to not roll or pitch, but to constantly yaw left at 10m altitude.
-        # command = np.array([0, 0, 2, 10])
-        for _ in range(200):
-            # state, reward, terminal, _ = env.step(command)
-            env.tick()
+        command = np.array([0, 0, 2, 1000])
+        for _ in range(1000):
+            state, reward, terminal, _ = env.step(command)
             # To access specific sensor data:
             pixels = state["RGBCamera"]
             velocity = state["VelocitySensor"]
@@ -139,7 +135,7 @@ def editor_example():
     in the Unreal Engine. Most people that use holodeck will not need this.
     """
     agent_sensors = [sensors.RGBCamera, sensors.LocationSensor, sensors.VelocitySensor]
-    agent = AgentDefinition("uav0", agents.AndroidAgent, agent_sensors)
+    agent = AgentDefinition("uav0", agents.UavAgent, agent_sensors)
     env = HolodeckEnvironment([agent], start_world=False)
     env.agents["uav0"].set_control_scheme(1)
     command = [0, 0, 10, 50]
@@ -173,4 +169,4 @@ def editor_multi_agent_example():
 
 if __name__ == "__main__":
 
-    world_command_examples()
+    uav_example()
