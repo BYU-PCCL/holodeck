@@ -9,19 +9,18 @@ from holodeck import sensors
 
 def uav_example():
     """A basic example of how to use the UAV agent."""
-    env = holodeck.make("InfiniteForest-MaxDistance")
+    env = holodeck.make("UrbanCity-MaxDistance")
 
-    # This changes the control scheme for the uav
-    env.agents["uav0"].set_control_scheme(ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
+    # This line can be used to change the control scheme for an agent
+    # env.agents["uav0"].set_control_scheme(ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
 
     for i in range(10):
         env.reset()
 
         # This command tells the UAV to not roll or pitch, but to constantly yaw left at 10m altitude.
-        command = np.array([0, 0, 2, 10])
+        command = np.array([0, 0, 2, 1000])
         for _ in range(1000):
             state, reward, terminal, _ = env.step(command)
-
             # To access specific sensor data:
             pixels = state["RGBCamera"]
             velocity = state["VelocitySensor"]
@@ -38,7 +37,7 @@ def sphere_example():
     env = holodeck.make("MazeWorld-FinishMazeSphere")
 
     # This command is to constantly rotate to the right
-    command = 1
+    command = 2
     for i in range(10):
         env.reset()
         for _ in range(1000):
@@ -64,7 +63,6 @@ def android_example():
                 command *= -1
 
             state, reward, terminal, _ = env.step(command)
-
             # To access specific sensor data:
             pixels = state["RGBCamera"]
             orientation = state["OrientationSensor"]
@@ -74,25 +72,23 @@ def android_example():
 
 def multi_agent_example():
     """A basic example of using multiple agents"""
-    env = holodeck.make("UrbanCity-default")
+    env = holodeck.make("CyberPunkCity-FollowSight")
 
     cmd0 = np.array([0, 0, -2, 10])
-    cmd1 = np.array([0, 0, 5, 10])
+    cmd1 = np.array([0, 0, 0])
     for i in range(10):
         env.reset()
-        env.agents["uav0"].set_control_scheme(ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
-
         env.tick()
         env.act("uav0", cmd0)
+        env.act("nav0", cmd1)
         for _ in range(1000):
             states = env.tick()
-            uav0_terminal = states["uav0"]["Terminal"]
-            uav1_reward = states["uav1"]["Reward"]
+            pixels = states["uav0"]["RGBCamera"]
 
 
 def world_command_examples():
     """A few examples to showcase commands for manipulating the worlds."""
-    env = holodeck.make("MazeWorld-default")
+    env = holodeck.make("MazeWorld-FinishMazeSphere")
 
     # This is the unaltered MazeWorld
     for _ in range(300):
@@ -172,9 +168,6 @@ def editor_multi_agent_example():
         env.act("uav1", cmd1)
         for _ in range(1000):
             states = env.tick()
-
-            uav0_terminal = states["uav0"][sensors.Terminal]
-            uav1_reward = states["uav1"][sensors.Reward]
 
 
 if __name__ == "__main__":
