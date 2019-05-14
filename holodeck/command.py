@@ -300,7 +300,7 @@ class AddSensorCommand(Command):
         self._command_type = "AddSensor"
         self.add_string_parameters(sensor_definition.agent_name)
         self.add_string_parameters(sensor_definition.sensor_name)
-        self.add_string_parameters(sensor_definition.sensor_type)
+        self.add_string_parameters(sensor_definition.type.sensor_type)
         self.add_string_parameters(sensor_definition.get_config_json_string())
         self.add_string_parameters(sensor_definition.socket)
 
