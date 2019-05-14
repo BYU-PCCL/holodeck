@@ -11,6 +11,9 @@ def uav_example():
     """A basic example of how to use the UAV agent."""
     env = holodeck.make("UrbanCity-MaxDistance")
 
+    # This line can be used to change the control scheme for an agent
+    # env.agents["uav0"].set_control_scheme(ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT)
+
     for i in range(10):
         env.reset()
 
