@@ -4,6 +4,12 @@ from holodeck.tests.test_utils import *
 from holodeck.tests.test_lib import *
 
 
+def test_infiniteforest():
+    env = holodeck.make("InfiniteForest-MaxDistance")
+    load_test(env, "InfiniteForest-MaxDistance")
+    reset_test(env, "uav0", sensors_to_ignore=["RGBCamera"])
+    action_test(env, "uav0", [100, 100, 100, 100], ["LocationSensor", "OrientationSensor"])
+
 def test_androidplayground():
     env = holodeck.make("AndroidPlayground-MaxDistance")
     load_test(env, "AndroidPlayground-MaxDistance")
@@ -21,12 +27,6 @@ def test_cyberpunk():
 def test_european():
     env = holodeck.make("EuropeanForest-MaxDistance")
     load_test(env, "EuropeanForest-MaxDistance")
-    reset_test(env, "uav0", sensors_to_ignore=["RGBCamera"])
-    action_test(env, "uav0", [100, 100, 100, 100], ["LocationSensor", "OrientationSensor"])
-
-def test_infiniteforest():
-    env = holodeck.make("InfiniteForest-MaxDistance")
-    load_test(env, "InfiniteForest-MaxDistance")
     reset_test(env, "uav0", sensors_to_ignore=["RGBCamera"])
     action_test(env, "uav0", [100, 100, 100, 100], ["LocationSensor", "OrientationSensor"])
 
