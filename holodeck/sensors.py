@@ -1,5 +1,6 @@
 """Definition of all of the sensor information"""
 import numpy as np
+import json
 from holodeck.command import *
 
 
@@ -11,13 +12,15 @@ class HolodeckSensor(object):
         agent_name (:obj:`str`): Name of the agent
         name (:obj:`str`): Name of the sensor
     """
-    def __init__(self, client, agent_name=None, name="DefaultSensor"):
+    def __init__(self, client, agent_name=None, name="DefaultSensor", config=None):
         self.name = name
         self._client = client
         self.agent_name = agent_name
         self._buffer_name = self.agent_name + "_" + self.name
 
         self._sensor_data_buffer = self._client.malloc(self._buffer_name + "_sensor_data", self.data_shape, self.dtype)
+
+        self.config = {} if config is None else config
 
     def set_sensor_enable(self, enable):
         """Enable or disable this sensor
@@ -119,10 +122,10 @@ class ViewportCapture(HolodeckSensor):
 
 
 class RGBCamera(HolodeckSensor):
-        """Captures agent's view.
+    """Captures agent's view.
     
-        The default capture resolution is 256x256x256x4, corresponding to the RGBA channels.
-        The resolution can be increased, but will significantly impact performance.
+    The default capture resolution is 256x256x256x4, corresponding to the RGBA channels.
+    The resolution can be increased, but will significantly impact performance.
 
     **Configuration**
 
@@ -132,16 +135,27 @@ class RGBCamera(HolodeckSensor):
     - ``CaptureWidth``: Width of captured image
     - ``CaptureHeight``: Height of captured image
 
-        Args:
-            shape (:obj:`tuple`): Dimensions of the capture
+    Args:
+        shape (:obj:`tuple`): Dimensions of the capture
 
-        """
+    """
 
     sensor_type = "RGBCamera"
 
-    def __init__(self, client, agent_name, name="RGBCamera", shape=(256, 256, 4)):
-        self.shape = shape
-        super(RGBCamera, self).__init__(client, agent_name, name=name)
+    def __init__(self, client, agent_name, name="RGBCamera", width=256, height=256, config=None):
+
+        self.config = {} if config is None else config
+        
+        if "CaptureHeight" in self.config:
+            height = self.config["CaptureHeight"]
+        
+        if "CaptureWidth" in self.config:
+            width = self.config["CaptureWidth"]
+        
+
+        self.shape = (height, width, 4)
+
+        super(RGBCamera, self).__init__(client, agent_name, name=name, config=config)
 
     @property
     def dtype(self):
@@ -458,14 +472,26 @@ class SensorDefinition(object):
                      "PressureSensor": PressureSensor,
                      "CollisionSensor": CollisionSensor}
 
-    def __init__(self, agent_name, sensor_name, sensor_type, socket="", location=(0,0,0), rotation=(0,0,0), params="", existing=False):
+    def get_config_json_string(self):
+        """Gets the configuration dictionary as a string ready for transport
+
+        Returns:
+            (:obj:`str`): The configuration as an escaped json string
+
+        """
+        param_str = json.dumps(self.config)
+        # Prepare configuration string for transport to the engine
+        param_str = param_str.replace("\"", "\\\"") 
+        return param_str
+
+    def __init__(self, agent_name, sensor_name, sensor_type, socket="", location=(0,0,0), rotation=(0,0,0), config=None, existing=False):
         self.agent_name = agent_name
         self.sensor_name = sensor_name
         self.type = SensorDefinition._sensor_keys_[sensor_type] if isinstance(sensor_type, str) else sensor_type
         self.socket = socket
         self.location = location
         self.rotation = rotation
-        self.params = params
+        self.config = {} if config is None else config
         self.existing = existing
 
 
@@ -479,4 +505,4 @@ class SensorFactory(object):
         if sensor_def.sensor_name is None:
             sensor_def.sensor_name = SensorFactory._default_name(sensor_def.type)
 
-        return sensor_def.type(client, sensor_def.agent_name, sensor_def.sensor_name)
+        return sensor_def.type(client, sensor_def.agent_name, sensor_def.sensor_name, config=sensor_def.config)

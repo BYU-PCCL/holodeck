@@ -14,7 +14,7 @@ from holodeck.packagemanager import get_scenario, load_scenario_file
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import *
-
+import holodeck.sensors
 
 class HolodeckEnvironment(object):
     """Proxy for communicating with a Holodeck world
@@ -32,16 +32,10 @@ class HolodeckEnvironment(object):
             The name of the map within the binary to load. Defaults to None.
 
         window_height (:obj:`int`, optional):
-            The height to load the binary at. Defaults to 512.
+            The height to load the game window at. Defaults to 512.
 
         window_width (:obj:`int`, optional):
-            The width to load the binary at. Defaults to 512.
-
-        camera_height (:obj:`int`, optional):
-            The height of all RBG camera sensors. Defaults to 256.
-
-        camera_width (:obj:`int`, optional):
-            The width of all RBG camera sensors. Defaults to 256.
+            The width to load the game window at. Defaults to 512.
 
         start_world (:obj:`bool`, optional):
             Whether to load a binary or not. Defaults to True.
@@ -64,7 +58,7 @@ class HolodeckEnvironment(object):
     """
 
     def __init__(self, agent_definitions=None, binary_path=None, scenario_key=None, window_height=512, window_width=512,
-                 camera_height=256, camera_width=256, start_world=True, uuid="", gl_version=4, verbose=False,
+                 start_world=True, uuid="", gl_version=4, verbose=False,
                  pre_start_steps=2, show_viewport=True, ticks_per_sec=30, copy_state=True, scenario_path=None):
 
         if agent_definitions is None:
@@ -73,8 +67,6 @@ class HolodeckEnvironment(object):
         # Initialize variables
         self._window_height = window_height
         self._window_width = window_width
-        self._camera_height = camera_height
-        self._camera_width = camera_width
         self._uuid = uuid
         self._pre_start_steps = pre_start_steps
         self._copy_state = copy_state
@@ -170,7 +162,7 @@ class HolodeckEnvironment(object):
                 if 'sensor_type' not in sensor:
                     raise HolodeckException(
                         "Sensor for agent {} is missing required key 'sensor_type'".format(agent['agent_name']))
-                
+
                 # Default values for a sensor
                 sensor_config = {
                     'location': [0, 0, 0],
@@ -182,17 +174,13 @@ class HolodeckEnvironment(object):
                 # Overwrite the default values with what is defined in the scenario config
                 sensor_config.update(sensor)
 
-                params = json.dumps(sensor_config['configuration'])
-                # Prepare configuration string for transport to the engine
-                params = params.replace("\"", "\\\"")
-                
-                sensors.append(SensorDefinition(agent['agent_name'], 
-                                                sensor_config['sensor_name'], 
+                sensors.append(SensorDefinition(agent['agent_name'],
+                                                sensor_config['sensor_name'],
                                                 sensor_config['sensor_type'],
                                                 socket=sensor_config['socket'],
                                                 location=sensor_config['location'],
                                                 rotation=sensor_config['rotation'],
-                                                params=params))
+                                                config=sensor_config['configuration']))
 
             agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'], starting_loc=agent["location"], sensors=sensors)
             self.add_agent(agent_def)
@@ -258,7 +246,7 @@ class HolodeckEnvironment(object):
         self._command_center.handle_buffer()
         self._client.release()
         self._client.acquire()
-        
+
         reward, terminal = self._get_reward_terminal()
         return self._default_state_fn(), reward, terminal, None
 
@@ -350,8 +338,8 @@ class HolodeckEnvironment(object):
         self._command_center.enqueue_command(command_to_send)
 
     def add_agent(self, agent_def):
-        """Add an agent in the world. 
-        
+        """Add an agent in the world.
+
         It will be spawn when :meth:`tick` or :meth:`step` is called next.
 
         The agent won't be able to be used until the next frame.
@@ -506,8 +494,8 @@ class HolodeckEnvironment(object):
         The new weather will be applied when :meth:`tick` or :meth:`step` is called next.
 
         By the next tick, the lighting, skysphere, fog, and relevant particle systems will be updated and/or spawned
-        to the given weather. 
-        
+        to the given weather.
+
         If there is no skysphere, skylight, or directional source light in the world, this command will fail silently.
 
         ..note::
@@ -515,13 +503,13 @@ class HolodeckEnvironment(object):
             a set_weather command called will be undone. It is recommended to call change_fog_density after calling set
             weather if you wish to apply your specific changes.
 
-        In all downloadable worlds, the weather is clear by default. 
+        In all downloadable worlds, the weather is clear by default.
 
         If the given type string is not available, the command will not be sent.
 
         Args:
-            weather_type (:obj:`str`): The type of weather, which can be ``rain`` or ``cloudy``. 
-                
+            weather_type (:obj:`str`): The type of weather, which can be ``rain`` or ``cloudy``.
+
         """
         if not weather_type.lower() in ["rain", "cloudy"]:
             raise HolodeckException("Invalid weather type " + weather_type)
@@ -542,7 +530,7 @@ class HolodeckEnvironment(object):
 
     def should_render_viewport(self, render_viewport):
         """Controls whether the viewport is rendered or not
-        
+
         Args:
             render_viewport (:obj:`boolean`): If the viewport should be rendered
         """
@@ -607,8 +595,7 @@ class HolodeckEnvironment(object):
             del environment['DISPLAY']
         self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
                                                 '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_width),
-                                                '-ResY=' + str(self._window_height),'-CamResX=' + str(self._camera_width),
-                                                '-CamResY=' + str(self._camera_height), '--HolodeckUUID=' + self._uuid,
+                                                '-ResY=' + str(self._window_height), '--HolodeckUUID=' + self._uuid,
                                                 '-TicksPerSec=' + str(self._ticks_per_sec)],
                                                stdout=out_stream,
                                                stderr=out_stream,
@@ -625,11 +612,10 @@ class HolodeckEnvironment(object):
     def __windows_start_process__(self, binary_path, task_key, verbose):
         import win32event
         out_stream = sys.stdout if verbose else open(os.devnull, 'w')
-        loading_semaphore = win32event.CreateSemaphore(None, 0, 1, "Global\\HOLODECK_LOADING_SEM" + self._uuid)
+        loading_semaphore = win32event.CreateSemaphore(None, 0, 1, 'Global\\HOLODECK_LOADING_SEM' + self._uuid)
         self._world_process = subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-LOG=HolodeckLog.txt',
-                                                '-ResX=' + str(self._window_width), "-ResY=" + str(self._window_height),
-                                                '-CamResX=' + str(self._camera_width),
-                                                '-CamResY=' + str(self._camera_height), "--HolodeckUUID=" + self._uuid,
+                                                '-ResX=' + str(self._window_width), '-ResY=' + str(self._window_height),
+                                                '--HolodeckUUID=' + self._uuid,
                                                 '-TicksPerSec=' + str(self._ticks_per_sec)],
                                                stdout=out_stream, stderr=out_stream)
         atexit.register(self.__on_exit__)
