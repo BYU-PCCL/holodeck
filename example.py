@@ -25,7 +25,7 @@ def uav_example():
             # To access specific sensor data:
             pixels = state["RGBCamera"]
             velocity = state["VelocitySensor"]
-            # For a full list of sensors the UAV has, view the docs
+            # For a full list of sensors the UAV has, consult the configuration file "InfiniteForest-MaxDistance.json"
 
     # You can control the AgentFollower camera (what you see) by pressing V to toggle spectator
     # mode. This detaches the camera and allows you to move freely about the world.
