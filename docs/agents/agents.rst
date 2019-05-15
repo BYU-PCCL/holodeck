@@ -15,9 +15,3 @@ Documentation on specific agents available in Holodeck:
    turtle-agent
    uav-agent
 
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Resources
-
-   sensors/sensors
