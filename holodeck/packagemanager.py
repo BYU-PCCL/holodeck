@@ -437,4 +437,14 @@ def _download_binary(binary_location, install_location, block_size=1000000):
     print("Unpacking worlds...")
     with zipfile.ZipFile(tmp_fd, 'r') as zip_file:
         zip_file.extractall(install_location)
+        
+    if os.name == "posix":
+        print("Fixing Permissions")
+        _make_excecutable(install_location)
+
     print("Finished.")
+
+def _make_excecutable(install_path):
+    for path, _, files in os.walk(install_path):
+        for f in files:
+            os.chmod(os.path.join(path, f), 0o777)
