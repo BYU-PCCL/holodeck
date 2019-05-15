@@ -12,7 +12,7 @@ This world is a very large and contains a few different environments. It has
 plains, forest, and a few structures for agents to interact with.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Scenarios
    :glob:
 

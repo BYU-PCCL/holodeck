@@ -1,3 +1,5 @@
+.. _`follow-task`:
+
 Follow Task
 ===========
 

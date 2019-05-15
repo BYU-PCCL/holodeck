@@ -12,7 +12,7 @@ This is a small, linear world meant to help agents learn to navigate around
 obstacles. 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Scenarios
    :glob:
 

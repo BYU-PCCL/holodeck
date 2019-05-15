@@ -12,7 +12,7 @@ Urban City contains a few city blocks and roads, meant to help agents learn to
 navigate an urban setting.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Scenarios
    :glob:
 

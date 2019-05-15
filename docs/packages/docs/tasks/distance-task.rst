@@ -1,3 +1,5 @@
+.. _`distance-task`:
+
 Distance Task
 =============
 
