@@ -20,7 +20,7 @@ backend_url = "https://s3.amazonaws.com/holodeckworlds/"
 
 def _get_from_backend(rel_url):
     """
-    Gets the resource given at rel_url, assumes it is a text file
+    Gets the resource given at rel_url, assumes it is a utf-8 text file
     
     Args:
         rel_url (:obj:`str`): url relative to backend_url to fetch
@@ -34,10 +34,10 @@ def _get_from_backend(rel_url):
 
 
 def available_packages():
-    """Returns a dictionary of package name to list of versions for all downloadable packages
+    """Returns a list of package names available for the current version of Holodeck
 
-    Returns (:obj:`dict` of :obj:`str` to :obj:`list` of :obj:`str`):
-        Dictionary of package name to a list of version strings
+    Returns (:obj:`list` of :obj:`str`):
+        List of package names
     """
     # Get the index json file from the backend
     url = "packages/{ver}/available".format(ver=util.get_holodeck_version())
@@ -57,6 +57,7 @@ def installed_packages():
     Returns:
         :obj:`list` of :obj:`str`: List of all the currently installed packages
     """
+    _check_for_old_versions()
     return [x["name"] for x, _ in _iter_packages()]
 
 
@@ -160,12 +161,13 @@ def scenario_info(scenario_name="", scenario=None, base_indent=0):
         _print_agent_info(scenario["agents"], base_indent)
 
 
-def install(package_name, version=None):
+def install(package_name):
     """Installs a holodeck package.
 
     Args:
         package_name (:obj:`str`): The name of the package to install
     """
+    _check_for_old_versions()
     holodeck_path = util.get_holodeck_path()
 
     packages = available_packages()
@@ -174,20 +176,73 @@ def install(package_name, version=None):
         pprint.pprint(packages, width=10, indent=4, stream=sys.stderr)
         return
 
-    if version is None:
-        # TODO: More robust version parsing
-        version = max(packages[package_name])
-
-    # example: %backend%/packages/0.1.0/DefaultWorlds/Linux/1.0.2.zip
-    binary_url = "{}packages/{}/{}/{}/{}.zip".format(backend_url, util.get_holodeck_version(),
-                                                     package_name, util.get_os_key(), version)
-
-    print("Installing {} ver. {} from {}".format(package_name, version, binary_url))
+    # example: %backend%/packages/0.1.0/DefaultWorlds/Linux.zip
+    binary_url = "{backend_url}packages/{holodeck_version}/{package_name}/{platform}.zip".format(
+        backend_url=backend_url, 
+        holodeck_version=util.get_holodeck_version(),
+        package_name=package_name, 
+        platform=util.get_os_key())
 
     install_path = os.path.join(holodeck_path, "worlds")
 
+    print("Installing {} from {} to {}".format(package_name, binary_url, install_path))
+
     _download_binary(binary_url, install_path)
 
+def _check_for_old_versions():
+    """Checks for old versions of the binary and tells the user they can remove them.
+    If there is an ignore_old_packages file, it will stay silent.
+    """
+    # holodeckpath turns off the binary folder versioning
+    if "HOLODECKPATH" in os.environ:
+        return
+
+    path = util._get_holodeck_folder()
+    not_matching = []
+    
+    for f in os.listdir(path):
+        f_path = os.path.join(path, f)
+        if f == "ignore_old_packages":
+            return
+        elif f == util.get_holodeck_version():
+            continue
+        elif not os.path.isfile(f_path):
+            not_matching.append(f)
+
+    if len(not_matching):
+        print("**********************************************")
+        print("* You have old versions of Holodeck packages *")
+        print("**********************************************")
+        print("Use packagemanager.prune() to delete old packages")
+        print("Versions:", not_matching)
+        print("Place an `ignore_old_packages` file in {} to surpress this message".format(path))
+        print()
+
+def prune():
+    """Prunes old versions of holodeck, other than the running version.
+
+    **DO NOT USE WITH HOLODECKPATH** 
+    
+    Don't use this function if you have overidden the path.
+    """
+    if "HOLODECKPATH" in os.environ:
+        print("This function is not available when using HOLODECKPATH", stream=sys.stderr)
+        return
+    
+    holodeck_folder = util._get_holodeck_folder()
+    
+    # Delete everything in holodeck_folder that isn't the current holodeck version
+    for file in os.listdir(holodeck_folder):
+        file_path = os.path.join(holodeck_folder, file)
+        if os.path.isfile(file_path):
+            continue
+        if file == util.get_holodeck_version():
+            continue
+        # Delete it!
+        print("Deleting {}".format(file_path))
+        shutil.rmtree(file_path)
+
+    print("Done")
 
 def remove(package_name):
     """Removes a holodeck package.

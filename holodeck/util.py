@@ -11,21 +11,24 @@ except NameError:
 def get_holodeck_version():
     return "0.2.0"
 
+def _get_holodeck_folder():
+    if "HOLODECKPATH" in os.environ and os.environ["HOLODECKPATH"] != "":
+        return os.environ["HOLODECKPATH"]
+    if os.name == "posix":
+        return os.path.expanduser("~/.local/share/holodeck")
+    elif os.name == "nt":
+        return os.path.expanduser("~\\AppData\\Local\\holodeck")
+    else:
+        raise NotImplementedError("holodeck is only supported for Linux and Windows")
+
 def get_holodeck_path():
     """Gets the path of the holodeck environment
 
     Returns:
         (:obj:`str`): path to the current holodeck environment
     """
-    if "HOLODECKPATH" in os.environ and os.environ["HOLODECKPATH"] != "":
-        return os.environ["HOLODECKPATH"]
-    if os.name == "posix":
-        path = os.path.expanduser("~/.local/share/holodeck")
-    elif os.name == "nt":
-        path = os.path.expanduser("~\\AppData\\Local\\holodeck")
-    else:
-        raise NotImplementedError("holodeck is only supported for Linux and Windows")
-    return os.path.join(path, get_holodeck_version())
+
+    return os.path.join(_get_holodeck_folder(), get_holodeck_version())
 
 
 def convert_unicode(value):
