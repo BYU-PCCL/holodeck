@@ -1,9 +1,9 @@
 Agents
 ======
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+For a higher level description of the agents, see :ref:`agents`.
 
 .. automodule:: holodeck.agents
-    :members:
+   :members:
+   :autosummary:
+

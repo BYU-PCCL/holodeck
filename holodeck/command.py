@@ -3,11 +3,16 @@
 To create a new command to send to the Holodeck backend, simply subclass from command.
 """
 
-from holodeck.agents import *
+
+import numpy as np
 
 
 class CommandsGroup(object):
-    """Holds Command objects in a list, and when requested packages everything in the correct json format."""
+    """Represents a list of commands
+    
+    Can convert list of commands to json.
+    
+    """
 
     def __init__(self):
         self._commands = []
@@ -16,24 +21,46 @@ class CommandsGroup(object):
         """Adds a command to the list
 
         Args:
-            command (Command): A command to add."""
+            command (:class:`Command`): A command to add."""
         self._commands.append(command)
 
     def to_json(self):
         """
         Returns:
-             str: Json for commands array object and all of the commands inside the array."""
+             :obj:`str`: Json for commands array object and all of the commands inside the array.
+             
+        """
         commands = ",".join(map(lambda x: x.to_json(), self._commands))
         return "{\"commands\": [" + commands + "]}"
 
     def clear(self):
-        """Clear the list of commands."""
+        """Clear the list of commands.
+        
+        """
         self._commands.clear()
+
+    @property
+    def size(self):
+        """
+        Returns:
+            int: Size of commands group"""
+        return len(self._commands)
 
 
 class Command(object):
-    """Base class for Command objects. Commands are used for IPC between the holodeck python bindings and holodeck
-    binaries. Can return itself in json format. You must set the command type."""
+    """Base class for Command objects.
+    
+    Commands are used for IPC between the holodeck python bindings and holodeck
+    binaries.
+
+    Derived classes must set the ``_command_type``.
+
+    The order in which :meth:`add_number_parameters` and :meth:`add_number_parameters` are called
+    is significant, they are added to an ordered list. Ensure that you are adding parameters in
+    the order the client expects them. 
+    
+    """
+
     def __init__(self):
         self._parameters = []
         self._command_type = ""
@@ -42,7 +69,8 @@ class Command(object):
         """Set the type of the command.
 
         Args:
-            command_type (str): This is the name of the command that it will be set to.
+            command_type (:obj:`str`): This is the name of the command that it will be set to.
+
         """
         self._command_type = command_type
 
@@ -50,7 +78,9 @@ class Command(object):
         """Add given number parameters to the internal list.
 
         Args:
-            number (list of int or list of float): A number or list of numbers to add to the parameters.
+            number (:obj:`list` of :obj:`int`/:obj:`float`, or singular :obj:`int`/:obj:`float`): 
+                A number or list of numbers to add to the parameters.
+
         """
         if isinstance(number, list):
             for x in number:
@@ -62,7 +92,9 @@ class Command(object):
         """Add given string parameters to the internal list.
 
         Args:
-            string (list of str or str): A string or list of strings to add to the parameters.
+            string (:obj:`list` of :obj:`str` or :obj:`str`): 
+                A string or list of strings to add to the parameters.
+
         """
         if isinstance(string, list):
             for x in string:
@@ -71,27 +103,96 @@ class Command(object):
         self._parameters.append("{ \"value\": \"" + string + "\" }")
 
     def to_json(self):
-        """
+        """Converts to json.
+
         Returns:
-            str: This object in json format."""
+            :obj:`str`: This object as a json string.
+        
+        """
         to_return = "{ \"type\": \"" + self._command_type + "\", \"params\": [" + ",".join(self._parameters) + "]}"
         return to_return
 
 
-class SpawnAgentCommand(Command):
-    """Holds the information to be sent to Holodeck that is needed for spawning an agent.
+class CommandCenter(object):
+    """Manages pending commands to send to the client (the engine).
 
     Args:
-        location (list of float): The place to spawn the agent in XYZ coordinates (meters).
-        name (str): The name of the agent.
-        agent_type (str): The type of agent to spawn (UAVAgent, NavAgent, ...)
+        client (:class:`~holodeck.holodeckclient.HolodeckClient`): Client to send commands to
+
     """
-    __type_keys = {
-        DiscreteSphereAgent: "SphereRobot",
-        UavAgent: "UAV",
-        NavAgent: "NavAgent",
-        AndroidAgent: "Android"
-    }
+    def __init__(self, client):
+        self._client = client
+
+        # Set up command buffer
+        self._command_bool_ptr = self._client.malloc("command_bool", [1], np.bool)
+        self.max_buffer = 1048576  # This is the size of the command buffer that Holodeck expects/will read.
+        self._command_buffer_ptr = self._client.malloc("command_buffer", [self.max_buffer], np.byte)
+        self._commands = CommandsGroup()
+        self._should_write_to_command_buffer = False
+
+    def clear(self):
+        """Clears pending commands
+
+        """
+        self._commands.clear()
+
+    def handle_buffer(self):
+        """Writes the list of commands into the command buffer, if needed.
+        
+        Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
+        clears the contents of the self._commands list
+        
+        """
+        if self._should_write_to_command_buffer:
+            self._write_to_command_buffer(self._commands.to_json())
+            self._should_write_to_command_buffer = False
+            self._commands.clear()
+
+    def enqueue_command(self, command_to_send):
+        """Adds command to outgoing queue.
+
+        Args:
+            command_to_send (:class:`Command`): Command to add to queue
+
+        """
+        self._should_write_to_command_buffer = True
+        self._commands.add_command(command_to_send)
+
+    def _write_to_command_buffer(self, to_write):
+        """Write input to the command buffer. 
+        
+        Reformat input string to the correct format.
+
+        Args:
+            to_write (:class:`str`): The string to write to the command buffer.
+
+        """
+
+        np.copyto(self._command_bool_ptr, True)
+        to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
+        input_bytes = str.encode(to_write)
+        if len(input_bytes) > self.max_buffer:
+            raise Exception("Error: Command length exceeds buffer size")
+        for index, val in enumerate(input_bytes):
+            self._command_buffer_ptr[index] = val
+
+    @property
+    def queue_size(self):
+        """
+        Returns:
+            int: Size of commands queue"""
+        return self._commands.size
+
+
+class SpawnAgentCommand(Command):
+    """Spawn an agent in the world.
+
+    Args:
+        location (:obj:`list` of :obj:`float`): The place to spawn the agent in XYZ coordinates (meters).
+        name (:obj:`str`): The name of the agent.
+        agent_type (:obj:`str` or type): The type of agent to spawn (UAVAgent, NavAgent, ...)
+
+    """
 
     def __init__(self, location, name, agent_type):
         super(SpawnAgentCommand, self).__init__()
@@ -101,10 +202,11 @@ class SpawnAgentCommand(Command):
         self.set_name(name)
 
     def set_location(self, location):
-        """Set the location to spawn the agent at.
+        """Set where agent will be spawned.
 
         Args:
-            location (list of float): XYZ coordinate of where to spawn the agent.
+            location (:obj:`list` of :obj:`float`): [X,Y,Z] coordinate of where to spawn the agent.
+
         """
         if len(location) != 3:
             print("Invalid location given to spawn agent command")
@@ -112,160 +214,179 @@ class SpawnAgentCommand(Command):
         self.add_number_parameters(location)
 
     def set_name(self, name):
-        """Set the name to give the agent.
+        """Set agents name
 
         Args:
-            name (str): The name to set the agent to.
+            name (:obj:`str`): The name to set the agent to.
+
         """
         self.add_string_parameters(name)
 
     def set_type(self, agent_type):
-        """Set the type of agent to spawn in Holodeck. Currently accepted agents are: DiscreteSphereAgent, UAVAgent,
-        and AndroidAgent.
+        """Set the type of agent.
 
         Args:
-            agent_type (str): The type of agent to spawn.
+            agent_type (:obj:`str` or :obj:`type`): The type of agent to spawn.
+
         """
-        type_str = SpawnAgentCommand.__type_keys[agent_type]
-        self.add_string_parameters(type_str)
+        if not isinstance(agent_type, str):
+            agent_type = agent_type.agent_type  # Get str from type
+        self.add_string_parameters(agent_type)
 
 
-class ChangeFogDensityCommand(Command):
-    """A command for changing the fog density in the world.
+class DebugDrawCommand(Command):
+    """Draw debug geometry in the world.
 
     Args:
-        density (float): A value between 0 and 1.
+        draw_type (:obj:`int`) : The type of object to draw, ``0``: line, ``1``: arrow, ``2``: box, ``3``: point
+        start (:obj:`list` of 3 :obj:`floats`): The start location of the object
+        end (:obj:`list` of 3 :obj:`floats`): The end location of the object (not used for point, and extent for box)
+        color (:obj:`list` of 3 :obj:`floats`): [R,G,B] values for the color
+        thickness (:obj:`float`): thickness of the line/object
+
     """
-    def __init__(self, density):
-        super(ChangeFogDensityCommand, self).__init__()
-        self._command_type = "ChangeFogDensity"
-        self.set_density(density)
+    def __init__(self, draw_type, start, end, color, thickness):
+        super(DebugDrawCommand, self).__init__()
+        self._command_type = "DebugDraw"
 
-    def set_density(self, density):
-        """Set the density for the fog.
-
-        Args:
-            density (float): A value between 0 and 1.
-        """
-        if density < 0 or density > 1:
-            print("Fog density should be between 0 and 1")
-            return
-        self.add_number_parameters(density)
-
-
-class DayTimeCommand(Command):
-    """A command to change the time of day.
-
-    Args:
-        hour (int): The hour in military time, should be something between 0-23
-    """
-    def __init__(self, hour):
-        super(DayTimeCommand, self).__init__()
-        self._command_type = "DayTime"
-        self.set_hour(hour)
-
-    def set_hour(self, hour):
-        """Set the hour.
-
-        Args:
-            hour (int): The hour in military time, should be something between 0-23
-        """
-        if hour < 0 or hour > 23:
-            print("The hour should be in military time; between 0 and 23")
-            return
-        self.add_number_parameters(hour)
-
-
-class DayCycleCommand(Command):
-    """A command for turning on and off the day/night cycle.
-
-    Args:
-        start (bool): Whether to start or stop the day night cycle
-    """
-    def __init__(self, start):
-        super(DayCycleCommand, self).__init__()
-        self._command_type = "DayCycle"
-        self.set_command(start)
-
-    def set_day_length(self, day_length):
-        """Set the day length in minutes.
-        Positional Arguments:
-        hour -- The day length in minutes. Cannot be at or below 0
-        """
-        if day_length <= 0:
-            print("The day length should not be equal to or below 0")
-            return
-        self.add_number_parameters(day_length)
-
-    def set_command(self, start):
-        """Start or stop the command
-        Positional Arguments:
-        start -- Bool for whether to start(true) the day cycle or stop(false).
-        """
-        if start:
-            self.add_string_parameters("start")
-        else:
-            self.add_string_parameters("stop")
-
-
-class SetWeatherCommand(Command):
-    """A command to set the weather type.
-
-    Args:
-        weather_type (str): The weather type. Can be "rain" or "cloudy".
-    """
-    _types = [
-        "rain",
-        "cloudy"
-    ]
-
-    def __init__(self, weather_type):
-        Command.__init__(self)
-        self._command_type = "SetWeather"
-        self.set_type(weather_type)
-
-    def set_type(self, weather_type):
-        """Set the weather type.
-
-        Args:
-            weather_type (str): The weather type.
-        """
-        weather_type.lower()
-        exists = self.has_type(weather_type)
-        if exists:
-            self.add_string_parameters(weather_type)
-
-    @staticmethod
-    def has_type(weather_type):
-        """Checks the validity of the type. Returns true if it exists in the type array
-
-        Args:
-            weather_type (str): The weather type, should be one of the above array
-        """
-        return weather_type in SetWeatherCommand._types
+        self.add_number_parameters(draw_type)
+        self.add_number_parameters(start)
+        self.add_number_parameters(end)
+        self.add_number_parameters(color)
+        self.add_number_parameters(thickness)
 
 
 class TeleportCameraCommand(Command):
+    """Move the viewport camera (agent follower)
+
+    Args:
+        location (:obj:`list` of size 3): The location to give the camera
+        rotation (:obj:`list` of size 3): The rotation to give the camera
+
+    """
     def __init__(self, location, rotation):
-        """Sets the command type to TeleportCamera and initialized this object.
-        :param location: The location to give the camera
-        :param rotation: The rotation to give the camera
-        """
         Command.__init__(self)
         self._command_type = "TeleportCamera"
-        self.set_location(location)
-        self.set_rotation(rotation)
-
-    def set_location(self, location):
-        """Set the location.
-        Positional Arguments:
-        location: A three dimensional array representing location in x,y,z
-        """
         self.add_number_parameters(location)
-
-    def set_rotation(self, rotation):
-        """Set the rotation.
-        Positional Arguments:
-        rotation: A three dimensional array representing rotation in x,y,z
-        """
         self.add_number_parameters(rotation)
+
+
+class SetSensorEnabledCommand(Command):
+    """Enable or disable a sensor on an agent
+
+    Args:
+        agent (:obj:`str`): Name of the agent to modify
+        sensor (:obj:`str`): Name of the sensor to enable or disable
+        enabled (:obj:`bool`): State to set sensor to
+
+    """
+    def __init__(self, agent, sensor, enabled):
+        Command.__init__(self)
+        self._command_type = "SetSensorEnabled"
+        self.add_string_parameters(agent)
+        self.add_string_parameters(sensor)
+        self.add_number_parameters(1 if enabled else 0)
+
+
+class AddSensorCommand(Command):
+    def __init__(self, sensor_definition):
+        """Add a sensor to an agent
+
+        Args:
+            sensor_definition (~holodeck.sensors.SensorDefinition): Sensor to add
+        """
+
+        Command.__init__(self)
+        self._command_type = "AddSensor"
+        self.add_string_parameters(sensor_definition.agent_name)
+        self.add_string_parameters(sensor_definition.sensor_name)
+        self.add_string_parameters(sensor_definition.type.sensor_type)
+        self.add_string_parameters(sensor_definition.get_config_json_string())
+        self.add_string_parameters(sensor_definition.socket)
+
+        self.add_number_parameters(sensor_definition.location[0])
+        self.add_number_parameters(sensor_definition.location[1])
+        self.add_number_parameters(sensor_definition.location[2])
+
+        self.add_number_parameters(sensor_definition.rotation[0])
+        self.add_number_parameters(sensor_definition.rotation[1])
+        self.add_number_parameters(sensor_definition.rotation[2])
+
+
+class RemoveSensorCommand(Command):
+    """Remove a sensor from an agent
+
+    Args:
+        agent (:obj:`str`): Name of agent to modify
+        sensor (:obj:`str`): Name of the sensor to remove
+
+    """
+    def __init__(self, agent, sensor):
+        Command.__init__(self)
+        self._command_type = "RemoveSensor"
+        self.add_string_parameters(agent)
+        self.add_string_parameters(sensor)
+
+
+class RenderViewportCommand(Command):
+    """Enable or disable the viewport
+
+    Args:
+        render_viewport (:obj:`bool`): If viewport should be rendered
+
+    """
+    def __init__(self, render_viewport):
+        Command.__init__(self)
+        self.set_command_type("RenderViewport")
+        self.add_number_parameters(int(bool(render_viewport)))
+
+
+class RGBCameraRateCommand(Command):
+    """Set the number of ticks between captures of the RGB camera.
+
+    Args:
+        agent_name (:obj:`str`): name of the agent to modify
+        ticks_per_capture (:obj:`int`): number of ticks between captures
+
+    """
+    def __init__(self, agent_name, ticks_per_capture):
+        Command.__init__(self)
+        self._command_type = "RGBCameraRate"
+        self.add_string_parameters(agent_name)
+        self.add_number_parameters(ticks_per_capture)
+
+
+class RenderQualityCommand(Command):
+    """Adjust the rendering quality of Holodeck
+
+    Args:
+        render_quality (int): 0 = low, 1 = medium, 3 = high, 3 = epic
+
+    """
+    def __init__(self, render_quality):
+        Command.__init__(self)
+        self.set_command_type("AdjustRenderQuality")
+        self.add_number_parameters(int(render_quality))
+
+
+class CustomCommand(Command):
+    """Send a custom command to the currently loaded world.
+
+    Args:
+        name (:obj:`str`): The name of the command, ex "OpenDoor"
+        num_params (obj:`list` of :obj:`int`): List of arbitrary number parameters
+        string_params (obj:`list` of :obj:`int`): List of arbitrary string parameters
+
+    """
+    def __init__(self, name, num_params=None, string_params=None):
+        if num_params is None:
+            num_params = []
+
+        if string_params is None:
+            string_params = []
+
+        Command.__init__(self)
+        self.set_command_type("CustomCommand")
+        self.add_string_parameters(name)
+        self.add_number_parameters(num_params)
+        self.add_string_parameters(string_params)

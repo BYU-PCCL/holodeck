@@ -14,10 +14,10 @@ class Shmem:
 
 
     Args:
-        name (str): Name the points to the beginning of the shared memory block
-        shape (int): Shape of the memory block
-        dtype (type optional): data type of the shared memory. Defaults to np.float32
-        uuid (str optional): UUID of the memory block. Defaults to ""
+        name (:obj:`str`): Name the points to the beginning of the shared memory block
+        shape (:obj:`int`): Shape of the memory block
+        dtype (type, optional): data type of the shared memory. Defaults to np.float32
+        uuid (:obj:`str`, optional): UUID of the memory block. Defaults to ""
     """
     _numpy_to_ctype = {
         np.float32: ctypes.c_float,
@@ -40,7 +40,13 @@ class Shmem:
         elif os.name == "posix":
             self._mem_path = "/dev/shm/HOLODECK_MEM" + uuid + "_" + name
             f = os.open(self._mem_path, os.O_CREAT | os.O_TRUNC | os.O_RDWR)
+            self._mem_file = f
             os.ftruncate(f, size_bytes)
+            os.fsync(f)
+
+            # TODO - I think we are leaking a file object here. Unfortunately, we
+            #        can't just .close() it since numpy acquires a reference to it
+            #        below and I can't find a way to release it in __linux_unlink__()
             self._mem_pointer = mmap.mmap(f, size_bytes)
         else:
             raise HolodeckException("Currently unsupported os: " + os.name)
@@ -58,6 +64,7 @@ class Shmem:
             raise HolodeckException("Currently unsupported os: " + os.name)
 
     def __linux_unlink__(self):
+        os.close(self._mem_file)
         os.remove(self._mem_path)
 
     def __windows_unlink__(self):

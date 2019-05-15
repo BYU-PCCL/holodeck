@@ -1,14 +1,21 @@
-.. Holodeck documentation master file, created by
-   sphinx-quickstart on Tue Sep 25 12:29:18 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to Holodeck's documentation!
 ====================================
+.. image:: images/sunrise_Moment.jpg
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Holodeck Documentation
+   
+   usage/installation
+   usage/getting-started
+   usage/usage
+   packages/packages
+   agents/agents
+   changelog/changelog
+
+.. toctree::
+   :maxdepth: 3
+   :caption: API Documentation
 
    holodeck/index
    holodeck/agents

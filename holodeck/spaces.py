@@ -6,8 +6,8 @@ class ActionSpace(object):
     """Abstract ActionSpace class.
 
     Parameters:
-        shape (list of int): The shape of data that should be input to step or tick.
-        buffer_shape (list of int, optional): The shape of the data that will be written to the shared memory.
+        shape (:obj:`list` of :obj:`int`): The shape of data that should be input to step or tick.
+        buffer_shape (:obj:`list` of :obj:`int`, optional): The shape of the data that will be written to the shared memory.
             Only use this when it is different from shape.
     """
     def __init__(self, shape, buffer_shape=None):
@@ -19,7 +19,7 @@ class ActionSpace(object):
         """Sample from the action space.
 
         Returns:
-            np.ndarray: A valid command to be input to step or tick.
+            (:obj:`np.ndarray`): A valid command to be input to step or tick.
         """
         raise NotImplementedError("Must be implemented by child class")
 
@@ -28,20 +28,20 @@ class ActionSpace(object):
         """Get the shape of the action space.
 
         Returns:
-            list of int: The shape of the action space.
+            (:obj:`list` of :obj:`int`): The shape of the action space.
         """
         return self._shape
 
 
 class ContinuousActionSpace(ActionSpace):
-    """An action space that takes floating point inputs.
+    """Action space that takes floating point inputs.
 
     Parameters:
-        shape (list of int): The shape of data that should be input to step or tick.
+        shape (:obj:`list` of :obj:`int`): The shape of data that should be input to step or tick.
         sample_fn (function, optional): A function that takes a shape parameter and outputs a sampled command.
             If this is not given, it will default to sampling from a unit gaussian.
-        buffer_shape (list of int, optional): The shape of the data that will be written to the shared memory.
-            Only use this when it is different from shape.
+        buffer_shape (:obj:`list` of :obj:`int`, optional): The shape of the data that will be written to the shared memory.
+            Only use this when it is different from ``shape``.
         """
     def __init__(self, shape, sample_fn=None, buffer_shape=None):
         super(ContinuousActionSpace, self).__init__(shape, buffer_shape=buffer_shape)
@@ -59,15 +59,15 @@ class ContinuousActionSpace(ActionSpace):
 
 
 class DiscreteActionSpace(ActionSpace):
-    """An action space that takes integer inputs.
+    """Action space that takes integer inputs.
 
-        Parameters:
-            shape (list of int): The shape of data that should be input to step or tick.
-            low (int): The lowest value to sample.
-            high (int): The highest value to sample.
-            buffer_shape (list of int, optional): The shape of the data that will be written to the shared memory.
-                Only use this when it is different from shape.
-            """
+    Args:
+        shape (:obj:`list` of :obj:`int`): The shape of data that should be input to step or tick.
+        low (:obj:`int`): The lowest value to sample.
+        high (:obj:`int`): The highest value to sample.
+        buffer_shape (:obj:`list` of :obj:`int`, optional): The shape of the data that will be written to the shared memory.
+            Only use this when it is different from shape.
+    """
     def __init__(self, shape, low, high, buffer_shape=None):
         super(DiscreteActionSpace, self).__init__(shape, buffer_shape=buffer_shape)
         self._low = low
