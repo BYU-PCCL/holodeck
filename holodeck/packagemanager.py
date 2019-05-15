@@ -198,6 +198,10 @@ def _check_for_old_versions():
         return
 
     path = util._get_holodeck_folder()
+
+    if not os.path.exists(path):
+        return
+
     not_matching = []
     
     for f in os.listdir(path):
