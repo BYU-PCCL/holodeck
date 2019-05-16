@@ -280,7 +280,9 @@ class SphereAgent(HolodeckAgent):
         if self._current_control_scheme is ControlSchemes.SPHERE_CONTINUOUS:
             np.copyto(self._action_buffer, action)
         elif self._current_control_scheme is ControlSchemes.SPHERE_DISCRETE:
-            actions = np.array([[.2, 0], [-.2, 0], [0, .2], [0, -.2]])
+            # Move forward .185 meters (to match initial release)
+            # Turn 10/-10 degrees (to match initial release)
+            actions = np.array([[.185, 0], [-.185, 0], [0, 10], [0, -10]])
             to_act = np.array(actions[action, :])
             np.copyto(self._action_buffer, to_act)
 
