@@ -183,7 +183,7 @@ def install(package_name):
         package_name=package_name, 
         platform=util.get_os_key())
 
-    install_path = os.path.join(holodeck_path, "worlds")
+    install_path = os.path.join(holodeck_path, "worlds", package_name)
 
     print("Installing {} from {} to {}".format(package_name, binary_url, install_path))
 
