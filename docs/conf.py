@@ -18,6 +18,8 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 
+import holodeck
+
 # -- Project information -----------------------------------------------------
 
 project = 'Holodeck'
@@ -25,9 +27,9 @@ copyright = 'BYU PCCL'
 author = 'Joshua Greaves, Max Robinson, Nick Walton, Jayden Milne'
 
 # The short X.Y version
-version = '0.2.1'
+version = holodeck.__version__
 # The full version, including alpha/beta/rc tags
-release = '0.2.1'
+release = holodeck.__version__
 
 
 # -- General configuration ---------------------------------------------------
