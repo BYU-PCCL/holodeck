@@ -1,7 +1,7 @@
 """Helpful Utilities"""
 import math
-import holodeck
 import os
+import holodeck
 
 try:
     unicode        # Python 2
@@ -10,6 +10,11 @@ except NameError:
 
 
 def get_holodeck_version():
+    """Gets the current version of holodeck
+
+    Returns:
+        (:obj:`str`): the current version
+    """
     return holodeck.__version__
 
 def _get_holodeck_folder():
@@ -49,8 +54,8 @@ def convert_unicode(value):
         return [convert_unicode(item) for item in value]
     elif isinstance(value, unicode):
         return value.encode('utf-8')
-    else:
-        return value
+
+    return value
 
 
 def get_os_key():
@@ -79,7 +84,7 @@ def human_readable_size(size_bytes):
     if size_bytes == 0:
         return "0B"
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-    i = int(math.floor(math.log(size_bytes, 1024)))
-    p = math.pow(1024, i)
-    s = round(size_bytes / p, 2)
-    return "%s %s" % (s, size_name[i])
+    base = int(math.floor(math.log(size_bytes, 1024)))
+    power = math.pow(1024, base)
+    size = round(size_bytes / power, 2)
+    return "%s %s" % (size, size_name[base])

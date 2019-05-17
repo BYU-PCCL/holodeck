@@ -5,7 +5,7 @@ from holodeck.environments import HolodeckEnvironment
 from holodeck.packagemanager import get_scenario, get_world_path, get_package_config_for_scenario
 
 
-class GL_VERSION(object):
+class GL_VERSION:
     """OpenGL Version enum.
 
     Attributes:
@@ -16,13 +16,14 @@ class GL_VERSION(object):
     OPENGL3 = 3
 
 
-def make(scenario_name, gl_version=GL_VERSION.OPENGL4, window_res=None, verbose=False, show_viewport=True,
-         ticks_per_sec=30, copy_state=True):
+def make(scenario_name, gl_version=GL_VERSION.OPENGL4, window_res=None, verbose=False,
+         show_viewport=True, ticks_per_sec=30, copy_state=True):
     """Creates a Holodeck environment
 
     Args:
-        world_name (:obj:`str`): 
-            The name of the world to load as an environment. Must match the name of a world in an installed package.
+        world_name (:obj:`str`):
+            The name of the world to load as an environment. Must match the name of a world in an
+            installed package.
 
         gl_version (:obj:`int`, optional):
             The OpenGL version to use (Linux only). Defaults to GL_VERSION.OPENGL4.
@@ -43,20 +44,20 @@ def make(scenario_name, gl_version=GL_VERSION.OPENGL4, window_res=None, verbose=
             If the state should be copied or passed as a reference when returned. Defaults to True
 
     Returns:
-        :class:`~holodeck.environments.HolodeckEnvironment`: A holodeck environment instantiated with all the settings
-            necessary for the specified world, and other supplied arguments.
-    
+        :class:`~holodeck.environments.HolodeckEnvironment`: A holodeck environment instantiated
+            with all the settings necessary for the specified world, and other supplied arguments.
+
     """
     scenario = get_scenario(scenario_name)
     binary_path = get_world_path(scenario_name)
 
     param_dict = dict()
-    
+
     # Get pre-start steps
     package_config = get_package_config_for_scenario(scenario)
     world = [world for world in package_config["worlds"] if world["name"] == scenario["world"]][0]
     param_dict["pre_start_steps"] = world["pre_start_steps"]
-    
+
     param_dict["binary_path"] = binary_path
     param_dict["scenario_key"] = scenario_name
     param_dict["window_height"] = scenario["window_height"]

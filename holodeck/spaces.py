@@ -7,7 +7,9 @@ class ActionSpace(object):
 
     Parameters:
         shape (:obj:`list` of :obj:`int`): The shape of data that should be input to step or tick.
-        buffer_shape (:obj:`list` of :obj:`int`, optional): The shape of the data that will be written to the shared memory.
+        buffer_shape (:obj:`list` of :obj:`int`, optional): The shape of the data that will be
+            written to the shared memory.
+
             Only use this when it is different from shape.
     """
     def __init__(self, shape, buffer_shape=None):
@@ -38,9 +40,13 @@ class ContinuousActionSpace(ActionSpace):
 
     Parameters:
         shape (:obj:`list` of :obj:`int`): The shape of data that should be input to step or tick.
-        sample_fn (function, optional): A function that takes a shape parameter and outputs a sampled command.
+        sample_fn (function, optional): A function that takes a shape parameter and outputs a
+            sampled command.
+
             If this is not given, it will default to sampling from a unit gaussian.
-        buffer_shape (:obj:`list` of :obj:`int`, optional): The shape of the data that will be written to the shared memory.
+        buffer_shape (:obj:`list` of :obj:`int`, optional): The shape of the data that will be
+            written to the shared memory.
+
             Only use this when it is different from ``shape``.
         """
     def __init__(self, shape, sample_fn=None, buffer_shape=None):
@@ -65,7 +71,9 @@ class DiscreteActionSpace(ActionSpace):
         shape (:obj:`list` of :obj:`int`): The shape of data that should be input to step or tick.
         low (:obj:`int`): The lowest value to sample.
         high (:obj:`int`): The highest value to sample.
-        buffer_shape (:obj:`list` of :obj:`int`, optional): The shape of the data that will be written to the shared memory.
+        buffer_shape (:obj:`list` of :obj:`int`, optional): The shape of the data that will be
+            written to the shared memory.
+
             Only use this when it is different from shape.
     """
     def __init__(self, shape, low, high, buffer_shape=None):
@@ -77,5 +85,5 @@ class DiscreteActionSpace(ActionSpace):
         return np.random.randint(self._low, self._high, self._shape, dtype=np.int32)
 
     def __repr__(self):
-        return "[DiscreteActionSpace " + str(self._shape) + ", min: " + str(self._low) + ", max: " +\
-               str(self._high) + "]"
+        return "[DiscreteActionSpace " + str(self._shape) + ", min: " +\
+               str(self._low) + ", max: " + str(self._high) + "]"

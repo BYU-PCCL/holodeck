@@ -1,6 +1,5 @@
 """The client used for subscribing shared memory between python and c++."""
 import os
-import numpy as np
 
 from holodeck.exceptions import HolodeckException
 from holodeck.shmem import Shmem
@@ -39,10 +38,12 @@ class HolodeckClient:
     def __windows_init__(self):
         import win32event
         semaphore_all_access = 0x1F0003
-        self._semaphore1 = win32event.OpenSemaphore(semaphore_all_access, False,
-                                                    "Global\\HOLODECK_SEMAPHORE_SERVER" + self._uuid)
-        self._semaphore2 = win32event.OpenSemaphore(semaphore_all_access, False,
-                                                    "Global\\HOLODECK_SEMAPHORE_CLIENT" + self._uuid)
+        self._semaphore1 = \
+            win32event.OpenSemaphore(semaphore_all_access, False,
+                                     "Global\\HOLODECK_SEMAPHORE_SERVER" + self._uuid)
+        self._semaphore2 = \
+            win32event.OpenSemaphore(semaphore_all_access, False,
+                                     "Global\\HOLODECK_SEMAPHORE_CLIENT" + self._uuid)
 
         def windows_acquire_semaphore(sem):
             win32event.WaitForSingleObject(sem, 100000)  # 100 second timeout
@@ -80,18 +81,19 @@ class HolodeckClient:
 
     def acquire(self):
         """Used to acquire control. Will wait until the HolodeckServer has finished its work.
-        
+
         """
         self._get_semaphore_fn(self._semaphore2)
 
     def release(self):
         """Used to release control. Will allow the HolodeckServer to take a step.
-        
+
         """
         self._release_semaphore_fn(self._semaphore1)
 
     def malloc(self, key, shape, dtype):
-        """Allocates a block of shared memory, and returns a numpy array whose data corresponds with that block.
+        """Allocates a block of shared memory, and returns a numpy array whose data corresponds
+        with that block.
 
         Args:
             key (:obj:`str`): The key to identify the block.
@@ -101,7 +103,9 @@ class HolodeckClient:
         Returns:
             :obj:`np.ndarray`: The numpy array that is positioned on the shared memory.
         """
-        if key not in self._memory or self._memory[key].shape != shape or self._memory[key].dtype != dtype:
+        if key not in self._memory or \
+           self._memory[key].shape != shape or \
+           self._memory[key].dtype != dtype:
             self._memory[key] = Shmem(key, shape, dtype, self._uuid)
 
         return self._memory[key].np_array
