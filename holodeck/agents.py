@@ -1,24 +1,27 @@
 """Definitions for different agents that can be controlled from Holodeck"""
-import numpy as np
 from functools import reduce
 
+import numpy as np
+
 from holodeck.spaces import ContinuousActionSpace, DiscreteActionSpace
-from holodeck.sensors import *
+from holodeck.sensors import SensorDefinition, SensorFactory, RGBCamera
 from holodeck.command import AddSensorCommand, RemoveSensorCommand
 
 
-class ControlSchemes(object):
+class ControlSchemes:
     """All allowed control schemes.
 
     Attributes:
         ANDROID_TORQUES (int): Default Android control scheme. Specify a torque for each joint.
-        CONTINUOUS_SPHERE_DEFAULT (int): Default ContinuousSphere control scheme. Takes two commands,
-            [forward_delta, turn_delta].
-        DISCRETE_SPHERE_DEFAULT (int): Default DiscreteSphere control scheme. Takes a value, 0-4, which corresponds
-            with forward, backward, right, and left.
+        CONTINUOUS_SPHERE_DEFAULT (int): Default ContinuousSphere control scheme.
+            Takes two commands, [forward_delta, turn_delta].
+        DISCRETE_SPHERE_DEFAULT (int): Default DiscreteSphere control scheme. Takes a value, 0-4,
+            which corresponds with forward, backward, right, and left.
         NAV_TARGET_LOCATION (int): Default NavAgent control scheme. Takes a target xyz coordinate.
-        UAV_TORQUES (int): Default UAV control scheme. Takes torques for roll, pitch, and yaw, as well as thrust.
-        UAV_ROLL_PITCH_YAW_RATE_ALT (int): Control scheme for UAV. Takes roll, pitch, yaw rate, and altitude targets.
+        UAV_TORQUES (int): Default UAV control scheme. Takes torques for roll, pitch, and yaw, as
+            well as thrust.
+        UAV_ROLL_PITCH_YAW_RATE_ALT (int): Control scheme for UAV. Takes roll, pitch, yaw rate, and
+            altitude targets.
     """
     # UAV Control Schemes
     ANDROID_DIRECT_TORQUES = 0
@@ -36,21 +39,24 @@ class ControlSchemes(object):
     UAV_ROLL_PITCH_YAW_RATE_ALT = 1
 
 
-class HolodeckAgent(object):
+class HolodeckAgent:
     """An learning agent in Holodeck
-    
+
     Agents can act, receive rewards, and receive observations from their sensors.
     Examples include the Android, UAV, and SphereRobot.
 
     Args:
-        client (:class:`~holodeck.holodeckclient.HolodeckClient`): The HolodeckClient that this agent belongs with.
-        name (:obj:`str`, optional): The name of the agent. Must be unique from other agents in the same environment.
-        sensors (:obj:`dict` of (:obj:`str`, :class:`~holodeck.sensors.HolodeckSensor`)): A list of HolodeckSensors to read from
-            this agent.
+        client (:class:`~holodeck.holodeckclient.HolodeckClient`): The HolodeckClient that this
+            agent belongs with.
+        name (:obj:`str`, optional): The name of the agent. Must be unique from other agents in
+            the same environment.
+        sensors (:obj:`dict` of (:obj:`str`, :class:`~holodeck.sensors.HolodeckSensor`)): A list
+            of HolodeckSensors to read from this agent.
 
     Attributes:
         name (:obj:`str`): The name of the agent.
-        sensors (dict of (string, :class:`~holodeck.sensors.HolodeckSensor`)): List of HolodeckSensors on this agent.
+        sensors (dict of (string, :class:`~holodeck.sensors.HolodeckSensor`)): List of
+            HolodeckSensors on this agent.
         agent_state_dict (dict): A dictionary that maps sensor names to sensor observation data.
     """
 
@@ -61,10 +67,12 @@ class HolodeckAgent(object):
         self.sensors = dict()
 
         self._num_control_schemes = len(self.control_schemes)
-        self._max_control_scheme_length = max(map(lambda x: reduce(lambda i, j: i * j, x[1].buffer_shape),
-                                                  self.control_schemes))
+        self._max_control_scheme_length = \
+            max(map(lambda x: reduce(lambda i, j: i * j, x[1].buffer_shape),
+                    self.control_schemes))
 
-        self._action_buffer = self._client.malloc(name, [self._max_control_scheme_length], np.float32)
+        self._action_buffer = \
+            self._client.malloc(name, [self._max_control_scheme_length], np.float32)
         # Teleport flag: 0: do nothing, 1: teleport, 2: rotate, 3: teleport and rotate
         self._teleport_type_buffer = self._client.malloc(name + "_teleport_flag", [1], np.uint8)
         self._teleport_buffer = self._client.malloc(name + "_teleport_command", [12], np.float32)
@@ -78,7 +86,8 @@ class HolodeckAgent(object):
         self.get_ticks_per_capture()
 
     def act(self, action):
-        """Sets the command for the agent. Action depends on the agent type and current control scheme.
+        """Sets the command for the agent. Action depends on the agent type and current control
+        scheme.
 
         Args:
             action(:obj:`np.ndarray`): The action to take.
@@ -89,7 +98,8 @@ class HolodeckAgent(object):
         """Sets the control scheme for the agent. See :class:`ControlSchemes`.
 
         Args:
-            index (:obj:`int`): The control scheme to use. Should be set with an enum from :class:`ControlSchemes`.
+            index (:obj:`int`): The control scheme to use. Should be set with an enum from
+                :class:`ControlSchemes`.
         """
         self._current_control_scheme = index % self._num_control_schemes
         self._control_scheme_buffer[0] = self._current_control_scheme
@@ -114,9 +124,11 @@ class HolodeckAgent(object):
         """Teleports the agent to a specific location, with a specific rotation.
 
         Args:
-            location (np.ndarray, optional): An array with three elements specifying the target world coordinate in meters.
+            location (np.ndarray, optional): An array with three elements specifying the target
+                world coordinate in meters.
             If None, keeps the current location. Defaults to None.
-            rotation (np.ndarray, optional): An array with three elements specifying roll, pitch, and yaw in degrees of the agent.
+            rotation (np.ndarray, optional): An array with three elements specifying roll, pitch,
+                and yaw in degrees of the agent.
             If None, keeps the current rotation. Defaults to None.
 
         """
@@ -146,10 +158,12 @@ class HolodeckAgent(object):
         self._teleport_type_buffer[0] = 15
 
     def add_sensors(self, sensor_defs):
-        """Adds a sensor to a particular agent object and attaches an instance of the sensor to the agent in the world.
+        """Adds a sensor to a particular agent object and attaches an instance of the sensor to the
+        agent in the world.
 
         Args:
-            sensor_defs (:class:`~holodeck.sensors.HolodeckSensor` or list of :class:`~holodeck.sensors.HolodeckSensor`): 
+            sensor_defs (:class:`~holodeck.sensors.HolodeckSensor` or
+                         list of :class:`~holodeck.sensors.HolodeckSensor`):
                 Sensors to add to the agent.
         """
         if not isinstance(sensor_defs, list):
@@ -166,10 +180,12 @@ class HolodeckAgent(object):
                     self._client.command_center.enqueue_command(command_to_send)
 
     def remove_sensors(self, sensor_defs):
-        """Removes a sensor from a particular agent object and detaches it from the agent in the world.
+        """Removes a sensor from a particular agent object and detaches it from the agent in the
+        world.
 
         Args:
-            sensor_defs (:class:`~holodeck.sensors.HolodeckSensor` or list of :class:`~holodeck.sensors.HolodeckSensor`): 
+            sensor_defs (:class:`~holodeck.sensors.HolodeckSensor` or
+                         list of :class:`~holodeck.sensors.HolodeckSensor`):
                 Sensors to remove from the agent.
         """
         if not isinstance(sensor_defs, list):
@@ -195,7 +211,8 @@ class HolodeckAgent(object):
         """Gets the action space for the current agent and control scheme.
 
         Returns:
-            :class:`~holodeck.spaces.ActionSpace`: The action space for this agent and control scheme."""
+            :class:`~holodeck.spaces.ActionSpace`: The action space for this agent and control
+                scheme."""
         return self.control_schemes[self._current_control_scheme][1]
 
     @property
@@ -227,7 +244,7 @@ class UavAgent(HolodeckAgent):
     1. [pitch_target, roll_target, yaw_rate_target, altitude_target]
 
     See :ref:`uav-agent` for more details.
-    
+
     Inherits from :class:`HolodeckAgent`.
     """
 
@@ -292,14 +309,14 @@ class SphereAgent(HolodeckAgent):
 
 class AndroidAgent(HolodeckAgent):
     """An humanoid android agent.
-    
+
     Can be controlled via torques supplied to its joints.
-   
+
     See :ref:`android-agent` for more details.
 
-    **Action Space:** 94 dimensional vector of continuous values representing torques to be 
+    **Action Space:** 94 dimensional vector of continuous values representing torques to be
     applied at each joint. The layout of joints can be found here:
-    
+
     There are 18 joints with 3 DOF, 10 with 2 DOF, and 20 with 1 DOF.
 
     Inherits from :class:`HolodeckAgent`."""
@@ -309,13 +326,22 @@ class AndroidAgent(HolodeckAgent):
     @property
     def control_schemes(self):
         return [("[Raw Bone Torques] * 94", ContinuousActionSpace([94])),
-                ("[-1 to 1] * 94, where 1 is the maximum torque for a given joint (based on mass of bone)", ContinuousActionSpace([94]))]
+                ("[-1 to 1] * 94, where 1 is the maximum torque for a given "
+                 "joint (based on mass of bone)", ContinuousActionSpace([94]))]
 
     def __repr__(self):
         return "AndroidAgent " + self.name
 
     @staticmethod
     def joint_ind(joint_name):
+        """Gets the joint indices for a given name
+
+        Args:
+            joint_name (:obj:`str`): Name of the joint to look up
+
+        Returns:
+            (int): The index into the state array
+        """
         return AndroidAgent._joint_indices[joint_name]
 
     _joint_indices = {
@@ -427,12 +453,15 @@ class AgentDefinition:
     Args:
         agent_name (str): The name of the agent to control.
         agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
-        sensors (list of :class:`~holodeck.sensors.SensorDefinition` or class type (if no duplicate sensors): 
+        sensors (list of :class:`~holodeck.sensors.SensorDefinition` or
+                class type (if no duplicate sensors):
             A list of HolodeckSensors to read from this agent.
-            Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
-            
+
+            Defaults to None. Must be a list of SensorDefinitions if there are more than one
+            sensor of the same type
+
     """
-    
+
     _type_keys = {
         "SphereAgent": SphereAgent,
         "UavAgent": UavAgent,
@@ -440,13 +469,18 @@ class AgentDefinition:
         "AndroidAgent": AndroidAgent
     }
 
-    def __init__(self, agent_name, agent_type, sensors=None, starting_loc=(0,0,0), existing=False):
+    def __init__(self, agent_name, agent_type, sensors=None, starting_loc=(0, 0, 0),
+                 existing=False):
         """
         Args:
             agent_name (str): The name of the agent to control.
-            agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
-            sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of HolodeckSensors to read from this agent.
-                Defaults to None. Must be a list of SensorDefinitions if there are more than one sensor of the same type
+            agent_type (str or type): The type of HolodeckAgent to control, string or class
+                reference.
+            sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of
+                HolodeckSensors to read from this agent.
+
+                Defaults to None. Must be a :obj:`list` of :class:`SensorDefinition` if there are
+                more than one sensor of the same type
         """
         self.starting_loc = starting_loc
         self.existing = existing
@@ -455,10 +489,26 @@ class AgentDefinition:
             if not isinstance(sensor_def, SensorDefinition):
                 self.sensors[i] = SensorDefinition(agent_name, None, sensor_def)
         self.name = agent_name
-        self.type = AgentDefinition._type_keys[agent_type] if isinstance(agent_type, str) else agent_type
+
+        if isinstance(agent_type, str):
+            self.type = AgentDefinition._type_keys[agent_type]
+        else:
+            self.type = agent_type
 
 
 class AgentFactory:
+    """Creates an agent object
+    """
     @staticmethod
     def build_agent(client, agent_def):
+        """Constructs an agent
+
+        Args:
+            client (:class:`holodeck.holodeckclient.HolodeckClient`): HolodeckClient agent is
+                associated with
+            agent_def (:class:`AgentDefinition`): Definition of the agent to instantiate
+
+        Returns:
+
+        """
         return agent_def.type(client, agent_def.name)
