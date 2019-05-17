@@ -1,4 +1,5 @@
-"""This module contains the classes used for formatting and sending commands to the Holodeck backend.
+"""This module contains the classes used for formatting and sending commands to the Holodeck
+backend.
 
 To create a new command to send to the Holodeck backend, simply subclass from command.
 """
@@ -7,11 +8,11 @@ To create a new command to send to the Holodeck backend, simply subclass from co
 import numpy as np
 
 
-class CommandsGroup(object):
+class CommandsGroup:
     """Represents a list of commands
-    
+
     Can convert list of commands to json.
-    
+
     """
 
     def __init__(self):
@@ -28,14 +29,14 @@ class CommandsGroup(object):
         """
         Returns:
              :obj:`str`: Json for commands array object and all of the commands inside the array.
-             
+
         """
         commands = ",".join(map(lambda x: x.to_json(), self._commands))
         return "{\"commands\": [" + commands + "]}"
 
     def clear(self):
         """Clear the list of commands.
-        
+
         """
         self._commands.clear()
 
@@ -47,9 +48,9 @@ class CommandsGroup(object):
         return len(self._commands)
 
 
-class Command(object):
+class Command:
     """Base class for Command objects.
-    
+
     Commands are used for IPC between the holodeck python bindings and holodeck
     binaries.
 
@@ -57,8 +58,8 @@ class Command(object):
 
     The order in which :meth:`add_number_parameters` and :meth:`add_number_parameters` are called
     is significant, they are added to an ordered list. Ensure that you are adding parameters in
-    the order the client expects them. 
-    
+    the order the client expects them.
+
     """
 
     def __init__(self):
@@ -78,7 +79,7 @@ class Command(object):
         """Add given number parameters to the internal list.
 
         Args:
-            number (:obj:`list` of :obj:`int`/:obj:`float`, or singular :obj:`int`/:obj:`float`): 
+            number (:obj:`list` of :obj:`int`/:obj:`float`, or singular :obj:`int`/:obj:`float`):
                 A number or list of numbers to add to the parameters.
 
         """
@@ -92,7 +93,7 @@ class Command(object):
         """Add given string parameters to the internal list.
 
         Args:
-            string (:obj:`list` of :obj:`str` or :obj:`str`): 
+            string (:obj:`list` of :obj:`str` or :obj:`str`):
                 A string or list of strings to add to the parameters.
 
         """
@@ -107,13 +108,14 @@ class Command(object):
 
         Returns:
             :obj:`str`: This object as a json string.
-        
+
         """
-        to_return = "{ \"type\": \"" + self._command_type + "\", \"params\": [" + ",".join(self._parameters) + "]}"
+        to_return = "{ \"type\": \"" + self._command_type +\
+            "\", \"params\": [" + ",".join(self._parameters) + "]}"
         return to_return
 
 
-class CommandCenter(object):
+class CommandCenter:
     """Manages pending commands to send to the client (the engine).
 
     Args:
@@ -125,7 +127,8 @@ class CommandCenter(object):
 
         # Set up command buffer
         self._command_bool_ptr = self._client.malloc("command_bool", [1], np.bool)
-        self.max_buffer = 1048576  # This is the size of the command buffer that Holodeck expects/will read.
+        # This is the size of the command buffer that Holodeck expects/will read.
+        self.max_buffer = 1048576
         self._command_buffer_ptr = self._client.malloc("command_buffer", [self.max_buffer], np.byte)
         self._commands = CommandsGroup()
         self._should_write_to_command_buffer = False
@@ -138,10 +141,10 @@ class CommandCenter(object):
 
     def handle_buffer(self):
         """Writes the list of commands into the command buffer, if needed.
-        
-        Checks if we should write to the command buffer, writes all of the queued commands to the buffer, and then
-        clears the contents of the self._commands list
-        
+
+        Checks if we should write to the command buffer, writes all of the queued commands to the
+        buffer, and then clears the contents of the self._commands list
+
         """
         if self._should_write_to_command_buffer:
             self._write_to_command_buffer(self._commands.to_json())
@@ -159,8 +162,8 @@ class CommandCenter(object):
         self._commands.add_command(command_to_send)
 
     def _write_to_command_buffer(self, to_write):
-        """Write input to the command buffer. 
-        
+        """Write input to the command buffer.
+
         Reformat input string to the correct format.
 
         Args:
@@ -188,7 +191,8 @@ class SpawnAgentCommand(Command):
     """Spawn an agent in the world.
 
     Args:
-        location (:obj:`list` of :obj:`float`): The place to spawn the agent in XYZ coordinates (meters).
+        location (:obj:`list` of :obj:`float`): The place to spawn the agent in XYZ coordinates
+            (meters).
         name (:obj:`str`): The name of the agent.
         agent_type (:obj:`str` or type): The type of agent to spawn (UAVAgent, NavAgent, ...)
 
@@ -238,9 +242,16 @@ class DebugDrawCommand(Command):
     """Draw debug geometry in the world.
 
     Args:
-        draw_type (:obj:`int`) : The type of object to draw, ``0``: line, ``1``: arrow, ``2``: box, ``3``: point
+        draw_type (:obj:`int`) : The type of object to draw
+
+            - ``0``: line
+            - ``1``: arrow
+            - ``2``: box
+            - ``3``: point
+
         start (:obj:`list` of 3 :obj:`floats`): The start location of the object
-        end (:obj:`list` of 3 :obj:`floats`): The end location of the object (not used for point, and extent for box)
+        end (:obj:`list` of 3 :obj:`floats`): The end location of the object (not used for point,
+            and extent for box)
         color (:obj:`list` of 3 :obj:`floats`): [R,G,B] values for the color
         thickness (:obj:`float`): thickness of the line/object
 
@@ -289,13 +300,13 @@ class SetSensorEnabledCommand(Command):
 
 
 class AddSensorCommand(Command):
-    def __init__(self, sensor_definition):
-        """Add a sensor to an agent
+    """Add a sensor to an agent
 
         Args:
             sensor_definition (~holodeck.sensors.SensorDefinition): Sensor to add
-        """
+    """
 
+    def __init__(self, sensor_definition):
         Command.__init__(self)
         self._command_type = "AddSensor"
         self.add_string_parameters(sensor_definition.agent_name)

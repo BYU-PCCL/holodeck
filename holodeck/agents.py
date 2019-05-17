@@ -454,7 +454,7 @@ class AgentDefinition:
         agent_name (str): The name of the agent to control.
         agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
         sensors (list of :class:`~holodeck.sensors.SensorDefinition` or
-                class type (if no duplicate sensors):
+                 class type (if no duplicate sensors)):
             A list of HolodeckSensors to read from this agent.
 
             Defaults to None. Must be a list of SensorDefinitions if there are more than one
