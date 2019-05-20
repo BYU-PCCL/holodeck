@@ -203,8 +203,8 @@ class HolodeckEnvironment(object):
         # Reset level
         self._initial_reset = True
         self._reset_ptr[0] = True
-        for agent in self.agents:
-            self.agents[agent].clear_action()
+        for agent in self.agents.values():
+            agent.clear_action()
         self.tick()  # Must tick once to send reset before sending spawning commands
         self.tick()  # Bad fix to potential race condition. See issue https://github.com/BYU-PCCL/holodeck/issues/224
         self.tick()
