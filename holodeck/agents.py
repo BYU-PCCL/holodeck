@@ -85,6 +85,11 @@ class HolodeckAgent(object):
         """
         self.__act__(action)
 
+    def clear_action(self):
+        """Sets the action to zeros, effectively removing any previous actions.
+        """
+        np.copyto(self._action_buffer, np.zeros(self._action_buffer.shape))
+
     def set_control_scheme(self, index):
         """Sets the control scheme for the agent. See :class:`ControlSchemes`.
 
