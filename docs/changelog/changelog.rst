@@ -3,7 +3,7 @@ Changelog
 
 Holodeck 0.2.1
 --------------
-*05/15/2019*
+*05/20/2019*
 
 This release of Holodeck is focused on polishing existing features and allowing worlds to be customized more.
 This summer we are planning on adding much more content (worlds, agents, etc).
