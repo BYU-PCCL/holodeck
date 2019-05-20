@@ -1,13 +1,15 @@
 from setuptools import setup
+from holodeck import __version__
 
 with open("README.md") as f:
     readme = f.read()
 
 setup(
     name="holodeck",
-    version="0.2.0",
+    version=__version__,
     description="High fidelity simulated environments for reinforcement learning",
     long_description=readme,
+    long_description_content_type="text/markdown",
     author="Joshua Greaves, Max Robinson, Nick Walton, Jayden Milne",
     author_email="holodeck@cs.byu.edu",
     url="https://github.com/byu-pccl/holodeck",

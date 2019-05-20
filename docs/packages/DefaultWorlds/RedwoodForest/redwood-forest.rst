@@ -11,7 +11,7 @@ Top View:
 This is a forest setting with more diverse tree sizes. It has a fixed size.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Scenarios
    :glob:
 

@@ -12,7 +12,7 @@ This is a small world with some props agents can interact with. It was designed
 for the android to interact with.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Scenarios
    :glob:
 

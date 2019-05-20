@@ -8,7 +8,7 @@ main agent goes. Each time the world is initialized, it will have a different
 layout.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Scenarios
    :glob:
 

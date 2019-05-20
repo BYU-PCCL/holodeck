@@ -183,7 +183,7 @@ def install(package_name):
         package_name=package_name, 
         platform=util.get_os_key())
 
-    install_path = os.path.join(holodeck_path, "worlds")
+    install_path = os.path.join(holodeck_path, "worlds", package_name)
 
     print("Installing {} from {} to {}".format(package_name, binary_url, install_path))
 
@@ -198,6 +198,10 @@ def _check_for_old_versions():
         return
 
     path = util._get_holodeck_folder()
+
+    if not os.path.exists(path):
+        return
+
     not_matching = []
     
     for f in os.listdir(path):
@@ -433,4 +437,14 @@ def _download_binary(binary_location, install_location, block_size=1000000):
     print("Unpacking worlds...")
     with zipfile.ZipFile(tmp_fd, 'r') as zip_file:
         zip_file.extractall(install_location)
+        
+    if os.name == "posix":
+        print("Fixing Permissions")
+        _make_excecutable(install_location)
+
     print("Finished.")
+
+def _make_excecutable(install_path):
+    for path, _, files in os.walk(install_path):
+        for f in files:
+            os.chmod(os.path.join(path, f), 0o777)

@@ -1,5 +1,6 @@
 """Helpful Utilities"""
 import math
+import holodeck
 import os
 
 try:
@@ -9,7 +10,7 @@ except NameError:
 
 
 def get_holodeck_version():
-    return "0.2.0"
+    return holodeck.__version__
 
 def _get_holodeck_folder():
     if "HOLODECKPATH" in os.environ and os.environ["HOLODECKPATH"] != "":
