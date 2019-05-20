@@ -129,7 +129,8 @@ class HolodeckEnvironment(object):
         """
         result = list()
         result.append("Agents:\n")
-        for agent in self.agents:
+        for agent_name in self.agents:
+            agent = self.agents[agent_name]
             result.append("\tName: ")
             result.append(agent.name)
             result.append("\n\tType: ")
