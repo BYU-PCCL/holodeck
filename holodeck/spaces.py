@@ -2,7 +2,7 @@
 import numpy as np
 
 
-class ActionSpace(object):
+class ActionSpace:
     """Abstract ActionSpace class.
 
     Parameters:

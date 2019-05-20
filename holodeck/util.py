@@ -20,12 +20,14 @@ def get_holodeck_version():
 def _get_holodeck_folder():
     if "HOLODECKPATH" in os.environ and os.environ["HOLODECKPATH"] != "":
         return os.environ["HOLODECKPATH"]
+
     if os.name == "posix":
         return os.path.expanduser("~/.local/share/holodeck")
-    elif os.name == "nt":
+
+    if os.name == "nt":
         return os.path.expanduser("~\\AppData\\Local\\holodeck")
-    else:
-        raise NotImplementedError("holodeck is only supported for Linux and Windows")
+
+    raise NotImplementedError("holodeck is only supported for Linux and Windows")
 
 def get_holodeck_path():
     """Gets the path of the holodeck environment
@@ -50,9 +52,11 @@ def convert_unicode(value):
     if isinstance(value, dict):
         return {convert_unicode(key): convert_unicode(value)
                 for key, value in value.iteritems()}
-    elif isinstance(value, list):
+
+    if isinstance(value, list):
         return [convert_unicode(item) for item in value]
-    elif isinstance(value, unicode):
+
+    if isinstance(value, unicode):
         return value.encode('utf-8')
 
     return value
@@ -66,10 +70,10 @@ def get_os_key():
     """
     if os.name == "posix":
         return "Linux"
-    elif os.name == "nt":
+    if os.name == "nt":
         return "Windows"
-    else:
-        raise NotImplementedError("Holodeck is only supported for Linux and Windows")
+
+    raise NotImplementedError("Holodeck is only supported for Linux and Windows")
 
 
 def human_readable_size(size_bytes):
