@@ -280,13 +280,13 @@ class HolodeckEnvironment:
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
         Primary mode of interaction for multi-agent environments. After all agent commands are
-        supplied, they can be applied with a call to `tick`.
+            supplied, they can be applied with a call to `tick`.
 
         Args:
-            agent_name (str): The name of the agent to supply an action for.
-            action (np.ndarray or list): The action to apply to the agent. This action will be
-                applied every time `tick` is called, until a new action is supplied with another
-                call to act.
+            agent_name (:obj:`str`): The name of the agent to supply an action for.
+            action (:obj:`np.ndarray` or :obj:`list`): The action to apply to the agent. This
+                action will be applied every time `tick` is called, until a new action is supplied
+                with another call to act.
         """
         self.agents[agent_name].act(action)
 
@@ -294,11 +294,10 @@ class HolodeckEnvironment:
         """Ticks the environment once. Normally used for multi-agent environments.
 
         Returns:
-            dict: A dictionary from agent name to its full state. The full state is another
-                dictionary
-            from :obj:`holodeck.sensors.Sensors` enum to np.ndarray, containing the sensors
-                information
-            for each sensor. The sensors always include the reward and terminal sensors.
+            :obj:`dict`: A dictionary from agent name to its full state. The full state is another
+                dictionary from :obj:`holodeck.sensors.Sensors` enum to np.ndarray, containing the
+                sensors information for each sensor. The sensors always include the reward and
+                terminal sensors.
         """
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .tick()")
@@ -340,37 +339,6 @@ class HolodeckEnvironment:
                 agent.
         """
         self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
-
-    def act(self, agent_name, action):
-        """Supplies an action to a particular agent, but doesn't tick the environment.
-        Primary mode of interaction for multi-agent environments. After all agent commands are
-            supplied, they can be applied with a call to `tick`.
-
-        Args:
-            agent_name (:obj:`str`): The name of the agent to supply an action for.
-            action (:obj:`np.ndarray` or :obj:`list`): The action to apply to the agent. This
-                action will be applied every time `tick` is called, until a new action is supplied
-                with another call to act.
-        """
-        self.agents[agent_name].act(action)
-
-    def tick(self):
-        """Ticks the environment once. Normally used for multi-agent environments.
-
-        Returns:
-            :obj:`dict`: A dictionary from agent name to its full state. The full state is another
-                dictionary from :obj:`holodeck.sensors.Sensors` enum to np.ndarray, containing the
-                sensors information for each sensor. The sensors always include the reward and
-                terminal sensors.
-        """
-        if not self._initial_reset:
-            raise HolodeckException("You must call .reset() before .tick()")
-
-        self._command_center.handle_buffer()
-
-        self._client.release()
-        self._client.acquire()
-        return self._get_full_state()
 
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
