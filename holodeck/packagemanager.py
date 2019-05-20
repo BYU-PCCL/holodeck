@@ -15,21 +15,21 @@ from threading import Thread
 from holodeck import util
 from holodeck.exceptions import HolodeckException
 
-backend_url = "https://s3.amazonaws.com/holodeckworlds/"
+BACKEND_URL = "https://s3.amazonaws.com/holodeckworlds/"
 
 
 def _get_from_backend(rel_url):
     """
     Gets the resource given at rel_url, assumes it is a utf-8 text file
-    
+
     Args:
-        rel_url (:obj:`str`): url relative to backend_url to fetch
+        rel_url (:obj:`str`): url relative to BACKEND_URL to fetch
 
     Returns:
         :obj:`str`: The resource at rel_url as a string
     """
-    r = urllib.request.urlopen(backend_url + rel_url)
-    data = r.read()
+    req = urllib.request.urlopen(BACKEND_URL + rel_url)
+    data = req.read()
     return data.decode('utf-8')
 
 
@@ -45,7 +45,9 @@ def available_packages():
         index = _get_from_backend(url)
         index = json.loads(index)
     except urllib.error.URLError as err:
-        print("Unable to communicate with backend ({}), {}".format(url, err.reason), file=sys.stderr)
+        print("Unable to communicate with backend ({}), {}".format(
+            url, err.reason),
+              file=sys.stderr)
         raise
 
     return index["packages"]
@@ -95,7 +97,8 @@ def world_info(world_name, world_config=None, base_indent=0):
 
     Args:
         world_name (:obj:`str`): the name of the world to retrieve information for
-        world_config (:obj:`dict`, optional): A dictionary containing the world's configuration. Will find the config if None. Defaults to None.
+        world_config (:obj:`dict`, optional): A dictionary containing the world's configuration.
+            Will find the config if None. Defaults to None.
         base_indent (:obj:`int`, optional): How much to indent output
     """
     if world_config is None:
@@ -114,7 +117,7 @@ def world_info(world_name, world_config=None, base_indent=0):
         _print_agent_info(world_config["agents"], base_indent)
 
     print(base_indent*' ', "Scenarios:")
-    for scenario, path in _iter_scenarios(world_name):
+    for scenario, _ in _iter_scenarios(world_name):
         scenario_info(scenario=scenario, base_indent=base_indent + 2)
 
 
@@ -129,7 +132,7 @@ def _find_file_in_worlds_dir(filename):
         :obj:`str`: The path or an empty string if the file was not found
 
     """
-    for root, dirnames, filenames in os.walk(util.get_holodeck_path(), "worlds"):
+    for root, _, filenames in os.walk(util.get_holodeck_path(), "worlds"):
         for match in fnmatch.filter(filenames, filename):
             return os.path.join(root, match)
     return ""
@@ -141,7 +144,8 @@ def scenario_info(scenario_name="", scenario=None, base_indent=0):
 
     Args:
         scenario_name (:obj:`str`): The name of the scenario
-        scenario (:obj:`dict`, optional): Loaded dictionary config (overrides world_name and scenario_name)
+        scenario (:obj:`dict`, optional): Loaded dictionary config
+            (overrides world_name and scenario_name)
         base_indent (:obj:`int`, optional): How much to indent output by
     """
     scenario_file = ""
@@ -178,9 +182,9 @@ def install(package_name):
 
     # example: %backend%/packages/0.1.0/DefaultWorlds/Linux.zip
     binary_url = "{backend_url}packages/{holodeck_version}/{package_name}/{platform}.zip".format(
-        backend_url=backend_url, 
+        backend_url=BACKEND_URL,
         holodeck_version=util.get_holodeck_version(),
-        package_name=package_name, 
+        package_name=package_name,
         platform=util.get_os_key())
 
     install_path = os.path.join(holodeck_path, "worlds", package_name)
@@ -203,17 +207,17 @@ def _check_for_old_versions():
         return
 
     not_matching = []
-    
+
     for f in os.listdir(path):
         f_path = os.path.join(path, f)
         if f == "ignore_old_packages":
             return
-        elif f == util.get_holodeck_version():
+        if f == util.get_holodeck_version():
             continue
         elif not os.path.isfile(f_path):
             not_matching.append(f)
 
-    if len(not_matching):
+    if not_matching:
         print("**********************************************")
         print("* You have old versions of Holodeck packages *")
         print("**********************************************")
@@ -225,16 +229,16 @@ def _check_for_old_versions():
 def prune():
     """Prunes old versions of holodeck, other than the running version.
 
-    **DO NOT USE WITH HOLODECKPATH** 
-    
+    **DO NOT USE WITH HOLODECKPATH**
+
     Don't use this function if you have overidden the path.
     """
     if "HOLODECKPATH" in os.environ:
         print("This function is not available when using HOLODECKPATH", stream=sys.stderr)
         return
-    
+
     holodeck_folder = util._get_holodeck_folder()
-    
+
     # Delete everything in holodeck_folder that isn't the current holodeck version
     for file in os.listdir(holodeck_folder):
         file_path = os.path.join(holodeck_folder, file)
@@ -261,7 +265,7 @@ def remove(package_name):
 
 def remove_all_packages():
     """Removes all holodeck packages.
-    
+
     """
     for _, path in _iter_packages():
         shutil.rmtree(path)
@@ -297,7 +301,8 @@ def get_scenario(scenario_name):
 
     if config_path == "":
         raise FileNotFoundError(
-            "The file `{file}.json` could not be found in {path}. Make sure the package that contains {file} " \
+            "The file `{file}.json` could not be found in {path}. "
+            "Make sure the package that contains {file} " \
             "is installed.".format(file=scenario_name, path=util.get_holodeck_path()))
 
     return load_scenario_file(config_path)
@@ -369,7 +374,6 @@ def _iter_scenarios(world_name):
 
     Returns: config_dict, path_to_config
     """
-    package_path = os.path.join(util.get_holodeck_path(), "worlds", world_name)
 
     # Find a scenario for this world
     a_scenario = _find_file_in_worlds_dir("{}-*".format(world_name))
@@ -398,12 +402,12 @@ def _iter_scenarios(world_name):
 
 
 def _download_binary(binary_location, install_location, block_size=1000000):
-    def file_writer_worker(tmp_fd, length, q):
+    def file_writer_worker(tmp_fd, length, queue):
         max_width = 20
         percent_per_block = 100 // max_width
         amount_written = 0
         while amount_written < length:
-            tmp_fd.write(q.get())
+            tmp_fd.write(queue.get())
             amount_written += block_size
             percent_done = 100 * amount_written / length
             int_percent = int(percent_done)
@@ -417,27 +421,27 @@ def _download_binary(binary_location, install_location, block_size=1000000):
 
             sys.stdout.flush()
 
-    q = Queue()
+    queue = Queue()
     tmp_fd = tempfile.TemporaryFile(suffix=".zip")
     with urllib.request.urlopen(binary_location) as conn:
         file_size = int(conn.headers["Content-Length"])
         print("File size:", util.human_readable_size(file_size))
         amount_read = 0
-        write_thread = Thread(target=file_writer_worker, args=(tmp_fd, file_size, q))
+        write_thread = Thread(target=file_writer_worker, args=(tmp_fd, file_size, queue))
         write_thread.start()
         while amount_read < file_size:
-            q.put(conn.read(block_size))
+            queue.put(conn.read(block_size))
             amount_read += block_size
         write_thread.join()
         print()
 
     # Unzip the binary
-    # Note the contents of the ZIP file get extracted straight into the install directory, so the zip's structure should
-    # look like file.zip/config.json not file.zip/file/config.json
+    # Note the contents of the ZIP file get extracted straight into the install directory, so the
+    # zip's structure should look like file.zip/config.json not file.zip/file/config.json
     print("Unpacking worlds...")
     with zipfile.ZipFile(tmp_fd, 'r') as zip_file:
         zip_file.extractall(install_location)
-        
+
     if os.name == "posix":
         print("Fixing Permissions")
         _make_excecutable(install_location)

@@ -4,7 +4,7 @@ import numpy as np
 def compare_agent_states(state1, state2, thresh=0.01, is_close=True, to_ignore=None):
     if to_ignore is None:
         to_ignore = []
-        
+
     for sensor in state1:
         if sensor in to_ignore:
             continue
@@ -21,7 +21,7 @@ def almost_equal(item1, item2, r_thresh=0.01, a_thresh=1e-4):
     item2 = np.array(item2).flatten()
     if len(item1) != len(item2):
         return False
-    return all(np.isclose(item1, item2, rtol=r_thresh,atol=a_thresh))
+    return all(np.isclose(item1, item2, rtol=r_thresh, atol=a_thresh))
 
 
 def is_full_state(state):
