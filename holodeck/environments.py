@@ -536,7 +536,7 @@ class HolodeckEnvironment:
         """
         if not weather_type.lower() in ["rain", "cloudy"]:
             raise HolodeckException("Invalid weather type " + weather_type)
-
+        
         self.send_world_command("SetWeather", string_params=[weather_type])
 
     def teleport_camera(self, location, rotation):
@@ -605,8 +605,9 @@ class HolodeckEnvironment:
             num_params (obj:`list` of :obj:`int`): List of arbitrary number parameters
             string_params (obj:`list` of :obj:`int`): List of arbitrary string parameters
         """
+
         num_params = [] if num_params is None else num_params
-        string_params = [] if string_params is None else num_params
+        string_params = [] if string_params is None else string_params
 
         command_to_send = CustomCommand(name, num_params, string_params)
         self._enqueue_command(command_to_send)
