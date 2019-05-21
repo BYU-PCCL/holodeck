@@ -606,7 +606,7 @@ class HolodeckEnvironment:
             string_params (obj:`list` of :obj:`int`): List of arbitrary string parameters
         """
         num_params = [] if num_params is None else num_params
-        string_params = [] if string_params is None else num_params
+        string_params = [] if string_params is None else string_params
 
         command_to_send = CustomCommand(name, num_params, string_params)
         self._enqueue_command(command_to_send)
