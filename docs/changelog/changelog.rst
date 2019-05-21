@@ -1,11 +1,36 @@
 Changelog
 =========
 
+Holodeck 0.2.2
+--------------
+*Date TBD*
+
+This is a minor bugfix release. 
+
+Highlights
+~~~~~~~~~~
+- TODO
+
+New Features
+~~~~~~~~~~~~
+- TODO
+
+Bug Fixes
+~~~~~~~~~
+- Fixed :meth:`~holodeck.environments.HolodeckEnvironment.info` method
+  (`#182 <https://github.com/BYU-PCCL/holodeck/issues/182>`_)
+- Fixed command buffer not being reset after calling 
+  :meth:`~holodeck.environments.HolodeckEnvironment.reset`.
+  (`#254 <https://github.com/BYU-PCCL/holodeck/issues/254>`_)
+
+  
 Holodeck 0.2.1
 --------------
 *05/15/2019*
 
-This release of Holodeck is focused on polishing existing features and allowing worlds to be customized more.
+This release of Holodeck is focused on polishing existing features and allowing
+worlds to be customized more.
+
 This summer we are planning on adding much more content (worlds, agents, etc).
 
 Highlights
@@ -19,13 +44,14 @@ New Features
   (`#128 <https://github.com/BYU-PCCL/holodeck/issues/128>`_)
 - Add ticks per capture command for RGB Camera 
   (`#127 <https://github.com/BYU-PCCL/holodeck/issues/127>`_)
-- Add ``__enter__`` and ``__exit__`` methods to :class:`~holodeck.environment.HolodeckEnvironment` 
+- Add ``__enter__`` and ``__exit__`` methods to :class:`~holodeck.environments.HolodeckEnvironment` 
   (`#125 <https://github.com/BYU-PCCL/holodeck/issues/125>`_)
 - Add option to run headless on Linux 
-  (``should_render_viewport`` on :class:`~holodeck.environment.HolodeckEnvironment`) 
+  (:meth:`~holodeck.environments.HolodeckEnvironment.set_render_quality` on 
+  :class:`~holodeck.environments.HolodeckEnvironment`) 
   (`#135 <https://github.com/BYU-PCCL/holodeck/issues/135>`_)
 - Add ability to adjust rendering options 
-  (:meth:`~holodeck.environment.HolodeckEnvironment.set_render_quality`)
+  (:meth:`~holodeck.environments.HolodeckEnvironment.set_render_quality`)
   (`#136 <https://github.com/BYU-PCCL/holodeck/issues/136>`_)
 - Add environment flag that allows state to be returned as copied object 
   instead of reference 
@@ -52,9 +78,9 @@ Bug Fixes
   (`#162 <https://github.com/BYU-PCCL/holodeck/issues/162>`_)
 - Fix multi-agent example (thanks bradyz!) 
   (`#118 <https://github.com/BYU-PCCL/holodeck/issues/118>`_)
-- Make sure :meth:`~holdoeck.environment.HolodeckEnvironment.reset` called before 
-  :meth:`~holdoeck.environment.HolodeckEnvironment.tick` and
-  :meth:`~holdoeck.environment.HolodeckEnvironment.set`
+- Make sure :meth:`~holodeck.environments.HolodeckEnvironment.reset` called before 
+  :meth:`~holodeck.environments.HolodeckEnvironment.tick` and
+  :meth:`~holodeck.environments.HolodeckEnvironment.act`
   (`#156 <https://github.com/BYU-PCCL/holodeck/issues/156>`_)
 - And many smaller bugs!
 
