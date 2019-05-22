@@ -247,9 +247,6 @@ class HolodeckEnvironment:
         for _ in range(self._pre_start_steps + 1):
             self.tick()
 
-        for agent_def in self._spawned_agent_defs:
-            self.teleport(agent_def.name, agent_def.starting_loc, [0.0, 0.0, 0.0])
-
         return self._default_state_fn()
 
     def step(self, action):
