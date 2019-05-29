@@ -194,9 +194,18 @@ class HolodeckEnvironment:
                                                 location=sensor_config['location'],
                                                 rotation=sensor_config['rotation'],
                                                 config=sensor_config['configuration']))
+            # Default values for an agent
+            agent_config = {
+                'location': [0, 0, 0],
+                'rotation': [0, 0, 0],
+                'agent_name': agent['agent_type']
+            }
 
-            agent_def = AgentDefinition(agent['agent_name'], agent['agent_type'],
-                                        starting_loc=agent["location"], sensors=sensors)
+            agent_config.update(agent)
+            agent_def = AgentDefinition(agent_config['agent_name'], agent_config['agent_type'],
+                                        starting_loc=agent_config["location"],
+                                        starting_rot=agent_config["rotation"],  sensors=sensors)
+
             is_main_agent = False
             if "main_agent" in scenario:
                 is_main_agent = scenario["main_agent"] == agent["agent_name"]
@@ -361,7 +370,7 @@ class HolodeckEnvironment:
         self._state_dict[agent_def.name] = self.agents[agent_def.name].agent_state_dict
 
         if not agent_def.existing:
-            command_to_send = SpawnAgentCommand(agent_def.starting_loc, agent_def.name,
+            command_to_send = SpawnAgentCommand(agent_def.starting_loc, agent_def.starting_rot, agent_def.name,
                                                 agent_def.type.agent_type)
             self._client.command_center.enqueue_command(command_to_send)
         self.agents[agent_def.name].add_sensors(agent_def.sensors)
