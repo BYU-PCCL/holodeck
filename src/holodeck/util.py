@@ -2,8 +2,7 @@
 import math
 import os
 import holodeck
-from threading import Timer
-from holodeck.exceptions import TimoutException
+from multiprocessing import Process, Event
 
 try:
     unicode        # Python 2
@@ -94,51 +93,3 @@ def human_readable_size(size_bytes):
     power = math.pow(1024, base)
     size = round(size_bytes / power, 2)
     return "%s %s" % (size, size_name[base])
-
-
-class Watchdog:
-    """Watchdog timer class.
-
-    The watchdog must be fed at least once every timeout seconds by calling :func:`~Watchdog.feed`.
-    Otherwise, :obj:`TimeoutError` is raised.
-
-    If ``timeout`` is -1, then the timer is disabled.
-
-    Args:
-        timeout (:obj:`int`): How often the watchdog will check if it has been fed. -1 to disable watchdog.
-        name (:obj:`int`): Friendly name used for debugging.
-    """
-    def __init__(self, timeout=5, name=""):
-        self.timeout = timeout
-        self.counter = 1
-        self.name = name
-        self.timer = Timer(self.timeout, self.check)
-
-        if timeout != -1:
-            self.timer.start()
-
-    def feed(self):
-        """Feeds the watchdog. This method must be called at least once every self.timeout seconds
-
-        """
-        self.counter += 1
-
-    def reset(self):
-        """Resets the watchdog counter. Note that :func:`~Watchdog.feed` still needs to be called.
-
-        """
-        self.counter = 0
-
-    def stop(self):
-        """Disables the watchdog timer.
-
-        """
-        self.timer.cancel()
-
-    def check(self):
-        """Check if the watchdog timer has been fed since the last time :func:`~Watchdog.check` was called.
-
-        """
-        if self.counter == 0:
-            raise TimeoutError("Watchdog {} timed out!".format(self.name))
-        self.reset()

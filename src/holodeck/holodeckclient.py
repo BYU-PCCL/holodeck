@@ -3,7 +3,6 @@ import os
 
 from holodeck.exceptions import HolodeckException
 from holodeck.shmem import Shmem
-from holdoeck.util import Watchdog
 
 class HolodeckClient:
     """HolodeckClient for controlling a shared memory session.
@@ -11,9 +10,9 @@ class HolodeckClient:
     Args:
         uuid (:obj:`str`, optional): A UUID to indicate which server this client is associated with.
             The same UUID should be passed to the world through a command line flag. Defaults to "".
-        use_watchdog (:obj:`boolean`, optional): If the client should enforce watchdog timeouts
+        should_timeout (:obj:`boolean`, optional): If the client should time out after 5s waiting for the engine
     """
-    def __init__(self, uuid="", use_watchdog=False):
+    def __init__(self, uuid="", should_timeout=False):
         self._uuid = uuid
 
         # Important functions
@@ -23,13 +22,13 @@ class HolodeckClient:
         self._semaphore2 = None
         self.unlink = None
         self.command_center = None
+        self.should_timeout = should_timeout
 
         self._memory = dict()
         self._sensors = dict()
         self._agents = dict()
         self._settings = dict()
 
-        self.watchdog = Watchdog(timeout=5, name="HolodeckClient semaphore")
         if os.name == "nt":
             self.__windows_init__()
         elif os.name == "posix":
@@ -40,6 +39,9 @@ class HolodeckClient:
     def __windows_init__(self):
         import win32event
         semaphore_all_access = 0x1F0003
+
+        self.timeout = 5000 if self.should_timeout else win32event.INFINITE            
+
         self._semaphore1 = \
             win32event.OpenSemaphore(semaphore_all_access, False,
                                      "Global\\HOLODECK_SEMAPHORE_SERVER" + self._uuid)
@@ -48,8 +50,11 @@ class HolodeckClient:
                                      "Global\\HOLODECK_SEMAPHORE_CLIENT" + self._uuid)
 
         def windows_acquire_semaphore(sem):
-            win32event.WaitForSingleObject(sem, 100000)  # 100 second timeout
+            result = win32event.WaitForSingleObject(sem, self.timeout)
 
+            if result != win32event.WAIT_OBJECT_0:
+                raise TimeoutError("Timed out or error waiting for engine!")
+            
         def windows_release_semaphore(sem):
             win32event.ReleaseSemaphore(sem, 1)
 
@@ -58,15 +63,19 @@ class HolodeckClient:
 
         self._get_semaphore_fn = windows_acquire_semaphore
         self._release_semaphore_fn = windows_release_semaphore
-        self._unlink = windows_unlink
+        self.unlink = windows_unlink
 
     def __posix_init__(self):
         import posix_ipc
         self._semaphore1 = posix_ipc.Semaphore("/HOLODECK_SEMAPHORE_SERVER" + self._uuid)
         self._semaphore2 = posix_ipc.Semaphore("/HOLODECK_SEMAPHORE_CLIENT" + self._uuid)
 
+        # Unfortunately, OSX doesn't support sem_timedwait(), so setting this timeout
+        # does nothing.
+        self.timeout = 5 if self.should_timeout else None
+
         def posix_acquire_semaphore(sem):
-            sem.acquire(None)
+            sem.acquire(self.timeout)
 
         def posix_release_semaphore(sem):
             sem.release()
@@ -79,27 +88,18 @@ class HolodeckClient:
 
         self._get_semaphore_fn = posix_acquire_semaphore
         self._release_semaphore_fn = posix_release_semaphore
-        self._unlink = posix_unlink
-
-    def unlink(self):
-        """Unlinks the shared memory region.
-
-        """
-        self.watchdog.stop()
-        self._unlink()
+        self.unlink = posix_unlink
 
     def acquire(self):
         """Used to acquire control. Will wait until the HolodeckServer has finished its work.
 
         """
         self._get_semaphore_fn(self._semaphore2)
-        self.watchdog.feed()
 
     def release(self):
         """Used to release control. Will allow the HolodeckServer to take a step.
 
         """
-        self.watchdog.feed()
         self._release_semaphore_fn(self._semaphore1)
 
     def malloc(self, key, shape, dtype):

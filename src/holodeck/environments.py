@@ -94,7 +94,7 @@ class HolodeckEnvironment:
                 raise HolodeckException("Unknown platform: " + os.name)
 
         # Initialize Client
-        self._client = HolodeckClient(self._uuid, start_world)
+        self._client = HolodeckClient(self._uuid, True)
         self._command_center = CommandCenter(self._client)
         self._client.command_center = self._command_center
         self._reset_ptr = self._client.malloc("RESET", [1], np.bool)
