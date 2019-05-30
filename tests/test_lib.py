@@ -1,6 +1,6 @@
 import holodeck
 from holodeck.packagemanager import get_scenario
-from holodeck.tests.test_utils import *
+from test_utils import *
 
 
 # Ensure that all agents and sensors exist in the world

@@ -94,7 +94,7 @@ class HolodeckEnvironment:
                 raise HolodeckException("Unknown platform: " + os.name)
 
         # Initialize Client
-        self._client = HolodeckClient(self._uuid)
+        self._client = HolodeckClient(self._uuid, start_world)
         self._command_center = CommandCenter(self._client)
         self._client.command_center = self._command_center
         self._reset_ptr = self._client.malloc("RESET", [1], np.bool)
@@ -641,7 +641,7 @@ class HolodeckEnvironment:
         atexit.register(self.__on_exit__)
 
         try:
-            loading_semaphore.acquire(100)
+            loading_semaphore.acquire(10)
         except posix_ipc.BusyError:
             raise HolodeckException("Timed out waiting for binary to load. Ensure that holodeck is "
                                     "not being run with root priveleges.")
