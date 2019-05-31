@@ -1,6 +1,6 @@
 import holodeck
 
-def run_test(env_scenario):
+def test_rgb_camera_not_null(env_scenario):
     env, scenario = env_scenario
 
     ##############################################################
@@ -28,12 +28,3 @@ def run_test(env_scenario):
 
         # ensure that the pixels aren't all close to zero
         assert pixels.mean() > 1
-
-def test_rgb_camera_not_null(env_scenario):
-    for _ in range(3):
-        try:
-            run_test(env_scenario)
-        except AssertionError as e:
-            print("oops")
-        else:
-            return
