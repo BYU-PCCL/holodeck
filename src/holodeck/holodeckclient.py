@@ -4,15 +4,15 @@ import os
 from holodeck.exceptions import HolodeckException
 from holodeck.shmem import Shmem
 
-
 class HolodeckClient:
     """HolodeckClient for controlling a shared memory session.
 
     Args:
         uuid (:obj:`str`, optional): A UUID to indicate which server this client is associated with.
             The same UUID should be passed to the world through a command line flag. Defaults to "".
+        should_timeout (:obj:`boolean`, optional): If the client should time out after 5s waiting for the engine
     """
-    def __init__(self, uuid=""):
+    def __init__(self, uuid="", should_timeout=False):
         self._uuid = uuid
 
         # Important functions
@@ -22,6 +22,7 @@ class HolodeckClient:
         self._semaphore2 = None
         self.unlink = None
         self.command_center = None
+        self.should_timeout = should_timeout
 
         self._memory = dict()
         self._sensors = dict()
@@ -38,6 +39,9 @@ class HolodeckClient:
     def __windows_init__(self):
         import win32event
         semaphore_all_access = 0x1F0003
+
+        self.timeout = 5000 if self.should_timeout else win32event.INFINITE            
+
         self._semaphore1 = \
             win32event.OpenSemaphore(semaphore_all_access, False,
                                      "Global\\HOLODECK_SEMAPHORE_SERVER" + self._uuid)
@@ -46,8 +50,11 @@ class HolodeckClient:
                                      "Global\\HOLODECK_SEMAPHORE_CLIENT" + self._uuid)
 
         def windows_acquire_semaphore(sem):
-            win32event.WaitForSingleObject(sem, 100000)  # 100 second timeout
+            result = win32event.WaitForSingleObject(sem, self.timeout)
 
+            if result != win32event.WAIT_OBJECT_0:
+                raise TimeoutError("Timed out or error waiting for engine!")
+            
         def windows_release_semaphore(sem):
             win32event.ReleaseSemaphore(sem, 1)
 
@@ -63,8 +70,12 @@ class HolodeckClient:
         self._semaphore1 = posix_ipc.Semaphore("/HOLODECK_SEMAPHORE_SERVER" + self._uuid)
         self._semaphore2 = posix_ipc.Semaphore("/HOLODECK_SEMAPHORE_CLIENT" + self._uuid)
 
+        # Unfortunately, OSX doesn't support sem_timedwait(), so setting this timeout
+        # does nothing.
+        self.timeout = 5 if self.should_timeout else None
+
         def posix_acquire_semaphore(sem):
-            sem.acquire(None)
+            sem.acquire(self.timeout)
 
         def posix_release_semaphore(sem):
             sem.release()

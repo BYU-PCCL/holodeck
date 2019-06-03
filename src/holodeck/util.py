@@ -2,6 +2,7 @@
 import math
 import os
 import holodeck
+from multiprocessing import Process, Event
 
 try:
     unicode        # Python 2

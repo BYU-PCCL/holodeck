@@ -2,7 +2,7 @@ import holodeck
 from holodeck import agents
 from holodeck import sensors
 from holodeck.environments import *
-from holodeck.tests.test_utils import *
+from test_utils import *
 import pytest
 
 editor_test = True
