@@ -6,6 +6,8 @@ calls to :meth:`~holodeck.environment.HolodeckEnvironment.tick` or
 :meth:`~holodeck.environment.HolodeckEnvironment.step`, there are a few
 hotkeys you can use.
 
+.. _`moving-viewport`:
+
 Moving the Viewport
 -------------------
 
@@ -24,7 +26,7 @@ as follows:
 |          |                        |                                         |
 |          |                        | Use the mouse, ``w``, ``a``, ``s``,     |
 |          |                        | ``d``, and ``space`` to ascend and      |
-|          |                        | ``shift`` to descend.                   |
+|          |                        | ``shift`` to move faster.               |
 +----------+------------------------+-----------------------------------------+
 | ``tab``  | Cycle through agents   | When not in spectator mode, use ``tab`` |
 |          |                        | to cycle through the agents in the world|

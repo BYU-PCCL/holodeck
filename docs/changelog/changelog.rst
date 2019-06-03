@@ -3,17 +3,18 @@ Changelog
 
 Holodeck 0.2.2
 --------------
-*Date TBD*
+*06/10/2019*
 
-This is a minor bugfix release. 
+This is a maintainance release focused on cleaning up bugs that were 
+unresolved in ``0.2.1``
 
-Highlights
-~~~~~~~~~~
-- TODO
 
 New Features
 ~~~~~~~~~~~~
-- TODO
+- When freecamming around, :ref:`pressing shift <moving-viewport>` makes the camera move faster
+  (`#99 <https://github.com/BYU-PCCL/holodeck/issues/99>`_)
+- Agents can have a rotation specified in the scenario config files
+  (`#209 <https://github.com/BYU-PCCL/holodeck/issues/209>`_)
 
 Bug Fixes
 ~~~~~~~~~
@@ -22,8 +23,15 @@ Bug Fixes
 - Fixed command buffer not being reset after calling 
   :meth:`~holodeck.environments.HolodeckEnvironment.reset`.
   (`#254 <https://github.com/BYU-PCCL/holodeck/issues/254>`_)
+- Fixed rain not being very visible on Linux
+  (`#235 <https://github.com/BYU-PCCL/holodeck/issues/235>`_)
+- Fixed teleport command not working on the Android
+  (`#209 <https://github.com/BYU-PCCL/holodeck/issues/209>`_)
+- Fixed RGBCamera intermittently returning a matrix of zeros after resetting
+  (`#271 <https://github.com/BYU-PCCL/holodeck/issues/271>`_)
+- Fixed ``EXCEPTION_ACCESS_VIOLATION`` on Windows after creating an environment
+  (`#270 <https://github.com/BYU-PCCL/holodeck/issues/270>`_)
 
-  
 Holodeck 0.2.1
 --------------
 *05/15/2019*
@@ -67,8 +75,6 @@ New Features
 - Added new scaled torque control scheme to the Android
   (`#150 <https://github.com/BYU-PCCL/holodeck/pull/144>`_)
 
-
-.. TODO: Add links to tasks!
 
 Bug Fixes
 ~~~~~~~~~
