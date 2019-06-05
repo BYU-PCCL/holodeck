@@ -1,9 +1,14 @@
 import holodeck
 
 def test_rgb_camera_not_null(env_scenario):
+    """Test that the RGBCamera is sending sensor data by ensuring that it is not all zeros
+
+    Args:
+        env_scenario ((HolodeckEnvironment, str)): environment and scenario we are testing
+
+    """
     env, scenario = env_scenario
 
-    ##############################################################
     # Find the names of every RGB camera and agent in the scenario
     config = holodeck.packagemanager.get_scenario(scenario)
 
