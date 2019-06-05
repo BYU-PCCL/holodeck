@@ -28,19 +28,13 @@ class HolodeckEnvironment:
 
     Args:
         agent_definitions (:obj:`list` of :class:`AgentDefinition`):
-            Which agents to expect in the environment.
+            Which agents are already in the environment
 
         binary_path (:obj:`str`, optional):
             The path to the binary to load the world from. Defaults to None.
 
-        task_key (:obj:`str`, optional):
-            The name of the map within the binary to load. Defaults to None.
-
-        window_height (:obj:`int`, optional):
-            The height to load the game window at. Defaults to 512.
-
-        window_width (:obj:`int`, optional):
-            The width to load the game window at. Defaults to 512.
+        window_size ((:obj:`int`,:obj:`int`)):
+            height, width of the window to open
 
         start_world (:obj:`bool`, optional):
             Whether to load a binary or not. Defaults to True.
@@ -51,6 +45,12 @@ class HolodeckEnvironment:
         gl_version (:obj:`int`, optional):
             The version of OpenGL to use for Linux. Defaults to 4.
 
+        verbose (:obj:`bool`):
+            If engine log output should be printed to stdout
+
+        pre_start_steps (:obj:`int`):
+            Number of ticks to call after initializing the world, allows the level to load and settle.
+
         show_viewport (:obj:`bool`, optional):
             If the viewport should be shown (Linux only) Defaults to True.
 
@@ -60,31 +60,31 @@ class HolodeckEnvironment:
         copy_state (:obj:`bool`, optional):
             If the state should be copied or returned as a reference. Defaults to True.
 
+        scenario (:obj:`dict`):
+            The scenario that is to be loaded. See :ref:`scenario-files` for the schema.
+
     """
 
-    def __init__(self, agent_definitions=None, binary_path=None, scenario_key=None,
-                 window_height=512, window_width=512, start_world=True, uuid="", gl_version=4,
-                 verbose=False, pre_start_steps=2, show_viewport=True, ticks_per_sec=30,
-                 copy_state=True, scenario_path=None):
+    def __init__(self, agent_definitions=None, binary_path=None, window_size=(720, 1280),
+                 start_world=True, uuid="", gl_version=4, verbose=False, pre_start_steps=2,
+                 show_viewport=True, ticks_per_sec=30, copy_state=True, scenario=None):
 
         if agent_definitions is None:
             agent_definitions = []
 
         # Initialize variables
-        self._window_height = window_height
-        self._window_width = window_width
+        self._window_size = window_size
         self._uuid = uuid
         self._pre_start_steps = pre_start_steps
         self._copy_state = copy_state
         self._ticks_per_sec = ticks_per_sec
-        self._scenario_key = scenario_key
-        self._scenario_path = scenario_path
+        self._scenario = scenario
         self._initial_agent_defs = agent_definitions
         self._spawned_agent_defs = []
 
         # Start world based on OS
         if start_world:
-            world_key = scenario_key.split("-")[0]
+            world_key = self._scenario["world"]
             if os.name == "posix":
                 self.__linux_start_process__(binary_path, world_key, gl_version, verbose=verbose,
                                              show_viewport=show_viewport)
@@ -161,14 +161,10 @@ class HolodeckEnvironment:
 
         If no scenario is defined, does nothing.
         """
-        if self._scenario_key is not None:
-            scenario = get_scenario(self._scenario_key)
-        elif self._scenario_path is not None:
-            scenario = load_scenario_file(self._scenario_path)
-        else:
+        if self._scenario is None:
             return
 
-        for agent in scenario['agents']:
+        for agent in self._scenario['agents']:
             sensors = []
             for sensor in agent['sensors']:
                 if 'sensor_type' not in sensor:
@@ -207,8 +203,9 @@ class HolodeckEnvironment:
                                         starting_rot=agent_config["rotation"],  sensors=sensors)
 
             is_main_agent = False
-            if "main_agent" in scenario:
-                is_main_agent = scenario["main_agent"] == agent["agent_name"]
+            if "main_agent" in self._scenario:
+                is_main_agent = self._scenario["main_agent"] == agent["agent_name"]
+
             self.add_agent(agent_def, is_main_agent)
             self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
             self._spawned_agent_defs.append(agent_def)
@@ -638,8 +635,8 @@ class HolodeckEnvironment:
             del environment['DISPLAY']
         self._world_process = \
             subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
-                              '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_width),
-                              '-ResY=' + str(self._window_height), '--HolodeckUUID=' + self._uuid,
+                              '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_size[1]),
+                              '-ResY=' + str(self._window_size[0]), '--HolodeckUUID=' + self._uuid,
                               '-TicksPerSec=' + str(self._ticks_per_sec)],
                              stdout=out_stream,
                              stderr=out_stream,
@@ -661,10 +658,9 @@ class HolodeckEnvironment:
                                                        'Global\\HOLODECK_LOADING_SEM' + self._uuid)
         self._world_process = \
             subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-LOG=HolodeckLog.txt',
-                              '-ResX=' + str(self._window_width), '-ResY=' +
-                              str(self._window_height),
-                              '--HolodeckUUID=' + self._uuid,
-                              '-TicksPerSec=' + str(self._ticks_per_sec)],
+                              '-ResX=' + str(self._window_size[1]), '-ResY=' +
+                              str(self._window_size[0]), '-TicksPerSec=' + str(self._ticks_per_sec),
+                              '--HolodeckUUID=' + self._uuid],
                              stdout=out_stream, stderr=out_stream)
 
         atexit.register(self.__on_exit__)
