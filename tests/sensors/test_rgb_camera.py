@@ -41,7 +41,10 @@ def mse(im1, im2):
 
 
 def test_rgb_camera(resolution, request):
-    """Makes sure that the RGB camera is positioned and capturing correctly
+    """Makes sure that the RGB camera is positioned and capturing correctly.
+
+    Capture pixel data, and load from disk the baseline of what it should look like.
+    Then, use mse() to see how different the images are.
 
     """
     global base_cfg
