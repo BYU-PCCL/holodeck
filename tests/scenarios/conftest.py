@@ -17,9 +17,11 @@ def pytest_generate_tests(metafunc):
     elif 'env_scenario' in metafunc.fixturenames:
         metafunc.parametrize('env_scenario', scenarios, indirect=True)
 
+
 # Envs contains a mapping of scenario key -> HolodeckEnvironment so that between
 # different tests the same environement doesn't have to be created over and over
 envs = {}
+
 
 @pytest.fixture
 def env_scenario(request):

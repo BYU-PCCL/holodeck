@@ -58,7 +58,7 @@ def test_rgb_camera(resolution, request):
 
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
     env = holodeck.environments.HolodeckEnvironment(scenario=cfg, binary_path=binary_path, uuid=str(resolution))
-    # env = holodeck.make(scenario_cfg=cfg)
+
     for _ in range(5):
         env.tick()
 
