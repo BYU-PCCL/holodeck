@@ -6,7 +6,7 @@ To create a new command to send to the Holodeck backend, simply subclass from co
 
 
 import numpy as np
-
+from holodeck.exceptions import HolodeckException
 
 class CommandsGroup:
     """Represents a list of commands
@@ -198,10 +198,11 @@ class SpawnAgentCommand(Command):
 
     """
 
-    def __init__(self, location, name, agent_type):
+    def __init__(self, location, rotation, name, agent_type):
         super(SpawnAgentCommand, self).__init__()
         self._command_type = "SpawnAgent"
         self.set_location(location)
+        self.set_rotation(rotation)
         self.set_type(agent_type)
         self.set_name(name)
 
@@ -213,9 +214,19 @@ class SpawnAgentCommand(Command):
 
         """
         if len(location) != 3:
-            print("Invalid location given to spawn agent command")
-            return
+            raise HolodeckException("Invalid location given to spawn agent command")
         self.add_number_parameters(location)
+
+    def set_rotation(self, rotation):
+        """Set where agent will be spawned.
+
+        Args:
+            rotation (:obj:`list` of :obj:`float`): [X,Y,Z] coordinate of the agent's rotation
+
+        """
+        if len(rotation) != 3:
+            raise HolodeckException("Invalid rotation given to spawn agent command")
+        self.add_number_parameters(rotation)
 
     def set_name(self, name):
         """Set agents name

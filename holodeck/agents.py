@@ -456,15 +456,14 @@ class AgentDefinition:
     """Represents information needed to initialize agent.
 
     Args:
-        agent_name (str): The name of the agent to control.
-        agent_type (str or type): The type of HolodeckAgent to control, string or class reference.
-        sensors (list of :class:`~holodeck.sensors.SensorDefinition` or
-                 class type (if no duplicate sensors)):
-            A list of HolodeckSensors to read from this agent.
-
-            Defaults to None. Must be a list of SensorDefinitions if there are more than one
-            sensor of the same type
-
+        agent_name (:obj:`str`): The name of the agent to control.
+        agent_type (:obj:`str` or type): The type of HolodeckAgent to control, string or class
+            reference.
+        sensors (:class:`~holodeck.sensors.SensorDefinition` or class type (if no duplicate sensors)): A list of
+            HolodeckSensors to read from this agent.
+        starting_loc (list of :obj:`int`): Starting location for agent (in meters)
+        starting_rot (list of :obj:`int`): Starting rotation for agent
+        existing (:obj:`bool`): If the agent exists in the world or not (deprecated)
     """
 
     _type_keys = {
@@ -475,19 +474,9 @@ class AgentDefinition:
     }
 
     def __init__(self, agent_name, agent_type, sensors=None, starting_loc=(0, 0, 0),
-                 existing=False):
-        """
-        Args:
-            agent_name (str): The name of the agent to control.
-            agent_type (str or type): The type of HolodeckAgent to control, string or class
-                reference.
-            sensors (list of (SensorDefinition or class type (if no duplicate sensors)): A list of
-                HolodeckSensors to read from this agent.
-
-                Defaults to None. Must be a :obj:`list` of :class:`SensorDefinition` if there are
-                more than one sensor of the same type
-        """
+                 starting_rot=(0, 0, 0), existing=False):
         self.starting_loc = starting_loc
+        self.starting_rot = starting_rot
         self.existing = existing
         self.sensors = sensors or list()
         for i, sensor_def in enumerate(self.sensors):
