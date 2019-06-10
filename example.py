@@ -137,21 +137,39 @@ def editor_example():
     """This editor example shows how to interact with holodeck worlds while they are being built
     in the Unreal Engine. Most people that use holodeck will not need this.
     """
-    agent_sensors = [sensors.RGBCamera, sensors.LocationSensor, sensors.AvoidTask]
+    agent_sensors = [sensors.RGBCamera, sensors.LocationSensor, sensors.VelocitySensor]
     agent = AgentDefinition("uav0", agents.UavAgent, agent_sensors)
     env = HolodeckEnvironment([agent], start_world=False)
-    # env.agents["uav0"].set_control_scheme(1)
-    command = [0, 0, 0, 0]
+    env.agents["uav0"].set_control_scheme(1)
+    command = [0, 0, 10, 50]
 
     for i in range(10):
         env.reset()
-        env.act("uav0", command)
-        for _ in range(10000):
-            # state, reward, terminal, _ = env.step(command)
+        for _ in range(1000):
+            state, reward, terminal, _ = env.step(command)
+
+
+def editor_multi_agent_example():
+    """This editor example shows how to interact with holodeck worlds that have multiple agents.
+    This is specifically for when working with UE4 directly and not a prebuilt binary.
+    """
+    agent_definitions = [
+        AgentDefinition("uav0", agents.UavAgent, [sensors.RGBCamera, sensors.LocationSensor]),
+        AgentDefinition("uav1", agents.UavAgent, [sensors.LocationSensor, sensors.VelocitySensor])
+    ]
+    env = HolodeckEnvironment(agent_definitions, start_world=False)
+
+    cmd0 = np.array([0, 0, -2, 10])
+    cmd1 = np.array([0, 0, 5, 10])
+
+    for i in range(10):
+        env.reset()
+        env.act("uav0", cmd0)
+        env.act("uav1", cmd1)
+        for _ in range(1000):
             states = env.tick()
-            # print(states)
-            print(states["uav0"]["AvoidTask"])
 
 
 if __name__ == "__main__":
-    editor_example()
+
+    uav_example()
