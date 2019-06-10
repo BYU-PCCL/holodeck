@@ -62,7 +62,7 @@ Example
 .. code-block:: json
 
    {
-       "LocationActor": "golf-ball"
+       "LocationActor": "golf-ball",
        "GoalActor": "cup",
        "GoalDistance": 1024.0,
        "NegativeReward": false,
