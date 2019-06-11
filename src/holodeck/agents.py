@@ -429,7 +429,7 @@ class NavAgent(HolodeckAgent):
         return "NavAgent " + self.name
 
     def __act__(self, action):
-        np.copyto(self._action_buffer, np.array(action) * 100)
+        np.copyto(self._action_buffer, np.array(action))
 
 
 class TurtleAgent(HolodeckAgent):
