@@ -662,10 +662,15 @@ class HolodeckEnvironment:
             raise HolodeckException("Timed out waiting for binary to load")
 
     def __on_exit__(self):
+        if hasattr(self, '_exited'):
+            return
+
+        self._client.unlink()
         if hasattr(self, '_world_process'):
             self._world_process.kill()
             self._world_process.wait(5)
-        self._client.unlink()
+
+        self._exited = True
 
     # Context manager APIs, allows `with` statement to be used
     def __enter__(self):

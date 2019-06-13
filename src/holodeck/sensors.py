@@ -403,7 +403,9 @@ class RotationSensor(HolodeckSensor):
 
 
 class VelocitySensor(HolodeckSensor):
-
+    """Returns the x, y, and z velocity of the agent.
+    
+    """
     sensor_type = "VelocitySensor"
 
     @property
@@ -416,6 +418,9 @@ class VelocitySensor(HolodeckSensor):
 
 
 class CollisionSensor(HolodeckSensor):
+    """Returns true if the agent is colliding with anything (including the ground).
+    
+    """
 
     sensor_type = "CollisionSensor"
 
