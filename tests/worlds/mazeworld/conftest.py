@@ -14,7 +14,7 @@ def generate_mazeworld_walkthrough():
 
     on_step.states = list()
 
-    env = holodeck.make("MazeWorld-FinishMazeSphere")
+    env = holodeck.make("MazeWorld-FinishMazeSphere", show_viewport=False)
 
     finish.navigate(env, on_step)
     env.__on_exit__()
