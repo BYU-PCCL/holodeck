@@ -3,6 +3,8 @@ import cv2
 import copy
 import numpy as np
 import os
+import uuid
+
 
 base_cfg = {
     "name": "test_rgb_camera",
@@ -57,18 +59,18 @@ def test_rgb_camera(resolution, request):
     }
 
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
-    env = holodeck.environments.HolodeckEnvironment(scenario=cfg, binary_path=binary_path, uuid=str(resolution))
 
-    for _ in range(5):
-        env.tick()
+    with holodeck.environments.HolodeckEnvironment(scenario=cfg,
+                                                   binary_path=binary_path,
+                                                   show_viewport=False,
+                                                   uuid=str(uuid.uuid4())) as env:
 
-    pixels = env.tick()['RGBCamera'][:, :, 0:3]
+        for _ in range(5):
+            env.tick()
 
-    env.__on_exit__()
+        pixels = env.tick()['RGBCamera'][:, :, 0:3]
+        baseline = cv2.imread(os.path.join(request.fspath.dirname, "expected", "{}.png".format(resolution)))
+        err = mse(pixels, baseline)
 
-    baseline = cv2.imread(os.path.join(request.fspath.dirname, "expected", "{}.png".format(resolution)))
-
-    err = mse(pixels, baseline)
-
-    assert err < 2000
+        assert err < 2000
 
