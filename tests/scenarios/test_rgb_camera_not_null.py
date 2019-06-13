@@ -1,5 +1,6 @@
 import holodeck
 
+
 def test_rgb_camera_not_null(env_scenario):
     """Test that the RGBCamera is sending sensor data by ensuring that it is not all zeros
 
