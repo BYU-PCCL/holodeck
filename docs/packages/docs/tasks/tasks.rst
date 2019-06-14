@@ -11,5 +11,6 @@ Below are the different tasks available for use in Holodeck.
    distance-task
    location-task
    follow-task
+   avoid-task
 
 These tasks can be configured and used in :ref:`scenario files <scenarios>`.

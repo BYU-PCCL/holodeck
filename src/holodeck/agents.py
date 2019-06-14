@@ -481,7 +481,7 @@ class AgentDefinition:
         self.sensors = sensors or list()
         for i, sensor_def in enumerate(self.sensors):
             if not isinstance(sensor_def, SensorDefinition):
-                self.sensors[i] = SensorDefinition(agent_name, None, sensor_def)
+                self.sensors[i] = SensorDefinition(agent_name, sensor_def.sensor_type, sensor_def)
         self.name = agent_name
 
         if isinstance(agent_type, str):

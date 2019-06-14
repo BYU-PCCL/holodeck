@@ -46,22 +46,22 @@ FOVRadians
 Float value, the field of view of the agent, in radians. See above how this is used in
 the reward calculation.
 
-``"FOVRadians": 23.0``
+``"FOVRadians": 1.5``
 
 MinDistance
 ~~~~~~~~~~~
 
-Float value, used to specify the minimum distance 
-.. TODO: this is very confusing for me
+Float value, used to specify the minimum distance
 
 ``"MinDistance": 512.0``
 
-TargetHeight
+FollowSocket
 ~~~~~~~~~~~~
 
-The height of the target, used when determining if the agent can see the target (OnlyWithinSight)
+The socket of the ToFollow actor the agent needs to see if OnlyWithinSight is true. If left
+empty, it defaults to the actor's location.
 
-``"TargetHeight": 10.0f``
+``"FollowSocket": "head"``
 
 Example
 -------
@@ -69,8 +69,9 @@ Example
 .. code-block:: json
 
    {
+       "ToFollow": "person",
        "OnlyWithinSight": true,
-       "FOVRadains": 5.0,
+       "FOVRadains": 2.0,
        "MinDistance": 1024.0,
-       "TargetHeight": 10.0
+       "FollowSocket": "head"
    }
