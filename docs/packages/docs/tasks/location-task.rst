@@ -13,7 +13,7 @@ for a distance task sensor (see :ref:`scenario files <scenario-files>`.)
 
 
 LocationActor
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 The reward is given based on the distance between this actor and the goal target.
 Defaults to the task's agent.
@@ -21,7 +21,7 @@ Defaults to the task's agent.
 ``"LocationActor": "name-of-actor"``
 
 Goal Target
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~
 
 The Location task needs an actor or a location to use in the distance calculations.
 
@@ -34,21 +34,21 @@ or
 GoalDistance
 ~~~~~~~~~~~~~
 
-This is the distance from the goal target the LocationActor must be to get a reward
+This is the distance from the goal target the ``LocationActor`` must be to get a reward
 and terminal.
 
 ``"GoalDistance": 1024.0``
 
 NegativeReward
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
-A boolean representing whether reaching the goal target returns 1 or -1. Defaults
+A boolean representing whether reaching the goal target returns ``1`` or ``-1``. Defaults
 to false.
 
 ``"NegativeReward": false``
 
 HasTerminal
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
 
 A boolean representing whether reaching the goal target returns a terminal value or
 not. Defaults to false.
