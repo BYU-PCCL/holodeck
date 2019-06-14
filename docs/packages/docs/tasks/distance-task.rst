@@ -16,15 +16,15 @@ Each of the following parameters can be placed in the configuration field
 for a distance task sensor (see :ref:`scenario files <scenario-files>`.)
 
 DistanceActor
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 The reward is calculated by measuring the distance between the distance actor
 and the goal actor/location. If left empty, it will default to the task's agent.
 
 - ``"DistanceActor": "name-of-actor"``
 
-GoalActor
-~~~~~~~~~~~~
+Goal
+~~~~
 
 The distance between the goal actor/location and the distance actor is used
 to calculate the reward. Only the GoalActor or GoalLocation can be set, not
