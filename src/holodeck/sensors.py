@@ -385,7 +385,7 @@ class RelativeSkeletalPositionSensor(HolodeckSensor):
 class LocationSensor(HolodeckSensor):
     """Gets the location of the agent in the world.
 
-    Returns a 3-tuple.
+    Returns coordinates in ``[x, y, z]`` format (see :ref:`coordinate-system`)
     """
 
     sensor_type = "LocationSensor"
@@ -402,7 +402,7 @@ class LocationSensor(HolodeckSensor):
 class RotationSensor(HolodeckSensor):
     """Gets the rotation of the agent in the world.
 
-    Returns a 3-tuple.
+    Returns ``[roll, pitch, yaw]`` (see :ref:`rotations`)
     """
     sensor_type = "RotationSensor"
 
@@ -469,10 +469,10 @@ class SensorDefinition:
         sensor_name (:obj:`str`): The name of the sensor.
         sensor_type (:obj:`str` or :class:`HolodeckSensor`): The type of the sensor.
         socket (:obj:`str`, optional): The name of the socket to attach sensor to.
-        location (Tuple of :obj:`float`, optional): x, y, and z coordinates to place sensor
-            relative to agent (or socket).
-        rotation (Tuple of :obj:`float`, optional): roll, pitch, and yaw to rotate sensor
-            relative to agent.
+        location (Tuple of :obj:`float`, optional): ``[x, y, z]`` coordinates to place sensor
+            relative to agent (or socket) (see :ref:`coordinate-system`).
+        rotation (Tuple of :obj:`float`, optional): ``[roll, pitch, yaw]`` to rotate sensor
+            relative to agent (see :ref:`rotations`)
         config (:obj:`dict`): Configuration dictionary for the sensor, to pass to engine
     """
 
