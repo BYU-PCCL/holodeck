@@ -7,11 +7,11 @@ The avoid task calculates a reward based on the distance between the agent and
 an actor to avoid, with an option to incorporate whether the actor to avoid can
 see the agent.
 
-If OnlyWithinSight is false, then the reward is set to the the percent distance
+If ``OnlyWithinSight`` is ``false``, then the reward is set to the the percent distance
 covered from the MinDistance to the ToAvoid Actor. The closer ToAvoid is, the lower
 the reward.
 
-If OnlyWithinSight is true, the reward calculation is the same as above *if* the
+If ``OnlyWithinSight`` is ``true``, the reward calculation is the same as above *if* the
 angle from the ToAvoid to the agent is less than FOVRadians *and* is there is
 nothing blocking the ToAvoid's line of sight. Otherwise the reward is 100.
 
