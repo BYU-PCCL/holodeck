@@ -340,12 +340,13 @@ class HolodeckEnvironment:
 
         Args:
             agent_name (:obj:`str`): The name of the agent to teleport.
-            location (:obj:`np.ndarray` or :obj:`list`): XYZ coordinates (in meters) for the agent
-                to be teleported to.
-            rotation (:obj:`np.ndarray` or :obj:`list`): A new rotation target for the agent.
-            velocity (:obj:`np.ndarray` or :obj:`list`): A new velocity for the agent.
+            location (:obj:`np.ndarray` or :obj:`list`): New ``[x, y, z]`` coordinates for agent
+                (see :ref:`coordinate-system`).
+            rotation (:obj:`np.ndarray` or :obj:`list`): ``[roll, pitch, yaw`` rotation for the agent
+                (see :ref:`rotations`).
+            velocity (:obj:`np.ndarray` or :obj:`list`): New velocity ``[x, y, z]`` for the agent.
             angular velocity (:obj:`np.ndarray` or :obj:`list`): A new angular velocity for the
-                agent.
+                agent in **degrees**
         """
         self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
 
@@ -404,9 +405,10 @@ class HolodeckEnvironment:
         """Draws a debug line in the world
 
         Args:
-            start (:obj:`list`): The start location of the line, ``[x, y, z]``
-            end (:obj:`list`): The end location of the line, ``[x, y, z]``
-            color (:obj:`list``): RGB values for the color, ``[r, g, b]``
+            start (:obj:`list` of :obj:`float`): The start ``[x, y, z]`` location of the line.
+                (see :ref:`coordinate-system`)
+            end (:obj:`list` of :obj:`float`): The end ``[x, y, z]`` location of the line
+            color (:obj:`list``): ``[r, g, b]`` color value
             thickness (:obj:`float`): thickness of the line
         """
         color = [255, 0, 0] if color is None else color
@@ -417,9 +419,10 @@ class HolodeckEnvironment:
         """Draws a debug arrow in the world
 
         Args:
-            start (:obj:`list`): The start location of the arrow, ``[x, y, z]``
-            end (:obj:`list`): The end location of the arrow, ``[x, y, z]``
-            color (:obj:`list`): RGB values for the color, ``[x, y, z]``
+            start (:obj:`list` of :obj:`float`): The start ``[x, y, z]`` location of the line.
+                (see :ref:`coordinate-system`)
+            end (:obj:`list` of :obj:`float`): The end ``[x, y, z]`` location of the arrow
+            color (:obj:`list`): ``[r, g, b]`` color value
             thickness (:obj:`float`): thickness of the arrow
         """
         color = [255, 0, 0] if color is None else color
@@ -430,9 +433,10 @@ class HolodeckEnvironment:
         """Draws a debug box in the world
 
         Args:
-            center (:obj:`list`): The start location of the box, ``[x, y, z]``
-            extent (:obj:`list`): The extent of the box, ``[x, y, z]``
-            color (:obj:`list`): RGB values for the color, ``[x, y, z]``
+            center (:obj:`list` of :obj:`float`): The start ``[x, y, z]`` location of the box.
+                (see :ref:`coordinate-system`)
+            extent (:obj:`list` of :obj:`float`): The ``[x, y, z]`` extent of the box
+            color (:obj:`list`): ``[r, g, b]`` color value
             thickness (:obj:`float`): thickness of the lines
         """
         color = [255, 0, 0] if color is None else color
@@ -443,9 +447,10 @@ class HolodeckEnvironment:
         """Draws a debug point in the world
 
         Args:
-            loc (:obj:`list`): The location of the point, ``[x, y, z]``
-            color (:obj:`list`): RGB values for the color, ``[x, y, z]``
-            thickness (:obj:`float`): thickness of the point, ``[x, y, z]``
+            loc (:obj:`list` of :obj:`float`): The ``[x, y, z]`` start of the box. 
+                (see :ref:`coordinate-system`)
+            color (:obj:`list` of :obj:`float`): ``[r, g, b]`` color value
+            thickness (:obj:`float`): thickness of the point
         """
         color = [255, 0, 0] if color is None else color
         command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
@@ -551,8 +556,10 @@ class HolodeckEnvironment:
         By the next tick, the camera's location and rotation will be updated
 
         Args:
-            location (:obj:`list` of size 3): The location to give the camera
-            rotation (:obj:`list` of size 3): The rotation to give the camera
+            location (:obj:`list` of :obj:`float`): The ``[x, y, z]`` location to give the camera
+                (see :ref:`coordinate-system`)
+            rotation (:obj:`list` of :obj:`float`): The ``[roll, pitch, yaw]`` rotation to give the camera
+                (see :ref:`rotations`)
 
         """
         self._enqueue_command(TeleportCameraCommand(location, rotation))

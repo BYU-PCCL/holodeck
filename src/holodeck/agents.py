@@ -130,11 +130,13 @@ class HolodeckAgent:
 
         Args:
             location (np.ndarray, optional): An array with three elements specifying the target
-                world coordinate in meters.
-            If None, keeps the current location. Defaults to None.
+                world coordinates ``[x, y, z]`` in meters (see :ref:`coordinate-system`).
+                
+                If ``None`` (default), keeps the current location.
             rotation (np.ndarray, optional): An array with three elements specifying roll, pitch,
                 and yaw in degrees of the agent.
-            If None, keeps the current rotation. Defaults to None.
+                
+                If ``None`` (default), keeps the current rotation.
 
         """
         val = 0
@@ -150,10 +152,11 @@ class HolodeckAgent:
         """Sets the location, rotation, velocity and angular velocity of an agent.
 
         Args:
-            location (np.ndarray): New location (3 elements)
-            rotation (np.ndarray): New rotation (3 elements)
-            velocity (np.ndarray): New velocity (3 elements)
-            angular_velocity (np.ndarray): New angular velocity (3 elements)
+            location (np.ndarray): New location (``[x, y, z]`` (see :ref:`coordinate-system`))
+            rotation (np.ndarray): New rotation (``[roll, pitch, yaw]``, see (see :ref:`rotations`))
+            velocity (np.ndarray): New velocity (``[x, y, z]`` (see :ref:`coordinate-system`))
+            angular_velocity (np.ndarray): New angular velocity (``[x, y, z]`` in **degrees** 
+                (see :ref:`coordinate-system`))
 
         """
         np.copyto(self._teleport_buffer[0:3], location)
@@ -416,6 +419,7 @@ class NavAgent(HolodeckAgent):
        See :ref:`nav-agent` for more details.
 
        **Action Space:** Continuous control scheme of the form [x_target, y_target, z_target]
+       (see :ref:`coordinate-system`)
 
        Inherits from :class:`HolodeckAgent`."""
 
@@ -461,8 +465,10 @@ class AgentDefinition:
             reference.
         sensors (:class:`~holodeck.sensors.SensorDefinition` or class type (if no duplicate sensors)): A list of
             HolodeckSensors to read from this agent.
-        starting_loc (list of :obj:`int`): Starting location for agent (in meters)
-        starting_rot (list of :obj:`int`): Starting rotation for agent
+        starting_loc (:obj:`list` of :obj:`float`): Starting ``[x, y, z]`` location for agent 
+            (see :ref:`coordinate-system`)
+        starting_rot (:obj:`list` of :obj:`float`): Starting ``[roll, pitch, yaw]`` rotation for agent 
+            (see :ref:`rotations`)
         existing (:obj:`bool`): If the agent exists in the world or not (deprecated)
     """
 

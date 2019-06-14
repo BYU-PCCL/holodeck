@@ -29,3 +29,16 @@ So, when you need to specify a location in Holodeck, the format is as follows
 
 Remember that the units for ``[x, y, z]`` are in meters (Unreal Engine
 defaults to centimeters, we've changed this to make things a bit easier).
+
+.. _`rotations`:
+
+Rotations
+=========
+
+Rotations are specified in ``[pitch, roll, yaw]`` format, in in degrees. This means
+
+- **Pitch**: Rotation around the right (``y``) axis
+- **Roll**: Rotation around the forward (``x``) axis
+- **Yaw**: Rotation around the up (``z``) axis
+
+(`source <https://api.unrealengine.com/INT/API/Runtime/Core/Math/FRotator/index.html>`_)
