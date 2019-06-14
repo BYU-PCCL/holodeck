@@ -16,7 +16,6 @@ from holodeck.command import CommandCenter, SpawnAgentCommand, RGBCameraRateComm
                              TeleportCameraCommand, RenderViewportCommand, RenderQualityCommand, \
                              SetSensorEnabledCommand, CustomCommand, DebugDrawCommand
 
-from holodeck.packagemanager import get_scenario, load_scenario_file
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import AgentDefinition, SensorDefinition, AgentFactory
@@ -361,7 +360,7 @@ class HolodeckEnvironment:
             spawn.
         """
         if agent_def.name in self.agents:
-            raise Exception("Error. Duplicate agent name. ")
+            raise HolodeckException("Error. Duplicate agent name. ")
 
         self.agents[agent_def.name] = AgentFactory.build_agent(self._client, agent_def)
         self._state_dict[agent_def.name] = self.agents[agent_def.name].agent_state_dict

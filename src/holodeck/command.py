@@ -175,7 +175,7 @@ class CommandCenter:
         to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
         input_bytes = str.encode(to_write)
         if len(input_bytes) > self.max_buffer:
-            raise Exception("Error: Command length exceeds buffer size")
+            raise HolodeckException("Error: Command length exceeds buffer size")
         for index, val in enumerate(input_bytes):
             self._command_buffer_ptr[index] = val
 
@@ -351,7 +351,6 @@ class RemoveSensorCommand(Command):
 
 
 class RenderViewportCommand(Command):
-    """Enable or disable the viewport
     """Enable or disable the viewport. Note that this does not prevent the viewport from being shown,
     it just prevents it from being updated. 
 
