@@ -26,3 +26,10 @@ Control Schemes
 .. TODO: Don't punt on the joint layout
 
 .. TODO: Example code
+
+Sockets
+---------------
+
+- "CameraSocket" located in the middle of the android's face
+- "Viewport" located behind the agent
+- All bones in the android's mesh are sockets, and their names are documented here: :class:`holodeck.agents.AndroidAgent`
