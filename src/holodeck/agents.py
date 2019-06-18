@@ -244,9 +244,12 @@ class HolodeckAgent:
 class UavAgent(HolodeckAgent):
     """A UAV (quadcopter) agent
 
-    **Action Space:** Has two possible continuous action control schemes
-    0. [pitch_torque, roll_torque, yaw_torque, thrust] and
-    1. [pitch_target, roll_target, yaw_rate_target, altitude_target]
+    **Action Space:**
+
+    Has two possible continuous action control schemes
+
+    1. [pitch_torque, roll_torque, yaw_torque, thrust] and
+    2. [pitch_target, roll_target, yaw_rate_target, altitude_target]
 
     See :ref:`uav-agent` for more details.
 
@@ -271,7 +274,9 @@ class SphereAgent(HolodeckAgent):
 
     See :ref:`sphere-agent` for more details.
 
-    **Action Space:** Has two possible control schemes, one discrete and one continuous:
+    **Action Space:**
+
+    Has two possible control schemes, one discrete and one continuous:
 
     +-------------------+---------+----------------------+
     | Control Scheme    | Value   | Action               |
@@ -319,7 +324,9 @@ class AndroidAgent(HolodeckAgent):
 
     See :ref:`android-agent` for more details.
 
-    **Action Space:** 94 dimensional vector of continuous values representing torques to be
+    **Action Space:**
+
+    94 dimensional vector of continuous values representing torques to be
     applied at each joint. The layout of joints can be found here:
 
     There are 18 joints with 3 DOF, 10 with 2 DOF, and 20 with 1 DOF.
@@ -415,7 +422,9 @@ class NavAgent(HolodeckAgent):
 
        See :ref:`nav-agent` for more details.
 
-       **Action Space:** Continuous control scheme of the form [x_target, y_target, z_target]
+       **Action Space:**
+
+       Continuous control scheme of the form ``[x_target, y_target, z_target]``
 
        Inherits from :class:`HolodeckAgent`."""
 
@@ -437,7 +446,9 @@ class TurtleAgent(HolodeckAgent):
 
     See :ref:`turtle-agent` for more details.
 
-    **Action Space**: ``[forward_force, rot_force]``
+    **Action Space**:
+
+    ``[forward_force, rot_force]``
 
     Inherits from :class:`HolodeckAgent`."""
     @property
