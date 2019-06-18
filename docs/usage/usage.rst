@@ -9,3 +9,4 @@ Using Holodeck
    getting-started
    hotkeys
    installation
+   units-and-coordinates

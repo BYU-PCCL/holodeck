@@ -16,7 +16,6 @@ from holodeck.command import CommandCenter, SpawnAgentCommand, RGBCameraRateComm
                              TeleportCameraCommand, RenderViewportCommand, RenderQualityCommand, \
                              SetSensorEnabledCommand, CustomCommand, DebugDrawCommand
 
-from holodeck.packagemanager import get_scenario, load_scenario_file
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import AgentDefinition, SensorDefinition, AgentFactory
@@ -28,19 +27,13 @@ class HolodeckEnvironment:
 
     Args:
         agent_definitions (:obj:`list` of :class:`AgentDefinition`):
-            Which agents to expect in the environment.
+            Which agents are already in the environment
 
         binary_path (:obj:`str`, optional):
             The path to the binary to load the world from. Defaults to None.
 
-        task_key (:obj:`str`, optional):
-            The name of the map within the binary to load. Defaults to None.
-
-        window_height (:obj:`int`, optional):
-            The height to load the game window at. Defaults to 512.
-
-        window_width (:obj:`int`, optional):
-            The width to load the game window at. Defaults to 512.
+        window_size ((:obj:`int`,:obj:`int`)):
+            height, width of the window to open
 
         start_world (:obj:`bool`, optional):
             Whether to load a binary or not. Defaults to True.
@@ -51,6 +44,12 @@ class HolodeckEnvironment:
         gl_version (:obj:`int`, optional):
             The version of OpenGL to use for Linux. Defaults to 4.
 
+        verbose (:obj:`bool`):
+            If engine log output should be printed to stdout
+
+        pre_start_steps (:obj:`int`):
+            Number of ticks to call after initializing the world, allows the level to load and settle.
+
         show_viewport (:obj:`bool`, optional):
             If the viewport should be shown (Linux only) Defaults to True.
 
@@ -60,31 +59,31 @@ class HolodeckEnvironment:
         copy_state (:obj:`bool`, optional):
             If the state should be copied or returned as a reference. Defaults to True.
 
+        scenario (:obj:`dict`):
+            The scenario that is to be loaded. See :ref:`scenario-files` for the schema.
+
     """
 
-    def __init__(self, agent_definitions=None, binary_path=None, scenario_key=None,
-                 window_height=512, window_width=512, start_world=True, uuid="", gl_version=4,
-                 verbose=False, pre_start_steps=2, show_viewport=True, ticks_per_sec=30,
-                 copy_state=True, scenario_path=None):
+    def __init__(self, agent_definitions=None, binary_path=None, window_size=(720, 1280),
+                 start_world=True, uuid="", gl_version=4, verbose=False, pre_start_steps=2,
+                 show_viewport=True, ticks_per_sec=30, copy_state=True, scenario=None):
 
         if agent_definitions is None:
             agent_definitions = []
 
         # Initialize variables
-        self._window_height = window_height
-        self._window_width = window_width
+        self._window_size = window_size
         self._uuid = uuid
         self._pre_start_steps = pre_start_steps
         self._copy_state = copy_state
         self._ticks_per_sec = ticks_per_sec
-        self._scenario_key = scenario_key
-        self._scenario_path = scenario_path
+        self._scenario = scenario
         self._initial_agent_defs = agent_definitions
         self._spawned_agent_defs = []
 
         # Start world based on OS
         if start_world:
-            world_key = scenario_key.split("-")[0]
+            world_key = self._scenario["world"]
             if os.name == "posix":
                 self.__linux_start_process__(binary_path, world_key, gl_version, verbose=verbose,
                                              show_viewport=show_viewport)
@@ -161,14 +160,10 @@ class HolodeckEnvironment:
 
         If no scenario is defined, does nothing.
         """
-        if self._scenario_key is not None:
-            scenario = get_scenario(self._scenario_key)
-        elif self._scenario_path is not None:
-            scenario = load_scenario_file(self._scenario_path)
-        else:
+        if self._scenario is None:
             return
 
-        for agent in scenario['agents']:
+        for agent in self._scenario['agents']:
             sensors = []
             for sensor in agent['sensors']:
                 if 'sensor_type' not in sensor:
@@ -207,8 +202,9 @@ class HolodeckEnvironment:
                                         starting_rot=agent_config["rotation"],  sensors=sensors)
 
             is_main_agent = False
-            if "main_agent" in scenario:
-                is_main_agent = scenario["main_agent"] == agent["agent_name"]
+            if "main_agent" in self._scenario:
+                is_main_agent = self._scenario["main_agent"] == agent["agent_name"]
+
             self.add_agent(agent_def, is_main_agent)
             self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
             self._spawned_agent_defs.append(agent_def)
@@ -340,12 +336,13 @@ class HolodeckEnvironment:
 
         Args:
             agent_name (:obj:`str`): The name of the agent to teleport.
-            location (:obj:`np.ndarray` or :obj:`list`): XYZ coordinates (in meters) for the agent
-                to be teleported to.
-            rotation (:obj:`np.ndarray` or :obj:`list`): A new rotation target for the agent.
-            velocity (:obj:`np.ndarray` or :obj:`list`): A new velocity for the agent.
+            location (:obj:`np.ndarray` or :obj:`list`): New ``[x, y, z]`` coordinates for agent
+                (see :ref:`coordinate-system`).
+            rotation (:obj:`np.ndarray` or :obj:`list`): ``[roll, pitch, yaw`` rotation for the agent
+                (see :ref:`rotations`).
+            velocity (:obj:`np.ndarray` or :obj:`list`): New velocity ``[x, y, z]`` for the agent.
             angular velocity (:obj:`np.ndarray` or :obj:`list`): A new angular velocity for the
-                agent.
+                agent in **degrees**
         """
         self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
 
@@ -364,7 +361,7 @@ class HolodeckEnvironment:
             spawn.
         """
         if agent_def.name in self.agents:
-            raise Exception("Error. Duplicate agent name. ")
+            raise HolodeckException("Error. Duplicate agent name. ")
 
         self.agents[agent_def.name] = AgentFactory.build_agent(self._client, agent_def)
         self._state_dict[agent_def.name] = self.agents[agent_def.name].agent_state_dict
@@ -404,9 +401,10 @@ class HolodeckEnvironment:
         """Draws a debug line in the world
 
         Args:
-            start (:obj:`list`): The start location of the line, ``[x, y, z]``
-            end (:obj:`list`): The end location of the line, ``[x, y, z]``
-            color (:obj:`list``): RGB values for the color, ``[r, g, b]``
+            start (:obj:`list` of :obj:`float`): The start ``[x, y, z]`` location of the line.
+                (see :ref:`coordinate-system`)
+            end (:obj:`list` of :obj:`float`): The end ``[x, y, z]`` location of the line
+            color (:obj:`list``): ``[r, g, b]`` color value
             thickness (:obj:`float`): thickness of the line
         """
         color = [255, 0, 0] if color is None else color
@@ -417,9 +415,10 @@ class HolodeckEnvironment:
         """Draws a debug arrow in the world
 
         Args:
-            start (:obj:`list`): The start location of the arrow, ``[x, y, z]``
-            end (:obj:`list`): The end location of the arrow, ``[x, y, z]``
-            color (:obj:`list`): RGB values for the color, ``[x, y, z]``
+            start (:obj:`list` of :obj:`float`): The start ``[x, y, z]`` location of the line.
+                (see :ref:`coordinate-system`)
+            end (:obj:`list` of :obj:`float`): The end ``[x, y, z]`` location of the arrow
+            color (:obj:`list`): ``[r, g, b]`` color value
             thickness (:obj:`float`): thickness of the arrow
         """
         color = [255, 0, 0] if color is None else color
@@ -430,9 +429,10 @@ class HolodeckEnvironment:
         """Draws a debug box in the world
 
         Args:
-            center (:obj:`list`): The start location of the box, ``[x, y, z]``
-            extent (:obj:`list`): The extent of the box, ``[x, y, z]``
-            color (:obj:`list`): RGB values for the color, ``[x, y, z]``
+            center (:obj:`list` of :obj:`float`): The start ``[x, y, z]`` location of the box.
+                (see :ref:`coordinate-system`)
+            extent (:obj:`list` of :obj:`float`): The ``[x, y, z]`` extent of the box
+            color (:obj:`list`): ``[r, g, b]`` color value
             thickness (:obj:`float`): thickness of the lines
         """
         color = [255, 0, 0] if color is None else color
@@ -443,9 +443,10 @@ class HolodeckEnvironment:
         """Draws a debug point in the world
 
         Args:
-            loc (:obj:`list`): The location of the point, ``[x, y, z]``
-            color (:obj:`list`): RGB values for the color, ``[x, y, z]``
-            thickness (:obj:`float`): thickness of the point, ``[x, y, z]``
+            loc (:obj:`list` of :obj:`float`): The ``[x, y, z]`` start of the box. 
+                (see :ref:`coordinate-system`)
+            color (:obj:`list` of :obj:`float`): ``[r, g, b]`` color value
+            thickness (:obj:`float`): thickness of the point
         """
         color = [255, 0, 0] if color is None else color
         command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
@@ -551,8 +552,10 @@ class HolodeckEnvironment:
         By the next tick, the camera's location and rotation will be updated
 
         Args:
-            location (:obj:`list` of size 3): The location to give the camera
-            rotation (:obj:`list` of size 3): The rotation to give the camera
+            location (:obj:`list` of :obj:`float`): The ``[x, y, z]`` location to give the camera
+                (see :ref:`coordinate-system`)
+            rotation (:obj:`list` of :obj:`float`): The ``[roll, pitch, yaw]`` rotation to give the camera
+                (see :ref:`rotations`)
 
         """
         self._enqueue_command(TeleportCameraCommand(location, rotation))
@@ -631,8 +634,8 @@ class HolodeckEnvironment:
             del environment['DISPLAY']
         self._world_process = \
             subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
-                              '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_width),
-                              '-ResY=' + str(self._window_height), '--HolodeckUUID=' + self._uuid,
+                              '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_size[1]),
+                              '-ResY=' + str(self._window_size[0]), '--HolodeckUUID=' + self._uuid,
                               '-TicksPerSec=' + str(self._ticks_per_sec)],
                              stdout=out_stream,
                              stderr=out_stream,
@@ -654,10 +657,9 @@ class HolodeckEnvironment:
                                                        'Global\\HOLODECK_LOADING_SEM' + self._uuid)
         self._world_process = \
             subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-LOG=HolodeckLog.txt',
-                              '-ResX=' + str(self._window_width), '-ResY=' +
-                              str(self._window_height),
-                              '--HolodeckUUID=' + self._uuid,
-                              '-TicksPerSec=' + str(self._ticks_per_sec)],
+                              '-ResX=' + str(self._window_size[1]), '-ResY=' +
+                              str(self._window_size[0]), '-TicksPerSec=' + str(self._ticks_per_sec),
+                              '--HolodeckUUID=' + self._uuid],
                              stdout=out_stream, stderr=out_stream)
 
         atexit.register(self.__on_exit__)
@@ -666,10 +668,15 @@ class HolodeckEnvironment:
             raise HolodeckException("Timed out waiting for binary to load")
 
     def __on_exit__(self):
+        if hasattr(self, '_exited'):
+            return
+
+        self._client.unlink()
         if hasattr(self, '_world_process'):
             self._world_process.kill()
             self._world_process.wait(5)
-        self._client.unlink()
+
+        self._exited = True
 
     # Context manager APIs, allows `with` statement to be used
     def __enter__(self):

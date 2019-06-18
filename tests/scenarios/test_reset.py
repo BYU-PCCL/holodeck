@@ -1,6 +1,3 @@
-"""
-Validate scenarios state is consistent after calling .reset()
-"""
 import numpy as np
 
 import holodeck
@@ -36,7 +33,11 @@ def is_full_state(state):
 def test_main_agent_after_resetting(env_scenario):
     """Validate that sensor data for the main agent is the same after calling .reset()
 
+    Args:
+        env_scenario ((HolodeckEnvironment, str)): environment and scenario we are testing
+
     """
+
 
     env, scenario = env_scenario
     scenario_config = holodeck.packagemanager.get_scenario(scenario)

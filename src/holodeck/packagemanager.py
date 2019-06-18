@@ -308,14 +308,35 @@ def get_scenario(scenario_name):
     return load_scenario_file(config_path)
 
 
-def get_world_path(scenario_name):
-    """Gets the scenario configuration associated with the given name
+def get_binary_path_for_package(package_name):
+    """Gets the path to the binary of a specific package
 
     Args:
-        scenario_name (str): name of the configuration to load - eg "UrbanCity-Follow"
+        package_name (:obj:`str`): Name of the package to search for
+
+    Returns:
+        :obj:`str` or :obj:`None`: Returns the path to the config directory, or None
+    """
+
+    for config, path in _iter_packages():
+        try:
+            if config["name"] == package_name:
+                return os.path.join(path, config["path"])
+        except KeyError as e:
+            print("Error parsing config file for {}".format(path))
+
+    return None
+
+
+def get_binary_path_for_scenario(scenario_name):
+    """Gets the path to the binary for a given scenario name
+
+    Args:
+        scenario_name (:obj:`str`): name of the configuration to load - eg "UrbanCity-Follow"
                      Must be an exact match. Name must be unique among all installed packages
 
-    Returns (dict): A dictionary containing the configuration file
+    Returns:
+        :obj:`dict`: A dictionary containing the configuration file
 
     """
     scenario_path = _find_file_in_worlds_dir(scenario_name + ".json")
@@ -359,8 +380,6 @@ def _iter_packages():
                 if file_name == "config.json":
                     with open(os.path.join(full_path, file_name), 'r') as f:
                         config = json.load(f)
-                        if sys.version_info[0] < 3:
-                            config = util.convert_unicode(config)
                     yield config, full_path
 
 

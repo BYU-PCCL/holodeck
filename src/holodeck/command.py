@@ -1,7 +1,7 @@
 """This module contains the classes used for formatting and sending commands to the Holodeck
-backend.
+backend. Most of these commands are just used internally by Holodeck, regular users do not need to
+worry about these.
 
-To create a new command to send to the Holodeck backend, simply subclass from command.
 """
 
 
@@ -175,7 +175,7 @@ class CommandCenter:
         to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
         input_bytes = str.encode(to_write)
         if len(input_bytes) > self.max_buffer:
-            raise Exception("Error: Command length exceeds buffer size")
+            raise HolodeckException("Error: Command length exceeds buffer size")
         for index, val in enumerate(input_bytes):
             self._command_buffer_ptr[index] = val
 
@@ -191,8 +191,7 @@ class SpawnAgentCommand(Command):
     """Spawn an agent in the world.
 
     Args:
-        location (:obj:`list` of :obj:`float`): The place to spawn the agent in XYZ coordinates
-            (meters).
+        location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
         name (:obj:`str`): The name of the agent.
         agent_type (:obj:`str` or type): The type of agent to spawn (UAVAgent, NavAgent, ...)
 
@@ -210,7 +209,7 @@ class SpawnAgentCommand(Command):
         """Set where agent will be spawned.
 
         Args:
-            location (:obj:`list` of :obj:`float`): [X,Y,Z] coordinate of where to spawn the agent.
+            location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
 
         """
         if len(location) != 3:
@@ -221,7 +220,8 @@ class SpawnAgentCommand(Command):
         """Set where agent will be spawned.
 
         Args:
-            rotation (:obj:`list` of :obj:`float`): [X,Y,Z] coordinate of the agent's rotation
+            rotation (:obj:`list` of :obj:`float`): ``[roll, pitch, yaw]`` rotation for agent.
+                (see :ref:`rotations`)
 
         """
         if len(rotation) != 3:
@@ -260,10 +260,11 @@ class DebugDrawCommand(Command):
             - ``2``: box
             - ``3``: point
 
-        start (:obj:`list` of 3 :obj:`floats`): The start location of the object
-        end (:obj:`list` of 3 :obj:`floats`): The end location of the object (not used for point,
-            and extent for box)
-        color (:obj:`list` of 3 :obj:`floats`): [R,G,B] values for the color
+        start (:obj:`list` of :obj:`float`): The start  ``[x, y, z]`` location of the object.
+            (see :ref:`coordinate-system`)
+        end (:obj:`list` of :obj:`float`): The end ``[x, y, z]`` location of the object
+            (not used for point, and extent for box)
+        color (:obj:`list` of :obj:`float`): ``[r, g, b]`` values for the color
         thickness (:obj:`float`): thickness of the line/object
 
     """
@@ -282,8 +283,10 @@ class TeleportCameraCommand(Command):
     """Move the viewport camera (agent follower)
 
     Args:
-        location (:obj:`list` of size 3): The location to give the camera
-        rotation (:obj:`list` of size 3): The rotation to give the camera
+        location (:obj:`list` of :obj:`float`): The ``[x, y, z]`` location to give the camera
+            (see :ref:`coordinate-system`)
+        rotation (:obj:`list` of :obj:`float`): The ``[roll, pitch, yaw]`` rotation to give the camera
+            (see :ref:`rotations`)
 
     """
     def __init__(self, location, rotation):
@@ -351,7 +354,8 @@ class RemoveSensorCommand(Command):
 
 
 class RenderViewportCommand(Command):
-    """Enable or disable the viewport
+    """Enable or disable the viewport. Note that this does not prevent the viewport from being shown,
+    it just prevents it from being updated. 
 
     Args:
         render_viewport (:obj:`bool`): If viewport should be rendered
