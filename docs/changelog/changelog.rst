@@ -3,7 +3,7 @@ Changelog
 
 Holodeck 0.2.2
 --------------
-*06/10/2019*
+*06/17/2019*
 
 This is a maintainance release focused on cleaning up bugs that were 
 unresolved in ``0.2.1``
@@ -31,6 +31,11 @@ Bug Fixes
   (`#271 <https://github.com/BYU-PCCL/holodeck/issues/271>`_)
 - Fixed ``EXCEPTION_ACCESS_VIOLATION`` on Windows after creating an environment
   (`#270 <https://github.com/BYU-PCCL/holodeck/issues/270>`_)
+- Fixed :ref:`MazeWorld-FinishMazeSphere` task not going terminal when task
+  was finished.
+
+  - Added a post with a golden ball on top to the end of the maze, 
+    this is now the tasks's target
 
 Holodeck 0.2.1
 --------------
