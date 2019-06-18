@@ -25,15 +25,13 @@ You can access the reward, terminal and location for the UAV as shown below.
 Code
 ~~~~
 
-.. TODO: Update "CyberPunkCity" to the equivalent scenario
-
 ::
 
    import holodeck
    import numpy as np
    from holodeck.sensors import Sensors
 
-   env = holodeck.make('CyberPunkCity')
+   env = holodeck.make('CyberPunkCity-Follow')
    env.reset()
 
    env.act('uav0', np.array([0, 0, 0, 100]))
