@@ -14,7 +14,7 @@ Layout
 Tagged Items
 ------------
 
-- GoalPost
+- ``GoalPost``
 
 .. toctree::
    :maxdepth: 1

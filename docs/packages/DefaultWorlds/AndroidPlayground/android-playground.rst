@@ -16,12 +16,12 @@ Layout
 Tagged Items
 ------------
 
-- cube
-- small-ball
-- big-ball
-- small-box1
-- small-box2
-- large-box
+- ``cube``
+- ``small-ball``
+- ``big-ball``
+- ``small-box1``
+- ``small-box2``
+- ``large-box``
 
 .. toctree::
    :maxdepth: 1
