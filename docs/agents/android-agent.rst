@@ -30,6 +30,7 @@ Control Schemes
 Sockets
 ---------------
 
-- "CameraSocket" located in the middle of the android's face
-- "Viewport" located behind the agent
-- All bones in the android's mesh are sockets, and their names are documented here: :class:`holodeck.agents.AndroidAgent`
+- ``CameraSocket`` located in the middle of the android's face
+- ``Viewport`` located behind the agent
+- All of the joints may be used as sockets. See 
+  :ref:`android-joints`
