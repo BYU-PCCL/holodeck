@@ -29,8 +29,8 @@ Action Spaces
 Sockets
 ---------------
 
-- "CameraSocket" located underneath the uav body
-- "Viewport" located behind the agent
+- ``CameraSocket`` located underneath the uav body
+- ``Viewport`` located behind the agent
 
 .. image:: images/uav-sockets.png
    :scale: 30%

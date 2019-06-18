@@ -17,8 +17,8 @@ See :class:`holodeck.agents.TurtleAgent` for more details.
 Sockets
 ---------------
 
-- "CameraSocket" located at the front of the body
-- "Viewport" located behind the agent
+- ``CameraSocket`` located at the front of the body
+- ``Viewport`` located behind the agent
 
 .. image:: images/turtle-sockets.png
    :scale: 30%

@@ -23,4 +23,4 @@ See :class:`holodeck.agents.NavAgent` for more details.
 Sockets
 ---------------
 
-None
+None.
