@@ -3,13 +3,18 @@ MazeWorld
 
 .. image:: maze-world.png
 
-Top View:
+This is a small, linear world meant to help agents learn to navigate around
+obstacles.
 
+Layout
+------
 .. image:: maze-world-top.png
-   :scale: 20%
+   :scale: 50%
 
-This is a small, linear world meant to help agents learn to navigate around 
-obstacles. 
+Tagged Items
+------------
+
+- GoalPost
 
 .. toctree::
    :maxdepth: 1
