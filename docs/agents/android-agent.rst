@@ -165,3 +165,11 @@ Control Schemes
 See :class:`~holodeck.agents.AndroidAgent` for details on how this control scheme works.
 
 .. TODO: Example code
+
+Sockets
+---------------
+
+- ``CameraSocket`` located in the middle of the android's face
+- ``Viewport`` located behind the agent
+- All of the joints may be used as sockets. See 
+  :ref:`android-joints`

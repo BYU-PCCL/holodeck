@@ -3,12 +3,12 @@ RedwoodForest
 
 .. image:: redwood.png
 
-Top View:
-
-.. image:: redwood-top.png
-   :scale: 20%
-
 This is a forest setting with more diverse tree sizes. It has a fixed size.
+
+Layout
+------
+.. image:: redwood-top.png
+   :scale: 50%
 
 .. toctree::
    :maxdepth: 1

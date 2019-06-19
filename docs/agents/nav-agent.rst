@@ -20,6 +20,9 @@ attempt to intelligently navigate towards those coordinates.
 Control Schemes
 ---------------
 
-- Nav Target Location
+See :class:`holodeck.agents.NavAgent` for specific details on the control scheme.
 
-See :class:`~holodeck.agents.NavAgent` for specific details on the control scheme.
+Sockets
+-------
+
+None.

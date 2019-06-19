@@ -28,3 +28,12 @@ See :class:`~holodeck.agents.SphereAgent` for details on how to use
 the control schemes.
 
 .. TODO: Example code?
+
+Sockets
+---------------
+
+- ``CameraSocket`` located at the front of the sphere body
+- ``Viewport`` located behind the agent
+
+.. image:: images/sphere-sockets.png
+   :scale: 30%

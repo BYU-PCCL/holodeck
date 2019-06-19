@@ -29,3 +29,11 @@ Control Schemes
 See :class:`~holodeck.agents.UavAgent` for more details on how the control
 schemes work.
 
+Sockets
+-------
+
+- ``CameraSocket`` located underneath the uav body
+- ``Viewport`` located behind the agent
+
+.. image:: images/uav-sockets.png
+   :scale: 30%

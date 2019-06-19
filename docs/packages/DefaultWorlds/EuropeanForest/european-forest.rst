@@ -3,13 +3,13 @@ EuropeanForest
 
 .. image:: european-forest.png
 
-Top View:
-
-.. image:: european-top.png
-   :scale: 20%
-
 This world is a very large and contains a few different environments. It has
 plains, forest, and a few structures for agents to interact with.
+
+Layout
+------
+.. image:: european-top.png
+   :scale: 50%
 
 .. toctree::
    :maxdepth: 1
