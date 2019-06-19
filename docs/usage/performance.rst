@@ -1,6 +1,8 @@
-===============
-Tuning Holodeck
-===============
+.. _`improving-performance`:
+
+==============================
+Improving Holodeck Performance
+==============================
 
 Holodeck is fairly performant by default, but you can also sacrifice
 features to increase your frames per second.
