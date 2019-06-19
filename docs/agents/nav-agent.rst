@@ -19,3 +19,8 @@ with.
 It uses Unreal's AI system to attempt to intelligently navigate towards a particular location.
 
 See :class:`holodeck.agents.NavAgent` for more details.
+
+Sockets
+---------------
+
+None.

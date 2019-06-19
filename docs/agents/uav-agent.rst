@@ -25,3 +25,12 @@ Action Spaces
 -------------
 - UAV Torques
 - UAV Roll / Pitch / Yaw targets
+
+Sockets
+---------------
+
+- ``CameraSocket`` located underneath the uav body
+- ``Viewport`` located behind the agent
+
+.. image:: images/uav-sockets.png
+   :scale: 30%

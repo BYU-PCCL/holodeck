@@ -26,3 +26,11 @@ Control Schemes
 .. TODO: Don't punt on the joint layout
 
 .. TODO: Example code
+
+Sockets
+---------------
+
+- ``CameraSocket`` located in the middle of the android's face
+- ``Viewport`` located behind the agent
+- All of the joints may be used as sockets. See 
+  :ref:`android-joints`

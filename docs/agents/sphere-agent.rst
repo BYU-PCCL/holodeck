@@ -27,3 +27,12 @@ Control Schemes
 - Continuous Control Scheme
 
 .. TODO: Example code?
+
+Sockets
+---------------
+
+- ``CameraSocket`` located at the front of the sphere body
+- ``Viewport`` located behind the agent
+
+.. image:: images/sphere-sockets.png
+   :scale: 30%
