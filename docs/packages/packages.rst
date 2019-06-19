@@ -20,3 +20,5 @@ contains one or more worlds, which each have one or more scenarios.
    docs/package-structure
    docs/scenarios
    docs/tasks/tasks
+   docs/installation
+

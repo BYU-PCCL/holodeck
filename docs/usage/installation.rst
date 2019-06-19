@@ -85,38 +85,18 @@ Install a Package Automatically
    >>> packagemanager.installed_packages()
    ['DefaultWorlds']
 
-.. _installation-location:
-
 Installation Location
 ---------------------
 
-Holodeck packages are by default saved in the current user profile, depending
-on the platform.
-
-========== =======================================================
- Platform   Location
-========== =======================================================
-Linux      ``~/.local/share/holodeck/{holodeck_version}/worlds/``
-Windows    ``~\AppData\Local\holodeck\{holodeck_version}\worlds``
-========== =======================================================
-
-The environment variable ``HOLODECKPATH`` can be set to override this location.
-
-Note that the packages are saved in different subfolders based on the version
-of Holodeck. This allows multiple versions of Holodeck to coexist, without
-causing version incompatibility conflicts.
-
-.. caution::
-   If ``HOLODECKPATH`` is used, it will override
-   this version partitioning, so ensure that ``HOLODECKPATH`` only points to packages
-   that are compatible with your version of Holodeck.
+By default, Holodeck will install packages local to your user profile. See 
+:ref:`package-locations` for more information.
 
 Manually Installing a Package
 -----------------------------
 
 To manually install a package, you will be provided a ``.zip`` file.
 Simply extract it into the ``worlds`` folder in your
-Holodeck installation location (see :ref:`installation-location`)
+Holodeck installation location (see :ref:`package-locations`)
 
 .. note::
 
