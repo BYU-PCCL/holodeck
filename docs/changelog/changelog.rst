@@ -3,9 +3,9 @@ Changelog
 
 Holodeck 0.2.2
 --------------
-*06/17/2019*
+*06/20/2019*
 
-This is mostly a maintainance release focused on cleaning up bugs that were 
+This is mostly a maintenance release focused on cleaning up bugs that were 
 unresolved in ``0.2.1``
 
 
