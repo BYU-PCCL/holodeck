@@ -14,7 +14,7 @@ RGBCamera
 ---------
 
 By far, the biggest single thing you can do to improve performance is to
-disable the ``RGBCamera```. Rendering the camera every frame causes a
+disable the ``RGBCamera``. Rendering the camera every frame causes a
 context switch deep in the rendering code of the engine, which has a 
 significant performance penalty.
 
