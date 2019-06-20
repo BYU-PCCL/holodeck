@@ -5,14 +5,12 @@ First, see :ref:`installation` to get the ``holodeck`` package and
 
 A minimal Holodeck usage example is below:
 
-.. TODO: Make sure this is an actual scenario after shipping!
-
 ::
 
    import holodeck
    import numpy as np
 
-   env = holodeck.make("UrbanCity-Follow")
+   env = holodeck.make("UrbanCity-MaxDistance")
 
    # The UAV takes 3 torques and a thrust as a command.
    command = np.array([0, 0, 0, 100])

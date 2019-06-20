@@ -79,11 +79,9 @@ Agent objects
       "rotation": [1.0, 2.0, 3.0]
    }
 
-.. TODO: Figure out the coordinate system
 
 .. note::
-   The ``locations`` coordinates are {left | right} handed and the ``rotation``
-   coordinates are {left handed | right handed | roll - pitch - yaw }
+   Holodeck coordinates are **left handed** in meters. See :ref:`coordinate-system`
 
 Here are the values that should be placed in ``agent_type``:
 

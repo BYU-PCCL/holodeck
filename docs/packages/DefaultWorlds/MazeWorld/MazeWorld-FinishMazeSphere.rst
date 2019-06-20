@@ -1,8 +1,10 @@
+.. _`MazeWorld-FinishMazeSphere`:
+
 MazeWorld-FinishMazeSphere
 ==========================
 
 The goal of this task is for the sphere agent to finish the maze and get as 
-close as possible to the building on the other end.
+close as possible to post with a golden ball on the other end.
 
 Agents
 ------
