@@ -3,18 +3,26 @@ Changelog
 
 Holodeck 0.2.2
 --------------
-*06/10/2019*
+*06/17/2019*
 
-This is a maintainance release focused on cleaning up bugs that were 
+This is mostly a maintainance release focused on cleaning up bugs that were 
 unresolved in ``0.2.1``
 
 
 New Features
 ~~~~~~~~~~~~
-- When freecamming around, :ref:`pressing shift <moving-viewport>` makes the camera move faster
+- When freecamming around, :ref:`pressing shift <moving-viewport>` moves the 
+  camera faster.
   (`#99 <https://github.com/BYU-PCCL/holodeck/issues/99>`_)
 - Agents can have a rotation specified in the scenario config files
   (`#209 <https://github.com/BYU-PCCL/holodeck/issues/209>`_)
+- Custom scenarios can be made with dictionaries as well as ``json`` files. 
+  See :ref:`custom-scenarios`
+  (`#275 <https://github.com/BYU-PCCL/holodeck/issues/275>`_)
+- Documented how to improve Holodeck performance. 
+  See :ref:`improving-performance`
+  (`#109 <https://github.com/BYU-PCCL/holodeck/issues/109>`_)
+
 
 Bug Fixes
 ~~~~~~~~~
@@ -31,6 +39,11 @@ Bug Fixes
   (`#271 <https://github.com/BYU-PCCL/holodeck/issues/271>`_)
 - Fixed ``EXCEPTION_ACCESS_VIOLATION`` on Windows after creating an environment
   (`#270 <https://github.com/BYU-PCCL/holodeck/issues/270>`_)
+- Fixed :ref:`MazeWorld-FinishMazeSphere` task not going terminal when task
+  was finished.
+
+  - Added a post with a golden ball on top to the end of the maze, 
+    this is now the tasks's target
 
 Holodeck 0.2.1
 --------------
@@ -43,7 +56,8 @@ This summer we are planning on adding much more content (worlds, agents, etc).
 
 Highlights
 ~~~~~~~~~~
-- Added :ref:`Scenarios <scenarios>` to allow worlds to be more flexible and customizable
+- Added :ref:`Scenarios <scenarios>` to allow worlds to be more flexible and 
+  customizable
 - Documentation has been greatly expanded
 
 New Features

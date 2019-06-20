@@ -19,15 +19,18 @@ Description
 -----------
 A quadcopter UAV agent. 
 
-See the :class:`holodeck.agents.UavAgent` class. 
+See the :class:`~holodeck.agents.UavAgent` class. 
 
-Action Spaces
--------------
+Control Schemes
+---------------
 - UAV Torques
 - UAV Roll / Pitch / Yaw targets
 
+See :class:`~holodeck.agents.UavAgent` for more details on how the control
+schemes work.
+
 Sockets
----------------
+-------
 
 - ``CameraSocket`` located underneath the uav body
 - ``Viewport`` located behind the agent

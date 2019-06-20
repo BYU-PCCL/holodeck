@@ -1,14 +1,14 @@
 Package Structure
 =================
 
-A holodeck package is a ``.zip`` file containing a build of `holodeck-engine`_ that
-contains worlds and :ref:`scenarios` for those worlds.
+A holodeck package is a ``.zip`` file containing a build of `holodeck-engine`_
+that contains worlds and :ref:`scenarios` for those worlds.
 
 .. _`holodeck-engine`: https://github.com/BYU-PCCL/holodeck-engine
 
 A package file is platform specific, since it contains a compiled binary of Holodeck.
 
-.. _package-contents:
+.. _`package-contents`:
 
 Package Contents
 ----------------

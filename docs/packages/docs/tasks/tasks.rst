@@ -3,8 +3,6 @@ Tasks
 
 Below are the different tasks available for use in Holodeck.
 
-.. TODO: Figure out units
-
 .. toctree::
    :maxdepth: 2
 

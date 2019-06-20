@@ -4,8 +4,8 @@
 Installation
 ============
 
-Holodeck is installed in two portions: a client python library (``holodeck``) is 
-installed first, which then downloads world packages. The python portion is very 
+Holodeck is installed in two portions: a client python library (``holodeck``) is
+installed first, which then downloads world packages. The python portion is very
 small, while the world packages ("binaries") can be several gigabytes.
 
 Requirements
@@ -26,15 +26,17 @@ The latest stable Holodeck package is available in a pip repository:
 Install Client via git
 =======================
 
-To use the latest version of Holodeck, you can install and use Holodeck simply by 
-cloning the `BYU-PCCL/holodeck`_ repository, and ensuring it is on your ``sys.path``.
+To use the latest version of Holodeck, you can install and use Holodeck simply
+by cloning the `BYU-PCCL/holodeck`_ repository, and ensuring it is on your
+``sys.path``.
 
 .. _`BYU-PCCL/holodeck`: https://github.com/BYU-PCCL/holodeck
 
-The ``master`` branch is kept in sync with the pip repository, the ``develop`` branch
-is the bleeding edge of development.
+The ``master`` branch is kept in sync with the pip repository, the ``develop``
+branch is the bleeding edge of development.
 
-.. TODO: Tag different commits in GitHub so users can easily clone specific versions of Holodeck
+If you want to download a specific release of Holodeck, each release is tagged
+in the Git repository.
 
 Docker Installation
 ===================
@@ -47,7 +49,7 @@ The repository on DockerHub is `pccl/holodeck`_.
 
 Currently the following tags are availible:
 
-- ``ubuntu18.04-with-worlds`` 
+- ``ubuntu18.04-with-worlds``
 - ``ubuntu18.04-without-worlds``
 - ``ubuntu16.04-without-worlds``
 - ``ubuntu16.04-with-worlds``
@@ -55,14 +57,14 @@ Currently the following tags are availible:
 .. _`pccl/holodeck`: https://hub.docker.com/r/pccl/holodeck
 
 .. note::
-   Holodeck cannot be run with root privileges, so the user ``holodeckuser`` with  
+   Holodeck cannot be run with root privileges, so the user ``holodeckuser`` with
    password ``holodeck`` is provided in the docker image.
 
 Managing World Packages
 =======================
 
-The ``holodeck`` python package includes a :ref:`packagemanager` that is used to
-download and install world packages. Below are some example usages, but see 
+The ``holodeck`` python package includes a :ref:`packagemanager` that is used
+to download and install world packages. Below are some example usages, but see
 :ref:`packagemanager` for complete documentation.
 
 Install a Package Automatically
@@ -83,38 +85,18 @@ Install a Package Automatically
    >>> packagemanager.installed_packages()
    ['DefaultWorlds']
 
-.. _installation-location:
-
 Installation Location
 ---------------------
 
-Holodeck packages are by default saved in the current user profile, depending on
-the platform. 
-
-========== =======================================================
- Platform   Location
-========== =======================================================
-Linux      ``~/.local/share/holodeck/{holodeck_version}/worlds/``
-Windows    ``~\AppData\Local\holodeck\{holodeck_version}\worlds``
-========== =======================================================
-
-The environment variable ``HOLODECKPATH`` can be set to override this location.
-
-Note that the packages are saved in different subfolders based on the version of
-Holodeck. This allows multiple versions of Holodeck to coexist, without causing
-version incompatibility conflicts. 
-
-.. caution::
-   If ``HOLODECKPATH`` is used, it will override
-   this version partitioning, so ensure that ``HOLODECKPATH`` only points to packages
-   that are compatible with your version of Holodeck.
+By default, Holodeck will install packages local to your user profile. See 
+:ref:`package-locations` for more information.
 
 Manually Installing a Package
 -----------------------------
 
-To manually install a package, you will be provided a ``.zip`` file. 
+To manually install a package, you will be provided a ``.zip`` file.
 Simply extract it into the ``worlds`` folder in your
-Holodeck installation location (see :ref:`installation-location`)
+Holodeck installation location (see :ref:`package-locations`)
 
 .. note::
 
@@ -146,8 +128,8 @@ Holodeck installation location (see :ref:`installation-location`)
 Print Information
 -----------------
 
-There are several convenience functions provided to allow packages, worlds, and
-scenarios to be easily inspected.
+There are several convenience functions provided to allow packages, worlds,
+and scenarios to be easily inspected.
 
 ::
 
