@@ -83,7 +83,7 @@ class Command:
                 A number or list of numbers to add to the parameters.
 
         """
-        if isinstance(number, list):
+        if isinstance(number, list) or isinstance(number, tuple):
             for x in number:
                 self.add_number_parameters(x)
             return
@@ -97,7 +97,7 @@ class Command:
                 A string or list of strings to add to the parameters.
 
         """
-        if isinstance(string, list):
+        if isinstance(string, list) or isinstance(string, tuple):
             for x in string:
                 self.add_string_parameters(x)
             return
@@ -170,7 +170,6 @@ class CommandCenter:
             to_write (:class:`str`): The string to write to the command buffer.
 
         """
-
         np.copyto(self._command_bool_ptr, True)
         to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
         input_bytes = str.encode(to_write)
