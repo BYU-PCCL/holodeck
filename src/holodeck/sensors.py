@@ -115,6 +115,19 @@ class AvoidTask(HolodeckSensor):
         return [2]
 
 
+class CupGameTask(HolodeckSensor):
+
+    sensor_type = "CupGameTask"
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [2]
+
+
 class ViewportCapture(HolodeckSensor):
     sensor_type = "ViewportCapture"
 
@@ -367,6 +380,7 @@ class SensorDefinition:
                      "LocationTask": LocationTask,
                      "FollowTask": FollowTask,
                      "AvoidTask": AvoidTask,
+                     "CupGameTask": CupGameTask,
                      "ViewportCapture": ViewportCapture,
                      "OrientationSensor": OrientationSensor,
                      "IMUSensor": IMUSensor,
