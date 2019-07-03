@@ -360,6 +360,21 @@ class CollisionSensor(HolodeckSensor):
         return [1]
 
 
+class BallCupSensor(HolodeckSensor):
+    """Returns true if the agent is colliding with anything (including the ground).
+
+    """
+
+    sensor_type = "BallCupSensor"
+
+    @property
+    def dtype(self):
+        return np.uint8
+
+    @property
+    def data_shape(self):
+        return [1]
+
 class SensorDefinition:
     """A class for new sensors and their parameters, to be used for adding new sensors.
 
@@ -390,7 +405,8 @@ class SensorDefinition:
                      "RotationSensor": RotationSensor,
                      "VelocitySensor": VelocitySensor,
                      "PressureSensor": PressureSensor,
-                     "CollisionSensor": CollisionSensor}
+                     "CollisionSensor": CollisionSensor,
+                     "BallCupSensor": BallCupSensor}
 
     def get_config_json_string(self):
         """Gets the configuration dictionary as a string ready for transport
