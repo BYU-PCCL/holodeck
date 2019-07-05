@@ -176,7 +176,7 @@ class HolodeckEnvironment:
                     'location': [0, 0, 0],
                     'rotation': [0, 0, 0],
                     'socket': "",
-                    'configuration': {},
+                    'configuration': None,
                     'sensor_name': sensor['sensor_type']
                 }
                 # Overwrite the default values with what is defined in the scenario config

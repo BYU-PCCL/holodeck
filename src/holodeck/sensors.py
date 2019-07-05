@@ -13,6 +13,9 @@ class HolodeckSensor:
         agent_name (:obj:`str`): Name of the agent
         name (:obj:`str`): Name of the sensor
     """
+
+    default_config = {}
+
     def __init__(self, client, agent_name=None, name="DefaultSensor", config=None):
         self.name = name
         self._client = client
@@ -360,20 +363,33 @@ class CollisionSensor(HolodeckSensor):
         return [1]
 
 
-class BallCupSensor(HolodeckSensor):
+class WorldNumSensor(HolodeckSensor):
     """Returns true if the agent is colliding with anything (including the ground).
 
     """
 
-    sensor_type = "BallCupSensor"
+    sensor_type = "WorldNumSensor"
 
     @property
     def dtype(self):
-        return np.uint8
+        return np.float32
 
     @property
     def data_shape(self):
         return [1]
+
+
+class BallLocationSensor(WorldNumSensor):
+    """Returns true if the agent is colliding with anything (including the ground).
+
+    """
+    sensor_type = "WorldNumSensor"
+    default_config = {"Key": "BallLocation"}
+
+    @property
+    def dtype(self):
+        return np.int8
+
 
 class SensorDefinition:
     """A class for new sensors and their parameters, to be used for adding new sensors.
@@ -406,7 +422,8 @@ class SensorDefinition:
                      "VelocitySensor": VelocitySensor,
                      "PressureSensor": PressureSensor,
                      "CollisionSensor": CollisionSensor,
-                     "BallCupSensor": BallCupSensor}
+                     "WorldNumSensor": WorldNumSensor,
+                     "BallLocationSensor": BallLocationSensor}
 
     def get_config_json_string(self):
         """Gets the configuration dictionary as a string ready for transport
@@ -433,7 +450,8 @@ class SensorDefinition:
         self.socket = socket
         self.location = location
         self.rotation = rotation
-        self.config = {} if config is None else config
+        print(config)
+        self.config = self.type.default_config if config is None else config
         self.existing = existing
 
 
