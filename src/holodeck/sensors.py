@@ -183,7 +183,6 @@ class RGBCamera(HolodeckSensor):
         if "CaptureWidth" in self.config:
             width = self.config["CaptureWidth"]
 
-
         self.shape = (height, width, 4)
 
         super(RGBCamera, self).__init__(client, agent_name, name=name, config=config)
@@ -364,7 +363,7 @@ class CollisionSensor(HolodeckSensor):
 
 
 class WorldNumSensor(HolodeckSensor):
-    """Returns true if the agent is colliding with anything (including the ground).
+    """Returns any numeric value from the world corresponding to a given key. This is world specific.
 
     """
 
@@ -380,7 +379,7 @@ class WorldNumSensor(HolodeckSensor):
 
 
 class BallLocationSensor(WorldNumSensor):
-    """Returns true if the agent is colliding with anything (including the ground).
+    """Uses the WorldNumSensor to get the ball location from the world. Only works in the CupGame world.
 
     """
     sensor_type = "WorldNumSensor"
@@ -450,7 +449,6 @@ class SensorDefinition:
         self.socket = socket
         self.location = location
         self.rotation = rotation
-        print(config)
         self.config = self.type.default_config if config is None else config
         self.existing = existing
 
