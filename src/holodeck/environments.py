@@ -183,6 +183,7 @@ class HolodeckEnvironment:
                 sensor_config.update(sensor)
 
                 sensors.append(SensorDefinition(agent['agent_name'],
+                                                agent['agent_type'],
                                                 sensor_config['sensor_name'],
                                                 sensor_config['sensor_type'],
                                                 socket=sensor_config['socket'],

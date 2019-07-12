@@ -22,8 +22,9 @@ class ControlSchemes:
             well as thrust.
         UAV_ROLL_PITCH_YAW_RATE_ALT (int): Control scheme for UAV. Takes roll, pitch, yaw rate, and
             altitude targets.
+        HAND_AGENT_MAX_TORQUES (int): Default Android control scheme. Specify a torque for each joint.
     """
-    # UAV Control Schemes
+    # Android Control Schemes
     ANDROID_DIRECT_TORQUES = 0
     ANDROID_MAX_SCALED_TORQUES = 1
 
@@ -38,6 +39,11 @@ class ControlSchemes:
     UAV_TORQUES = 0
     UAV_ROLL_PITCH_YAW_RATE_ALT = 1
 
+    # HandAgent Control Schemes
+    HAND_AGENT_MAX_TORQUES = 0
+    HAND_AGENT_MAX_TORQUES = 1    
+    HAND_AGENT_MAX_TORQUES_FLOAT = 2
+    
 
 class HolodeckAgent:
     """An learning agent in Holodeck
@@ -67,6 +73,7 @@ class HolodeckAgent:
         self.sensors = dict()
 
         self._num_control_schemes = len(self.control_schemes)
+
         self._max_control_scheme_length = \
             max(map(lambda x: reduce(lambda i, j: i * j, x[1].buffer_shape),
                     self.control_schemes))
@@ -239,6 +246,12 @@ class HolodeckAgent:
         raise NotImplementedError("Child class must implement this function")
 
     def __act__(self, action):
+        
+        # Allow for smaller arrays to be provided as input
+        if len(self._action_buffer) > len(action):
+            action = np.asarray(action)
+            action.resize(self._action_buffer.shape)
+        
         # The default act function is to copy the data,
         # but if needed it can be overridden
         np.copyto(self._action_buffer, action)
@@ -423,6 +436,76 @@ class AndroidAgent(HolodeckAgent):
     }
 
 
+class HandAgent(HolodeckAgent):
+    """A floating hand agent.
+
+    Can be controlled via torques supplied to its joints and moved around in 
+    three dimensions.
+
+    See :ref:`hand-agent` for more details.
+    
+    **Action Space:**
+
+    23 or 26 dimensional vector of continuous values representing torques to be
+    applied at each joint. The layout of joints can be found here:
+    :ref:`hand-joints`.
+
+    Inherits from :class:`HolodeckAgent`.
+    
+    """
+
+    agent_type = "HandAgent"
+
+    @property
+    def control_schemes(self):
+        return [("[Raw Bone Torques] * 23", ContinuousActionSpace([23])),
+                ("[-1 to 1] * 23, where 1 is the maximum torque for a given "
+                 "joint (based on mass of bone)", ContinuousActionSpace([23])),
+                 ("[-1 to 1] * 23, scaled torques, then [x, y, z] transform",
+                 ContinuousActionSpace([26]))]
+
+    def __repr__(self):
+        return "HandAgent " + self.name
+
+    @staticmethod
+    def joint_ind(joint_name):
+        """Gets the joint indices for a given name
+
+        Args:
+            joint_name (:obj:`str`): Name of the joint to look up
+
+        Returns:
+            (int): The index into the state array
+        """
+        return HandAgent._joint_indices[joint_name]
+
+    _joint_indices = {
+        # Head, Spine, and Arm joints. Each has[swing1, swing2, twist]
+        "hand_r": 0,
+
+        # First joint of each finger. Has only [swing1, swing2]
+        "thumb_01_r": 3,
+        "index_01_r": 5,
+        "middle_01_r": 7,
+        "ring_01_r": 9,
+        "pinky_01_r": 11,
+
+        # Second joint of each finger. Has only[swing1]
+        "thumb_02_r": 12,
+        "index_02_r": 13,
+        "middle_02_r": 14,
+        "ring_02_r": 15,
+        "pinky_02_r": 16,
+
+        # Third joint of each finger. Has only[swing1]
+        "thumb_03_r": 17,
+        "index_03_r": 18,
+        "middle_03_r": 19,
+        "ring_03_r": 20,
+        "pinky_03_r": 21
+    }
+
+
 class NavAgent(HolodeckAgent):
     """A humanoid character capable of intelligent navigation.
 
@@ -492,7 +575,8 @@ class AgentDefinition:
         "SphereAgent": SphereAgent,
         "UavAgent": UavAgent,
         "NavAgent": NavAgent,
-        "AndroidAgent": AndroidAgent
+        "AndroidAgent": AndroidAgent,
+        "HandAgent": HandAgent
     }
 
     def __init__(self, agent_name, agent_type, sensors=None, starting_loc=(0, 0, 0),
@@ -503,7 +587,9 @@ class AgentDefinition:
         self.sensors = sensors or list()
         for i, sensor_def in enumerate(self.sensors):
             if not isinstance(sensor_def, SensorDefinition):
-                self.sensors[i] = SensorDefinition(agent_name, sensor_def.sensor_type, sensor_def)
+                self.sensors[i] = \
+                    SensorDefinition(agent_name, agent_type, 
+                                     sensor_def.sensor_type, sensor_def)
         self.name = agent_name
 
         if isinstance(agent_type, str):
