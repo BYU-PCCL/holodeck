@@ -25,9 +25,9 @@ copyright = 'BYU PCCL'
 author = 'Joshua Greaves, Max Robinson, Nick Walton, Jayden Milne'
 
 # The short X.Y version
-version = "0.2.2"
+version = "0.3.0"
 # The full version, including alpha/beta/rc tags
-release = "0.2.2dev"
+release = "0.3.0dev"
 
 
 # -- General configuration ---------------------------------------------------
