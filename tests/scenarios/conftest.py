@@ -19,7 +19,7 @@ def pytest_generate_tests(metafunc):
 
 
 # Envs contains a mapping of scenario key -> HolodeckEnvironment so that between
-# different tests the same environement doesn't have to be created over and over
+# different tests the same environment doesn't have to be created over and over
 envs = {}
 
 
