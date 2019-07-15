@@ -14,16 +14,28 @@ Description
 A floating hand agent that can be controlled by applying torques to joints and
 moved around in three dimensions.
 
-.. _`hand-joints`:
-
 Control Schemes
 ---------------
 
-- Raw Joint Torques
-- Scaled Joint Torques
-- Scaled Joint Torques + Floating
+- **Raw Joint Torques** (``0``)
+  
+  23 length vector of raw torques to pass into the joints, in the order listed
+  beow in :ref:`hand-joints`
 
-See :class:`~holodeck.agents.HandAgent` for details on how this control scheme works.
+- **Scaled Joint Torques** (``1``)
+  
+  23 length vector of scaled torques, between ``-1`` and ``1``. The strength
+  finger each joint is scaled depending on the weight of the bone and if it is
+  a finger or not. ``1`` represents the maximum power in the forward direction
+
+
+- **Scaled Joint Torques + Floating** (``2``)
+  
+  Same as above, but the vector is of length 26, with the last three values
+  representing the amount of movement in the ``[x, y, z]`` directions (see
+  :ref:`coordinate-system`), with a maximum of ``0.5`` meters of freedom.
+
+.. _`hand-joints`:
 
 HandAgent Joints
 ----------------
