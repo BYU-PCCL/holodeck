@@ -1,5 +1,6 @@
 """Definitions for different agents that can be controlled from Holodeck"""
 from functools import reduce
+from typing import Any
 
 import numpy as np
 
@@ -249,9 +250,9 @@ class HolodeckAgent:
         
         # Allow for smaller arrays to be provided as input
         if len(self._action_buffer) > len(action):
-            action = np.asarray(action)
+            action = np.copy(action)
             action.resize(self._action_buffer.shape)
-        
+
         # The default act function is to copy the data,
         # but if needed it can be overridden
         np.copyto(self._action_buffer, action)
