@@ -1,6 +1,51 @@
 Changelog
 =========
 
+Holodeck 0.3.0
+--------------
+*Release Date TBD*
+
+Features! Features! Features!
+
+New Features
+~~~~~~~~~~~~
+- Added the :ref:`hand-agent` - a simplified Android hand that can float around
+  (`#287 <https://github.com/BYU-PCCL/holodeck/issues/287>`_)
+
+  - HandAgent can be used with the same Android-specific sensors (
+    :class:`~holodeck.sensors.JointRotationSensor`,
+    :class:`~holodeck.sensors.PressureSensor`,
+    :class:`~holodeck.sensors.RelativeSkeletalPositionSensor`)
+- Packages can be installed directly from a URL 
+  (see :class:`~holodeck.packagemanager.install`)
+  (`#129 <https://github.com/BYU-PCCL/holodeck/issues/129>`_)
+
+
+Changes
+~~~~~~~
+- Increased the :ref:`android-agent`'s strength in the 
+  ``ANDROID_MAX_SCALED_TORQUES`` control scheme.
+
+  - Previously the AndroidAgent didn't have enough strength to even move its 
+    legs.
+  - Strength was approximately doubled (See
+    `JointMaxTorqueControlScheme.h <https://github.com/BYU-PCCL/holodeck-engine/blob/develop/Source/Holodeck/Agents/Public/JointMaxTorqueControlScheme.h#L50>`_
+    )
+- Updated to Unreal Engine 4.22
+  (`#241 <https://github.com/BYU-PCCL/holodeck/issues/241>`_)
+
+Bug Fixes
+~~~~~~~~~
+- Fixed the :class:`~holodeck.sensors.RelativeSkeletalPositionSensor`.
+  
+  - This sensor returns the location of bones, not sensors. Since there are
+    more bones than joints, previously it returned them in a completely
+    different order than expected.
+  - Now the order for this sensor is explicitly specified in 
+    :ref:`android-bones` and :ref:`hand-bones`.
+  - Previously on the first tick it would return uninitialized garbage on the
+    first tick
+
 Holodeck 0.2.2
 --------------
 *06/20/2019*
