@@ -125,17 +125,51 @@ class AvoidTask(HolodeckSensor):
 
 
 class ViewportCapture(HolodeckSensor):
+    """Captures what the viewport is seeing.
+
+    The ViewportCapture is faster than the RGB camera, but there can only be one camera
+    and it must capture what the viewport is capturing. If performance is
+    critical, consider this camera instead of the RGBCamera.
+    
+    It may be useful
+    to position the camera with
+    :meth:`~holodeck.environments.HolodeckEnvironment.teleport_camera`.
+
+    **Configuration**
+
+    The ``configuration`` block (see :ref:`configuration-block`) accepts the following
+    options:
+
+    - ``CaptureWidth``: Width of captured image
+    - ``CaptureHeight``: Height of captured image
+
+    **THESE DIMENSIONS MUST MATCH THE VIEWPORT DIMENSTIONS**
+
+    If you have configured the size of the  viewport (``window_height/width``), you must
+    make sure that ``CaptureWidth/Height`` of this configuration block is set to the same
+    dimensions.
+
+    The default resolution is ``1280x720``, matching the default Viewport resolution.
+    """
     sensor_type = "ViewportCapture"
 
-    def __init__(self, client, agent_name, agent_type, 
-                 name="ViewportCapture", shape=(512, 512, 4)):
-        """Represents a viewport capture.
+    def __init__(self, client, agent_name, agent_type,
+                 name="ViewportCapture", config=None):
 
-        Args:
-            shape (:obj:`tuple`): Dimensions of the capture
-        """
-        self.shape = shape
-        super(ViewportCapture, self).__init__(client, agent_name, agent_type, name=name)
+        self.config = {} if config is None else config
+        
+        width = 1280
+        height = 720
+
+        if "CaptureHeight" in self.config:
+            height = self.config["CaptureHeight"]
+
+        if "CaptureWidth" in self.config:
+            width = self.config["CaptureWidth"]
+
+        self.shape = (height, width, 4)
+
+        super(ViewportCapture, self).__init__(client, agent_name, agent_type, name=name, config=config)
 
     @property
     def dtype(self):
@@ -160,16 +194,16 @@ class RGBCamera(HolodeckSensor):
     - ``CaptureWidth``: Width of captured image
     - ``CaptureHeight``: Height of captured image
 
-    Args:
-        shape (:obj:`tuple`): Dimensions of the capture
-
     """
 
     sensor_type = "RGBCamera"
 
-    def __init__(self, client, agent_name, agent_type, name="RGBCamera", width=256, height=256, config=None):
+    def __init__(self, client, agent_name, agent_type, name="RGBCamera",  config=None):
 
         self.config = {} if config is None else config
+
+        width = 256
+        height = 256
 
         if "CaptureHeight" in self.config:
             height = self.config["CaptureHeight"]
@@ -413,22 +447,24 @@ class SensorDefinition:
         config (:obj:`dict`): Configuration dictionary for the sensor, to pass to engine
     """
 
-    _sensor_keys_ = {"RGBCamera": RGBCamera,
-                     "DistanceTask": DistanceTask,
-                     "LocationTask": LocationTask,
-                     "FollowTask": FollowTask,
-                     "AvoidTask": AvoidTask,
-                     "ViewportCapture": ViewportCapture,
-                     "OrientationSensor": OrientationSensor,
-                     "IMUSensor": IMUSensor,
-                     "JointRotationSensor": JointRotationSensor,
-                     "RelativeSkeletalPositionSensor": RelativeSkeletalPositionSensor,
-                     "LocationSensor": LocationSensor,
-                     "RotationSensor": RotationSensor,
-                     "VelocitySensor": VelocitySensor,
-                     "PressureSensor": PressureSensor,
-                     "CollisionSensor": CollisionSensor}
-
+    _sensor_keys_ = {
+        "RGBCamera": RGBCamera,
+        "DistanceTask": DistanceTask,
+        "LocationTask": LocationTask,
+        "FollowTask": FollowTask,
+        "AvoidTask": AvoidTask,
+        "ViewportCapture": ViewportCapture,
+        "OrientationSensor": OrientationSensor,
+        "IMUSensor": IMUSensor,
+        "JointRotationSensor": JointRotationSensor,
+        "RelativeSkeletalPositionSensor": RelativeSkeletalPositionSensor,
+        "LocationSensor": LocationSensor,
+        "RotationSensor": RotationSensor,
+        "VelocitySensor": VelocitySensor,
+        "PressureSensor": PressureSensor,
+        "CollisionSensor": CollisionSensor
+    }
+    
     def get_config_json_string(self):
         """Gets the configuration dictionary as a string ready for transport
 
