@@ -177,7 +177,8 @@ class HolodeckEnvironment:
                     'rotation': [0, 0, 0],
                     'socket': "",
                     'configuration': {},
-                    'sensor_name': sensor['sensor_type']
+                    'sensor_name': sensor['sensor_type'],
+                    'existing': False
                 }
                 # Overwrite the default values with what is defined in the scenario config
                 sensor_config.update(sensor)
@@ -200,7 +201,9 @@ class HolodeckEnvironment:
             agent_config.update(agent)
             agent_def = AgentDefinition(agent_config['agent_name'], agent_config['agent_type'],
                                         starting_loc=agent_config["location"],
-                                        starting_rot=agent_config["rotation"],  sensors=sensors)
+                                        starting_rot=agent_config["rotation"],
+                                        sensors=sensors, 
+                                        existing=agent_config["existing"])
 
             is_main_agent = False
             if "main_agent" in self._scenario:
