@@ -402,7 +402,7 @@ class HolodeckEnvironment:
             self._enqueue_command(command_to_send)
 
     def rotate_sensor(self, agent_name, sensor_name, rotation):
-        """Queues a rotate sensor rate command. It will be applied when :meth:`tick` or :meth:`step` is
+        """Queues a rotate sensor command. It will be applied when :meth:`tick` or :meth:`step` is
         called next.
 
         The specified sensor on the specified agent will be immediately set to the given rotation
