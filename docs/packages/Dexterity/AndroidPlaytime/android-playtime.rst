@@ -1,7 +1,7 @@
 AndroidPlaytime
 ===============
 
-This world is designed for allowing the android to play without recieving any direct reward.
+This is a small playroom with small, movable toys and windows.
 
 .. toctree::
    :maxdepth: 1
