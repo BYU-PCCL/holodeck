@@ -11,6 +11,7 @@ contains one or more worlds, which each have one or more scenarios.
    :caption: Packages
 
    DefaultWorlds/DefaultWorlds
+   Dexterity/Dexterity
 
 
 .. toctree::
