@@ -401,6 +401,25 @@ class HolodeckEnvironment:
             command_to_send = RGBCameraRateCommand(agent_name, ticks_per_capture)
             self._enqueue_command(command_to_send)
 
+    def rotate_sensor(self, agent_name, sensor_name, rotation):
+        """Queues a rotate sensor rate command. It will be applied when :meth:`tick` or :meth:`step` is
+        called next.
+
+        The specified sensor on the specified agent will be immediately set to the given rotation
+
+        Args:
+            agent_name (:obj:`str`): Name of agent to modify
+            sensor_name (:obj:`str`): Name of the sensor to rotate
+            rotation (:obj:`list` of :obj:`float`): ``[roll, pitch, yaw]`` rotation for sensor.
+        """
+        if agent_name not in self.agents:
+            print("No such agent %s" % agent_name)
+        elif sensor_name not in self.agents[agent_name].sensors:
+            print("No sensor %s on agent" % sensor_name)
+        else:
+            command_to_send = RotateSensorCommand(agent_name, sensor_name, rotation)
+            self._enqueue_command(command_to_send)
+
     def draw_line(self, start, end, color=None, thickness=10.0):
         """Draws a debug line in the world
 
