@@ -6,10 +6,10 @@ calls to :meth:`~holodeck.environment.HolodeckEnvironment.tick` or
 :meth:`~holodeck.environment.HolodeckEnvironment.step`, there are a few
 hotkeys you can use.
 
-.. _`moving-viewport`:
+.. _`hotkeys`:
 
-Moving the Viewport
--------------------
+Hotkeys
+~~~~~~~
 
 The AgentFollower, or the camera that the viewport displays, can be 
 manipulated as follows:

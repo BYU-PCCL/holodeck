@@ -19,7 +19,10 @@ New Features
 - Packages can be installed directly from a URL 
   (see :class:`~holodeck.packagemanager.install`)
   (`#129 <https://github.com/BYU-PCCL/holodeck/issues/129>`_)
-
+- Pressing ``h`` now shows the coordinates of the agent the viewport is 
+  following or the coordinates of the camera if it is detached (see 
+  :ref:`hotkeys`)
+  (`#253 <https://github.com/BYU-PCCL/holodeck/issues/253>`_)
 
 Changes
 ~~~~~~~
@@ -56,7 +59,7 @@ unresolved in ``0.2.1``
 
 New Features
 ~~~~~~~~~~~~
-- When freecamming around, :ref:`pressing shift <moving-viewport>` moves the 
+- When freecamming around, :ref:`pressing shift <hotkeys>` moves the 
   camera faster.
   (`#99 <https://github.com/BYU-PCCL/holodeck/issues/99>`_)
 - Agents can have a rotation specified in the scenario config files
