@@ -72,8 +72,6 @@ def make(scenario_name="", scenario_cfg=None, gl_version=GL_VERSION.OPENGL4, win
 
     param_dict["scenario"] = scenario
     param_dict["binary_path"] = binary_path
-    if "window_height" in scenario:
-        param_dict["window_size"] = (scenario["window_height"], scenario["window_width"])
 
     param_dict["start_world"] = True
     param_dict["uuid"] = str(uuid.uuid4())

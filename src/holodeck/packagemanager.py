@@ -165,33 +165,39 @@ def scenario_info(scenario_name="", scenario=None, base_indent=0):
         _print_agent_info(scenario["agents"], base_indent)
 
 
-def install(package_name):
+def install(package_name, url=None):
     """Installs a holodeck package.
 
     Args:
         package_name (:obj:`str`): The name of the package to install
     """
+
+    if package_name is None and url is None:
+        raise HolodeckException("You must specify the URL or a valid package name")
+
     _check_for_old_versions()
     holodeck_path = util.get_holodeck_path()
 
-    packages = available_packages()
-    if package_name not in packages:
-        print("Package not found. Available package are:", file=sys.stderr)
-        pprint.pprint(packages, width=10, indent=4, stream=sys.stderr)
-        return
+    if url is None:
+        # If the URL is none, we need to derive it
+        packages = available_packages()
+        if package_name not in packages:
+            print("Package not found. Available packages are:", file=sys.stderr)
+            pprint.pprint(packages, width=10, indent=4, stream=sys.stderr)
+            return
 
-    # example: %backend%/packages/0.1.0/DefaultWorlds/Linux.zip
-    binary_url = "{backend_url}packages/{holodeck_version}/{package_name}/{platform}.zip".format(
-        backend_url=BACKEND_URL,
-        holodeck_version=util.get_holodeck_version(),
-        package_name=package_name,
-        platform=util.get_os_key())
+        # example: %backend%/packages/0.1.0/DefaultWorlds/Linux.zip
+        url = "{backend_url}packages/{holodeck_version}/{package_name}/{platform}.zip".format(
+                    backend_url=BACKEND_URL,
+                    holodeck_version=util.get_holodeck_version(),
+                    package_name=package_name,
+                    platform=util.get_os_key())
 
     install_path = os.path.join(holodeck_path, "worlds", package_name)
 
-    print("Installing {} from {} to {}".format(package_name, binary_url, install_path))
+    print("Installing {} from {} to {}".format(package_name, url, install_path))
 
-    _download_binary(binary_url, install_path)
+    _download_binary(url, install_path)
 
 def _check_for_old_versions():
     """Checks for old versions of the binary and tells the user they can remove them.
