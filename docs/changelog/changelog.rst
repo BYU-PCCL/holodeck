@@ -19,7 +19,10 @@ New Features
 - Packages can be installed directly from a URL 
   (see :class:`~holodeck.packagemanager.install`)
   (`#129 <https://github.com/BYU-PCCL/holodeck/issues/129>`_)
-
+- Agent sensors can now be rotated at run time
+  (`#305 <https://github.com/BYU-PCCL/holodeck/issues/305>`_)
+- The config files can now specify whether an agent already exists in a world or needs to be spawned
+  (`#305 <https://github.com/BYU-PCCL/holodeck/pull/303>`_)
 
 Changes
 ~~~~~~~
@@ -31,6 +34,8 @@ Changes
   - Strength was approximately doubled (See
     `JointMaxTorqueControlScheme.h <https://github.com/BYU-PCCL/holodeck-engine/blob/develop/Source/Holodeck/Agents/Public/JointMaxTorqueControlScheme.h#L50>`_
     )
+- Location sensor now returns the location of the sensor, not just the agent
+  (`#306 <https://github.com/BYU-PCCL/holodeck/issues/306>`_)
 - Updated to Unreal Engine 4.22
   (`#241 <https://github.com/BYU-PCCL/holodeck/issues/241>`_)
 
