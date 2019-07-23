@@ -310,24 +310,29 @@ class HolodeckEnvironment:
         """
         self.agents[agent_name].act(action)
 
-    def tick(self):
+    def tick(self, num_ticks=1):
         """Ticks the environment once. Normally used for multi-agent environments.
-
+        Args:
+            num_ticks (:obj:`int`): Number of ticks to perform. Defaults to 1. 
         Returns:
             :obj:`dict`: A dictionary from agent name to its full state. The full state is another
                 dictionary from :obj:`holodeck.sensors.Sensors` enum to np.ndarray, containing the
                 sensors information for each sensor. The sensors always include the reward and
                 terminal sensors.
+
+                Will return the state from the last tick executed.
         """
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .tick()")
 
-        self._command_center.handle_buffer()
+        for _ in range(num_ticks):
+            self._command_center.handle_buffer()
 
-        self._client.release()
-        self._client.acquire()
+            self._client.release()
+            self._client.acquire()
+            state = self._default_state_fn()
 
-        return self._default_state_fn()
+        return state
 
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
