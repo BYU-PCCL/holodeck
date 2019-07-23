@@ -74,7 +74,7 @@ def test_viewport_capture_after_teleport(env_1024, request):
 
     # Other tests muck with this. Set it to true just in case
     env_1024.should_render_viewport(True)
-    env_1024.teleport_camera([.9, -1.75, .5], [0, 0, 0])
+    env_1024.move_viewport([.9, -1.75, .5], [0, 0, 0])
 
     for _ in range(5):
         env_1024.tick()
@@ -106,7 +106,7 @@ def validate_rendering_viewport_disabled(env_1024, between_tests_callback):
 
     between_tests_callback(env_1024)
 
-    env_1024.teleport_camera([781, 643, 4376], [381, 403, 3839])
+    env_1024.move_viewport([781, 643, 4376], [381, 403, 3839])
 
     start = time.perf_counter()
     for _ in range(10):
