@@ -187,7 +187,8 @@ class HolodeckEnvironment:
                     'rotation': [0, 0, 0],
                     'socket': "",
                     'configuration': {},
-                    'sensor_name': sensor['sensor_type']
+                    'sensor_name': sensor['sensor_type'],
+                    'existing': False
                 }
                 # Overwrite the default values with what is defined in the scenario config
                 sensor_config.update(sensor)
@@ -210,7 +211,9 @@ class HolodeckEnvironment:
             agent_config.update(agent)
             agent_def = AgentDefinition(agent_config['agent_name'], agent_config['agent_type'],
                                         starting_loc=agent_config["location"],
-                                        starting_rot=agent_config["rotation"],  sensors=sensors)
+                                        starting_rot=agent_config["rotation"],
+                                        sensors=sensors, 
+                                        existing=agent_config["existing"])
 
             is_main_agent = False
             if "main_agent" in self._scenario:
@@ -406,6 +409,25 @@ class HolodeckEnvironment:
         else:
             self.agents[agent_name].set_ticks_per_capture(ticks_per_capture)
             command_to_send = RGBCameraRateCommand(agent_name, ticks_per_capture)
+            self._enqueue_command(command_to_send)
+
+    def rotate_sensor(self, agent_name, sensor_name, rotation):
+        """Queues a rotate sensor command. It will be applied when :meth:`tick` or :meth:`step` is
+        called next.
+
+        The specified sensor on the specified agent will be immediately set to the given rotation
+
+        Args:
+            agent_name (:obj:`str`): Name of agent to modify
+            sensor_name (:obj:`str`): Name of the sensor to rotate
+            rotation (:obj:`list` of :obj:`float`): ``[roll, pitch, yaw]`` rotation for sensor.
+        """
+        if agent_name not in self.agents:
+            print("No such agent %s" % agent_name)
+        elif sensor_name not in self.agents[agent_name].sensors:
+            print("No sensor %s on agent" % sensor_name)
+        else:
+            command_to_send = RotateSensorCommand(agent_name, sensor_name, rotation)
             self._enqueue_command(command_to_send)
 
     def draw_line(self, start, end, color=None, thickness=10.0):

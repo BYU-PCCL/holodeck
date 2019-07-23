@@ -351,6 +351,22 @@ class RemoveSensorCommand(Command):
         self.add_string_parameters(agent)
         self.add_string_parameters(sensor)
 
+class RotateSensorCommand(Command):
+    """Rotate a sensor on the agent
+
+    Args:
+        agent (:obj:`str`): Name of agent
+        sensor (:obj:`str`): Name of the sensor to rotate
+        rotation (:obj:`list` of :obj:`float`): ``[roll, pitch, yaw]`` rotation for sensor.
+
+    """
+    def __init__(self, agent, sensor, rotation):
+        Command.__init__(self)
+        self._command_type = "RotateSensor"
+        self.add_string_parameters(agent)
+        self.add_string_parameters(sensor)
+        self.add_number_parameters(rotation)
+
 
 class RenderViewportCommand(Command):
     """Enable or disable the viewport. Note that this does not prevent the viewport from being shown,
