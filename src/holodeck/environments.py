@@ -205,7 +205,8 @@ class HolodeckEnvironment:
             agent_config = {
                 'location': [0, 0, 0],
                 'rotation': [0, 0, 0],
-                'agent_name': agent['agent_type']
+                'agent_name': agent['agent_type'],
+                'existing': False
             }
 
             agent_config.update(agent)
