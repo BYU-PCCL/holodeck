@@ -333,38 +333,6 @@ class HolodeckEnvironment:
 
         return state
 
-    def teleport(self, agent_name, location=None, rotation=None):
-        """Teleports the target agent to any given location, and applies a specific rotation.
-
-        Args:
-            agent_name (:obj:`str`): The name of the agent to teleport.
-            location (:obj:`np.ndarray` or :obj:`list`): XYZ coordinates (in meters) for the agent
-                to be teleported to.
-
-                If no location is given, it isn't teleported, but may still be rotated. Defaults to
-                None.
-            rotation (:obj:`np.ndarray` or :obj:`list`): A new rotation target for the agent.
-                If no rotation is given, it isn't rotated, but may still be teleported. Defaults to
-                None.
-        """
-        self.agents[agent_name].teleport(location, rotation)
-
-    def set_state(self, agent_name, location, rotation, velocity, angular_velocity):
-        """Sets a new state for any agent given a location, rotation and linear and angular
-        velocity. Will sweep and be blocked by objects in it's way however
-
-        Args:
-            agent_name (:obj:`str`): The name of the agent to teleport.
-            location (:obj:`np.ndarray` or :obj:`list`): New ``[x, y, z]`` coordinates for agent
-                (see :ref:`coordinate-system`).
-            rotation (:obj:`np.ndarray` or :obj:`list`): ``[roll, pitch, yaw`` rotation for the agent
-                (see :ref:`rotations`).
-            velocity (:obj:`np.ndarray` or :obj:`list`): New velocity ``[x, y, z]`` for the agent.
-            angular velocity (:obj:`np.ndarray` or :obj:`list`): A new angular velocity for the
-                agent in **degrees**
-        """
-        self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
-
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
 
@@ -584,7 +552,7 @@ class HolodeckEnvironment:
 
         self.send_world_command("SetWeather", string_params=[weather_type])
 
-    def teleport_camera(self, location, rotation):
+    def move_viewport(self, location, rotation):
         """Teleport the camera to the given location
 
         By the next tick, the camera's location and rotation will be updated

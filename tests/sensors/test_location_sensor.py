@@ -39,7 +39,7 @@ def test_location_sensor_after_teleport():
             env.tick()
 
         loc = [507, 301, 1620]
-        env.teleport("sphere0", loc)
+        env.agents['sphere0'].teleport(loc, [0,0,0])
 
         state = env.tick()
         sensed_loc = state["LocationSensor"]
