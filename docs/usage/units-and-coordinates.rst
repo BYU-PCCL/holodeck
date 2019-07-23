@@ -35,10 +35,10 @@ defaults to centimeters, we've changed this to make things a bit easier).
 Rotations
 =========
 
-Rotations are specified in ``[pitch, roll, yaw]`` format, in in degrees. This means
+Rotations are specified in ``[roll, pitch, yaw]`` / ``[x, y, z]`` format, in in degrees. This means
 
-- **Pitch**: Rotation around the right (``y``) axis
 - **Roll**: Rotation around the forward (``x``) axis
+- **Pitch**: Rotation around the right (``y``) axis
 - **Yaw**: Rotation around the up (``z``) axis
 
 (`source <https://api.unrealengine.com/INT/API/Runtime/Core/Math/FRotator/index.html>`_)
