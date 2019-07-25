@@ -544,6 +544,9 @@ class TurtleAgent(HolodeckAgent):
     ``[forward_force, rot_force]``
 
     Inherits from :class:`HolodeckAgent`."""
+
+    agent_type = "TurtleAgent"
+
     @property
     def control_schemes(self):
         return [("[forward_force, rot_force]", ContinuousActionSpace([2]))]
@@ -577,7 +580,8 @@ class AgentDefinition:
         "UavAgent": UavAgent,
         "NavAgent": NavAgent,
         "AndroidAgent": AndroidAgent,
-        "HandAgent": HandAgent
+        "HandAgent": HandAgent,
+        "TurtleAgent": TurtleAgent
     }
 
     def __init__(self, agent_name, agent_type, sensors=None, starting_loc=(0, 0, 0),
