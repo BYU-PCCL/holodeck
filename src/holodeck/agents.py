@@ -542,6 +542,9 @@ class TurtleAgent(HolodeckAgent):
     **Action Space**:
 
     ``[forward_force, rot_force]``
+    
+    - ``forward_force`` is capped at 160 in either direction
+    - ``rot_force`` is capped at 35 either direction
 
     Inherits from :class:`HolodeckAgent`."""
 
