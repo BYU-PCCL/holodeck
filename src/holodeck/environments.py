@@ -269,12 +269,14 @@ class HolodeckEnvironment:
 
         return self._default_state_fn()
 
-    def step(self, action):
+    def step(self, action, ticks=1):
         """Supplies an action to the main agent and tells the environment to tick once.
         Primary mode of interaction for single agent environments.
 
         Args:
             action (:obj:`np.ndarray`): An action for the main agent to carry out on the next tick.
+            ticks (:obj:`int`): Number of times to step the environment wiht this action.
+                If ticks > 1, this function returns the last state generated.
 
         Returns:
             (:obj:`dict`, :obj:`float`, :obj:`bool`, info): A 4tuple:
@@ -287,15 +289,18 @@ class HolodeckEnvironment:
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .step()")
 
-        if self._agent is not None:
-            self._agent.act(action)
+        for _ in range(ticks):
+            if self._agent is not None:
+                self._agent.act(action)
 
-        self._command_center.handle_buffer()
-        self._client.release()
-        self._client.acquire()
+            self._command_center.handle_buffer()
+            self._client.release()
+            self._client.acquire()
 
-        reward, terminal = self._get_reward_terminal()
-        return self._default_state_fn(), reward, terminal, None
+            reward, terminal = self._get_reward_terminal()
+            last_state = self._default_state_fn(), reward, terminal, None
+        
+        return last_state
 
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
