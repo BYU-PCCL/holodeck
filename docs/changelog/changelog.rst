@@ -5,11 +5,12 @@ Holodeck 0.3.0
 --------------
 *Release Date TBD*
 
-Features! Features! Features!
+Features! Features! Features! 🍕
 
 New Features
 ~~~~~~~~~~~~
-- Added the :ref:`hand-agent` - a simplified Android hand that can float around
+- Added the :ref:`hand-agent` - a simplified Android hand that can float 
+  around
   (`#287 <https://github.com/BYU-PCCL/holodeck/issues/287>`_)
 
   - HandAgent can be used with the same Android-specific sensors (
@@ -21,12 +22,16 @@ New Features
   (`#129 <https://github.com/BYU-PCCL/holodeck/issues/129>`_)
 - Agent sensors can now be rotated at run time
   (`#305 <https://github.com/BYU-PCCL/holodeck/issues/305>`_)
-- The config files can now specify whether an agent already exists in a world or needs to be spawned
-  (`#305 <https://github.com/BYU-PCCL/holodeck/pull/303>`_)
+- The config files can now specify whether an agent should be spawned
+  (`#303 <https://github.com/BYU-PCCL/holodeck/pull/303>`_)
 - Pressing ``h`` now shows the coordinates of the agent the viewport is
   following or the coordinates of the camera if it is detached (see
-  :ref:`hotkeys`)
+  :ref:`hotkeys`).
   (`#253 <https://github.com/BYU-PCCL/holodeck/issues/253>`_)
+- You can now specify the number of ticks you want to occur in the 
+  :meth:`~holodeck.environments.HolodeckEnvironment.tick` and the 
+  :meth:`~holodeck.environments.HolodeckEnvironment.step` methods,
+  (`#313 <https://github.com/BYU-PCCL/holodeck/pull/313>`_)
 
 Changes
 ~~~~~~~
@@ -50,9 +55,8 @@ Changes
   
   These methods were duplicates of the corresponding methods on the
   :class:`~holodeck.agents.HolodeckAgent` class. See the linked issue for 
-  suggestions 👉
+  migration suggestions 👉
   (`#311 <https://github.com/BYU-PCCL/holodeck/issues/311>`_)
-
 
 Bug Fixes
 ~~~~~~~~~
@@ -65,11 +69,14 @@ Bug Fixes
     :ref:`android-bones` and :ref:`hand-bones`.
   - Previously on the first tick it would return uninitialized garbage on the
     first tick
-- Fixed being unable to spawn the :ref:`turtle-agent`
+- Fixed being unable to spawn the :ref:`turtle-agent`.
   (`#308 <https://github.com/BYU-PCCL/holodeck/issues/308>`_)
-- Fixed the :meth:`~holodeck.agents.HolodeckAgent.set_physics_state` method
+- Fixed the :meth:`~holodeck.agents.HolodeckAgent.set_physics_state` method.
   (`#311 <https://github.com/BYU-PCCL/holodeck/issues/311>`_)
-
+- Fixed agent spawn rotations being in the incorrect order. Fixed the
+  documentation that specified the incorrect order as well (:ref:`rotations`)
+  (`#309 <https://github.com/BYU-PCCL/holodeck/issues/309>`_)
+  
 
 Holodeck 0.2.2
 --------------
