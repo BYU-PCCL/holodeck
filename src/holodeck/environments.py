@@ -64,7 +64,7 @@ class HolodeckEnvironment:
 
     """
 
-    def __init__(self, agent_definitions=None, binary_path=None, window_size=(720, 1280),
+    def __init__(self, agent_definitions=None, binary_path=None, window_size=None,
                  start_world=True, uuid="", gl_version=4, verbose=False, pre_start_steps=2,
                  show_viewport=True, ticks_per_sec=30, copy_state=True, scenario=None):
 
@@ -72,7 +72,17 @@ class HolodeckEnvironment:
             agent_definitions = []
 
         # Initialize variables
-        self._window_size = window_size
+
+        if window_size is None:
+            # Check if it has been configured in the scenario
+                if scenario is not None and "window_height" in scenario:
+                    self._window_size = scenario["window_height"], scenario["window_width"]
+                else:
+                    # Default resolution
+                    self._window_size = 720, 1280
+        else:
+            self._window_size = window_size
+        
         self._uuid = uuid
         self._pre_start_steps = pre_start_steps
         self._copy_state = copy_state
@@ -104,9 +114,6 @@ class HolodeckEnvironment:
         self._state_dict = dict()
         self._agent = None
 
-        # Spawn agents not yet in the world.
-        # TODO implement this section for future build automation update
-
         # Set the default state function
         self.num_agents = len(self.agents)
 
@@ -117,6 +124,9 @@ class HolodeckEnvironment:
 
         self._client.acquire()
 
+        if os.name == "posix" and show_viewport == False:
+            self.should_render_viewport(False)
+        
         # Flag indicates if the user has called .reset() before .tick() and .step()
         self._initial_reset = False
         self.reset()
@@ -183,6 +193,7 @@ class HolodeckEnvironment:
                 sensor_config.update(sensor)
 
                 sensors.append(SensorDefinition(agent['agent_name'],
+                                                agent['agent_type'],
                                                 sensor_config['sensor_name'],
                                                 sensor_config['sensor_type'],
                                                 socket=sensor_config['socket'],
@@ -558,6 +569,7 @@ class HolodeckEnvironment:
                 (see :ref:`rotations`)
 
         """
+        # test_viewport_capture_after_teleport
         self._enqueue_command(TeleportCameraCommand(location, rotation))
 
     def should_render_viewport(self, render_viewport):
@@ -634,7 +646,7 @@ class HolodeckEnvironment:
             del environment['DISPLAY']
         self._world_process = \
             subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
-                              '-LOG=HolodeckLog.txt', '-ResX=' + str(self._window_size[1]),
+                              '-LOG=HolodeckLog.txt', '-ForceRes', '-ResX=' + str(self._window_size[1]),
                               '-ResY=' + str(self._window_size[0]), '--HolodeckUUID=' + self._uuid,
                               '-TicksPerSec=' + str(self._ticks_per_sec)],
                              stdout=out_stream,
@@ -657,7 +669,7 @@ class HolodeckEnvironment:
                                                        'Global\\HOLODECK_LOADING_SEM' + self._uuid)
         self._world_process = \
             subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-LOG=HolodeckLog.txt',
-                              '-ResX=' + str(self._window_size[1]), '-ResY=' +
+                              '-ForceRes', '-ResX=' + str(self._window_size[1]), '-ResY=' +
                               str(self._window_size[0]), '-TicksPerSec=' + str(self._ticks_per_sec),
                               '--HolodeckUUID=' + self._uuid],
                              stdout=out_stream, stderr=out_stream)
