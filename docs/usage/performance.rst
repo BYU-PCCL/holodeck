@@ -67,7 +67,7 @@ The number of ticks per capture can be adjusted to give a lower average frame
 time.
 
 See the 
-:meth:`~holodeck.environments.HolodeckEnvironment.set_ticks_per_capture` method.
+:meth:`~holodeck.sensors.RGBCamera.set_ticks_per_capture` method.
 
 Disable Viewport Rendering
 --------------------------

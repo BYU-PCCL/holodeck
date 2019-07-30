@@ -1,6 +1,15 @@
 Changelog
 =========
 
+.. Changelog Style Guide
+  - Each release should have a New Features / Changes / Bug Fixes section.
+  - Keep the first sentence of each point short and descriptive
+  - The passive voice should be avoided
+  - Try to make the first word a verb in past tense. Bug fixes should use 
+    "Fixed"
+  - Add a link to the issue describing the change or the pull request that 
+    merged it at the end in parentheses
+
 Holodeck 0.3.0
 --------------
 *Release Date TBD*
@@ -20,7 +29,8 @@ New Features
 - Packages can be installed directly from a URL
   (see :class:`~holodeck.packagemanager.install`)
   (`#129 <https://github.com/BYU-PCCL/holodeck/issues/129>`_)
-- Agent sensors can now be rotated at run time
+- Agent sensors can now be rotated at run time with
+  :meth:`~holodeck.sensors.HolodeckSensor.rotate`.
   (`#305 <https://github.com/BYU-PCCL/holodeck/issues/305>`_)
 - The config files can now specify whether an agent should be spawned
   (`#303 <https://github.com/BYU-PCCL/holodeck/pull/303>`_)
@@ -57,6 +67,13 @@ Changes
   :class:`~holodeck.agents.HolodeckAgent` class. See the linked issue for 
   migration suggestions 👉
   (`#311 <https://github.com/BYU-PCCL/holodeck/issues/311>`_)
+- Removed the ``get/set_ticks_per_capture`` methods from the 
+  :class:`~holodeck.agents.HolodeckAgent` and 
+  :class:`~holodeck.environments.HolodeckEnvironment` classes, moved
+  :meth:`~holodeck.sensors.RGBCamera.set_ticks_per_capture` method to the
+  :class:`~holodeck.sensors.RGBCamera` class. 
+  (`#197 <https://github.com/BYU-PCCL/holodeck/issues/197>`_)
+
 
 Bug Fixes
 ~~~~~~~~~
@@ -76,7 +93,10 @@ Bug Fixes
 - Fixed agent spawn rotations being in the incorrect order. Fixed the
   documentation that specified the incorrect order as well (:ref:`rotations`)
   (`#309 <https://github.com/BYU-PCCL/holodeck/issues/309>`_)
-  
+- Fixed being unable to set the ticks per capture of a camera if it was not
+  named ``RGBCamera``.
+  (`#197 <https://github.com/BYU-PCCL/holodeck/issues/197>`_)
+
 
 Holodeck 0.2.2
 --------------

@@ -367,48 +367,6 @@ class HolodeckEnvironment:
         if is_main_agent:
             self._agent = self.agents[agent_def.name]
 
-    def set_ticks_per_capture(self, agent_name, ticks_per_capture):
-        """Queues a rgb camera rate command. It will be applied when :meth:`tick` or :meth:`step` is
-        called next.
-
-        The specified agent's rgb camera will capture images every specified number of ticks.
-
-        The sensor's image will remain unchanged between captures.
-
-        This method must be called after every call to env.reset.
-
-        Args:
-            agent_name (:obj:`str`): The name of the agent whose rgb camera should be modified.
-            ticks_per_capture (:obj:`int`): The amount of ticks to wait between camera captures.
-        """
-        if not isinstance(ticks_per_capture, int) or ticks_per_capture < 1:
-            print("Ticks per capture value " + str(ticks_per_capture) + " invalid")
-        elif agent_name not in self.agents:
-            print("No such agent %s" % agent_name)
-        else:
-            self.agents[agent_name].set_ticks_per_capture(ticks_per_capture)
-            command_to_send = RGBCameraRateCommand(agent_name, ticks_per_capture)
-            self._enqueue_command(command_to_send)
-
-    def rotate_sensor(self, agent_name, sensor_name, rotation):
-        """Queues a rotate sensor command. It will be applied when :meth:`tick` or :meth:`step` is
-        called next.
-
-        The specified sensor on the specified agent will be immediately set to the given rotation
-
-        Args:
-            agent_name (:obj:`str`): Name of agent to modify
-            sensor_name (:obj:`str`): Name of the sensor to rotate
-            rotation (:obj:`list` of :obj:`float`): ``[roll, pitch, yaw]`` rotation for sensor.
-        """
-        if agent_name not in self.agents:
-            print("No such agent %s" % agent_name)
-        elif sensor_name not in self.agents[agent_name].sensors:
-            print("No sensor %s on agent" % sensor_name)
-        else:
-            command_to_send = RotateSensorCommand(agent_name, sensor_name, rotation)
-            self._enqueue_command(command_to_send)
-
     def draw_line(self, start, end, color=None, thickness=10.0):
         """Draws a debug line in the world
 
