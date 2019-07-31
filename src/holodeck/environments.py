@@ -187,7 +187,8 @@ class HolodeckEnvironment:
                     'rotation': [0, 0, 0],
                     'socket': "",
                     'configuration': None,
-                    'sensor_name': sensor['sensor_type']
+                    'sensor_name': sensor['sensor_type'],
+                    'existing': False
                 }
                 # Overwrite the default values with what is defined in the scenario config
                 sensor_config.update(sensor)
@@ -204,13 +205,16 @@ class HolodeckEnvironment:
             agent_config = {
                 'location': [0, 0, 0],
                 'rotation': [0, 0, 0],
-                'agent_name': agent['agent_type']
+                'agent_name': agent['agent_type'],
+                'existing': False
             }
 
             agent_config.update(agent)
             agent_def = AgentDefinition(agent_config['agent_name'], agent_config['agent_type'],
                                         starting_loc=agent_config["location"],
-                                        starting_rot=agent_config["rotation"],  sensors=sensors)
+                                        starting_rot=agent_config["rotation"],
+                                        sensors=sensors, 
+                                        existing=agent_config["existing"])
 
             is_main_agent = False
             if "main_agent" in self._scenario:
@@ -265,12 +269,14 @@ class HolodeckEnvironment:
 
         return self._default_state_fn()
 
-    def step(self, action):
+    def step(self, action, ticks=1):
         """Supplies an action to the main agent and tells the environment to tick once.
         Primary mode of interaction for single agent environments.
 
         Args:
             action (:obj:`np.ndarray`): An action for the main agent to carry out on the next tick.
+            ticks (:obj:`int`): Number of times to step the environment wiht this action.
+                If ticks > 1, this function returns the last state generated.
 
         Returns:
             (:obj:`dict`, :obj:`float`, :obj:`bool`, info): A 4tuple:
@@ -283,15 +289,18 @@ class HolodeckEnvironment:
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .step()")
 
-        if self._agent is not None:
-            self._agent.act(action)
+        for _ in range(ticks):
+            if self._agent is not None:
+                self._agent.act(action)
 
-        self._command_center.handle_buffer()
-        self._client.release()
-        self._client.acquire()
+            self._command_center.handle_buffer()
+            self._client.release()
+            self._client.acquire()
 
-        reward, terminal = self._get_reward_terminal()
-        return self._default_state_fn(), reward, terminal, None
+            reward, terminal = self._get_reward_terminal()
+            last_state = self._default_state_fn(), reward, terminal, None
+        
+        return last_state
 
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
@@ -306,56 +315,29 @@ class HolodeckEnvironment:
         """
         self.agents[agent_name].act(action)
 
-    def tick(self):
+    def tick(self, num_ticks=1):
         """Ticks the environment once. Normally used for multi-agent environments.
-
+        Args:
+            num_ticks (:obj:`int`): Number of ticks to perform. Defaults to 1. 
         Returns:
             :obj:`dict`: A dictionary from agent name to its full state. The full state is another
                 dictionary from :obj:`holodeck.sensors.Sensors` enum to np.ndarray, containing the
                 sensors information for each sensor. The sensors always include the reward and
                 terminal sensors.
+
+                Will return the state from the last tick executed.
         """
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .tick()")
 
-        self._command_center.handle_buffer()
+        for _ in range(num_ticks):
+            self._command_center.handle_buffer()
 
-        self._client.release()
-        self._client.acquire()
+            self._client.release()
+            self._client.acquire()
+            state = self._default_state_fn()
 
-        return self._default_state_fn()
-
-    def teleport(self, agent_name, location=None, rotation=None):
-        """Teleports the target agent to any given location, and applies a specific rotation.
-
-        Args:
-            agent_name (:obj:`str`): The name of the agent to teleport.
-            location (:obj:`np.ndarray` or :obj:`list`): XYZ coordinates (in meters) for the agent
-                to be teleported to.
-
-                If no location is given, it isn't teleported, but may still be rotated. Defaults to
-                None.
-            rotation (:obj:`np.ndarray` or :obj:`list`): A new rotation target for the agent.
-                If no rotation is given, it isn't rotated, but may still be teleported. Defaults to
-                None.
-        """
-        self.agents[agent_name].teleport(location, rotation)
-
-    def set_state(self, agent_name, location, rotation, velocity, angular_velocity):
-        """Sets a new state for any agent given a location, rotation and linear and angular
-        velocity. Will sweep and be blocked by objects in it's way however
-
-        Args:
-            agent_name (:obj:`str`): The name of the agent to teleport.
-            location (:obj:`np.ndarray` or :obj:`list`): New ``[x, y, z]`` coordinates for agent
-                (see :ref:`coordinate-system`).
-            rotation (:obj:`np.ndarray` or :obj:`list`): ``[roll, pitch, yaw`` rotation for the agent
-                (see :ref:`rotations`).
-            velocity (:obj:`np.ndarray` or :obj:`list`): New velocity ``[x, y, z]`` for the agent.
-            angular velocity (:obj:`np.ndarray` or :obj:`list`): A new angular velocity for the
-                agent in **degrees**
-        """
-        self.agents[agent_name].set_state(location, rotation, velocity, angular_velocity)
+        return state
 
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
@@ -406,6 +388,25 @@ class HolodeckEnvironment:
         else:
             self.agents[agent_name].set_ticks_per_capture(ticks_per_capture)
             command_to_send = RGBCameraRateCommand(agent_name, ticks_per_capture)
+            self._enqueue_command(command_to_send)
+
+    def rotate_sensor(self, agent_name, sensor_name, rotation):
+        """Queues a rotate sensor command. It will be applied when :meth:`tick` or :meth:`step` is
+        called next.
+
+        The specified sensor on the specified agent will be immediately set to the given rotation
+
+        Args:
+            agent_name (:obj:`str`): Name of agent to modify
+            sensor_name (:obj:`str`): Name of the sensor to rotate
+            rotation (:obj:`list` of :obj:`float`): ``[roll, pitch, yaw]`` rotation for sensor.
+        """
+        if agent_name not in self.agents:
+            print("No such agent %s" % agent_name)
+        elif sensor_name not in self.agents[agent_name].sensors:
+            print("No sensor %s on agent" % sensor_name)
+        else:
+            command_to_send = RotateSensorCommand(agent_name, sensor_name, rotation)
             self._enqueue_command(command_to_send)
 
     def draw_line(self, start, end, color=None, thickness=10.0):
@@ -557,7 +558,7 @@ class HolodeckEnvironment:
 
         self.send_world_command("SetWeather", string_params=[weather_type])
 
-    def teleport_camera(self, location, rotation):
+    def move_viewport(self, location, rotation):
         """Teleport the camera to the given location
 
         By the next tick, the camera's location and rotation will be updated

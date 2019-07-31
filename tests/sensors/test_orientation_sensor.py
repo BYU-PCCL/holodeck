@@ -40,7 +40,7 @@ def test_orientation_sensor_after_teleport():
 
         loc = [123, 3740, 1030]
         rot_deg = np.array([0, 90, 0])
-        env.teleport("sphere0", loc, rot_deg)
+        env.agents["sphere0"].teleport(loc, rot_deg)
         state = env.tick()
         sensed_orientation = state["OrientationSensor"]
 
