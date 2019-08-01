@@ -210,15 +210,17 @@ class HolodeckEnvironment:
             }
 
             agent_config.update(agent)
+            is_main_agent = False
+            
+            if "main_agent" in self._scenario:
+                is_main_agent = self._scenario["main_agent"] == agent["agent_name"]
+
             agent_def = AgentDefinition(agent_config['agent_name'], agent_config['agent_type'],
                                         starting_loc=agent_config["location"],
                                         starting_rot=agent_config["rotation"],
-                                        sensors=sensors, 
-                                        existing=agent_config["existing"])
-
-            is_main_agent = False
-            if "main_agent" in self._scenario:
-                is_main_agent = self._scenario["main_agent"] == agent["agent_name"]
+                                        sensors=sensors,
+                                        existing=agent_config["existing"],
+                                        is_main_agent=is_main_agent)
 
             self.add_agent(agent_def, is_main_agent)
             self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
@@ -360,8 +362,14 @@ class HolodeckEnvironment:
         self._state_dict[agent_def.name] = self.agents[agent_def.name].agent_state_dict
 
         if not agent_def.existing:
-            command_to_send = SpawnAgentCommand(agent_def.starting_loc, agent_def.starting_rot, agent_def.name,
-                                                agent_def.type.agent_type)
+            command_to_send = SpawnAgentCommand(
+                location=agent_def.starting_loc,
+                rotation=agent_def.starting_rot,
+                name=agent_def.name,
+                agent_type=agent_def.type.agent_type,
+                is_main_agent=agent_def.is_main_agent
+            )
+
             self._client.command_center.enqueue_command(command_to_send)
         self.agents[agent_def.name].add_sensors(agent_def.sensors)
         if is_main_agent:
