@@ -387,13 +387,15 @@ class RGBCameraRateCommand(Command):
 
     Args:
         agent_name (:obj:`str`): name of the agent to modify
+        sensor_name (:obj:`str`): name of the sensor to modify
         ticks_per_capture (:obj:`int`): number of ticks between captures
 
     """
-    def __init__(self, agent_name, ticks_per_capture):
+    def __init__(self, agent_name, sensor_name, ticks_per_capture):
         Command.__init__(self)
         self._command_type = "RGBCameraRate"
         self.add_string_parameters(agent_name)
+        self.add_string_parameters(sensor_name)
         self.add_number_parameters(ticks_per_capture)
 
 
