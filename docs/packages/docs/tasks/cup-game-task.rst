@@ -17,18 +17,19 @@ for a cup game task sensor (see :ref:`scenario files <scenario-files>`.)
 The configuration can also be changed programmatically by using
 
 
-Speed
-~~~~~
+Speed Multiplier
+~~~~~~~~~~~~~~~~
 
-The cups will rotate faster with a higher speed. The speed works best between 1 and 10.
+``1.0`` is the base speed, cups will rotate faster with a higher multiplier. 
+It is best to keep values between ``1`` and ``10``.
 
-``"Speed": 3``
+``"Speed": 2.4``
 
 
 NumShuffles
 ~~~~~~~~~~~
 
-To increase difficulty, the number of shuffles can be increased.
+Number of times the cups are exchanged.
 
 ``"NumShuffles": 10``
 
@@ -36,8 +37,11 @@ To increase difficulty, the number of shuffles can be increased.
 Seed
 ~~~~
 
-Giving a seed ensures that the cups will rotate the same way every time.
-If left empty, the cups will rotate randomly.
+Seed for the RNG used to shuffle the cups. Providing a fixed seed will result
+in a deterministic set of exchanges, which may be useful for training.
+
+If left empty or not defined, the cups will rotate using a randomly generated
+seed.
 
 ``"Seed": 1``
 
@@ -48,7 +52,7 @@ Example
 .. code-block:: json
 
     {
-        "Speed": 5,
+        "Speed": 5.0,
         "NumShuffles": 1,
         "Seed": 0
     }
