@@ -1,7 +1,8 @@
 CupGame-HandEasy
 ========================
 
-This scenario has a hand agent positioned directly in front of the table with the ball and cups.
+This scenario has a hand agent positioned directly in front of a table with
+three cups and a ball.
 
 Agents
 ------
