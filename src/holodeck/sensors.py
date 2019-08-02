@@ -507,10 +507,16 @@ class WorldNumSensor(HolodeckSensor):
 
 
 class BallLocationSensor(WorldNumSensor):
-    """Uses the WorldNumSensor to get the ball location from the world. Only works in the CupGame world.
+    """For the CupGame task, returns which cup the ball is underneath.
+    
+    The cups are numbered 0-2, from the agents perspective, left to right. As soon
+    as a swap begins, the number returned by this sensor is updated to the balls new
+    position after the swap ends.
+    
+    Only works in the CupGame world.
 
     """
-    sensor_type = "WorldNumSensor"
+
     default_config = {"Key": "BallLocation"}
 
     @property
