@@ -75,7 +75,7 @@ class HolodeckEnvironment:
 
         if window_size is None:
             # Check if it has been configured in the scenario
-                if "window_height" in scenario:
+                if scenario is not None and "window_height" in scenario:
                     self._window_size = scenario["window_height"], scenario["window_width"]
                 else:
                     # Default resolution
@@ -186,7 +186,7 @@ class HolodeckEnvironment:
                     'location': [0, 0, 0],
                     'rotation': [0, 0, 0],
                     'socket': "",
-                    'configuration': {},
+                    'configuration': None,
                     'sensor_name': sensor['sensor_type'],
                     'existing': False
                 }

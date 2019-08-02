@@ -4,7 +4,7 @@ import json
 import numpy as np
 import holodeck
 
-from holodeck.command import SetSensorEnabledCommand, RGBCameraRateCommand, RotateSensorCommand
+from holodeck.command import SetSensorEnabledCommand, RGBCameraRateCommand, RotateSensorCommand, CustomCommand
 from holodeck.exceptions import HolodeckConfigurationException
 
 
@@ -19,6 +19,8 @@ class HolodeckSensor:
         name (:obj:`str`): Name of the sensor
         config (:obj:`dict`): Configuration dictionary to pass to the engine
     """
+    default_config = {}
+
     def __init__(self, client, agent_name=None, agent_type=None,
                     name="DefaultSensor", config=None):
         self.name = name
@@ -138,6 +140,35 @@ class AvoidTask(HolodeckSensor):
         return [2]
 
 
+class CupGameTask(HolodeckSensor):
+    sensor_type = "CupGameTask"
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [2]
+
+    def start_game(self, num_shuffles=5, speed=3, seed=None):
+        """Start the cup game and set its configuration. Do not call if the config file contains a cup task configuration
+        block, as it will override the configuration and cause undefined behavior.
+
+        Args:
+            num_shuffles (:obj:`int`): Number of shuffles
+            speed (:obj: `int`): Speed of the shuffle. Works best between 1-10
+            seed (:obj: `int`): Seed to rotate the cups the same way every time. If none is given, a seed will not be used.
+        """
+        use_seed = seed is not None
+        if seed is None:
+            seed = 0  # have to pass a value
+        config_command = CustomCommand("CupGameConfig", num_params=[speed, num_shuffles, int(use_seed), seed])
+        start_command = CustomCommand("StartCupGame")
+        self._client.command_center.enqueue_command(config_command)
+        self._client.command_center.enqueue_command(start_command)
+
+
 class ViewportCapture(HolodeckSensor):
     """Captures what the viewport is seeing.
 
@@ -224,7 +255,6 @@ class RGBCamera(HolodeckSensor):
 
         if "CaptureWidth" in self.config:
             width = self.config["CaptureWidth"]
-
 
         self.shape = (height, width, 4)
 
@@ -460,6 +490,40 @@ class CollisionSensor(HolodeckSensor):
         return [1]
 
 
+class WorldNumSensor(HolodeckSensor):
+    """Returns any numeric value from the world corresponding to a given key. This is world specific.
+
+    """
+
+    sensor_type = "WorldNumSensor"
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [1]
+
+
+class BallLocationSensor(WorldNumSensor):
+    """For the CupGame task, returns which cup the ball is underneath.
+    
+    The cups are numbered 0-2, from the agents perspective, left to right. As soon
+    as a swap begins, the number returned by this sensor is updated to the balls new
+    position after the swap ends.
+    
+    Only works in the CupGame world.
+
+    """
+
+    default_config = {"Key": "BallLocation"}
+
+    @property
+    def dtype(self):
+        return np.int8
+
+
 class SensorDefinition:
     """A class for new sensors and their parameters, to be used for adding new sensors.
 
@@ -482,6 +546,7 @@ class SensorDefinition:
         "LocationTask": LocationTask,
         "FollowTask": FollowTask,
         "AvoidTask": AvoidTask,
+        "CupGameTask": CupGameTask,
         "ViewportCapture": ViewportCapture,
         "OrientationSensor": OrientationSensor,
         "IMUSensor": IMUSensor,
@@ -491,9 +556,11 @@ class SensorDefinition:
         "RotationSensor": RotationSensor,
         "VelocitySensor": VelocitySensor,
         "PressureSensor": PressureSensor,
-        "CollisionSensor": CollisionSensor
+        "CollisionSensor": CollisionSensor,
+        "WorldNumSensor": WorldNumSensor,
+        "BallLocationSensor": BallLocationSensor
     }
-    
+
     def get_config_json_string(self):
         """Gets the configuration dictionary as a string ready for transport
 
@@ -521,7 +588,7 @@ class SensorDefinition:
         self.socket = socket
         self.location = location
         self.rotation = rotation
-        self.config = {} if config is None else config
+        self.config = self.type.default_config if config is None else config
         self.existing = existing
 
 
