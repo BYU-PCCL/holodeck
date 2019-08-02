@@ -4,7 +4,7 @@ import json
 import numpy as np
 import holodeck
 
-from holodeck.command import SetSensorEnabledCommand
+from holodeck.command import SetSensorEnabledCommand, CustomCommand
 from holodeck.exceptions import HolodeckConfigurationException
 
 
@@ -127,7 +127,6 @@ class AvoidTask(HolodeckSensor):
 
 
 class CupGameTask(HolodeckSensor):
-
     sensor_type = "CupGameTask"
 
     @property
@@ -137,6 +136,16 @@ class CupGameTask(HolodeckSensor):
     @property
     def data_shape(self):
         return [2]
+
+    def start_game(self, num_shuffles=3, speed=3, seed=None):
+        use_seed = seed is not None
+        if seed is None:
+            seed = 0  # have to pass a value
+        config_command = CustomCommand("CupGameConfig", num_params=[speed, num_shuffles, int(use_seed), seed])
+        start_command = CustomCommand("StartCupGame")
+        self._client.command_center.enqueue_command(config_command)
+        self._client.command_center.enqueue_command(start_command)
+
 
 
 class ViewportCapture(HolodeckSensor):

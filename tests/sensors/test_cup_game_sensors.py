@@ -11,6 +11,9 @@ cfg = {
                 "agent_type": "SphereAgent",
                 "sensors": [
                     {
+                        "sensor_type": "LocationTask"
+                    },
+                    {
                         "sensor_type": "CupGameTask",
                         "configuration": {
                             "Speed": 3,
@@ -24,7 +27,7 @@ cfg = {
                 ],
                 "control_scheme": 0,
                 "location": [-.4, -.9, 1.8],
-                "rotation": [0, 0, 90]
+                "rotation": [90, 0, 0]
             }
         ],
         "window_width": 1024,
@@ -33,8 +36,9 @@ cfg = {
 
 
 def test_cup_game_sensors():
-    """Drop the UAV, make sure the z velocity is increasingly negative as it falls.
-    Make sure it zeros out after it hits the ground, and then goes positive on takeoff
+    """Shuffle the ball using a seed. Ensure that after shuffling the ball location sensor
+    detects the correct position and move the sphere agent forward to collide with the correct cup.
+    Make sure it recieves a reward of 50.
     """
 
     # binary_path = holodeck.packagemanager.get_binary_path_for_package("Dexterity")
@@ -43,15 +47,15 @@ def test_cup_game_sensors():
                                                    # binary_path=binary_path,
                                                    # show_viewport=False,
                                                    start_world=False,
-                                                   uuid=str(uuid.uuid4())) as env:
+                                                   uuid="") as env:
+
         env.reset()
-        for _ in range(500):
+
+        for _ in range(300):
             _ = env.tick()
-        env.teleport("sphere0", [-.4, -.9, 1.8], [0, 0, 90])
+        env.agents["sphere0"].teleport([-.4, -.9, 1.8], [0, 0, 90])
         state = None
         reward = 0
         for _ in range(30):
             state, reward, terminal, _ = env.step([0])
         assert reward == 50 and state["BallLocationSensor"] == 2
-
-# TODO: Test other axises
