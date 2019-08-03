@@ -35,7 +35,7 @@ cfg = {
     }
 
 
-def test_cup_game_sensors():
+def test_ball_location_and_reward():
     """Shuffle the ball using a seed. Ensure that after shuffling the ball location sensor
     detects the correct position and move the sphere agent forward to collide with the correct cup.
     Make sure it receives a reward of 1.
@@ -53,9 +53,11 @@ def test_cup_game_sensors():
 
         for _ in range(300):
             _ = env.tick()
-        env.agents["sphere0"].teleport([-.4, -.9, 1.8], [0, 0, 90])
         state = None
-        reward = 0
+        touched_cup = False
         for _ in range(30):
             state, reward, terminal, _ = env.step([0])
-        assert reward == 1 and state["BallLocationSensor"] == 2
+            if reward == 1:
+                touched_cup = True
+        assert touched_cup and state["BallLocationSensor"] == 2
+        env.tick(1000)
