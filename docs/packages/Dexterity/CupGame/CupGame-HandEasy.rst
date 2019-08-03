@@ -6,6 +6,6 @@ This scenario has a hand agent positioned directly in front of the table with th
 Agents
 ------
 
-- ``hand0``: Main :ref:`Android <hand-agent>` agent
+- ``hand0``: Main :ref:`Hand <hand-agent>` agent
 
 .. TODO: Add link to config file

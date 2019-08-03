@@ -137,7 +137,15 @@ class CupGameTask(HolodeckSensor):
     def data_shape(self):
         return [2]
 
-    def start_game(self, num_shuffles=3, speed=3, seed=None):
+    def start_game(self, num_shuffles=5, speed=3, seed=None):
+        """Start the cup game and set its configuration. Do not call if the config file contains a cup task configuration
+        block, as it will override the configuration and cause undefined behavior.
+
+        Args:
+            num_shuffles (:obj:`int`): Number of shuffles
+            speed (:obj: `int`): Speed of the shuffle. Works best between 1-10
+            seed (:obj: `int`): Seed to rotate the cups the same way every time. If none is given, a seed will not be used.
+        """
         use_seed = seed is not None
         if seed is None:
             seed = 0  # have to pass a value
@@ -145,7 +153,6 @@ class CupGameTask(HolodeckSensor):
         start_command = CustomCommand("StartCupGame")
         self._client.command_center.enqueue_command(config_command)
         self._client.command_center.enqueue_command(start_command)
-
 
 
 class ViewportCapture(HolodeckSensor):

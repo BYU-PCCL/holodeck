@@ -38,7 +38,7 @@ cfg = {
 def test_cup_game_sensors():
     """Shuffle the ball using a seed. Ensure that after shuffling the ball location sensor
     detects the correct position and move the sphere agent forward to collide with the correct cup.
-    Make sure it recieves a reward of 50.
+    Make sure it receives a reward of 1.
     """
 
     # binary_path = holodeck.packagemanager.get_binary_path_for_package("Dexterity")
@@ -58,4 +58,4 @@ def test_cup_game_sensors():
         reward = 0
         for _ in range(30):
             state, reward, terminal, _ = env.step([0])
-        assert reward == 50 and state["BallLocationSensor"] == 2
+        assert reward == 1 and state["BallLocationSensor"] == 2
