@@ -14,7 +14,9 @@ Configuration
 
 Each of the following parameters can be placed in the configuration field
 for a cup game task sensor (see :ref:`scenario files <scenario-files>`.)
-The configuration can also be changed programmatically by using
+The configuration can also be changed programmatically by calling
+:meth:`~holodeck.sensors.CupGameTask.start_game`, though the configuration
+block must be removed from the config file or it will not work.
 
 
 Speed Multiplier
