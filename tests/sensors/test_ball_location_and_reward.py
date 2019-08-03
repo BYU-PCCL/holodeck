@@ -51,13 +51,9 @@ def test_ball_location_and_reward():
 
         env.reset()
 
-        for _ in range(300):
-            _ = env.tick()
-        state = None
-        touched_cup = False
+        env.tick(300)
         for _ in range(30):
             state, reward, terminal, _ = env.step([0])
             if reward == 1:
                 touched_cup = True
         assert touched_cup and state["BallLocationSensor"] == 2
-        env.tick(1000)
