@@ -19,11 +19,13 @@ base_cfg = {
             "sensors": [
                 {
                     "sensor_type": "RGBCamera",
-                    "socket": "CameraSocket"
+                    "socket": "CameraSocket",
+                    # note the different camera name. Regression test for #197
+                    "sensor_name": "TestCamera"
                 }
             ],
             "control_scheme": 0,
-            "location": [.95, -1.75, .5]
+            "location": [.95, -1.75, .5] # if you change this, you must change rotation_env too.
         }
     ]
 }
@@ -55,7 +57,7 @@ def test_rgb_camera(resolution, request):
         for _ in range(5):
             env.tick()
 
-        pixels = env.tick()['RGBCamera'][:, :, 0:3]
+        pixels = env.tick()['TestCamera'][:, :, 0:3]
         baseline = cv2.imread(os.path.join(request.fspath.dirname, "expected", "{}.png".format(resolution)))
         err = mean_square_err(pixels, baseline)
 
@@ -106,16 +108,16 @@ def test_rgb_camera_ticks_per_capture(ticks_per_capture):
     # The agent needs to be moving for the image to change
     env.act("sphere0", [2])
 
-    env.set_ticks_per_capture("sphere0", ticks_per_capture)
+    env.agents["sphere0"].sensors["TestCamera"].set_ticks_per_capture(ticks_per_capture)
 
     # Take the initial capture, and wait until it changes
-    initial = env.tick()['RGBCamera'][:, :, 0:3]
+    initial = env.tick()['TestCamera'][:, :, 0:3]
 
     MAX_TRIES = 50
     tries = 0
 
     while tries < MAX_TRIES:
-        intermediate = env.tick()['RGBCamera'][:, :, 0:3]
+        intermediate = env.tick()['TestCamera'][:, :, 0:3]
         if mean_square_err(initial, intermediate) > 10:
             break
         tries += 1
@@ -127,11 +129,11 @@ def test_rgb_camera_ticks_per_capture(ticks_per_capture):
     initial = intermediate 
     for _ in range(ticks_per_capture - 1):
         # Make sure it doesn't change
-        intermediate = env.tick()['RGBCamera'][:, :, 0:3]
+        intermediate = env.tick()['TestCamera'][:, :, 0:3]
         assert mean_square_err(initial, intermediate) < 10, "The RGBCamera output changed unexpectedly!"
 
     # Now it should change
 
-    final = env.tick()['RGBCamera'][:, :, 0:3]
+    final = env.tick()['TestCamera'][:, :, 0:3]
     assert mean_square_err(initial, final) > 10, "The RGBCamera output did not change when expected!"
 

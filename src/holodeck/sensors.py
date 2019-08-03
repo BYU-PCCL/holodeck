@@ -4,7 +4,7 @@ import json
 import numpy as np
 import holodeck
 
-from holodeck.command import SetSensorEnabledCommand, CustomCommand
+from holodeck.command import SetSensorEnabledCommand, RGBCameraRateCommand, RotateSensorCommand, CustomCommand
 from holodeck.exceptions import HolodeckConfigurationException
 
 
@@ -72,6 +72,20 @@ class HolodeckSensor:
             :obj:`tuple`: Sensor data shape
         """
         raise NotImplementedError("Child class must implement this property")
+
+    def rotate(self, rotation):
+        """Rotate the sensor. It will be applied in approximately three ticks.
+        :meth:`~holodeck.environments.HolodeckEnvironment.step` or
+        :meth:`~holodeck.environments.HolodeckEnvironment.tick`.)
+
+        This will not persist after a call to reset(). If you want a persistent rotation for a sensor,
+        specify it in your scenario configuration.
+
+        Args:
+            rotation (:obj:`list` of :obj:`float`): rotation for sensor (see :ref:`rotations`).
+        """
+        command_to_send = RotateSensorCommand(self.agent_name, self.name, rotation)
+        self._client.command_center.enqueue_command(command_to_send)
 
 
 class DistanceTask(HolodeckSensor):
@@ -254,6 +268,21 @@ class RGBCamera(HolodeckSensor):
     def data_shape(self):
         return self.shape
 
+    def set_ticks_per_capture(self, ticks_per_capture):
+        """Sets this RGBCamera to capture a new frame every ticks_per_capture.
+
+        The sensor's image will remain unchanged between captures.
+
+        This method must be called after every call to env.reset.
+
+        Args:
+            ticks_per_capture (:obj:`int`): The amount of ticks to wait between camera captures.
+        """
+        if not isinstance(ticks_per_capture, int) or ticks_per_capture < 1:
+            raise HolodeckConfigurationException("Invalid ticks_per_capture value " + str(ticks_per_capture))
+
+        command_to_send = RGBCameraRateCommand(self.agent_name, self.name, ticks_per_capture)
+        self._client.command_center.enqueue_command(command_to_send)
 
 class OrientationSensor(HolodeckSensor):
     """Gets the forward, right, and up vector for the agent.
