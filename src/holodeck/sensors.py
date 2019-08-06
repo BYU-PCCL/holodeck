@@ -169,6 +169,31 @@ class CupGameTask(HolodeckSensor):
         self._client.command_center.enqueue_command(start_command)
 
 
+class CleanUpTask(HolodeckSensor):
+    sensor_type = "CleanUpTask"
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [2]
+
+    def start_task(self, num_trash, use_table=False):
+        """Spawn trash around the trashcan. Do not call if the config file contains a clean up task configuration
+        block.
+
+        Args:
+            num_trash (:obj:`int`): Amount of trash to spawn
+            use_table (:obj: `bool`): If true a table will spawn next to the trash can, all trash will be on the table,
+            and the trash can lid will be absent. This makes the task significantly easier. If false, all trash will
+            spawn on the ground.
+        """
+        config_command = CustomCommand("CleanUpConfig", num_params=[num_trash, int(use_table)])
+        self._client.command_center.enqueue_command(config_command)
+
+
 class ViewportCapture(HolodeckSensor):
     """Captures what the viewport is seeing.
 
@@ -547,6 +572,7 @@ class SensorDefinition:
         "FollowTask": FollowTask,
         "AvoidTask": AvoidTask,
         "CupGameTask": CupGameTask,
+        "CleanUpTask": CleanUpTask,
         "ViewportCapture": ViewportCapture,
         "OrientationSensor": OrientationSensor,
         "IMUSensor": IMUSensor,
