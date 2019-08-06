@@ -190,6 +190,11 @@ class CleanUpTask(HolodeckSensor):
             and the trash can lid will be absent. This makes the task significantly easier. If false, all trash will
             spawn on the ground.
         """
+
+        if self.config is not None or self.config is not {}:
+            raise HolodeckConfigurationException("Called CleanUpTask start_task when configuration block already \
+                specified. Must remove configuration block before calling.")
+
         config_command = CustomCommand("CleanUpConfig", num_params=[num_trash, int(use_table)])
         self._client.command_center.enqueue_command(config_command)
 

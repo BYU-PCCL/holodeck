@@ -2,8 +2,8 @@ import holodeck
 import uuid
 
 cfg = {
-        "name": "test_viewport_capture",
-        "world": "TestWorld",
+        "name": "test_ball_location_and_reward",
+        "world": "CupGame",
         "main_agent": "sphere0",
         "agents": [
             {
