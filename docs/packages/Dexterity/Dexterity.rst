@@ -6,3 +6,4 @@ Dexterity package
 
    AndroidPlaytime/android-playtime.rst
    CupGame/cup-game.rst
+   CleanUp/clean-up.rst

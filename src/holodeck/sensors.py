@@ -151,14 +151,14 @@ class CupGameTask(HolodeckSensor):
     def data_shape(self):
         return [2]
 
-    def start_game(self, num_shuffles=5, speed=3, seed=None):
+    def start_game(self, num_shuffles, speed=3, seed=None):
         """Start the cup game and set its configuration. Do not call if the config file contains a cup task configuration
         block, as it will override the configuration and cause undefined behavior.
 
         Args:
             num_shuffles (:obj:`int`): Number of shuffles
-            speed (:obj: `int`): Speed of the shuffle. Works best between 1-10
-            seed (:obj: `int`): Seed to rotate the cups the same way every time. If none is given, a seed will not be used.
+            speed (:obj:`int`): Speed of the shuffle. Works best between 1-10
+            seed (:obj:`int`): Seed to rotate the cups the same way every time. If none is given, a seed will not be used.
         """
         use_seed = seed is not None
         if seed is None:
@@ -181,14 +181,14 @@ class CleanUpTask(HolodeckSensor):
         return [2]
 
     def start_task(self, num_trash, use_table=False):
-        """Spawn trash around the trashcan. Do not call if the config file contains a clean up task configuration
+        """Spawn trash around the trash can. Do not call if the config file contains a clean up task configuration
         block.
 
         Args:
             num_trash (:obj:`int`): Amount of trash to spawn
-            use_table (:obj: `bool`): If true a table will spawn next to the trash can, all trash will be on the table,
-            and the trash can lid will be absent. This makes the task significantly easier. If false, all trash will
-            spawn on the ground.
+            use_table (:obj:`bool`, optional): If True a table will spawn next to the trash can, all trash will be on
+                the table, and the trash can lid will be absent. This makes the task significantly easier. If False,
+                all trash will spawn on the ground. Defaults to False.
         """
 
         if self.config is not None or self.config is not {}:
