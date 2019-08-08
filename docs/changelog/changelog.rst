@@ -28,6 +28,9 @@ New Features
   following or the coordinates of the camera if it is detached (see
   :ref:`hotkeys`).
   (`#253 <https://github.com/BYU-PCCL/holodeck/issues/253>`_)
+- The viewport now follows the main agent as specified in the
+  config file by default.
+  (`#238 <https://github.com/BYU-PCCL/holodeck/issues/238>`_)
 - You can now specify the number of ticks you want to occur in the 
   :meth:`~holodeck.environments.HolodeckEnvironment.tick` and the 
   :meth:`~holodeck.environments.HolodeckEnvironment.step` methods,
