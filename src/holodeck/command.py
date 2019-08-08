@@ -196,13 +196,14 @@ class SpawnAgentCommand(Command):
 
     """
 
-    def __init__(self, location, rotation, name, agent_type):
+    def __init__(self, location, rotation, name, agent_type, is_main_agent=False):
         super(SpawnAgentCommand, self).__init__()
         self._command_type = "SpawnAgent"
         self.set_location(location)
         self.set_rotation(rotation)
         self.set_type(agent_type)
         self.set_name(name)
+        self.add_number_parameters(int(is_main_agent))
 
     def set_location(self, location):
         """Set where agent will be spawned.
