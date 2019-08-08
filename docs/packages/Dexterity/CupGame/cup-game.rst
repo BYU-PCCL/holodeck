@@ -1,3 +1,5 @@
+.. _`cup-game-world`:
+
 CupGame
 =======
 

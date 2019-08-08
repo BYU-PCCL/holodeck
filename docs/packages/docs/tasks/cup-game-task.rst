@@ -1,3 +1,5 @@
+.. _`cup-game-task`:
+
 Cup Game Task
 =============
 

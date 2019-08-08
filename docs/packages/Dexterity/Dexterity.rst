@@ -1,5 +1,7 @@
-Dexterity package
-=====================
+.. _`dexterity-package`:
+
+Dexterity Package
+=================
 
 .. toctree::
    :maxdepth: 3

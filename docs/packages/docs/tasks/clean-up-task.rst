@@ -1,3 +1,5 @@
+.. _`clean-up-task`:
+
 Clean Up Task
 =============
 

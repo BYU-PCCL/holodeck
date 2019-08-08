@@ -1,3 +1,5 @@
+.. _`android-playtime`:
+
 AndroidPlaytime
 ===============
 

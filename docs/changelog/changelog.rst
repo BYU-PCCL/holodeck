@@ -18,6 +18,17 @@ Features! Features! Features! 🍕
 
 New Features
 ~~~~~~~~~~~~
+- Added the :ref:`dexterity-package` with various new worlds and scenarios
+
+  - :ref:`android-playtime`
+
+  - :ref:`clean-up-world`
+    (`#290 <https://github.com/BYU-PCCL/holodeck/issues/290>`_)
+
+  - :ref:`cup-game-world`
+    (`#288 <https://github.com/BYU-PCCL/holodeck/issues/288>`_)
+
+  - Grip
 - Added the :ref:`hand-agent` - a simplified Android hand that can float 
   around
   (`#287 <https://github.com/BYU-PCCL/holodeck/issues/287>`_)
@@ -26,6 +37,15 @@ New Features
     :class:`~holodeck.sensors.JointRotationSensor`,
     :class:`~holodeck.sensors.PressureSensor`,
     :class:`~holodeck.sensors.RelativeSkeletalPositionSensor`)
+
+- Added new tasks sensors for specific worlds
+
+  - :ref:`cup-game-task`
+    (`#318 <https://github.com/BYU-PCCL/holodeck/pull/318>`_)
+
+  - :ref:`clean-up-task`
+    (`#321 <https://github.com/BYU-PCCL/holodeck/pull/321>`_)
+
 - Packages can be installed directly from a URL
   (see :class:`~holodeck.packagemanager.install`)
   (`#129 <https://github.com/BYU-PCCL/holodeck/issues/129>`_)

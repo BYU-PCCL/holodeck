@@ -1,3 +1,5 @@
+.. _`clean-up-world`:
+
 Clean Up
 ========
 
