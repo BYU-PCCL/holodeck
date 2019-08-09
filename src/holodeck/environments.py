@@ -591,7 +591,7 @@ class HolodeckEnvironment:
         Args:
             name (:obj:`str`): The name of the command, ex "OpenDoor"
             num_params (obj:`list` of :obj:`int`): List of arbitrary number parameters
-            string_params (obj:`list` of :obj:`int`): List of arbitrary string parameters
+            string_params (obj:`list` of :obj:`string`): List of arbitrary string parameters
         """
         num_params = [] if num_params is None else num_params
         string_params = [] if string_params is None else string_params

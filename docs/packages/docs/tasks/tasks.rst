@@ -11,5 +11,6 @@ Below are the different tasks available for use in Holodeck.
    follow-task
    avoid-task
    cup-game-task
+   clean-up-task
 
 These tasks can be configured and used in :ref:`scenario files <scenarios>`.

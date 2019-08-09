@@ -151,14 +151,14 @@ class CupGameTask(HolodeckSensor):
     def data_shape(self):
         return [2]
 
-    def start_game(self, num_shuffles=5, speed=3, seed=None):
+    def start_game(self, num_shuffles, speed=3, seed=None):
         """Start the cup game and set its configuration. Do not call if the config file contains a cup task configuration
         block, as it will override the configuration and cause undefined behavior.
 
         Args:
             num_shuffles (:obj:`int`): Number of shuffles
-            speed (:obj: `int`): Speed of the shuffle. Works best between 1-10
-            seed (:obj: `int`): Seed to rotate the cups the same way every time. If none is given, a seed will not be used.
+            speed (:obj:`int`): Speed of the shuffle. Works best between 1-10
+            seed (:obj:`int`): Seed to rotate the cups the same way every time. If none is given, a seed will not be used.
         """
         use_seed = seed is not None
         if seed is None:
@@ -167,6 +167,36 @@ class CupGameTask(HolodeckSensor):
         start_command = CustomCommand("StartCupGame")
         self._client.command_center.enqueue_command(config_command)
         self._client.command_center.enqueue_command(start_command)
+
+
+class CleanUpTask(HolodeckSensor):
+    sensor_type = "CleanUpTask"
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [2]
+
+    def start_task(self, num_trash, use_table=False):
+        """Spawn trash around the trash can. Do not call if the config file contains a clean up task configuration
+        block.
+
+        Args:
+            num_trash (:obj:`int`): Amount of trash to spawn
+            use_table (:obj:`bool`, optional): If True a table will spawn next to the trash can, all trash will be on
+                the table, and the trash can lid will be absent. This makes the task significantly easier. If False,
+                all trash will spawn on the ground. Defaults to False.
+        """
+
+        if self.config is not None or self.config is not {}:
+            raise HolodeckConfigurationException("Called CleanUpTask start_task when configuration block already \
+                specified. Must remove configuration block before calling.")
+
+        config_command = CustomCommand("CleanUpConfig", num_params=[num_trash, int(use_table)])
+        self._client.command_center.enqueue_command(config_command)
 
 
 class ViewportCapture(HolodeckSensor):
@@ -547,6 +577,7 @@ class SensorDefinition:
         "FollowTask": FollowTask,
         "AvoidTask": AvoidTask,
         "CupGameTask": CupGameTask,
+        "CleanUpTask": CleanUpTask,
         "ViewportCapture": ViewportCapture,
         "OrientationSensor": OrientationSensor,
         "IMUSensor": IMUSensor,
