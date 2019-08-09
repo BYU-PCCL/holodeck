@@ -41,13 +41,13 @@ def test_ball_location_and_reward():
     Make sure it receives a reward of 1.
     """
 
-    # binary_path = holodeck.packagemanager.get_binary_path_for_package("Dexterity")
+    binary_path = holodeck.packagemanager.get_binary_path_for_package("Dexterity")
 
     with holodeck.environments.HolodeckEnvironment(scenario=cfg,
-                                                   # binary_path=binary_path,
-                                                   # show_viewport=False,
+                                                   binary_path=binary_path,
+                                                   how_viewport=False,
                                                    start_world=False,
-                                                   uuid="") as env:
+                                                   uuid=str(uuid.uuid4())) as env:
 
         env.reset()
 
