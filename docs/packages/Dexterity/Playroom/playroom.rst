@@ -1,16 +1,16 @@
-.. _`android-playtime`:
+.. _`playroom-world`:
 
-AndroidPlaytime
-===============
+Playroom
+========
 
-.. image:: android-playtime.png
+.. image:: playroom.png
 
 This is a small playroom with small, movable toys and windows.
 
 Layout
 ------
 
-.. image:: android-playtime-top.png
+.. image:: playroom-top.png
    :scale: 50%
 
 
@@ -19,5 +19,5 @@ Layout
    :caption: Scenarios
    :glob:
 
-   AndroidPlaytime-*
+   Playroom-*
 

@@ -20,7 +20,7 @@ New Features
 ~~~~~~~~~~~~
 - Added the :ref:`dexterity-package` with various new worlds and scenarios
 
-  - :ref:`android-playtime`
+  - :ref:`playroom-world`
 
   - :ref:`clean-up-world`
     (`#290 <https://github.com/BYU-PCCL/holodeck/issues/290>`_)
