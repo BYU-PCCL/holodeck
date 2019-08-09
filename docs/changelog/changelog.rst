@@ -28,7 +28,7 @@ New Features
   - :ref:`cup-game-world`
     (`#288 <https://github.com/BYU-PCCL/holodeck/issues/288>`_)
 
-  - Grip
+  - :ref:`grip-world`
 - Added the :ref:`hand-agent` - a simplified Android hand that can float 
   around
   (`#287 <https://github.com/BYU-PCCL/holodeck/issues/287>`_)
