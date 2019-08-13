@@ -1,3 +1,5 @@
+.. _`location-task`:
+
 Location Task
 =============
 

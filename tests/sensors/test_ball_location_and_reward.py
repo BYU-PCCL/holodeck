@@ -11,9 +11,6 @@ cfg = {
                 "agent_type": "SphereAgent",
                 "sensors": [
                     {
-                        "sensor_type": "LocationTask"
-                    },
-                    {
                         "sensor_type": "CupGameTask",
                         "configuration": {
                             "Speed": 3,
@@ -45,8 +42,7 @@ def test_ball_location_and_reward():
 
     with holodeck.environments.HolodeckEnvironment(scenario=cfg,
                                                    binary_path=binary_path,
-                                                   how_viewport=False,
-                                                   start_world=False,
+                                                   show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
 
         env.reset()
