@@ -1,4 +1,4 @@
-DefaultWorlds package
+DefaultWorlds Package
 =====================
 
 .. toctree::
