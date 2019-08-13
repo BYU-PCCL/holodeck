@@ -36,14 +36,12 @@ def test_ball_location_and_reward():
 
     # TODO: Spawn trash above trashcan so it falls in and the reward can be verified
 
-    # pass the test for now. This must be removed to test manually
-    assert True
+    binary_path = holodeck.packagemanager.get_binary_path_for_package("Dexterity")
 
     with holodeck.environments.HolodeckEnvironment(scenario=cfg,
-                                                   # binary_path=binary_path,
-                                                   # show_viewport=False,
-                                                   start_world=False,
-                                                   uuid="") as env:
+                                                   binary_path=binary_path,
+                                                   show_viewport=False,
+                                                   uuid=str(uuid.uuid4())) as env:
 
         env.reset()
 
