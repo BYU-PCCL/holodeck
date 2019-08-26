@@ -5,7 +5,7 @@ Playroom
 
 .. image:: playroom.png
 
-This is a small playroom with small, movable toys and windows.
+This is a small playroom with movable toys.
 
 Layout
 ------

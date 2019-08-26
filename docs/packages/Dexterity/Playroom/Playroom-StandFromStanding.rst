@@ -3,16 +3,16 @@ Playroom-StandFromStanding
 
 **Type:** :ref:`location-task`
 
-This scenario has a android agent in the Playroom. The agent is given a reward
-when its head is raised to a specific location, which requires the android to
-be standing.
+In this scenario the :ref:`android-agent` must stand itself back up from the
+standing position, as measured by the android's head position.
 
-In this scenario the android starts standing up and will initially receive a
+Since the android is initially standing, it will initially receive some
 reward.
 
 Agents
 ------
 
-- ``hand0``: Main :ref:`Hand <hand-agent>` agent
+- ``android0``: Main :ref:`android-agent`
 
-See `Playroom-StandFromStanding.json <https://github.com/BYU-PCCL/holodeck-configs/blob/master/Dexterity/Playroom-StandFromStanding.json>`_.
+See 
+`Playroom-StandFromStanding.json <https://github.com/BYU-PCCL/holodeck-configs/blob/master/Dexterity/Playroom-StandFromStanding.json>`_.
