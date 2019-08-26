@@ -1,3 +1,5 @@
+.. _`playroom-android`:
+
 Playroom-Android
 ================
 

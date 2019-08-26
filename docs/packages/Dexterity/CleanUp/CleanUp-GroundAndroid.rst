@@ -1,3 +1,5 @@
+.. _`cleanup-groundandroid`:
+
 CleanUp-GroundAndroid
 =====================
 

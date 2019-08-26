@@ -1,3 +1,5 @@
+.. _`grip-liftbottle`:
+
 Grip-LiftBottle
 ===============
 

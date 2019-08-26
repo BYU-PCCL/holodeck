@@ -1,3 +1,5 @@
+.. _`playroom-standfromground`:
+
 Playroom-StandFromGround
 ========================
 

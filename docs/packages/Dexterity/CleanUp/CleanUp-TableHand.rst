@@ -1,3 +1,5 @@
+.. _`cleanup-tablehand`:
+
 CleanUp-TableHand
 =================
 

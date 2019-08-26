@@ -1,3 +1,5 @@
+.. _`cupgame-easy`:
+
 CupGame-Easy
 ============
 

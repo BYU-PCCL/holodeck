@@ -12,23 +12,49 @@ Changelog
 
 Holodeck 0.3.0
 --------------
-*Release Date TBD*
+*08/30/2019*
 
-Features! Features! Features! 🍕
+This is a content release focused on improving the :ref:`android-agent` and
+adding more scenarios and tasks for it. We also added a new floating hand
+agent to provide a simpler agent that can do many of the dexterity tasks.
+
+Highlights
+~~~~~~~~~~
+- Added :ref:`dexterity-package` with new worlds and scenarios (see below for 
+  comprehensive listing)
+- Added :ref:`clean-up-task` and :ref:`cup-game-task` tasks
+- Added :ref:`hand-agent`
 
 New Features
 ~~~~~~~~~~~~
-- Added the :ref:`dexterity-package` with various new worlds and scenarios
+- Added the :ref:`dexterity-package` with new worlds and scenarios:
 
   - :ref:`playroom-world`
+
+    - :ref:`playroom-android`
+    - :ref:`playroom-hand`
+    - :ref:`playroom-standfromground`
+    - :ref:`playroom-standfromstanding`
 
   - :ref:`clean-up-world`
     (`#290 <https://github.com/BYU-PCCL/holodeck/issues/290>`_)
 
+    - :ref:`cleanup-groundandroid`
+    - :ref:`cleanup-groundhand`
+    - :ref:`cleanup-tableandroid`
+    - :ref:`cleanup-tablehand`
+  
   - :ref:`cup-game-world`
     (`#288 <https://github.com/BYU-PCCL/holodeck/issues/288>`_)
+    
+    - :ref:`cupgame-custom`
+    - :ref:`cupgame-easy`
+    - :ref:`cupgame-hard`
 
   - :ref:`grip-world`
+
+    - :ref:`grip-liftbottle`
+
 - Added the :ref:`hand-agent` - a simplified Android hand that can float 
   around
   (`#287 <https://github.com/BYU-PCCL/holodeck/issues/287>`_)
@@ -96,7 +122,11 @@ Changes
   :meth:`~holodeck.sensors.RGBCamera.set_ticks_per_capture` method to the
   :class:`~holodeck.sensors.RGBCamera` class. 
   (`#197 <https://github.com/BYU-PCCL/holodeck/issues/197>`_)
-
+- Viewport will now follow the main agent by default.
+  (`#238 <https://github.com/BYU-PCCL/holodeck/issues/238>`_)
+- Viewport will not be rendered when it is hidden (``show_viewport`` param in 
+  :class:`~holodeck.environments.HolodeckEnvironment`, Linux only)
+  (`#283 <https://github.com/BYU-PCCL/holodeck/issues/283>`_)
 
 Bug Fixes
 ~~~~~~~~~
@@ -119,8 +149,13 @@ Bug Fixes
 - Fixed being unable to set the ticks per capture of a camera if it was not
   named ``RGBCamera``.
   (`#197 <https://github.com/BYU-PCCL/holodeck/issues/197>`_)
-
-
+- Fixed being unable to make a Holodeck window larger than the current screen
+  resolution 
+  (`#301 <https://github.com/BYU-PCCL/holodeck/issues/301>`_)
+- Fixed being unable to configure :class:`~holodeck.sensors.ViewportCapture`
+  sensor.
+  (`#301 <https://github.com/BYU-PCCL/holodeck/issues/301>`_)
+  
 Holodeck 0.2.2
 --------------
 *06/20/2019*

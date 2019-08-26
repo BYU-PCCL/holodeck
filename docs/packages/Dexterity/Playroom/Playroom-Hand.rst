@@ -1,3 +1,5 @@
+.. _`playroom-hand`:
+
 Playroom-Hand
 =============
 

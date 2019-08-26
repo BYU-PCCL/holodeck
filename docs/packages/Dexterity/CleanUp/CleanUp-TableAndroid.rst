@@ -1,3 +1,5 @@
+.. _`cleanup-tableandroid`:
+
 CleanUp-TableAndroid
 =====================
 

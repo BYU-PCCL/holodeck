@@ -1,3 +1,5 @@
+.. _`cleanup-groundhand`:
+
 CleanUp-GroundHand
 ==================
 
