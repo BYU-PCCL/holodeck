@@ -5,8 +5,8 @@ Clean Up
 
 .. image:: clean-up.png
 
-This is an alley way with a trash can in the middle. A :ref:`clean-up-task` task can
-be used to spawn trash around the can and give a reward based on the
+This is an alleyway with a trash can in the middle. A :ref:`clean-up-task` 
+task can be used to spawn trash around the can and give a reward based on the
 amount of trash collected in the can.
 
 Layout
@@ -22,4 +22,3 @@ Layout
    :glob:
 
    CleanUp-*
-

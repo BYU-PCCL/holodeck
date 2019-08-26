@@ -15,6 +15,8 @@ the ball is touched.
 The cup game task only works in the CupGame world in the dexterity package.
 The game will not start if a cup game task is not added to an agent.
 
+.. _`cup-game-task-config`:
+
 Configuration
 -------------
 

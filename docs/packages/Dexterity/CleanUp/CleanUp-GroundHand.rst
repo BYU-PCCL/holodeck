@@ -4,7 +4,8 @@ CleanUp-GroundHand
 **Type:** :ref:`clean-up-task`
 
 This scenario gives a hand agent a reward based on the number of pieces of
-trash it picks up off the ground and puts in the trash can.
+trash it picks up off the ground and puts in the trash can. The trash is
+spawned on the ground around the trash can.
 
 Agents
 ------
