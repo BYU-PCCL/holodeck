@@ -105,7 +105,7 @@ Holodeck can run on headless machines with GPU accelerated rendering. This requi
 ## Citation:
 ```
 @misc{HolodeckPCCL,
-  Author = {Joshua Greaves and Max Robinson and Nick Walton and Mitchell Mortensen and Robert Pottorff and Connor Christopherson and Derek Hancock and Jayden Milne David Wingate},
+  Author = {Joshua Greaves and Max Robinson and Nick Walton and Mitchell Mortensen and Robert Pottorff and Connor Christopherson and Derek Hancock and Jayden Milne and David Wingate},
   Title = {Holodeck: A High Fidelity Simulator},
   Year = {2018},
 }
