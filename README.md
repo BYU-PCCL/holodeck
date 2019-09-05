@@ -87,9 +87,9 @@ s['uav0'][Sensors.LOCATION_SENSOR]
 
 
 ## Documentation
-* [Agents](https://github.com/byu-pccl/holodeck/blob/master/docs/agents.md)
-* [Sensors](https://github.com/byu-pccl/holodeck/blob/master/docs/sensors.md)
-* [Environment configuration](https://github.com/byu-pccl/holodeck/blob/master/docs/worlds.md)
+* [Agents](https://holodeck.readthedocs.io/en/develop/agents/agents.html)
+* [Sensors](https://holodeck.readthedocs.io/en/develop/holodeck/sensors.html)
+* [Worlds](https://holodeck.readthedocs.io/en/develop/packages/packages.html)
 * [Docs](https://holodeck.readthedocs.io/en/latest/)
 
 ## Using OpenGL3 in Linux
