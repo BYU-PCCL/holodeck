@@ -155,7 +155,13 @@ Bug Fixes
 - Fixed being unable to configure :class:`~holodeck.sensors.ViewportCapture`
   sensor.
   (`#301 <https://github.com/BYU-PCCL/holodeck/issues/301>`_)
-  
+
+Known Issues
+~~~~~~~~~~~~
+- The TurtleAgent does not move consistently between Linux and Windows.
+  (`#336 <https://github.com/BYU-PCCL/holodeck/issues/336>`_)
+
+
 Holodeck 0.2.2
 --------------
 *06/20/2019*
