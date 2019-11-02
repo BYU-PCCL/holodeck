@@ -51,14 +51,13 @@ def test_viewport_capture(resolution, request):
                                                    binary_path=binary_path,
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
+        env.should_render_viewport(True)
 
-        for _ in range(5):
-            env.tick()
+        env.tick(5)
 
         pixels = env.tick()['ViewportCapture'][:, :, 0:3]
 
         assert pixels.shape == (resolution, resolution, 3)
-        
         baseline = cv2.imread(os.path.join(request.fspath.dirname, "expected", "{}_viewport.png".format(resolution)))
         err = mean_square_err(pixels, baseline)
 
