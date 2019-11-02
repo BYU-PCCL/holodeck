@@ -10,6 +10,32 @@ Changelog
   - Add a link to the issue describing the change or the pull request that 
     merged it at the end in parentheses
 
+Holodeck 0.3.1
+--------------
+*08/30/2019*
+
+
+Highlights
+~~~~~~~~~~
+
+
+New Features
+~~~~~~~~~~~~
+
+
+Changes
+~~~~~~~
+
+
+Bug Fixes
+~~~~~~~~~
+
+
+Known Issues
+~~~~~~~~~~~~
+- The TurtleAgent does not move consistently between Linux and Windows.
+  (`#336 <https://github.com/BYU-PCCL/holodeck/issues/336>`_)
+
 Holodeck 0.3.0
 --------------
 *08/30/2019*
