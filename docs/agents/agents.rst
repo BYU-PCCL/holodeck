@@ -10,6 +10,7 @@ Documentation on specific agents available in Holodeck:
    :caption: Agents
 
    android-agent
+   hand-agent
    nav-agent
    sphere-agent
    turtle-agent

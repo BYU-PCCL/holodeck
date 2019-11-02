@@ -1,0 +1,50 @@
+import holodeck
+import uuid
+
+cfg = {
+        "name": "test_clean_up_reward",
+        "world": "CleanUp",
+        "main_agent": "sphere0",
+        "agents": [
+            {
+                "agent_name": "sphere0",
+                "agent_type": "SphereAgent",
+                "sensors": [
+                    {
+                        "sensor_type": "LocationSensor",
+                    },
+                    {
+                        "sensor_type": "CleanUpTask",
+                        "configuration": {
+                            "NumTrash": 5,
+                            "UseTable": True,
+                        }
+                    }
+                ],
+                "control_scheme": 0,
+                "location": [1, 1, 1]
+            }
+        ]
+    }
+
+
+def test_ball_location_and_reward():
+    """This is currently a stub test. There is no way to reliably test the trash world so this is just meant to a manual
+    test where the tester makes sure that trash is spawning on a table. For now the reward and terminal should be zero.
+    Eventually there should be a way to add a debug option in the config so it can be tested programmatically.
+    """
+
+    # TODO: Spawn trash above trashcan so it falls in and the reward can be verified
+
+    binary_path = holodeck.packagemanager.get_binary_path_for_package("Dexterity")
+
+    with holodeck.environments.HolodeckEnvironment(scenario=cfg,
+                                                   binary_path=binary_path,
+                                                   show_viewport=False,
+                                                   uuid=str(uuid.uuid4())) as env:
+
+        env.reset()
+
+        # env.agents["sphere0"].sensors["CleanUpTask"].start_task(4, False)
+        env.tick(100)
+        assert True

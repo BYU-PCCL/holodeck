@@ -25,9 +25,9 @@ copyright = 'BYU PCCL'
 author = 'Joshua Greaves, Max Robinson, Nick Walton, Jayden Milne'
 
 # The short X.Y version
-version = "0.2.2"
+version = "0.3.0"
 # The full version, including alpha/beta/rc tags
-release = "0.2.2dev"
+release = "0.3.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -53,6 +53,9 @@ autodoc_default_options = {
     'autosummary': True,
 }
 
+def setup(app):
+   app.add_stylesheet("themes_override.css")
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['docstemplates']
 
@@ -66,11 +69,6 @@ source_suffix = '.rst'
 master_doc = 'index'
 html_static_path = ['_static']
 
-html_context = {
-    'css_files': [
-        '_static/theme_overrides.css',  # override wide tables in RTD theme
-    ],
-}
 
 html_favicon = '_static/favicon.png'
 

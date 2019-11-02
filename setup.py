@@ -5,7 +5,7 @@ with open("README.md") as f:
 
 setup(
     name="holodeck",
-    version="0.2.2dev",
+    version="0.3.0",
     description="High fidelity simulated environments for reinforcement learning",
     long_description=readme,
     long_description_content_type="text/markdown",

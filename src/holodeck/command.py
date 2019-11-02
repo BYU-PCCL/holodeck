@@ -83,7 +83,7 @@ class Command:
                 A number or list of numbers to add to the parameters.
 
         """
-        if isinstance(number, list):
+        if isinstance(number, list) or isinstance(number, tuple):
             for x in number:
                 self.add_number_parameters(x)
             return
@@ -97,7 +97,7 @@ class Command:
                 A string or list of strings to add to the parameters.
 
         """
-        if isinstance(string, list):
+        if isinstance(string, list) or isinstance(string, tuple):
             for x in string:
                 self.add_string_parameters(x)
             return
@@ -170,7 +170,6 @@ class CommandCenter:
             to_write (:class:`str`): The string to write to the command buffer.
 
         """
-
         np.copyto(self._command_bool_ptr, True)
         to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
         input_bytes = str.encode(to_write)
@@ -197,13 +196,14 @@ class SpawnAgentCommand(Command):
 
     """
 
-    def __init__(self, location, rotation, name, agent_type):
+    def __init__(self, location, rotation, name, agent_type, is_main_agent=False):
         super(SpawnAgentCommand, self).__init__()
         self._command_type = "SpawnAgent"
         self.set_location(location)
         self.set_rotation(rotation)
         self.set_type(agent_type)
         self.set_name(name)
+        self.add_number_parameters(int(is_main_agent))
 
     def set_location(self, location):
         """Set where agent will be spawned.
@@ -352,6 +352,22 @@ class RemoveSensorCommand(Command):
         self.add_string_parameters(agent)
         self.add_string_parameters(sensor)
 
+class RotateSensorCommand(Command):
+    """Rotate a sensor on the agent
+
+    Args:
+        agent (:obj:`str`): Name of agent
+        sensor (:obj:`str`): Name of the sensor to rotate
+        rotation (:obj:`list` of :obj:`float`): ``[roll, pitch, yaw]`` rotation for sensor.
+
+    """
+    def __init__(self, agent, sensor, rotation):
+        Command.__init__(self)
+        self._command_type = "RotateSensor"
+        self.add_string_parameters(agent)
+        self.add_string_parameters(sensor)
+        self.add_number_parameters(rotation)
+
 
 class RenderViewportCommand(Command):
     """Enable or disable the viewport. Note that this does not prevent the viewport from being shown,
@@ -372,13 +388,15 @@ class RGBCameraRateCommand(Command):
 
     Args:
         agent_name (:obj:`str`): name of the agent to modify
+        sensor_name (:obj:`str`): name of the sensor to modify
         ticks_per_capture (:obj:`int`): number of ticks between captures
 
     """
-    def __init__(self, agent_name, ticks_per_capture):
+    def __init__(self, agent_name, sensor_name, ticks_per_capture):
         Command.__init__(self)
         self._command_type = "RGBCameraRate"
         self.add_string_parameters(agent_name)
+        self.add_string_parameters(sensor_name)
         self.add_number_parameters(ticks_per_capture)
 
 

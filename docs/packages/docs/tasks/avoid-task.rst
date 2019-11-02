@@ -21,7 +21,7 @@ Configuration
 -------------
 
 Each of the following parameters can be placed in the configuration field
-for a distance task sensor (see :ref:`scenario files <scenario-files>`.)
+for an avoid task sensor (see :ref:`scenario files <scenario-files>`.)
 
 ToAvoid
 ~~~~~~~~

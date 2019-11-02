@@ -1,3 +1,5 @@
+.. _`location-task`:
+
 Location Task
 =============
 
@@ -9,7 +11,7 @@ Configuration
 -------------
 
 Each of the following parameters can be placed in the configuration field
-for a distance task sensor (see :ref:`scenario files <scenario-files>`.)
+for a location task sensor (see :ref:`scenario files <scenario-files>`.)
 
 
 LocationActor
@@ -20,7 +22,7 @@ Defaults to the task's agent.
 
 ``"LocationActor": "name-of-actor"``
 
-Goal Target
+GoalTarget
 ~~~~~~~~~~~
 
 The Location task needs an actor or a location to use in the distance calculations.
