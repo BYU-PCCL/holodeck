@@ -317,6 +317,15 @@ class HolodeckEnvironment:
         """
         self.agents[agent_name].act(action)
 
+    def get_joint_constraints(self, agent_name, joint_name):
+        """Returns the corresponding swing1, swing2 and twist limit values for the
+                specified agent and joint. Will return None if the joint does not exist for the agent.
+
+        Returns:
+            (:obj )
+        """
+        return self.agents[agent_name].get_joint_constraints(joint_name)
+
     def tick(self, num_ticks=1):
         """Ticks the environment once. Normally used for multi-agent environments.
         Args:

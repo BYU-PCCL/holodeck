@@ -1,8 +1,8 @@
 """Definitions for different agents that can be controlled from Holodeck"""
 from functools import reduce
-from typing import Any
 
 import numpy as np
+from . import joint_constraints
 
 from holodeck.spaces import ContinuousActionSpace, DiscreteActionSpace
 from holodeck.sensors import SensorDefinition, SensorFactory, RGBCamera
@@ -47,7 +47,7 @@ class ControlSchemes:
     
 
 class HolodeckAgent:
-    """An learning agent in Holodeck
+    """A learning agent in Holodeck
 
     Agents can act, receive rewards, and receive observations from their sensors.
     Examples include the Android, UAV, and SphereRobot.
@@ -226,6 +226,15 @@ class HolodeckAgent:
         """
         raise NotImplementedError("Child class must implement this function")
 
+    def get_joint_constraints(self, joint_name):
+        """Returns the corresponding swing1, swing2 and twist limit values for the
+        specified joint. Will return None if the joint does not exist for the agent.
+
+        Returns:
+            (:obj )
+        """
+        raise NotImplementedError("Child class must implement this function")
+
     def __act__(self, action):
         
         # Allow for smaller arrays to be provided as input
@@ -356,6 +365,11 @@ class AndroidAgent(HolodeckAgent):
         """
         return AndroidAgent._joint_indices[joint_name]
 
+    def get_joint_constraints(self, joint_name):
+        if joint_name in joint_constraints.android_agent_joints_constraints:
+            return joint_constraints.android_agent_joints_constraints[joint_name]
+        return None
+
     _joint_indices = {
         # Head, Spine, and Arm joints. Each has[swing1, swing2, twist]
         "head": 0,
@@ -459,6 +473,11 @@ class HandAgent(HolodeckAgent):
             (int): The index into the state array
         """
         return HandAgent._joint_indices[joint_name]
+
+    def get_joint_constraints(self, joint_name):
+        if joint_name in joint_constraints.hand_agent_joints_constraints:
+            return joint_constraints.hand_agent_joints_constraints[joint_name]
+        return None
 
     _joint_indices = {
         # Head, Spine, and Arm joints. Each has[swing1, swing2, twist]
