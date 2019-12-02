@@ -7,18 +7,20 @@ with the agents.
 """
 import atexit
 import os
+import random
 import subprocess
 import sys
 
 import numpy as np
 
 from holodeck.command import CommandCenter, SpawnAgentCommand, RGBCameraRateCommand, \
-                             TeleportCameraCommand, RenderViewportCommand, RenderQualityCommand, \
-                             SetSensorEnabledCommand, CustomCommand, DebugDrawCommand
+    TeleportCameraCommand, RenderViewportCommand, RenderQualityCommand, \
+    SetSensorEnabledCommand, CustomCommand, DebugDrawCommand
 
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import AgentDefinition, SensorDefinition, AgentFactory
+
 
 class HolodeckEnvironment:
     """Proxy for communicating with a Holodeck world
@@ -75,14 +77,14 @@ class HolodeckEnvironment:
 
         if window_size is None:
             # Check if it has been configured in the scenario
-                if scenario is not None and "window_height" in scenario:
-                    self._window_size = scenario["window_height"], scenario["window_width"]
-                else:
-                    # Default resolution
-                    self._window_size = 720, 1280
+            if scenario is not None and "window_height" in scenario:
+                self._window_size = scenario["window_height"], scenario["window_width"]
+            else:
+                # Default resolution
+                self._window_size = 720, 1280
         else:
             self._window_size = window_size
-        
+
         self._uuid = uuid
         self._pre_start_steps = pre_start_steps
         self._copy_state = copy_state
@@ -126,7 +128,7 @@ class HolodeckEnvironment:
 
         if os.name == "posix" and show_viewport == False:
             self.should_render_viewport(False)
-        
+
         # Flag indicates if the user has called .reset() before .tick() and .step()
         self._initial_reset = False
         self.reset()
@@ -211,12 +213,19 @@ class HolodeckEnvironment:
 
             agent_config.update(agent)
             is_main_agent = False
-            
+
             if "main_agent" in self._scenario:
                 is_main_agent = self._scenario["main_agent"] == agent["agent_name"]
 
+            agent_location = agent_config["location"]
+
+            # Randomize the agent start location
+            if "randomize_start_location" in self._scenario and self._scenario["randomize_start_location"]:
+                agent_location[0] = random.uniform(-0.5, 0.5)
+                agent_location[1] = random.uniform(-0.5, 0.5)
+
             agent_def = AgentDefinition(agent_config['agent_name'], agent_config['agent_type'],
-                                        starting_loc=agent_config["location"],
+                                        starting_loc=agent_location,
                                         starting_rot=agent_config["rotation"],
                                         sensors=sensors,
                                         existing=agent_config["existing"],
@@ -301,7 +310,7 @@ class HolodeckEnvironment:
 
             reward, terminal = self._get_reward_terminal()
             last_state = self._default_state_fn(), reward, terminal, None
-        
+
         return last_state
 
     def act(self, agent_name, action):

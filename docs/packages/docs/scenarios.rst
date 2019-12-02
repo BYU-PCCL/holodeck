@@ -52,13 +52,17 @@ Scenario File
       "agents":[
          "array of agent objects"
       ],
-
+      "randomize_start_location": true
       "window_width":  1280,
       "window_height": 720
    }
 
 ``window_width/height`` control the size of the window opened when an environment
 is created.
+
+.. note::
+    Only the x and y coordinates will be randomized (between -0.5 and 0.5 meters of the start location for each agent) when you set randomize_start_location
+    to true.
 
 .. note::
    The first agent in the ``agents`` array is the "main agent"
