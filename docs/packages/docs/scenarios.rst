@@ -52,7 +52,7 @@ Scenario File
       "agents":[
          "array of agent objects"
       ],
-      "randomize_start_location": true
+      "randomize_start_location": true,
       "window_width":  1280,
       "window_height": 720
    }
