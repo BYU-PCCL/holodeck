@@ -208,7 +208,9 @@ class HolodeckEnvironment:
                 'location': [0, 0, 0],
                 'rotation': [0, 0, 0],
                 'agent_name': agent['agent_type'],
-                'existing': False
+                'existing': False,
+                "location_randomization": [0, 0, 0],
+                "rotation_randomization": [0, 0, 0]
             }
 
             agent_config.update(agent)
@@ -218,15 +220,29 @@ class HolodeckEnvironment:
                 is_main_agent = self._scenario["main_agent"] == agent["agent_name"]
 
             agent_location = agent_config["location"]
+            agent_rotation = agent_config["rotation"]
 
             # Randomize the agent start location
-            if "randomize_start_location" in self._scenario and self._scenario["randomize_start_location"]:
-                agent_location[0] = random.uniform(-0.5, 0.5)
-                agent_location[1] = random.uniform(-0.5, 0.5)
+            dx = agent_config["location_randomization"][0]
+            dy = agent_config["location_randomization"][1]
+            dz = agent_config["location_randomization"][2]
+
+            agent_location[0] += random.uniform(-dx, dx)
+            agent_location[1] += random.uniform(-dy, dy)
+            agent_location[2] += random.uniform(-dz, dz)
+
+            # Randomize the agent rotation
+            d_pitch = agent_config["rotation_randomization"][0]
+            d_roll = agent_config["rotation_randomization"][1]
+            d_yaw = agent_config["rotation_randomization"][1]
+
+            agent_rotation[0] += random.uniform(-d_pitch, d_pitch)
+            agent_rotation[1] += random.uniform(-d_roll, d_roll)
+            agent_rotation[2] += random.uniform(-d_yaw, d_yaw)
 
             agent_def = AgentDefinition(agent_config['agent_name'], agent_config['agent_type'],
                                         starting_loc=agent_location,
-                                        starting_rot=agent_config["rotation"],
+                                        starting_rot=agent_rotation,
                                         sensors=sensors,
                                         existing=agent_config["existing"],
                                         is_main_agent=is_main_agent)

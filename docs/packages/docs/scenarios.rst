@@ -52,17 +52,12 @@ Scenario File
       "agents":[
          "array of agent objects"
       ],
-      "randomize_start_location": true,
       "window_width":  1280,
       "window_height": 720
    }
 
 ``window_width/height`` control the size of the window opened when an environment
 is created.
-
-.. note::
-    Only the x and y coordinates will be randomized (between -0.5 and 0.5 meters of the start location for each agent) when you set randomize_start_location
-    to true.
 
 .. note::
    The first agent in the ``agents`` array is the "main agent"
@@ -80,9 +75,14 @@ Agent objects
       ],
       "control_scheme": "{control scheme type}",
       "location": [1.0, 2.0, 3.0],
-      "rotation": [1.0, 2.0, 3.0]
+      "rotation": [1.0, 2.0, 3.0],
+      "location_randomization": [dx, dy, dz],
+      "rotation_randomization": [dpitch, droll, dyaw]
    }
 
+.. note::
+    `location_randomization` and `rotation_randomization` are optional. If provided, the agent's start location and/or
+    rotation will vary by a random amount between the negative and the positive values of the provided randomization values.
 
 .. note::
    Holodeck coordinates are **left handed** in meters. See :ref:`coordinate-system`
