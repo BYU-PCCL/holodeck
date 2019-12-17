@@ -52,7 +52,6 @@ Scenario File
       "agents":[
          "array of agent objects"
       ],
-
       "window_width":  1280,
       "window_height": 720
    }
@@ -76,9 +75,14 @@ Agent objects
       ],
       "control_scheme": "{control scheme type}",
       "location": [1.0, 2.0, 3.0],
-      "rotation": [1.0, 2.0, 3.0]
+      "rotation": [1.0, 2.0, 3.0],
+      "location_randomization": [dx, dy, dz],
+      "rotation_randomization": [dpitch, droll, dyaw]
    }
 
+.. note::
+    `location_randomization` and `rotation_randomization` are optional. If provided, the agent's start location and/or
+    rotation will vary by a random amount between the negative and the positive values of the provided randomization values.
 
 .. note::
    Holodeck coordinates are **left handed** in meters. See :ref:`coordinate-system`

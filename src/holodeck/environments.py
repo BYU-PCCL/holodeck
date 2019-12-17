@@ -7,18 +7,20 @@ with the agents.
 """
 import atexit
 import os
+import random
 import subprocess
 import sys
 
 import numpy as np
 
 from holodeck.command import CommandCenter, SpawnAgentCommand, RGBCameraRateCommand, \
-                             TeleportCameraCommand, RenderViewportCommand, RenderQualityCommand, \
-                             SetSensorEnabledCommand, CustomCommand, DebugDrawCommand
+    TeleportCameraCommand, RenderViewportCommand, RenderQualityCommand, \
+    SetSensorEnabledCommand, CustomCommand, DebugDrawCommand
 
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import AgentDefinition, SensorDefinition, AgentFactory
+
 
 class HolodeckEnvironment:
     """Proxy for communicating with a Holodeck world
@@ -75,14 +77,14 @@ class HolodeckEnvironment:
 
         if window_size is None:
             # Check if it has been configured in the scenario
-                if scenario is not None and "window_height" in scenario:
-                    self._window_size = scenario["window_height"], scenario["window_width"]
-                else:
-                    # Default resolution
-                    self._window_size = 720, 1280
+            if scenario is not None and "window_height" in scenario:
+                self._window_size = scenario["window_height"], scenario["window_width"]
+            else:
+                # Default resolution
+                self._window_size = 720, 1280
         else:
             self._window_size = window_size
-        
+
         self._uuid = uuid
         self._pre_start_steps = pre_start_steps
         self._copy_state = copy_state
@@ -126,7 +128,7 @@ class HolodeckEnvironment:
 
         if os.name == "posix" and show_viewport == False:
             self.should_render_viewport(False)
-        
+
         # Flag indicates if the user has called .reset() before .tick() and .step()
         self._initial_reset = False
         self.reset()
@@ -206,18 +208,41 @@ class HolodeckEnvironment:
                 'location': [0, 0, 0],
                 'rotation': [0, 0, 0],
                 'agent_name': agent['agent_type'],
-                'existing': False
+                'existing': False,
+                "location_randomization": [0, 0, 0],
+                "rotation_randomization": [0, 0, 0]
             }
 
             agent_config.update(agent)
             is_main_agent = False
-            
+
             if "main_agent" in self._scenario:
                 is_main_agent = self._scenario["main_agent"] == agent["agent_name"]
 
+            agent_location = agent_config["location"]
+            agent_rotation = agent_config["rotation"]
+
+            # Randomize the agent start location
+            dx = agent_config["location_randomization"][0]
+            dy = agent_config["location_randomization"][1]
+            dz = agent_config["location_randomization"][2]
+
+            agent_location[0] += random.uniform(-dx, dx)
+            agent_location[1] += random.uniform(-dy, dy)
+            agent_location[2] += random.uniform(-dz, dz)
+
+            # Randomize the agent rotation
+            d_pitch = agent_config["rotation_randomization"][0]
+            d_roll = agent_config["rotation_randomization"][1]
+            d_yaw = agent_config["rotation_randomization"][1]
+
+            agent_rotation[0] += random.uniform(-d_pitch, d_pitch)
+            agent_rotation[1] += random.uniform(-d_roll, d_roll)
+            agent_rotation[2] += random.uniform(-d_yaw, d_yaw)
+
             agent_def = AgentDefinition(agent_config['agent_name'], agent_config['agent_type'],
-                                        starting_loc=agent_config["location"],
-                                        starting_rot=agent_config["rotation"],
+                                        starting_loc=agent_location,
+                                        starting_rot=agent_rotation,
                                         sensors=sensors,
                                         existing=agent_config["existing"],
                                         is_main_agent=is_main_agent)
@@ -301,7 +326,7 @@ class HolodeckEnvironment:
 
             reward, terminal = self._get_reward_terminal()
             last_state = self._default_state_fn(), reward, terminal, None
-        
+
         return last_state
 
     def act(self, agent_name, action):
