@@ -4,6 +4,10 @@ import uuid
 from holodeck.environments import HolodeckEnvironment
 from holodeck.packagemanager import get_scenario, get_binary_path_for_scenario, get_package_config_for_scenario
 from holodeck.exceptions import HolodeckException
+from . import schemas
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
+
 
 
 class GL_VERSION:
@@ -22,11 +26,11 @@ def make(scenario_name="", scenario_cfg=None, gl_version=GL_VERSION.OPENGL4, win
     """Creates a Holodeck environment
 
     Args:
-        world_name (:obj:`str`):
+        scenario_name (:obj:`str`):
             The name of the world to load as an environment. Must match the name of a world in an
             installed package.
 
-        scenario_config (:obj:`dict`): Dictionary containing scenario configuration, instead of loading a scenario
+        scenario_cfg (:obj:`dict`): Dictionary containing scenario configuration, instead of loading a scenario
             from the installed packages. Dictionary should match the format of the JSON configuration files
 
         gl_version (:obj:`int`, optional):
@@ -53,13 +57,14 @@ def make(scenario_name="", scenario_cfg=None, gl_version=GL_VERSION.OPENGL4, win
             with all the settings necessary for the specified world, and other supplied arguments.
 
     """
-
+    binary_path = None
     param_dict = dict()
+
     if scenario_name != "":
         scenario = get_scenario(scenario_name)
     elif scenario_cfg is not None:
         scenario = scenario_cfg
-        scenario_name = "{}-{}".format(scenario["name"], scenario["world"])
+        scenario_name = "{}-{}".format(scenario["world"], scenario["name"])
     else:
         raise HolodeckException("You must specify scenario_name or scenario_config")
 

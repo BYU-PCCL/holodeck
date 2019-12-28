@@ -4,6 +4,7 @@ import numpy as np
 import math
 from holodeck import packagemanager as pm
 from holodeck.environments import HolodeckEnvironment
+from holodeck import make
 
 base_conf = {
     "name": "test_randomization",
@@ -54,6 +55,12 @@ def test_location_with_randomization():
     """
     bin_path = pm.get_binary_path_for_package("DefaultWorlds")
     conf = copy.deepcopy(base_conf)
+
+    env = make("CyberPunkCity-Follow")
+
+    with make(scenario_cfg=conf) as env:
+        for _ in range(0, 10):
+            env.tick()
 
     with HolodeckEnvironment(scenario=conf, binary_path=bin_path, show_viewport=False, uuid=str(uuid.uuid4())) as env:
         prev_location = conf["agents"][0]["location"]

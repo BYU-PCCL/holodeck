@@ -19,6 +19,6 @@ setup(
     install_requires=[
         'posix_ipc >= 1.0.0; platform_system == "Linux"',
         'pywin32 >= 1.0; platform_system == "Windows"',
-        'numpy'
+        'numpy', 'jsonschema'
     ],
 )
