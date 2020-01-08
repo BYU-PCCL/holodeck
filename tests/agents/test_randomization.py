@@ -8,6 +8,7 @@ from holodeck.environments import HolodeckEnvironment
 base_conf = {
     "name": "test_randomization",
     "world": "TestWorld",
+    "package_name": "DefaultWorlds",
     "main_agent": "sphere0",
     "agents": [
         {
