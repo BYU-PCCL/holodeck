@@ -32,6 +32,7 @@ Example
    cfg = {
        "name": "test_rgb_camera",
        "world": "ExampleWorld",
+       "package_name": "DefaultWorlds",
        "main_agent": "sphere0",
        "agents": [
            {

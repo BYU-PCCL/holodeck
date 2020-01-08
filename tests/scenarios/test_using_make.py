@@ -29,6 +29,9 @@ base_conf = {
 
 def test_using_make_to_create_worlds():
 
+    # TODO: We need some way of communicating with the engine to verify that the expected level was loaded.
+    # If the level isn't found, then Unreal just picks a default one, so we're missing that case
+
     with make(scenario_cfg=base_conf) as env:
         for _ in range(0, 10):
             env.tick()
