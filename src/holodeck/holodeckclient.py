@@ -72,7 +72,7 @@ class HolodeckClient:
 
         # Unfortunately, OSX doesn't support sem_timedwait(), so setting this timeout
         # does nothing.
-        self.timeout = 5 if self.should_timeout else None
+        self.timeout = 60 if self.should_timeout else None
 
         def posix_acquire_semaphore(sem):
             sem.acquire(self.timeout)
