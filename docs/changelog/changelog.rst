@@ -22,9 +22,10 @@ Highlights
 
 New Features
 ~~~~~~~~~~~~
-- Agent start location can now be optionally randomized on
-  :meth:`~holodeck.environments.HolodeckEnvironment.reset`. See 
-
+- Agent start location and rotation can now be optionally randomized on
+  :meth:`~holodeck.environments.HolodeckEnvironment.reset`. See
+  :ref:`location-randomization`.
+  (`#295 <https://github.com/BYU-PCCL/holodeck/issues/295>`_)
 
 Changes
 ~~~~~~~

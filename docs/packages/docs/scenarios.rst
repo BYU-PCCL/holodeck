@@ -88,6 +88,8 @@ Agent objects
 .. note::
    Holodeck coordinates are **left handed** in meters. See :ref:`coordinate-system`
 
+.. _`location-randomization`:
+
 Location Randomization
 **********************
 
