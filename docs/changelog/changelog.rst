@@ -9,10 +9,11 @@ Changelog
     "Fixed"
   - Add a link to the issue describing the change or the pull request that 
     merged it at the end in parentheses
+  - see https://github.com/BYU-PCCL/holodeck/wiki/Holodeck-Release-Notes-Template
 
 Holodeck 0.3.1
 --------------
-*08/30/2019*
+*??/??/????*
 
 
 Highlights
@@ -29,12 +30,11 @@ Changes
 
 Bug Fixes
 ~~~~~~~~~
-
+- Fixed UAV blades rotating incorrectly (thanks @sethmnielsen!)
+  (`#331 <https://github.com/BYU-PCCL/holodeck/issues/331>`_)
 
 Known Issues
 ~~~~~~~~~~~~
-- The TurtleAgent does not move consistently between Linux and Windows.
-  (`#336 <https://github.com/BYU-PCCL/holodeck/issues/336>`_)
 
 Holodeck 0.3.0
 --------------
