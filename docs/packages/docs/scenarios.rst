@@ -6,7 +6,7 @@ Scenarios
 What is a scenario?
 -------------------
 
-A scenario is a configuration for a Holodeck world, usually distributed with a 
+A scenario is a configuration for a Holodeck world, usually distributed with a
 package. It defines:
 
 - Which world to load
@@ -19,17 +19,17 @@ package. It defines:
    - Which agents play which role in the task
 
 .. tip::
-   You can think of scenarios like a map or gametype variant from Halo: 
+   You can think of scenarios like a map or gametype variant from Halo:
    the world or map itself doesn't change, but the things in the world
-   and your objective can change. 
+   and your objective can change.
 
-Scenarios allow the same world to be used for many different purposes, 
+Scenarios allow the same world to be used for many different purposes,
 and allows you to extend and customize the scenarios we provide to
 suit your needs without recompiling the engine.
 
-When you call ``holodeck.make()`` to create an environment, you pass in the name
-of a scenario, eg ``holodeck.make("UrbanCity-Follow")``. This tells Holodeck
-which world to load and where to place agents.
+When you call ``holodeck.make()`` to create an environment, you pass in the
+name of a scenario, eg ``holodeck.make("UrbanCity-Follow")``. This tells
+Holodeck which world to load and where to place agents.
 
 .. _`scenario-files`:
 
@@ -56,8 +56,8 @@ Scenario File
       "window_height": 720
    }
 
-``window_width/height`` control the size of the window opened when an environment
-is created.
+``window_width/height`` control the size of the window opened when an
+environment is created.
 
 .. note::
    The first agent in the ``agents`` array is the "main agent"
@@ -76,13 +76,19 @@ Agent objects
       "control_scheme": "{control scheme type}",
       "location": [1.0, 2.0, 3.0],
       "rotation": [1.0, 2.0, 3.0],
-      "location_randomization": [dx, dy, dz],
-      "rotation_randomization": [dpitch, droll, dyaw]
+      "location_randomization": [1, 2, 3],
+      "rotation_randomization": [10, 10, 10]
    }
 
 .. note::
-    `location_randomization` and `rotation_randomization` are optional. If provided, the agent's start location and/or
-    rotation will vary by a random amount between the negative and the positive values of the provided randomization values.
+
+   ``location_randomization`` and ``rotation_randomization`` are optional. If
+   provided, the agent's start location and/or rotation will vary by a
+   random amount between the negative and the positive values of the
+   provided randomization values.
+
+   The location value is measured in meters, in the format ``[dx, dy, dz]``
+   and the rotation is ``[roll, pitch, yaw]``.
 
 .. note::
    Holodeck coordinates are **left handed** in meters. See :ref:`coordinate-system`
@@ -109,7 +115,7 @@ Here are the different control scheme values:
 | :ref:`sphere-agent`   | ``sphere_discrete``            |
 |                       +--------------------------------+
 |                       | ``sphere_continuous``          |
-+-----------------------+--------------------------------+  
++-----------------------+--------------------------------+
 | :ref:`nav-agent`      | ``nav_target_location``        |
 +-----------------------+--------------------------------+
 | :ref:`uav-agent`      | ``uav_torques``                |
@@ -130,11 +136,11 @@ Sensor Objects
       "rotation": [1.0, 2.0, 3.0],
       "socket": "socket name or """,
       "configuration": {
-         
+
       }
    }
 
-The only keys that are required in a sensor object is ``"sensor_type"``, the 
+The only keys that are required in a sensor object is ``"sensor_type"``, the
 rest will default as shown below
 
 .. code-block:: json
@@ -149,7 +155,7 @@ rest will default as shown below
 
 .. _`configuration-block`:
 
-Configuration Block 
+Configuration Block
 ~~~~~~~~~~~~~~~~~~~
 
 The contents of the ``configuration`` block are sensor-specific. That block is
