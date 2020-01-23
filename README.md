@@ -15,6 +15,8 @@ Holodeck is a high-fidelity simulator for reinforcement learning built on top of
  - High performance - simulation speeds of up to 2x real time are possible. Performance penalty only for what you need
  - Run headless or watch your agents learn
 
+### Questions? [Join our Discord!](https://discord.gg/Xqqksje)
+
 ## Installation
 `pip install holodeck`
 
