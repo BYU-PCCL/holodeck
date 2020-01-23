@@ -21,9 +21,11 @@ Highlights
 
 New Features
 ~~~~~~~~~~~~
-- :ref:`distance-task` can now be set to use only the xy coordinates in the 
-  distance calculation with the 3dDistance flag, which no longer incentivizes
-  agents to fly straight up for infinite reward.
+- :ref:`distance-task` by default now calculates the distance to the objective
+  along the XY plane, to discourage flying straight up.
+
+  If the full 3D distance is desired, set the ``3dDistance`` flag in the 
+  configuration block of the :ref:`distance-task`.
   (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
 
 Changes
