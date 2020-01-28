@@ -29,7 +29,9 @@ Changes
 
 Bug Fixes
 ~~~~~~~~~
-
+- Fixed `posix_ipc.BusyError: Semaphore is busy` error on Linux systems when
+  creating a scenario
+  (`#285 https://github.com/BYU-PCCL/holodeck/issues/285`)
 
 Known Issues
 ~~~~~~~~~~~~
