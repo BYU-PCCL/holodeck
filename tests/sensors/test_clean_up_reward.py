@@ -1,5 +1,7 @@
 import holodeck
 import uuid
+import pytest
+
 
 cfg = {
         "name": "test_clean_up_reward",
@@ -33,6 +35,9 @@ def test_ball_location_and_reward():
     test where the tester makes sure that trash is spawning on a table. For now the reward and terminal should be zero.
     Eventually there should be a way to add a debug option in the config so it can be tested programmatically.
     """
+
+    if "Dexterity" not in holodeck.installed_packages():
+        pytest.skip("Dexterity package is not installed")
 
     # TODO: Spawn trash above trashcan so it falls in and the reward can be verified
 
