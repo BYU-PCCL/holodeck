@@ -36,8 +36,15 @@ retrieve the correct value from the state dictionary:
 
 ::
 
-   from holodeck.sensors import Sensors
-   sensor_data = state[Sensors.LOCATION_SENSOR]
+   from holodeck import sensors
+   location_data = state[sensors.LocationSensor.sensor_type]
+
+Also, you can just provide the class name of the sensor as a string:
+
+::
+
+   from holodeck import sensors
+   location_data = state["LocationSensor"]
 
 **That's it!** Holodeck is meant to be fairly simple to use. 
 
