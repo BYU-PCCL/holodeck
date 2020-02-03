@@ -12,7 +12,7 @@ Changelog
 
 Holodeck 0.3.0
 --------------
-*11/02/2019*
+*08/30/2019*
 
 This is a content release focused on improving the :ref:`android-agent` and
 adding more scenarios and tasks for it. We also added a new floating hand
