@@ -12,7 +12,7 @@ GitHub.
 
 From this directory,
 ```console
-jayden@NAGA:~/dev/holodeck/docs$ make clean && make html
+~/dev/holodeck/docs$ make clean && make html
 ```
 
 [This VSCode extension](https://marketplace.visualstudio.com/items?itemName=lextudio.restructuredtext)
