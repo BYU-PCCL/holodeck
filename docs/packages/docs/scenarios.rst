@@ -114,7 +114,7 @@ Agent Type             String in agent_type
 :ref:`turtle-agent`     ``TurtleAgent``
 :ref:`nav-agent`        ``NavAgent``
 :ref:`sphere-agent`     ``SphereAgent``
-:ref:`turtle-agent`     ``TurtleAgent``
+:ref:`uav-agent`        ``UAV``
 ====================== ========================
 
 Control Schemes
