@@ -1,6 +1,5 @@
 import holodeck
 import uuid
-import pytest
 
 cfg = {
         "name": "test_ball_location_and_reward",
@@ -38,9 +37,6 @@ def test_ball_location_and_reward():
     detects the correct position and move the sphere agent forward to collide with the correct cup.
     Make sure it receives a reward of 1.
     """
-
-    if "Dexterity" not in holodeck.installed_packages():
-        pytest.skip("Dexterity package is not installed")
 
     binary_path = holodeck.packagemanager.get_binary_path_for_package("Dexterity")
 
