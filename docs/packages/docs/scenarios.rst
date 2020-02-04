@@ -43,7 +43,7 @@ Scenario File Format
 Scenario ``.json`` files are distributed in packages (see
 :ref:`package-contents`), and must be named
 ``{WorldName}-{ScenarioName}.json``. By default they are stored in the
-``worlds/{PackageName}`` directory, but they can be loaded externally as a
+``worlds/{PackageName}`` directory, but they can be loaded from a
 Python dictionary as well.
 
 Scenario File
