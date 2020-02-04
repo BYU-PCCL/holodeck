@@ -34,7 +34,10 @@ Changes
 Bug Fixes
 ~~~~~~~~~
 - Fixed UAV blades rotating incorrectly (thanks @sethmnielsen!)
-  (`#331 <https://github.com/BYU-PCCL/holodeck/issues/331>`_)
+  (`#331 <https://github.com/BYU-PCCL/holodeck/issues/331>`_
+- Fixed `posix_ipc.BusyError: Semaphore is busy` error on Linux systems when
+  creating a scenario
+  (`#285 https://github.com/BYU-PCCL/holodeck/issues/285`)
 
 Known Issues
 ~~~~~~~~~~~~
