@@ -111,6 +111,9 @@ class HolodeckEnvironment:
         self._reset_ptr = self._client.malloc("RESET", [1], np.bool)
         self._reset_ptr[0] = False
 
+        # Initialize environment controller
+        self.weather = WeatherController(self._command_center)
+
         # Set up agents already in the world
         self.agents = dict()
         self._state_dict = dict()
@@ -464,100 +467,6 @@ class HolodeckEnvironment:
         command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
         self._enqueue_command(command_to_send)
 
-    def set_fog_density(self, density):
-        """Change the fog density.
-
-        The change will occur when :meth:`tick` or :meth:`step` is called next.
-
-        By the next tick, the exponential height fog in the world will have the new density. If
-        there is no fog in the world, it will be created with the given density.
-
-        Args:
-            density (:obj:`float`): The new density value, between 0 and 1. The command will not be
-                sent if the given density is invalid.
-        """
-        if density < 0 or density > 1:
-            raise HolodeckException("Fog density should be between 0 and 1")
-
-        self.send_world_command("SetFogDensity", num_params=[density])
-
-    def set_day_time(self, hour):
-        """Change the time of day.
-
-        Daytime will change when :meth:`tick` or :meth:`step` is called next.
-
-        By the next tick, the lighting and the skysphere will be updated with the new hour.
-
-        If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
-
-        Args:
-            hour (:obj:`int`): The hour in 24-hour format, between 0 and 23 inclusive.
-        """
-        self.send_world_command("SetHour", num_params=[hour % 24])
-
-    def start_day_cycle(self, day_length):
-        """Start the day cycle.
-
-        The cycle will start when :meth:`tick` or :meth:`step` is called next.
-
-        The sky sphere will then update each tick with an updated sun angle as it moves about the]
-        sky. The length of a day will be roughly equivalent to the number of minutes given.
-
-        If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
-
-        Args:
-            day_length (:obj:`int`): The number of minutes each day will be.
-        """
-        if day_length <= 0:
-            raise HolodeckException("The given day length should be between above 0!")
-
-        self.send_world_command("SetDayCycle", num_params=[1, day_length])
-
-    def stop_day_cycle(self):
-        """Stop the day cycle.
-
-        The cycle will stop when :meth:`tick` or :meth:`step` is called next.
-
-        By the next tick, day cycle will stop where it is.
-
-        If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
-        """
-        self.send_world_command("SetDayCycle", num_params=[0, -1])
-
-    def set_weather(self, weather_type):
-        """Set the world's weather.
-
-        The new weather will be applied when :meth:`tick` or :meth:`step` is called next.
-
-        By the next tick, the lighting, skysphere, fog, and relevant particle systems will be
-        updated and/or spawned
-        to the given weather.
-
-        If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
-
-        ..note::
-            Because this command can affect the fog density, any changes made by a
-            ``change_fog_density`` command before a set_weather command called will be undone. It is
-            recommended to call ``change_fog_density`` after calling set weather if you wish to
-            apply your specific changes.
-
-        In all downloadable worlds, the weather is clear by default.
-
-        If the given type string is not available, the command will not be sent.
-
-        Args:
-            weather_type (:obj:`str`): The type of weather, which can be ``rain`` or ``cloudy``.
-
-        """
-        if not weather_type.lower() in ["rain", "cloudy"]:
-            raise HolodeckException("Invalid weather type " + weather_type)
-
-        self.send_world_command("SetWeather", string_params=[weather_type])
-
     def move_viewport(self, location, rotation):
         """Teleport the camera to the given location
 
@@ -730,3 +639,124 @@ class HolodeckEnvironment:
                     copy[k] = np.copy(v)
             return copy
         return None  # Not implemented for other types
+
+
+class WeatherController:
+    def __init__(self, command_center):
+        self._command_center = command_center
+
+    def set_fog_density(self, density):
+        """Change the fog density.
+
+        The change will occur when :meth:`tick` or :meth:`step` is called next.
+
+        By the next tick, the exponential height fog in the world will have the new density. If
+        there is no fog in the world, it will be created with the given density.
+
+        Args:
+            density (:obj:`float`): The new density value, between 0 and 1. The command will not be
+                sent if the given density is invalid.
+        """
+        if density < 0 or density > 1:
+            raise HolodeckException("Fog density should be between 0 and 1")
+
+        self.send_world_command("SetFogDensity", num_params=[density])
+
+    def set_day_time(self, hour):
+        """Change the time of day.
+
+        Daytime will change when :meth:`tick` or :meth:`step` is called next.
+
+        By the next tick, the lighting and the skysphere will be updated with the new hour.
+
+        If there is no skysphere, skylight, or directional source light in the world, this command
+        will fail silently.
+
+        Args:
+            hour (:obj:`int`): The hour in 24-hour format, between 0 and 23 inclusive.
+        """
+        self.send_world_command("SetHour", num_params=[hour % 24])
+
+    def start_day_cycle(self, day_length):
+        """Start the day cycle.
+
+        The cycle will start when :meth:`tick` or :meth:`step` is called next.
+
+        The sky sphere will then update each tick with an updated sun angle as it moves about the]
+        sky. The length of a day will be roughly equivalent to the number of minutes given.
+
+        If there is no skysphere, skylight, or directional source light in the world, this command
+        will fail silently.
+
+        Args:
+            day_length (:obj:`int`): The number of minutes each day will be.
+        """
+        if day_length <= 0:
+            raise HolodeckException("The given day length should be between above 0!")
+
+        self.send_world_command("SetDayCycle", num_params=[1, day_length])
+
+    def stop_day_cycle(self):
+        """Stop the day cycle.
+
+        The cycle will stop when :meth:`tick` or :meth:`step` is called next.
+
+        By the next tick, day cycle will stop where it is.
+
+        If there is no skysphere, skylight, or directional source light in the world, this command
+        will fail silently.
+        """
+        self.send_world_command("SetDayCycle", num_params=[0, -1])
+
+    def set_weather(self, weather_type):
+        """Set the world's weather.
+
+        The new weather will be applied when :meth:`tick` or :meth:`step` is called next.
+
+        By the next tick, the lighting, skysphere, fog, and relevant particle systems will be
+        updated and/or spawned
+        to the given weather.
+
+        If there is no skysphere, skylight, or directional source light in the world, this command
+        will fail silently.
+
+        ..note::
+            Because this command can affect the fog density, any changes made by a
+            ``change_fog_density`` command before a set_weather command called will be undone. It is
+            recommended to call ``change_fog_density`` after calling set weather if you wish to
+            apply your specific changes.
+
+        In all downloadable worlds, the weather is clear by default.
+
+        If the given type string is not available, the command will not be sent.
+
+        Args:
+            weather_type (:obj:`str`): The type of weather, which can be ``rain`` or ``cloudy``.
+
+        """
+        if not weather_type.lower() in ["rain", "cloudy"]:
+            raise HolodeckException("Invalid weather type " + weather_type)
+
+        self.send_world_command("SetWeather", string_params=[weather_type])
+
+    def _enqueue_command(self, command_to_send):
+        self._command_center.enqueue_command(command_to_send)
+
+    # TODO(vinhowe): This is duplicated from HolodeckEnvironment--figure out where this logic needs to be
+    def send_world_command(self, name, num_params=None, string_params=None):
+        """Send a custom command.
+
+        A custom command sends an abitrary command that may only exist in a specific world or
+        package. It is given a name and any amount of string and number parameters that allow it to
+        alter the state of the world.
+
+        Args:
+            name (:obj:`str`): The name of the command, ex "OpenDoor"
+            num_params (obj:`list` of :obj:`int`): List of arbitrary number parameters
+            string_params (obj:`list` of :obj:`string`): List of arbitrary string parameters
+        """
+        num_params = [] if num_params is None else num_params
+        string_params = [] if string_params is None else string_params
+
+        command_to_send = CustomCommand(name, num_params, string_params)
+        self._enqueue_command(command_to_send)
