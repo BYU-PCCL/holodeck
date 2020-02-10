@@ -21,7 +21,12 @@ Highlights
 
 New Features
 ~~~~~~~~~~~~
+- :ref:`distance-task` by default now calculates the distance to the objective
+  along the XY plane, to discourage flying straight up.
 
+  If the full 3D distance is desired, set the ``3dDistance`` flag in the 
+  configuration block of the :ref:`distance-task`.
+  (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
 
 Changes
 ~~~~~~~
