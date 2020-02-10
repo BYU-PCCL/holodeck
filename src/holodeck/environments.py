@@ -172,7 +172,7 @@ class HolodeckEnvironment:
     def _load_scenario(self):
         """Loads the scenario defined in self._scenario_key.
 
-        Instantiates all agents and sensors.
+        Instantiates agents, sensors, and weather.
 
         If no scenario is defined, does nothing.
         """
@@ -254,6 +254,21 @@ class HolodeckEnvironment:
             self.add_agent(agent_def, is_main_agent)
             self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
             self._spawned_agent_defs.append(agent_def)
+
+        if "weather" in self._scenario:
+            weather = self._scenario["weather"]
+            if "hour" in weather:
+                self.weather.set_day_time(weather["hour"])
+            if "type" in weather:
+                self.weather.set_weather(weather["type"])
+            if "fog_density" in weather:
+                self.weather.set_fog_density(weather["fog_density"])
+            if "day_cycle_length" in weather:
+                day_cycle_length = weather["day_cycle_length"]
+                if day_cycle_length <= 0:
+                    self.weather.stop_day_cycle()
+                elif day_cycle_length > 0:
+                    self.weather.start_day_cycle(day_cycle_length)
 
     def reset(self):
         """Resets the environment, and returns the state.
