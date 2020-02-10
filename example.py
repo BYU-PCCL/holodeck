@@ -96,20 +96,20 @@ def world_command_examples():
     env.reset()
 
     # The set_day_time_command sets the hour between 0 and 23 (military time). This example sets it to 6 AM.
-    env.set_day_time(6)
+    env.weather.set_day_time(6)
     for _ in range(300):
         _ = env.tick()
     env.reset()  # reset() undoes all alterations to the world
 
     # The start_day_cycle command starts rotating the sun to emulate day cycles.
     # The parameter sets the day length in minutes.
-    env.start_day_cycle(5)
+    env.weather.start_day_cycle(5)
     for _ in range(1500):
         _ = env.tick()
     env.reset()
 
     # The set_fog_density changes the density of the fog in the world. 1 is the maximum density.
-    env.set_fog_density(.25)
+    env.weather.set_fog_density(.25)
     for _ in range(300):
         _ = env.tick()
     env.reset()
@@ -117,12 +117,12 @@ def world_command_examples():
     # The set_weather_command changes the weather in the world. The two available options are "rain" and "cloudy".
     # The rainfall particle system is attached to the agent, so the rain particles will only be found around each agent.
     # Every world is clear by default.
-    env.set_weather("rain")
+    env.weather.set_weather("rain")
     for _ in range(500):
         _ = env.tick()
     env.reset()
 
-    env.set_weather("cloudy")
+    env.weather.set_weather("cloudy")
     for _ in range(500):
         _ = env.tick()
     env.reset()
