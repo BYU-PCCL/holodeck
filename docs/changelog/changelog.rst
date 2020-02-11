@@ -26,6 +26,12 @@ New Features
   :meth:`~holodeck.environments.HolodeckEnvironment.reset`. See
   :ref:`location-randomization`.
   (`#295 <https://github.com/BYU-PCCL/holodeck/issues/295>`_)
+- :ref:`distance-task` by default now calculates the distance to the objective
+  along the XY plane, to discourage flying straight up.
+
+  If the full 3D distance is desired, set the ``3dDistance`` flag in the 
+  configuration block of the :ref:`distance-task`.
+  (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
 
 Changes
 ~~~~~~~
@@ -38,6 +44,9 @@ Bug Fixes
 - Fixed `posix_ipc.BusyError: Semaphore is busy` error on Linux systems when
   creating a scenario
   (`#285 https://github.com/BYU-PCCL/holodeck/issues/285`)
+- Fixed a bug where the UE4 editor crashes when an agent is manually added
+  to a level
+  (`#361 https://github.com/BYU-PCCL/holodeck/issues/361`)
 
 Known Issues
 ~~~~~~~~~~~~

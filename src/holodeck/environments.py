@@ -280,7 +280,7 @@ class HolodeckEnvironment:
         self.agents = dict()
         self._state_dict = dict()
         for agent_def in self._initial_agent_defs:
-            self.add_agent(agent_def)
+            self.add_agent(agent_def, agent_def.is_main_agent)
 
         self._load_scenario()
 
