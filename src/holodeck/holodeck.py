@@ -29,7 +29,7 @@ def make(scenario_name="", scenario_cfg=None, gl_version=GL_VERSION.OPENGL4, win
             The name of the world to load as an environment. Must match the name of a world in an
             installed package.
 
-        scenario_config (:obj:`dict`): Dictionary containing scenario configuration, instead of loading a scenario
+        scenario_cfg (:obj:`dict`): Dictionary containing scenario configuration, instead of loading a scenario
             from the installed packages. Dictionary should match the format of the JSON configuration files
 
         gl_version (:obj:`int`, optional):

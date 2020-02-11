@@ -331,8 +331,8 @@ class HolodeckEnvironment:
 
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
-        Primary mode of interaction for multi-agent environments. After all agent commands are
-            supplied, they can be applied with a call to `tick`.
+           Primary mode of interaction for multi-agent environments. After all agent commands are
+           supplied, they can be applied with a call to `tick`.
 
         Args:
             agent_name (:obj:`str`): The name of the agent to supply an action for.
