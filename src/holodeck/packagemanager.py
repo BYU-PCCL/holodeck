@@ -315,7 +315,7 @@ def get_scenario(scenario_name):
 
 
 def get_binary_path_for_package(package_name):
-    """Gets the path to the binary of a specific package. Raises
+    """Gets the path to the binary of a specific package.
 
     Args:
         package_name (:obj:`str`): Name of the package to search for
