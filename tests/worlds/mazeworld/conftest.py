@@ -23,6 +23,10 @@ def generate_mazeworld_walkthrough():
 
 
 def pytest_generate_tests(metafunc):
+    if "DefaultWorlds" in holodeck.installed_packages():
+        pytest.skip(msg="Skipping MazeWorld tests since DefaultWorlds is not installed",
+                    allow_module_level=True)
+
     if 'complete_mazeworld_states' in metafunc.fixturenames:
         metafunc.parametrize('complete_mazeworld_states', ["mazeworld"], indirect=True)
 

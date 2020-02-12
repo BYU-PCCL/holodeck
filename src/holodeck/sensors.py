@@ -364,7 +364,7 @@ class JointRotationSensor(HolodeckSensor):
     """Returns the state of the :class:`~holodeck.agents.AndroidAgent`'s or the 
     :class:`~holodeck.agents.HandAgent`'s joints.
 
-    See :ref:`android-joints` or :ref:`handagent-joints` for the indexes into this vector.
+    See :ref:`android-joints` or :ref:`hand-joints` for the indexes into this vector.
 
     """
 
@@ -398,7 +398,7 @@ class PressureSensor(HolodeckSensor):
     joint.
 
     For each joint, returns ``[x_loc, y_loc, z_loc, force]``, in the order the joints are listed
-    in :ref:`android-joints` or :ref:`handagent-joints`.
+    in :ref:`android-joints` or :ref:`hand-joints`.
 
     """
 

@@ -1,7 +1,13 @@
+"""Weather/time controller for environments"""
 from holodeck.exceptions import HolodeckException
 
 
 class WeatherController:
+    """Controller for dynamically changing weather and time in an environment
+
+    Args:
+        send_world_command (function): Callback for sending commands to a world
+    """
     def __init__(self, send_world_command):
         self._send_command = send_world_command
 

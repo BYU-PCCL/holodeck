@@ -42,7 +42,7 @@ class ControlSchemes:
 
     # HandAgent Control Schemes
     HAND_AGENT_MAX_TORQUES = 0
-    HAND_AGENT_MAX_TORQUES = 1    
+    HAND_AGENT_MAX_SCALED_TORQUES = 1    
     HAND_AGENT_MAX_TORQUES_FLOAT = 2
     
 
@@ -434,7 +434,7 @@ class AndroidAgent(HolodeckAgent):
 class HandAgent(HolodeckAgent):
     """A floating hand agent.
 
-    Can be controlled via torques supplied to its joints and moved around in 
+    Can be controlled via torques supplied to its joints and moved around in
     three dimensions.
 
     See :ref:`hand-agent` for more details.

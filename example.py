@@ -127,7 +127,7 @@ def world_command_examples():
         _ = env.tick()
     env.reset()
 
-    env.teleport_camera([1000, 1000, 1000], [0, 0, 0])
+    env.move_viewport([1000, 1000, 1000], [0, 0, 0])
     for _ in range(500):
         _ = env.tick()
     env.reset()

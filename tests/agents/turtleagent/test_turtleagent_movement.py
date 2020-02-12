@@ -1,3 +1,5 @@
+import pytest
+import holodeck
 
 def test_turtleagent_falling(complete_mazeworld_states):
     """Makes sure that the TurtleBot is subject to gravity.
@@ -12,7 +14,8 @@ def test_turtleagent_falling(complete_mazeworld_states):
     assert s1[0]["LocationSensor"][2] - s2[0]["LocationSensor"][2] >= 0.1, \
         "The TurtleAgent didn't seem to fall!" 
 
-
+@pytest.mark.skipif(holodeck.util.get_os_key() == "Linux",
+                    reason="TurtleAgent movement differs on Linux. See #336")
 def test_turtleagent_movement(complete_mazeworld_states):
     """Validates that the TurtleAgent can climb slight inclines & moves as expected.
 
