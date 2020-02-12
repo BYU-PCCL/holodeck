@@ -57,6 +57,12 @@ Scenario File
       "agents":[
          "array of agent objects"
       ],
+      "weather": {
+         "hour": 12,
+         "type": "'rain' or 'cloudy'",
+         "fog_density": 0,
+         "day_cycle_length": 86400
+      },
       "window_width":  1280,
       "window_height": 720
    }

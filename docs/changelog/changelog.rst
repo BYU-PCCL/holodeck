@@ -32,6 +32,8 @@ New Features
   If the full 3D distance is desired, set the ``3dDistance`` flag in the 
   configuration block of the :ref:`distance-task`.
   (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
+- Environment weather/time can be optionally configured with :ref:`scenarios`
+  (`#263 <https://github.com/BYU-PCCL/holodeck/issues/263>`_)
 
 Changes
 ~~~~~~~
