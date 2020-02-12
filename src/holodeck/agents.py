@@ -44,9 +44,9 @@ class ControlSchemes:
     UAV_ROLL_PITCH_YAW_RATE_ALT = 1
 
     # HandAgent Control Schemes
-    HAND_AGENT_DIRECT_TORQUES = 0
-    HAND_AGENT_MAX_TORQUES = 1
-    HAND_AGENT_MAX_TORQUES_TRANSFORM = 2
+    HAND_AGENT_MAX_TORQUES = 0
+    HAND_AGENT_MAX_SCALED_TORQUES = 1
+    HAND_AGENT_MAX_TORQUES_FLOAT = 2
 
 
 class HolodeckAgent:
@@ -267,7 +267,6 @@ class HolodeckAgent:
         raise NotImplementedError("Child class must implement this function")
 
     def __act__(self, action):
-
         # Allow for smaller arrays to be provided as input
         if len(self._action_buffer) > len(action):
             action = np.copy(action)
@@ -566,21 +565,21 @@ class HandAgent(HolodeckAgent):
                  ContinuousActionSpace([26]))]
 
     def get_control_scheme_min_values(self, control_scheme):
-        if control_scheme == ControlSchemes.HAND_AGENT_DIRECT_TORQUES:
+        if control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES:
             return [self.__MIN_TORQUE for _ in range(23)]
-        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES:
+        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_SCALED_TORQUES:
             return [-1 for _ in range(23)]
-        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES_TRANSFORM:
+        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES_FLOAT:
             x = [-1.0 for _ in range(26)]
             for i in range(23, 26):
                 x[i] = self.__MIN_MOVEMENT_METERS
 
     def get_control_scheme_max_values(self, control_scheme):
-        if control_scheme == ControlSchemes.HAND_AGENT_DIRECT_TORQUES:
+        if control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES:
             return [self.__MAX_TORQUE for _ in range(23)]
-        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES:
+        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_SCALED_TORQUES:
             return [1 for _ in range(23)]
-        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES_TRANSFORM:
+        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES_FLOAT:
             x = [1.0 for _ in range(26)]
             for i in range(23, 26):
                 x[i] = self.__MAX_MOVEMENT_METERS
