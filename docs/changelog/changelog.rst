@@ -35,7 +35,9 @@ New Features
 
 Changes
 ~~~~~~~
-
+- Moved weather/time methods from
+  :class:`~holodeck.environments.HolodeckEnvironment` to new
+  :class:`~holodeck.weather.WeatherController`
 
 Bug Fixes
 ~~~~~~~~~
