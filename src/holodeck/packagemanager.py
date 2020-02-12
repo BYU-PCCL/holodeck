@@ -13,7 +13,7 @@ from queue import Queue
 from threading import Thread
 
 from holodeck import util
-from holodeck.exceptions import HolodeckException
+from holodeck.exceptions import HolodeckException, NotFoundException
 
 BACKEND_URL = "https://s3.amazonaws.com/holodeckworlds/"
 
@@ -315,13 +315,17 @@ def get_scenario(scenario_name):
 
 
 def get_binary_path_for_package(package_name):
-    """Gets the path to the binary of a specific package
+    """Gets the path to the binary of a specific package.
 
     Args:
         package_name (:obj:`str`): Name of the package to search for
 
     Returns:
-        :obj:`str` or :obj:`None`: Returns the path to the config directory, or None
+        :obj:`str`: Returns the path to the config directory
+
+    Raises:
+        NotFoundException: When the package requested is not found
+
     """
 
     for config, path in _iter_packages():
@@ -331,7 +335,7 @@ def get_binary_path_for_package(package_name):
         except KeyError as e:
             print("Error parsing config file for {}".format(path))
 
-    return None
+    raise NotFoundException("Package `{}` not found!".format(package_name))
 
 
 def get_binary_path_for_scenario(scenario_name):

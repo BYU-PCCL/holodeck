@@ -31,13 +31,11 @@ Notice that:
 
 3. You must call ``.reset()`` before calling ``.step()`` or ``.tick()``
 
-If you want to access the data of a specific sensor, import ``Sensors`` and
-retrieve the correct value from the state dictionary:
+You can access data from a specific sensor with the state dictionary:
 
 ::
 
-   from holodeck.sensors import Sensors
-   sensor_data = state[Sensors.LOCATION_SENSOR]
+   location_data = state["LocationSensor"]
 
 **That's it!** Holodeck is meant to be fairly simple to use. 
 
