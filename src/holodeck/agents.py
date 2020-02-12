@@ -36,15 +36,18 @@ class ControlSchemes:
     # Nav Agent Control Schemes
     NAV_TARGET_LOCATION = 0
 
+    # Turtle agent
+    TURTLE_DIRECT_TORQUES = 0
+
     # UAV Control Schemes
     UAV_TORQUES = 0
     UAV_ROLL_PITCH_YAW_RATE_ALT = 1
 
     # HandAgent Control Schemes
-    HAND_AGENT_MAX_TORQUES = 0
-    HAND_AGENT_MAX_TORQUES = 1    
-    HAND_AGENT_MAX_TORQUES_FLOAT = 2
-    
+    HAND_AGENT_DIRECT_TORQUES = 0
+    HAND_AGENT_MAX_TORQUES = 1
+    HAND_AGENT_MAX_TORQUES_TRANSFORM = 2
+
 
 class HolodeckAgent:
     """A learning agent in Holodeck
@@ -112,6 +115,34 @@ class HolodeckAgent:
         """
         self._current_control_scheme = index % self._num_control_schemes
         self._control_scheme_buffer[0] = self._current_control_scheme
+
+    def get_control_scheme_min_values(self, control_scheme):
+        """
+        Returns the minimum values for the given control scheme
+        Args:
+            control_scheme:
+
+        Returns:
+            A list of minimum values for the given control scheme. Each entry corresponds to the max value
+            of the corresponding entry (e.g roll or pitch) in the control scheme.
+
+            The list will contain None values where there are no minimum values
+        """
+        raise NotImplementedError('Must be implemented by the child agent')
+
+    def get_control_scheme_max_values(self, control_scheme):
+        """
+        Returns the maximum values for the given control scheme
+        Args:
+            control_scheme:
+
+        Returns:
+            A list of maximum values. Each entry corresponds to the max value
+            of the corresponding entry (e.g roll or pitch) in the control scheme
+
+            The list will contain None values where there are no maximum values
+        """
+        raise NotImplementedError('Must be implemented by the child agent')
 
     def teleport(self, location=None, rotation=None):
         """Teleports the agent to a specific location, with a specific rotation.
@@ -236,7 +267,7 @@ class HolodeckAgent:
         raise NotImplementedError("Child class must implement this function")
 
     def __act__(self, action):
-        
+
         # Allow for smaller arrays to be provided as input
         if len(self._action_buffer) > len(action):
             action = np.copy(action)
@@ -251,6 +282,18 @@ class HolodeckAgent:
 
 
 class UavAgent(HolodeckAgent):
+    __MAX_ROLL = 6.5080
+    __MIN_ROLL = -__MAX_ROLL
+
+    __MAX_PITCH = 5.087
+    __MIN_PITCH = -__MAX_PITCH
+
+    __MAX_YAW_RATE = .8
+    __MIN_YAW_RATE = -__MAX_YAW_RATE
+
+    __MAX_FORCE = 59.844
+    __MIN_FORCE = -__MAX_FORCE
+
     """A UAV (quadcopter) agent
 
     **Action Space:**
@@ -277,8 +320,32 @@ class UavAgent(HolodeckAgent):
     def __repr__(self):
         return "UavAgent " + self.name
 
+    def get_control_scheme_min_values(self, control_scheme):
+        if control_scheme == ControlSchemes.UAV_TORQUES:
+            return [self.__MIN_PITCH, self.__MIN_ROLL, self.__MIN_YAW_RATE, self.__MIN_FORCE]
+        elif control_scheme == ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT:
+            return [None, None, None, None]
+
+    def get_control_scheme_max_values(self, control_scheme):
+        if control_scheme == ControlSchemes.UAV_TORQUES:
+            return [self.__MAX_PITCH, self.__MAX_ROLL, self.__MAX_YAW_RATE, self.__MAX_FORCE]
+        elif control_scheme == ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT:
+            return [None, None, None, None]
+
+    def get_joint_constraints(self, joint_name):
+        return None
+
 
 class SphereAgent(HolodeckAgent):
+    __DISCRETE_MIN = 0
+    __DISCRETE_MAX = 4
+
+    __MAX_ROTATION_SPEED = 20
+    __MIN_ROTATION_SPEED = -__MAX_ROTATION_SPEED
+
+    __MAX_FORWARD_SPEED = 20
+    __MIN_FORWARD_SPEED = -__MAX_FORWARD_SPEED
+
     """A basic sphere robot.
 
     See :ref:`sphere-agent` for more details.
@@ -304,13 +371,28 @@ class SphereAgent(HolodeckAgent):
     Inherits from :class:`HolodeckAgent`.
     """
 
+    def get_control_scheme_min_values(self, control_scheme):
+        if control_scheme == ControlSchemes.SPHERE_DISCRETE:
+            return self.__DISCRETE_MIN
+        elif control_scheme == ControlSchemes.SPHERE_CONTINUOUS:
+            return [self.__MIN_FORWARD_SPEED, self.__MIN_ROTATION_SPEED]
+
+    def get_control_scheme_max_values(self, control_scheme):
+        if control_scheme == ControlSchemes.SPHERE_DISCRETE:
+            return self.__DISCRETE_MAX
+        elif control_scheme == ControlSchemes.SPHERE_CONTINUOUS:
+            return [self.__MAX_FORWARD_SPEED, self.__MAX_ROTATION_SPEED]
+
+    def get_joint_constraints(self, joint_name):
+        return None
+
     agent_type = "SphereRobot"
 
     @property
     def control_schemes(self):
-        return [("[forward_movement, rotation]", ContinuousActionSpace([2])),
-                ("0: Move forward\n1: Move backward\n2: Turn right\n3: Turn left",
-                 DiscreteActionSpace([1], 0, 4, buffer_shape=[2]))]
+        return [("0: Move forward\n1: Move backward\n2: Turn right\n3: Turn left",
+                 DiscreteActionSpace([1], 0, 4, buffer_shape=[2])),
+                ("[forward_movement, rotation]", ContinuousActionSpace([2]))]
 
     def __act__(self, action):
         if self._current_control_scheme is ControlSchemes.SPHERE_CONTINUOUS:
@@ -321,6 +403,10 @@ class SphereAgent(HolodeckAgent):
             actions = np.array([[.185, 0], [-.185, 0], [0, 10], [0, -10]])
             to_act = np.array(actions[action, :])
             np.copyto(self._action_buffer, to_act)
+
+    def min_max_torque(self):
+        if self._current_control_scheme is ControlSchemes.SPHERE_CONTINUOUS:
+            return None, None
 
     def __repr__(self):
         return "SphereAgent " + self.name
@@ -341,6 +427,8 @@ class AndroidAgent(HolodeckAgent):
     There are 18 joints with 3 DOF, 10 with 2 DOF, and 20 with 1 DOF.
 
     Inherits from :class:`HolodeckAgent`."""
+    __MAX_TORQUE = 20
+    __MIN_TORQUE = -__MAX_TORQUE
 
     agent_type = "Android"
 
@@ -349,6 +437,18 @@ class AndroidAgent(HolodeckAgent):
         return [("[Raw Bone Torques] * 94", ContinuousActionSpace([94])),
                 ("[-1 to 1] * 94, where 1 is the maximum torque for a given "
                  "joint (based on mass of bone)", ContinuousActionSpace([94]))]
+
+    def get_control_scheme_min_values(self, control_scheme):
+        if control_scheme == ControlSchemes.ANDROID_DIRECT_TORQUES:
+            return [self.__MIN_TORQUE for _ in range(94)]
+        elif control_scheme == ControlSchemes.ANDROID_MAX_SCALED_TORQUES:
+            return [-1 for _ in range(94)]
+
+    def get_control_scheme_max_values(self, control_scheme):
+        if control_scheme == ControlSchemes.ANDROID_DIRECT_TORQUES:
+            return [self.__MAX_TORQUE for _ in range(94)]
+        elif control_scheme == ControlSchemes.ANDROID_MAX_SCALED_TORQUES:
+            return [1 for _ in range(94)]
 
     def __repr__(self):
         return "AndroidAgent " + self.name
@@ -449,6 +549,12 @@ class HandAgent(HolodeckAgent):
     
     """
 
+    __MAX_MOVEMENT_METERS = 0.5
+    __MIN_MOVEMENT_METERS = __MAX_MOVEMENT_METERS
+
+    __MAX_TORQUE = 20
+    __MIN_TORQUE = -__MAX_TORQUE
+
     agent_type = "HandAgent"
 
     @property
@@ -456,8 +562,28 @@ class HandAgent(HolodeckAgent):
         return [("[Raw Bone Torques] * 23", ContinuousActionSpace([23])),
                 ("[-1 to 1] * 23, where 1 is the maximum torque for a given "
                  "joint (based on mass of bone)", ContinuousActionSpace([23])),
-                 ("[-1 to 1] * 23, scaled torques, then [x, y, z] transform",
+                ("[-1 to 1] * 23, scaled torques, then [x, y, z] transform",
                  ContinuousActionSpace([26]))]
+
+    def get_control_scheme_min_values(self, control_scheme):
+        if control_scheme == ControlSchemes.HAND_AGENT_DIRECT_TORQUES:
+            return [self.__MIN_TORQUE for _ in range(23)]
+        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES:
+            return [-1 for _ in range(23)]
+        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES_TRANSFORM:
+            x = [-1.0 for _ in range(26)]
+            for i in range(23, 26):
+                x[i] = self.__MIN_MOVEMENT_METERS
+
+    def get_control_scheme_max_values(self, control_scheme):
+        if control_scheme == ControlSchemes.HAND_AGENT_DIRECT_TORQUES:
+            return [self.__MAX_TORQUE for _ in range(23)]
+        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES:
+            return [1 for _ in range(23)]
+        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES_TRANSFORM:
+            x = [1.0 for _ in range(26)]
+            for i in range(23, 26):
+                x[i] = self.__MAX_MOVEMENT_METERS
 
     def __repr__(self):
         return "HandAgent " + self.name
@@ -520,11 +646,25 @@ class NavAgent(HolodeckAgent):
        
     """
 
+    __MAX_DISTANCE = 0.5
+    __MIN_DISTANCE = -__MAX_DISTANCE
+
     agent_type = "NavAgent"
 
     @property
     def control_schemes(self):
         return [("[x_target, y_target, z_target]", ContinuousActionSpace([3]))]
+
+    def get_control_scheme_min_values(self, control_scheme):
+        if control_scheme == ControlSchemes.NAV_TARGET_LOCATION:
+            return [self.__MIN_DISTANCE for _ in range(3)]
+
+    def get_control_scheme_max_values(self, control_scheme):
+        if control_scheme == ControlSchemes.NAV_TARGET_LOCATION:
+            return [self.__MAX_DISTANCE for _ in range(3)]
+
+    def get_joint_constraints(self, joint_name):
+        return None
 
     def __repr__(self):
         return "NavAgent " + self.name
@@ -547,11 +687,28 @@ class TurtleAgent(HolodeckAgent):
 
     Inherits from :class:`HolodeckAgent`."""
 
+    __MAX_THRUST = 160.0
+    __MIN_THRUST = -__MAX_THRUST
+
+    __MAX_YAW = 35.0
+    __MIN_YAW = -__MAX_YAW
+
     agent_type = "TurtleAgent"
 
     @property
     def control_schemes(self):
         return [("[forward_force, rot_force]", ContinuousActionSpace([2]))]
+
+    def get_control_scheme_min_values(self, control_scheme):
+        if control_scheme == ControlSchemes.TURTLE_DIRECT_TORQUES:
+            return [self.__MIN_THRUST, self.__MIN_YAW]
+
+    def get_control_scheme_max_values(self, control_scheme):
+        if control_scheme == ControlSchemes.TURTLE_DIRECT_TORQUES:
+            return [self.__MAX_THRUST, self.__MAX_YAW]
+
+    def get_joint_constraints(self, joint_name):
+        return None
 
     def __repr__(self):
         return "TurtleAgent " + self.name
@@ -596,7 +753,7 @@ class AgentDefinition:
         for i, sensor_def in enumerate(self.sensors):
             if not isinstance(sensor_def, SensorDefinition):
                 self.sensors[i] = \
-                    SensorDefinition(agent_name, agent_type, 
+                    SensorDefinition(agent_name, agent_type,
                                      sensor_def.sensor_type, sensor_def)
         self.name = agent_name
 
@@ -609,6 +766,7 @@ class AgentDefinition:
 class AgentFactory:
     """Creates an agent object
     """
+
     @staticmethod
     def build_agent(client, agent_def):
         """Constructs an agent

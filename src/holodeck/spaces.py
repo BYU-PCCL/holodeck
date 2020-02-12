@@ -84,6 +84,12 @@ class DiscreteActionSpace(ActionSpace):
     def sample(self):
         return np.random.randint(self._low, self._high, self._shape, dtype=np.int32)
 
+    def get_min(self):
+        return self._low
+
+    def get_max(self):
+        return self._high
+
     def __repr__(self):
         return "[DiscreteActionSpace " + str(self._shape) + ", min: " +\
                str(self._low) + ", max: " + str(self._high) + "]"

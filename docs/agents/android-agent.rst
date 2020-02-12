@@ -17,6 +17,19 @@ Description
 An android agent that can be controlled via torques supplied to its joints.
 See :class:`~holodeck.agents.AndroidAgent` for more details.
 
+Control Schemes
+---------------
+ - **ANDROID_DIRECT_TORQUES** (```0```)
+A 94 dimensional vector of continuous values representing torques to be applied at each joint. There are 18 joints that can rotate in 3 dimensions, 10 that can rotate in 2 dimensions, and 20 that can only
+rotate in 1 direction.
+Joints with 3 possible rotation axes are spaced by three spaces after the initial joint index: E.g Since ``head`` is at index ``0``, index ``0`` is used for yaw, 1 for pitch and 2 for roll and the next joint
+starts at index 3 and takes as many indices as needed.
+So, if I wanted to apply a swing1 torque of 2.4, a swing2 torque of 1.2, and and twist torque of 0.3 on the head joint,
+I'd set index 0 to ``2.4``, index 1 to ``1.2`` and index 2 to ``0.3``.
+
+ - **ANDROID_MAX_SCALED_TORQUES** (```1```)
+Same dimension as the android_direct_torques control scheme but the possible values at each index are between -1 and 1 inclusive. -1 represents the maximum torque in the opposite direction and vice versa.
+
 .. _`android-joints`:
 
 Android Joints
