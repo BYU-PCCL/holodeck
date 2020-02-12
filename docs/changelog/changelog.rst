@@ -40,6 +40,8 @@ Changes
 - Moved weather/time methods from
   :class:`~holodeck.environments.HolodeckEnvironment` to new
   :class:`~holodeck.weather.WeatherController`
+  (`#196 <https://github.com/BYU-PCCL/holodeck/issues/196>`_,
+  `#263 <https://github.com/BYU-PCCL/holodeck/issues/263>`_)
 
 Bug Fixes
 ~~~~~~~~~
