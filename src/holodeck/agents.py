@@ -533,7 +533,7 @@ class AndroidAgent(HolodeckAgent):
 class HandAgent(HolodeckAgent):
     """A floating hand agent.
 
-    Can be controlled via torques supplied to its joints and moved around in 
+    Can be controlled via torques supplied to its joints and moved around in
     three dimensions.
 
     See :ref:`hand-agent` for more details.

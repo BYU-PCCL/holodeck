@@ -6,7 +6,8 @@ that contains worlds and :ref:`scenarios` for those worlds.
 
 .. _`holodeck-engine`: https://github.com/BYU-PCCL/holodeck-engine
 
-A package file is platform specific, since it contains a compiled binary of Holodeck.
+A package file is platform specific, since it contains a compiled binary of
+Holodeck.
 
 .. _`package-contents`:
 
@@ -24,9 +25,9 @@ The ``.zip`` file must contain the following elements
 Package Structure
 -----------------
 
-The package.zip contains a ``config.json`` file at the root of the archive, as well
-as all of the scenarios for every world included in the package. The scenario files
-must follow the format ``{WorldName}-{ScenarioName}.json``.
+The package.zip contains a ``config.json`` file at the root of the archive, as
+well as all of the scenarios for every world included in the package. The
+scenario files must follow the format ``{WorldName}-{ScenarioName}.json``.
 
 ::
 
@@ -39,26 +40,26 @@ must follow the format ``{WorldName}-{ScenarioName}.json``.
 config.json
 -----------
 
-This configuration file contains the package-level configuration. Below is the format
-the config file is expected to follow:
+This configuration file contains the package-level configuration. Below is 
+the format the config file is expected to follow:
 
 ``config.json``:
 
 .. code-block:: json
 
-   {  
+   {
       "name": "{package_name}",
       "platform": "{Linux | Windows}",
       "version": "{package_version}",
       "path" : "{path to binary within the archive}",
-      "worlds": [  
-         {  
+      "worlds": [
+         {
             "name": "{world_name}",
             "pre_start_steps": 2,
          }
       ]
    }
 
-The ``"pre_start_steps"`` attribute for a world defines how many ticks should occur
-before starting the simulation, to work around world idiosyncrasies.
+The ``"pre_start_steps"`` attribute for a world defines how many ticks should 
+occur before starting the simulation, to work around world idiosyncrasies.
 

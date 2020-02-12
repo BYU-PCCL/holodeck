@@ -60,6 +60,15 @@ If left empty, it defaults to false.
 
 ``"MaximizeDistance": true``
 
+3dDistance
+~~~~~~~~~~
+
+Boolean value to indicate whether to incorporate height into the distance calculation.
+If false, it will only use the xy values and ignore vertical distance.
+If left empty, it defaults to false.
+
+``"3dDistance": true``
+
 Example
 -------
 .. code-block:: json

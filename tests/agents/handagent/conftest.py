@@ -45,6 +45,7 @@ def env(request):
     if shared_env == -1:
         shared_env = holodeck.environments.HolodeckEnvironment(scenario=cfg,
                                                                binary_path=binary_path,
+                                                               show_viewport=False,
                                                                uuid=str(uuid.uuid4()))
 
     shared_env.reset()
