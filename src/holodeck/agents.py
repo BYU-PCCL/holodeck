@@ -116,34 +116,6 @@ class HolodeckAgent:
         self._current_control_scheme = index % self._num_control_schemes
         self._control_scheme_buffer[0] = self._current_control_scheme
 
-    def get_control_scheme_min_values(self, control_scheme):
-        """
-        Returns the minimum values for the given control scheme
-        Args:
-            control_scheme:
-
-        Returns:
-            A list of minimum values for the given control scheme. Each entry corresponds to the max value
-            of the corresponding entry (e.g roll or pitch) in the control scheme.
-
-            The list will contain None values where there are no minimum values
-        """
-        raise NotImplementedError('Must be implemented by the child agent')
-
-    def get_control_scheme_max_values(self, control_scheme):
-        """
-        Returns the maximum values for the given control scheme
-        Args:
-            control_scheme:
-
-        Returns:
-            A list of maximum values. Each entry corresponds to the max value
-            of the corresponding entry (e.g roll or pitch) in the control scheme
-
-            The list will contain None values where there are no maximum values
-        """
-        raise NotImplementedError('Must be implemented by the child agent')
-
     def teleport(self, location=None, rotation=None):
         """Teleports the agent to a specific location, with a specific rotation.
 
@@ -311,25 +283,16 @@ class UavAgent(HolodeckAgent):
 
     @property
     def control_schemes(self):
+        torques_min = [self.__MIN_PITCH, self.__MIN_ROLL, self.__MIN_YAW_RATE, self.__MIN_FORCE]
+        torques_max = [self.__MAX_PITCH, self.__MAX_ROLL, self.__MAX_YAW_RATE, self.__MAX_FORCE]
+        no_min_max = [None, None, None, None]
         return [("[pitch_torque, roll_torque, yaw_torque, thrust]",
-                 ContinuousActionSpace([4])),
+                 ContinuousActionSpace([4], low=torques_min, high=torques_max)),
                 ("[pitch_target, roll_target, yaw_rate_target, altitude_target]",
-                 ContinuousActionSpace([4]))]
+                 ContinuousActionSpace([4], low=no_min_max, high=no_min_max))]
 
     def __repr__(self):
         return "UavAgent " + self.name
-
-    def get_control_scheme_min_values(self, control_scheme):
-        if control_scheme == ControlSchemes.UAV_TORQUES:
-            return [self.__MIN_PITCH, self.__MIN_ROLL, self.__MIN_YAW_RATE, self.__MIN_FORCE]
-        elif control_scheme == ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT:
-            return [None, None, None, None]
-
-    def get_control_scheme_max_values(self, control_scheme):
-        if control_scheme == ControlSchemes.UAV_TORQUES:
-            return [self.__MAX_PITCH, self.__MAX_ROLL, self.__MAX_YAW_RATE, self.__MAX_FORCE]
-        elif control_scheme == ControlSchemes.UAV_ROLL_PITCH_YAW_RATE_ALT:
-            return [None, None, None, None]
 
     def get_joint_constraints(self, joint_name):
         return None
@@ -370,28 +333,18 @@ class SphereAgent(HolodeckAgent):
     Inherits from :class:`HolodeckAgent`.
     """
 
-    def get_control_scheme_min_values(self, control_scheme):
-        if control_scheme == ControlSchemes.SPHERE_DISCRETE:
-            return self.__DISCRETE_MIN
-        elif control_scheme == ControlSchemes.SPHERE_CONTINUOUS:
-            return [self.__MIN_FORWARD_SPEED, self.__MIN_ROTATION_SPEED]
-
-    def get_control_scheme_max_values(self, control_scheme):
-        if control_scheme == ControlSchemes.SPHERE_DISCRETE:
-            return self.__DISCRETE_MAX
-        elif control_scheme == ControlSchemes.SPHERE_CONTINUOUS:
-            return [self.__MAX_FORWARD_SPEED, self.__MAX_ROTATION_SPEED]
-
-    def get_joint_constraints(self, joint_name):
-        return None
-
     agent_type = "SphereRobot"
 
     @property
     def control_schemes(self):
+        cont_min = [self.__MIN_FORWARD_SPEED, self.__MIN_ROTATION_SPEED]
+        cont_max = [self.__MAX_FORWARD_SPEED, self.__MAX_ROTATION_SPEED]
         return [("0: Move forward\n1: Move backward\n2: Turn right\n3: Turn left",
-                 DiscreteActionSpace([1], 0, 4, buffer_shape=[2])),
-                ("[forward_movement, rotation]", ContinuousActionSpace([2]))]
+                 DiscreteActionSpace([1], low=self.__DISCRETE_MIN, high=self.__DISCRETE_MAX, buffer_shape=[2])),
+                ("[forward_movement, rotation]", ContinuousActionSpace([2], low=cont_min, high=cont_max))]
+
+    def get_joint_constraints(self, joint_name):
+        return None
 
     def __act__(self, action):
         if self._current_control_scheme is ControlSchemes.SPHERE_CONTINUOUS:
@@ -402,10 +355,6 @@ class SphereAgent(HolodeckAgent):
             actions = np.array([[.185, 0], [-.185, 0], [0, 10], [0, -10]])
             to_act = np.array(actions[action, :])
             np.copyto(self._action_buffer, to_act)
-
-    def min_max_torque(self):
-        if self._current_control_scheme is ControlSchemes.SPHERE_CONTINUOUS:
-            return None, None
 
     def __repr__(self):
         return "SphereAgent " + self.name
@@ -433,21 +382,14 @@ class AndroidAgent(HolodeckAgent):
 
     @property
     def control_schemes(self):
-        return [("[Raw Bone Torques] * 94", ContinuousActionSpace([94])),
+        direct_min = [self.__MIN_TORQUE for _ in range(94)]
+        direct_max = [self.__MAX_TORQUE for _ in range(94)]
+        scaled_min = [-1 for _ in range(94)]
+        scaled_max = [1 for _ in range(94)]
+
+        return [("[Raw Bone Torques] * 94", ContinuousActionSpace([94], low=direct_min, high=direct_max)),
                 ("[-1 to 1] * 94, where 1 is the maximum torque for a given "
-                 "joint (based on mass of bone)", ContinuousActionSpace([94]))]
-
-    def get_control_scheme_min_values(self, control_scheme):
-        if control_scheme == ControlSchemes.ANDROID_DIRECT_TORQUES:
-            return [self.__MIN_TORQUE for _ in range(94)]
-        elif control_scheme == ControlSchemes.ANDROID_MAX_SCALED_TORQUES:
-            return [-1 for _ in range(94)]
-
-    def get_control_scheme_max_values(self, control_scheme):
-        if control_scheme == ControlSchemes.ANDROID_DIRECT_TORQUES:
-            return [self.__MAX_TORQUE for _ in range(94)]
-        elif control_scheme == ControlSchemes.ANDROID_MAX_SCALED_TORQUES:
-            return [1 for _ in range(94)]
+                 "joint (based on mass of bone)", ContinuousActionSpace([94], low=scaled_min, high=scaled_max))]
 
     def __repr__(self):
         return "AndroidAgent " + self.name
@@ -558,31 +500,19 @@ class HandAgent(HolodeckAgent):
 
     @property
     def control_schemes(self):
-        return [("[Raw Bone Torques] * 23", ContinuousActionSpace([23])),
+        raw_min = [self.__MIN_TORQUE for _ in range(23)]
+        raw_max = [self.__MAX_TORQUE for _ in range(23)]
+        joint_min = [-1 for _ in range(23)]
+        joint_max = [1 for _ in range(23)]
+
+        scaled_min = [-1.0 if i < 23 else self.__MIN_MOVEMENT_METERS for i in range(26)]
+        scaled_max = [1.0 if i < 23 else self.__MAX_MOVEMENT_METERS for i in range(26)]
+
+        return [("[Raw Bone Torques] * 23", ContinuousActionSpace([23], low=raw_min, high=raw_max)),
                 ("[-1 to 1] * 23, where 1 is the maximum torque for a given "
-                 "joint (based on mass of bone)", ContinuousActionSpace([23])),
+                 "joint (based on mass of bone)", ContinuousActionSpace([23], low=joint_min, high=joint_max)),
                 ("[-1 to 1] * 23, scaled torques, then [x, y, z] transform",
-                 ContinuousActionSpace([26]))]
-
-    def get_control_scheme_min_values(self, control_scheme):
-        if control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES:
-            return [self.__MIN_TORQUE for _ in range(23)]
-        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_SCALED_TORQUES:
-            return [-1 for _ in range(23)]
-        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES_FLOAT:
-            x = [-1.0 for _ in range(26)]
-            for i in range(23, 26):
-                x[i] = self.__MIN_MOVEMENT_METERS
-
-    def get_control_scheme_max_values(self, control_scheme):
-        if control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES:
-            return [self.__MAX_TORQUE for _ in range(23)]
-        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_SCALED_TORQUES:
-            return [1 for _ in range(23)]
-        elif control_scheme == ControlSchemes.HAND_AGENT_MAX_TORQUES_FLOAT:
-            x = [1.0 for _ in range(26)]
-            for i in range(23, 26):
-                x[i] = self.__MAX_MOVEMENT_METERS
+                 ContinuousActionSpace([26], low=scaled_min, high=scaled_max))]
 
     def __repr__(self):
         return "HandAgent " + self.name

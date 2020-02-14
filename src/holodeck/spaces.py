@@ -34,6 +34,18 @@ class ActionSpace:
         """
         return self._shape
 
+    def get_low(self):
+        """
+        Returns: the action space's minimum value(s)
+        """
+        raise NotImplementedError('Must be implemented by the child class')
+
+    def get_high(self):
+        """
+        Returns: the action space's maximum value(s)
+        """
+        raise NotImplementedError('Must be implemented by the child class')
+
 
 class ContinuousActionSpace(ActionSpace):
     """Action space that takes floating point inputs.
@@ -49,9 +61,18 @@ class ContinuousActionSpace(ActionSpace):
 
             Only use this when it is different from ``shape``.
         """
-    def __init__(self, shape, sample_fn=None, buffer_shape=None):
+
+    def get_low(self):
+        return self._low
+
+    def get_high(self):
+        return self._high
+
+    def __init__(self, shape, low=None, high=None, sample_fn=None, buffer_shape=None):
         super(ContinuousActionSpace, self).__init__(shape, buffer_shape=buffer_shape)
         self.sample_fn = sample_fn or ContinuousActionSpace._default_sample_fn
+        self._low = low
+        self._high = high
 
     def sample(self):
         return self.sample_fn(self._shape)
@@ -76,6 +97,7 @@ class DiscreteActionSpace(ActionSpace):
 
             Only use this when it is different from shape.
     """
+
     def __init__(self, shape, low, high, buffer_shape=None):
         super(DiscreteActionSpace, self).__init__(shape, buffer_shape=buffer_shape)
         self._low = low
@@ -84,10 +106,10 @@ class DiscreteActionSpace(ActionSpace):
     def sample(self):
         return np.random.randint(self._low, self._high, self._shape, dtype=np.int32)
 
-    def get_min(self):
+    def get_low(self):
         return self._low
 
-    def get_max(self):
+    def get_high(self):
         return self._high
 
     def __repr__(self):
