@@ -12,3 +12,4 @@ Using Holodeck
    units-and-coordinates
    performance
    running-headless
+   weather
