@@ -54,8 +54,8 @@ def test_min_max_action_space_constraints(agent, control_scheme, exp_min, exp_ma
                              show_viewport=False,
                              uuid=str(uuid.uuid4())) as env:
 
-        min_result = env.agents[agent].get_control_scheme_min_values(control_scheme)
-        max_result = env.agents[agent].get_control_scheme_max_values(control_scheme)
+        min_result = env.agents[agent].control_schemes[control_scheme][1].get_low()
+        max_result = env.agents[agent].control_schemes[control_scheme][1].get_high()
 
         if type(min_result) == list:
             assert is_close(min_result, exp_min)

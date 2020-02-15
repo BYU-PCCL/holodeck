@@ -582,15 +582,9 @@ class NavAgent(HolodeckAgent):
 
     @property
     def control_schemes(self):
-        return [("[x_target, y_target, z_target]", ContinuousActionSpace([3]))]
-
-    def get_control_scheme_min_values(self, control_scheme):
-        if control_scheme == ControlSchemes.NAV_TARGET_LOCATION:
-            return [self.__MIN_DISTANCE for _ in range(3)]
-
-    def get_control_scheme_max_values(self, control_scheme):
-        if control_scheme == ControlSchemes.NAV_TARGET_LOCATION:
-            return [self.__MAX_DISTANCE for _ in range(3)]
+        low = [self.__MIN_DISTANCE for _ in range(3)]
+        high = [self.__MAX_DISTANCE for _ in range(3)]
+        return [("[x_target, y_target, z_target]", ContinuousActionSpace([3], low=low, high=high))]
 
     def get_joint_constraints(self, joint_name):
         return None
@@ -626,15 +620,9 @@ class TurtleAgent(HolodeckAgent):
 
     @property
     def control_schemes(self):
-        return [("[forward_force, rot_force]", ContinuousActionSpace([2]))]
-
-    def get_control_scheme_min_values(self, control_scheme):
-        if control_scheme == ControlSchemes.TURTLE_DIRECT_TORQUES:
-            return [self.__MIN_THRUST, self.__MIN_YAW]
-
-    def get_control_scheme_max_values(self, control_scheme):
-        if control_scheme == ControlSchemes.TURTLE_DIRECT_TORQUES:
-            return [self.__MAX_THRUST, self.__MAX_YAW]
+        low = [self.__MIN_THRUST, self.__MIN_YAW]
+        high = [self.__MAX_THRUST, self.__MAX_YAW]
+        return [("[forward_force, rot_force]", ContinuousActionSpace([2], low=low, high=high))]
 
     def get_joint_constraints(self, joint_name):
         return None
