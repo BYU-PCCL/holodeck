@@ -54,6 +54,8 @@ class ContinuousActionSpace(ActionSpace):
         shape (:obj:`list` of :obj:`int`): The shape of data that should be input to step or tick.
         sample_fn (function, optional): A function that takes a shape parameter and outputs a
             sampled command.
+        low: the low value(s) for the action space. Can be a scalar or an array
+        high: the high value(s) for the action space. Cand be a scalar or an array
 
             If this is not given, it will default to sampling from a unit gaussian.
         buffer_shape (:obj:`list` of :obj:`int`, optional): The shape of the data that will be
@@ -61,18 +63,18 @@ class ContinuousActionSpace(ActionSpace):
 
             Only use this when it is different from ``shape``.
         """
+    def __init__(self, shape, low=None, high=None, sample_fn=None, buffer_shape=None):
+
+        super(ContinuousActionSpace, self).__init__(shape, buffer_shape=buffer_shape)
+        self.sample_fn = sample_fn or ContinuousActionSpace._default_sample_fn
+        self._low = low
+        self._high = high
 
     def get_low(self):
         return self._low
 
     def get_high(self):
         return self._high
-
-    def __init__(self, shape, low=None, high=None, sample_fn=None, buffer_shape=None):
-        super(ContinuousActionSpace, self).__init__(shape, buffer_shape=buffer_shape)
-        self.sample_fn = sample_fn or ContinuousActionSpace._default_sample_fn
-        self._low = low
-        self._high = high
 
     def sample(self):
         return self.sample_fn(self._shape)
