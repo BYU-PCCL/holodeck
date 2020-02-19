@@ -95,7 +95,6 @@ Day length
 ----------
 
 .. image:: day_length.gif
-   :scale: 55%
 
 The day cycle length is set in minutes.
 
