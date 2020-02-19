@@ -1,5 +1,5 @@
 Configuring Weather and Time
-========================
+============================
 
 Holodeck worlds have weather and time that can be configured, either with
 :ref:`scenarios` or programmatically in real time.
