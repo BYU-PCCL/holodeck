@@ -10,6 +10,7 @@ class WeatherController:
     """
     def __init__(self, send_world_command):
         self._send_command = send_world_command
+        self.cur_weather = "sunny"
 
     def set_fog_density(self, density):
         """Change the fog density.
@@ -36,10 +37,10 @@ class WeatherController:
         By the next tick, the lighting and the skysphere will be updated with the new hour.
 
         If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
+        will crash the environment.
 
         Args:
-            hour (:obj:`int`): The hour in 24-hour format, between 0 and 23 inclusive.
+            hour (:obj:`int`): The hour in 24-hour format: [0, 23].
         """
         self._send_command("SetHour", num_params=[hour % 24])
 
@@ -48,11 +49,11 @@ class WeatherController:
 
         The cycle will start when :meth:`tick` or :meth:`step` is called next.
 
-        The sky sphere will then update each tick with an updated sun angle as it moves about the]
+        The sky sphere will then update each tick with an updated sun angle as it moves about the
         sky. The length of a day will be roughly equivalent to the number of minutes given.
 
         If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
+        will crash the environment.
 
         Args:
             day_length (:obj:`int`): The number of minutes each day will be.
@@ -70,7 +71,7 @@ class WeatherController:
         By the next tick, day cycle will stop where it is.
 
         If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
+        will crash the environment.
         """
         self._send_command("SetDayCycle", num_params=[0, -1])
 
@@ -84,7 +85,7 @@ class WeatherController:
         to the given weather.
 
         If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
+        will crash the environment.
 
         ..note::
             Because this command can affect the fog density, any changes made by a
@@ -92,15 +93,17 @@ class WeatherController:
             recommended to call ``change_fog_density`` after calling set weather if you wish to
             apply your specific changes.
 
-        In all downloadable worlds, the weather is clear by default.
+        In all downloadable worlds, the weather is sunny by default.
 
         If the given type string is not available, the command will not be sent.
 
         Args:
-            weather_type (:obj:`str`): The type of weather, which can be ``rain`` or ``cloudy``.
+            weather_type (:obj:`str`): The type of weather, which can be ``rain``, ``cloudy``, or
+            ``sunny``.
 
         """
-        if not weather_type.lower() in ["rain", "cloudy"]:
+        if not weather_type.lower() in ["rain", "cloudy", "sunny"]:
             raise HolodeckException("Invalid weather type " + weather_type)
 
+        self.cur_weather = weather_type
         self._send_command("SetWeather", string_params=[weather_type])

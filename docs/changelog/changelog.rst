@@ -32,6 +32,9 @@ New Features
   If the full 3D distance is desired, set the ``3dDistance`` flag in the 
   configuration block of the :ref:`distance-task`.
   (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
+- :meth:`~holodeck.weather.WeatherController.set_weather` now has sunny
+  weather available.
+  (`#376 <https://github.com/BYU-PCCL/holodeck/issues/376>`_)
 
 Changes
 ~~~~~~~
@@ -40,6 +43,11 @@ Changes
   :class:`~holodeck.weather.WeatherController`
   (`#196 <https://github.com/BYU-PCCL/holodeck/issues/196>`_,
   `#263 <https://github.com/BYU-PCCL/holodeck/issues/263>`_)
+- Calling :meth:`~holodeck.environments.HolodeckEnvironment.send_world_command`
+  for an environment without the given command will now crash
+  the environment rather than fail silently.
+  This includes all relevant methods in the
+  :class:`~holodeck.weather.WeatherController`.
 
 Bug Fixes
 ~~~~~~~~~
