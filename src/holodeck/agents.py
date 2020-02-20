@@ -308,9 +308,9 @@ class SphereAgent(HolodeckAgent):
 
     @property
     def control_schemes(self):
-        return [("[forward_movement, rotation]", ContinuousActionSpace([2])),
-                ("0: Move forward\n1: Move backward\n2: Turn right\n3: Turn left",
-                 DiscreteActionSpace([1], 0, 4, buffer_shape=[2]))]
+        return [("0: Move forward\n1: Move backward\n2: Turn right\n3: Turn left",
+                 DiscreteActionSpace([1], 0, 4, buffer_shape=[2])),
+                ("[forward_movement, rotation]", ContinuousActionSpace([2]))]
 
     def __act__(self, action):
         if self._current_control_scheme is ControlSchemes.SPHERE_CONTINUOUS:
