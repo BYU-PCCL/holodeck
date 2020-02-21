@@ -531,6 +531,8 @@ class HolodeckEnvironment:
         A custom command sends an abitrary command that may only exist in a specific world or
         package. It is given a name and any amount of string and number parameters that allow it to
         alter the state of the world.
+        
+        If a command is sent that does not exist in the world, the environment will crash.
 
         Args:
             name (:obj:`str`): The name of the command, ex "OpenDoor"
