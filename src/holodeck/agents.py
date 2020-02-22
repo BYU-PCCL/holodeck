@@ -253,6 +253,7 @@ class HolodeckAgent:
 
 
 class UavAgent(HolodeckAgent):
+    # constants in Uav.h in holodeck-engine
     __MAX_ROLL = 6.5080
     __MIN_ROLL = -__MAX_ROLL
 
@@ -299,6 +300,7 @@ class UavAgent(HolodeckAgent):
 
 
 class SphereAgent(HolodeckAgent):
+    # constants in SphereRobot.h in holodeck-engine
     __DISCRETE_MIN = 0
     __DISCRETE_MAX = 4
 
@@ -375,6 +377,7 @@ class AndroidAgent(HolodeckAgent):
     There are 18 joints with 3 DOF, 10 with 2 DOF, and 20 with 1 DOF.
 
     Inherits from :class:`HolodeckAgent`."""
+    # constants in Android.h in holodeck-engine
     __MAX_TORQUE = 20
     __MIN_TORQUE = -__MAX_TORQUE
 
@@ -489,7 +492,7 @@ class HandAgent(HolodeckAgent):
     Inherits from :class:`HolodeckAgent`.
     
     """
-
+    # constants in HandAgent.h in holodeck-engine
     __MAX_MOVEMENT_METERS = 0.5
     __MIN_MOVEMENT_METERS = __MAX_MOVEMENT_METERS
 
@@ -575,6 +578,7 @@ class NavAgent(HolodeckAgent):
        
     """
 
+    # constants in NavAgent.h in holodeck-engine
     __MAX_DISTANCE = 0.5
     __MIN_DISTANCE = -__MAX_DISTANCE
 
@@ -609,7 +613,7 @@ class TurtleAgent(HolodeckAgent):
     - ``rot_force`` is capped at 35 either direction
 
     Inherits from :class:`HolodeckAgent`."""
-
+    # constants in TurtleAgent.h in holodeck-engine
     __MAX_THRUST = 160.0
     __MIN_THRUST = -__MAX_THRUST
 

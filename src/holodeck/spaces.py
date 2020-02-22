@@ -35,14 +35,18 @@ class ActionSpace:
         return self._shape
 
     def get_low(self):
-        """
-        Returns: the action space's minimum value(s)
+        """The minimum value(s) for the action space.
+
+        Returns:
+            (:obj:`list` of :obj:`float` or :obj:`float`): the action space's minimum value(s)
         """
         raise NotImplementedError('Must be implemented by the child class')
 
     def get_high(self):
-        """
-        Returns: the action space's maximum value(s)
+        """The maximum value(s) for the action space.
+
+        Returns:
+            (:obj:`list` of :obj:`float` or :obj:`float`): the action space's maximum value(s)
         """
         raise NotImplementedError('Must be implemented by the child class')
 
@@ -54,8 +58,8 @@ class ContinuousActionSpace(ActionSpace):
         shape (:obj:`list` of :obj:`int`): The shape of data that should be input to step or tick.
         sample_fn (function, optional): A function that takes a shape parameter and outputs a
             sampled command.
-        low: the low value(s) for the action space. Can be a scalar or an array
-        high: the high value(s) for the action space. Cand be a scalar or an array
+        low (:obj:`list` of :obj:`float` or :obj:`float`): the low value(s) for the action space. Can be a scalar or an array
+        high (:obj:`list` of :obj:`float` or :obj:`float`): the high value(s) for the action space. Cand be a scalar or an array
 
             If this is not given, it will default to sampling from a unit gaussian.
         buffer_shape (:obj:`list` of :obj:`int`, optional): The shape of the data that will be
@@ -64,7 +68,6 @@ class ContinuousActionSpace(ActionSpace):
             Only use this when it is different from ``shape``.
         """
     def __init__(self, shape, low=None, high=None, sample_fn=None, buffer_shape=None):
-
         super(ContinuousActionSpace, self).__init__(shape, buffer_shape=buffer_shape)
         self.sample_fn = sample_fn or ContinuousActionSpace._default_sample_fn
         self._low = low

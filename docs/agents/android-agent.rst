@@ -19,24 +19,32 @@ See :class:`~holodeck.agents.AndroidAgent` for more details.
 
 Control Schemes
 ---------------
- - **Android Direct Torques** (```0```)
-A 94 dimensional vector of continuous values representing torques to be applied at each joint. There are 18 joints that can rotate in 3 dimensions, 10 that can rotate in 2 dimensions, and 20 that can only
-rotate in 1 direction.
-Joints with 3 possible rotation axes take up three slots (indices) in the array: E.g Since ``head`` is at index ``0``, index ``0`` is used for yaw, 1 for pitch and 2 for roll and the next joint
-starts at index 3 and takes up as many slots as needed.
-So, if I wanted to apply a swing1 torque of 2.4, a swing2 torque of 1.2, and and twist torque of 0.3 on the head joint,
-I'd set index 0 to ``2.4``, index 1 to ``1.2`` and index 2 to ``0.3``.
+**Android Direct Torques** (``0``)
+  A 94 dimensional vector of continuous values representing 
+  torques to be applied at each joint. There are 18 joints
+  that can rotate in 3 dimensions, 10 that can rotate 
+  in 2 dimensions, and 20 that can only rotate in 1 direction.
+  Joints with 3 possible rotation axes take up three 
+  slots (indices) in the array: E.g Since ``head`` 
+  is at index ``0``, index ``0`` is used for yaw, 1 
+  for pitch and 2 for roll and the next joint 
+  starts at index 3 and takes up as many slots as needed.
+  So, if I wanted to apply a swing1 torque of 2.4, a 
+  swing2 torque of 1.2, and and twist torque of 0.3 on the head joint,
+  I'd set index 0 to ``2.4``, index 1 to ``1.2`` and index 2 to ``0.3``.
 
- - **Adroid Max Scaled Torques** (```1```)
-Same dimension as the android_direct_torques control scheme but the possible values at each index are between -1 and 1 inclusive. -1 represents the maximum torque in the opposite direction and vice versa.
+**Adroid Max Scaled Torques** (``1``)
+  Same dimension as the android_direct_torques control scheme but 
+  the possible values at each index are between -1 and 1 inclusive. 
+  -1 represents the maximum torque in the opposite direction and vice versa.
 
 .. _`android-joints`:
 
 Android Joints
 --------------
 The control scheme for the android and the
-:class:`~holodeck.sensors.JointRotationSensor` use a 94 length vector refer 
-to 48 joints. 
+:class:`~holodeck.sensors.JointRotationSensor` use a 94 length 
+vector refer to 48 joints. 
 
 To gain insight into these joints, refer to the table below, or use the 
 :meth:`~holodeck.agents.AndroidAgent.joint_ind` helper method to convert a
@@ -248,7 +256,8 @@ Control Schemes
 
 - Android Torques
 
-See :class:`~holodeck.agents.AndroidAgent` for details on how this control scheme works.
+See :class:`~holodeck.agents.AndroidAgent` for 
+details on how this control scheme works.
 
 .. TODO: Example code
 

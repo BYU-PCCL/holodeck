@@ -1,35 +1,33 @@
 import uuid
 from holodeck import packagemanager as pm
 from holodeck.environments import HolodeckEnvironment
-import pytest
 import math
 
 test_data = [
-    # agent_name, control_scheme, exp_min, exp_max, test_id
-    pytest.param("AndroidAgent", 0, [-20 for _ in range(94)], [20 for _ in range(94)], id="AndroidAgent 0"),
-    pytest.param("AndroidAgent", 1, [-1 for _ in range(94)], [1 for _ in range(94)], id="AndroidAgent 1"),
-    pytest.param("UavAgent", 0, [-5.087, -6.5080, -0.8, -59.844], [5.087, 6.5080, 0.8, 59.844], id="UavAgent 1"),
-    pytest.param("SphereAgent", 0, 0, 4, id="SphereAgent 0"),
-    pytest.param("SphereAgent", 1, [-20, -20], [20, 20], id="SphereAgent 1"),
+    # agent_name, control_scheme, exp_min, exp_max
+    {"type": "UavAgent", "name": "UavAgent", "control_scheme": 0, "min": [-5.087, -6.5080, -0.8, -59.844],
+     "max": [5.087, 6.5080, 0.8, 59.844]},
+    {"type": "AndroidAgent", "name": "AndroidAgent0", "control_scheme": 0, "min": [-20 for _ in range(94)],
+     "max": [20 for _ in range(94)]},
+    {"type": "AndroidAgent", "name": "AndroidAgent1", "control_scheme": 1, "min": [-1 for _ in range(94)],
+     "max": [1 for _ in range(94)]},
+    {"type": "SphereAgent", "name": "SphereAgent0", "control_scheme": 0, "min": 0, "max": 4},
+    {"type": "SphereAgent", "name": "SphereAgent1", "control_scheme": 1, "min": [-20, -20], "max": [20, 20]},
+    {"type": "TurtleAgent", "name": "TurtleAgent", "control_scheme": 0, "min": [-160.0, -35.0], "max": [160.0, 35.0]},
+    {"type": "HandAgent", "name": "HandAgent0", "control_scheme": 0, "min": [-20 for _ in range(23)],
+     "max": [20 for _ in range(23)]},
+    {"type": "HandAgent", "name": "HandAgent1", "control_scheme": 1, "min": [-1 for _ in range(23)],
+     "max": [1 for _ in range(23)]},
 ]
+
+agents = [{"agent_name": x["name"], "agent_type": x["type"], "sensors": [],
+           "control_scheme": x["control_scheme"], "location": [0, 0, 5]} for x in test_data]
 
 config = {
     "name": "test_collision_sensor",
     "world": "TestWorld",
-    "main_agent": "test_agent",
-    "agents": [
-        {
-            "agent_name": "UavAgent",
-            "agent_type": "UavAgent",
-            "sensors": [
-                {
-                    "sensor_type": "LocationSensor",
-                }
-            ],
-            "control_scheme": 0,
-            "location": [0, 0, 5]
-        }
-    ]
+    "main_agent": "UavAgent",
+    "agents": agents
 }
 
 
@@ -41,29 +39,32 @@ def is_close(a, b):
     return True
 
 
-@pytest.mark.parametrize("agent, control_scheme, exp_min, exp_max", test_data)
-def test_min_max_action_space_constraints(agent, control_scheme, exp_min, exp_max):
-    binary_path = pm.get_binary_path_for_package("DefaultWorlds")
+def check_constraints(x, y):
+    if type(x) == list:
+        assert is_close(x, y)
+    else:
+        assert math.isclose(x, y, rel_tol=1e-05)
 
-    config["agents"][0]["agent_type"] = agent
-    config["agents"][0]["agent_name"] = agent
-    config["agents"][0]["control_scheme"] = control_scheme
+
+def test_min_max_action_space_constraints():
+    binary_path = pm.get_binary_path_for_package("DefaultWorlds")
 
     with HolodeckEnvironment(scenario=config,
                              binary_path=binary_path,
                              show_viewport=False,
                              uuid=str(uuid.uuid4())) as env:
 
-        min_result = env.agents[agent].control_schemes[control_scheme][1].get_low()
-        max_result = env.agents[agent].control_schemes[control_scheme][1].get_high()
+        for x in test_data:
+            agent = x["name"]
+            control_scheme = x["control_scheme"]
 
-        if type(min_result) == list:
-            assert is_close(min_result, exp_min)
-        else:
-            assert math.isclose(min_result, exp_min, rel_tol=1e-05)
+            min_result = env.agents[agent].control_schemes[control_scheme][1].get_low()
+            exp_min = x["min"]
 
-        if type(max_result) == list:
-            assert is_close(max_result, exp_max)
-        else:
-            assert math.isclose(max_result, exp_max, rel_tol=1e-05)
+            check_constraints(min_result, exp_min)
+
+            max_result = env.agents[agent].control_schemes[control_scheme][1].get_high()
+            exp_max = x["max"]
+
+            check_constraints(max_result, exp_max)
 
