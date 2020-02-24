@@ -70,6 +70,36 @@ Programmatically
    env = holodeck.make("...")
    env.weather.set_fog_density(0.5)
 
+
+Day length
+----------
+
+.. image:: day_length.gif
+
+.. note:: By default, the day cycle in Holodeck worlds is turned off and time is fixed.
+
+The day cycle length is set in minutes.
+
+In a scenario
+^^^^^^^^^^^^^
+
+.. code-block:: json
+
+   {
+      "weather": {
+         "day_cycle_length": 60
+      }
+   }
+
+Programmatically
+^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   env = holodeck.make("...")
+   env.weather.start_day_cycle(60)
+
+
 Time
 ----
 
@@ -96,29 +126,3 @@ Programmatically
 
    env = holodeck.make("...")
    env.weather.set_day_time(12)
-
-Day length
-----------
-
-.. image:: day_length.gif
-
-The day cycle length is set in minutes.
-
-In a scenario
-^^^^^^^^^^^^^
-
-.. code-block:: json
-
-   {
-      "weather": {
-         "day_cycle_length": 60
-      }
-   }
-
-Programmatically
-^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   env = holodeck.make("...")
-   env.weather.start_day_cycle(60)
