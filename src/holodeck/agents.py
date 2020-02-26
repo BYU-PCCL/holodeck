@@ -380,19 +380,22 @@ class AndroidAgent(HolodeckAgent):
     # constants in Android.h in holodeck-engine
     __MAX_TORQUE = 20
     __MIN_TORQUE = -__MAX_TORQUE
+    __JOINTS_VECTOR_SIZE = 94
 
     agent_type = "Android"
 
     @property
     def control_schemes(self):
-        direct_min = [self.__MIN_TORQUE for _ in range(94)]
-        direct_max = [self.__MAX_TORQUE for _ in range(94)]
-        scaled_min = [-1 for _ in range(94)]
-        scaled_max = [1 for _ in range(94)]
+        direct_min = [self.__MIN_TORQUE for _ in range(self.__JOINTS_VECTOR_SIZE)]
+        direct_max = [self.__MAX_TORQUE for _ in range(self.__JOINTS_VECTOR_SIZE)]
+        scaled_min = [-1 for _ in range(self.__JOINTS_VECTOR_SIZE)]
+        scaled_max = [1 for _ in range(self.__JOINTS_VECTOR_SIZE)]
 
-        return [("[Raw Bone Torques] * 94", ContinuousActionSpace([94], low=direct_min, high=direct_max)),
+        return [("[Raw Bone Torques] * 94",
+                 ContinuousActionSpace([self.__JOINTS_VECTOR_SIZE], low=direct_min, high=direct_max)),
                 ("[-1 to 1] * 94, where 1 is the maximum torque for a given "
-                 "joint (based on mass of bone)", ContinuousActionSpace([94], low=scaled_min, high=scaled_max))]
+                 "joint (based on mass of bone)",
+                 ContinuousActionSpace([self.__JOINTS_VECTOR_SIZE], low=scaled_min, high=scaled_max))]
 
     def __repr__(self):
         return "AndroidAgent " + self.name
@@ -494,28 +497,34 @@ class HandAgent(HolodeckAgent):
     """
     # constants in HandAgent.h in holodeck-engine
     __MAX_MOVEMENT_METERS = 0.5
-    __MIN_MOVEMENT_METERS = __MAX_MOVEMENT_METERS
+    __MIN_MOVEMENT_METERS = -__MAX_MOVEMENT_METERS
 
     __MAX_TORQUE = 20
     __MIN_TORQUE = -__MAX_TORQUE
+
+    __JOINTS_DOF = 23
+    __JOINTS_AND_DIST = 26
 
     agent_type = "HandAgent"
 
     @property
     def control_schemes(self):
-        raw_min = [self.__MIN_TORQUE for _ in range(23)]
-        raw_max = [self.__MAX_TORQUE for _ in range(23)]
-        joint_min = [-1 for _ in range(23)]
-        joint_max = [1 for _ in range(23)]
+        raw_min = [self.__MIN_TORQUE for _ in range(self.__JOINTS_DOF)]
+        raw_max = [self.__MAX_TORQUE for _ in range(self.__JOINTS_DOF)]
+        joint_min = [-1 for _ in range(self.__JOINTS_DOF)]
+        joint_max = [1 for _ in range(self.__JOINTS_DOF)]
 
-        scaled_min = [-1.0 if i < 23 else self.__MIN_MOVEMENT_METERS for i in range(26)]
-        scaled_max = [1.0 if i < 23 else self.__MAX_MOVEMENT_METERS for i in range(26)]
+        scaled_min = [-1.0 if i < self.__JOINTS_DOF
+                      else self.__MIN_MOVEMENT_METERS for i in range(self.__JOINTS_AND_DIST)]
+        scaled_max = [1.0 if i < self.__JOINTS_DOF
+                      else self.__MAX_MOVEMENT_METERS for i in range(self.__JOINTS_AND_DIST)]
 
-        return [("[Raw Bone Torques] * 23", ContinuousActionSpace([23], low=raw_min, high=raw_max)),
-                ("[-1 to 1] * 23, where 1 is the maximum torque for a given "
-                 "joint (based on mass of bone)", ContinuousActionSpace([23], low=joint_min, high=joint_max)),
+        return [("[Raw Bone Torques] * 23", ContinuousActionSpace([self.__JOINTS_DOF], low=raw_min, high=raw_max)),
+                ("[-1 to 1] * 23, where 1 is the maximum torque for the given index"
+                 "joint (based on mass of bone)",
+                 ContinuousActionSpace([self.__JOINTS_DOF], low=joint_min, high=joint_max)),
                 ("[-1 to 1] * 23, scaled torques, then [x, y, z] transform",
-                 ContinuousActionSpace([26], low=scaled_min, high=scaled_max))]
+                 ContinuousActionSpace([self.__JOINTS_AND_DIST], low=scaled_min, high=scaled_max))]
 
     def __repr__(self):
         return "HandAgent " + self.name
