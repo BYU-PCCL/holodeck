@@ -20,43 +20,37 @@ See :class:`~holodeck.agents.AndroidAgent` for more details.
 Control Schemes
 ---------------
 **Android Direct Torques** (``0``)
-  A 94 dimensional vector of continuous values representing 
-  torques to be applied at each joint. There are 18 joints
-  that can rotate in 3 dimensions, 10 that can rotate 
-  in 2 dimensions, and 20 that can only rotate in 1 direction.
-  Joints with 3 possible rotation axes take up three 
-  slots (indices) in the array: E.g Since ``head`` 
-  is at index ``0``, index ``0`` is used for yaw, 1 
-  for pitch and 2 for roll and the next joint 
-  starts at index 3 and takes up as many slots as needed.
-  So, if I wanted to apply a swing1 torque of 2.4, a 
-  swing2 torque of 1.2, and and twist torque of 0.3 on the head joint,
-  I'd set index 0 to ``2.4``, index 1 to ``1.2`` and index 2 to ``0.3``.
+  A 94 dimensional vector of continuous values representing torques to be
+  applied at each joint. See :ref:`android-joints` below for a description of
+  the joint indicies.
 
-**Adroid Max Scaled Torques** (``1``)
-  Same dimension as the android_direct_torques control scheme but 
-  the possible values at each index are between -1 and 1 inclusive. 
-  -1 represents the maximum torque in the opposite direction and vice versa.
+**Android Max Scaled Torques** (``1``)
+  A 94 dimensional vector of continuous values between [-1, 1] representing the
+  scaled torques to be applied at each joint. See :ref:`android-joints` below
+  for a description of the joint indicies.
+
+  1 represents the maximum forward torque and -1 the maximum torque in the
+  opposite direction.
 
 .. _`android-joints`:
 
 Android Joints
 --------------
 The control scheme for the android and the
-:class:`~holodeck.sensors.JointRotationSensor` use a 94 length 
-vector refer to 48 joints. 
+:class:`~holodeck.sensors.JointRotationSensor` use a 94 length vector refer to
+48 joints.
 
-To gain insight into these joints, refer to the table below, or use the 
-:meth:`~holodeck.agents.AndroidAgent.joint_ind` helper method to convert a
-name (eg ``spine_02``) to and index (``6``).
+To gain insight into these joints, refer to the table below, or use the
+:meth:`~holodeck.agents.AndroidAgent.joint_ind` helper method to convert a name
+(eg ``spine_02``) to and index (``6``).
 
 .. note::
     Note that the index given is the start index for the joint, see the section
     header for how many values after this index each joint has.
 
-    Example: ``neck_01`` starts at index 3, and has ``[swing1, swing2, twist]``, so index
-    3 in the 94 length vector corresponds to ``swing1``, 4 corresponds to ``swing2``, and
-    5 corresponds to ``twist`` for ``neck_01``
+    Example: ``neck_01`` starts at index 3, and has ``[swing1, swing2, twist]``
+    , so index 3 in the 94 length vector corresponds to ``swing1``, 4
+    corresponds to ``swing2``, and 5 corresponds to ``twist`` for ``neck_01``.
 
 Returned in the following order:
 
@@ -182,8 +176,8 @@ Returned in the following order:
 
 AndroidAgent Bones
 ------------------
-The :class:`~holodeck.sensors.RelativeSkeletalPositionSensor` returns an 
-array with four entries for each bone listed below.
+The :class:`~holodeck.sensors.RelativeSkeletalPositionSensor` returns an array
+with four entries for each bone listed below.
 
 ========= =======================
   Index          Bone Name
@@ -250,15 +244,6 @@ array with four entries for each bone listed below.
 ``236``   ``thigh_twist_01_r``
 ========= =======================
 
-
-Control Schemes
----------------
-
-- Android Torques
-
-See :class:`~holodeck.agents.AndroidAgent` for 
-details on how this control scheme works.
-
 .. TODO: Example code
 
 Sockets
@@ -266,5 +251,4 @@ Sockets
 
 - ``CameraSocket`` located in the middle of the android's face
 - ``Viewport`` located behind the agent
-- All of the joints may be used as sockets. See 
-  :ref:`android-joints`
+- All of the joints may be used as sockets. See :ref:`android-joints`.
