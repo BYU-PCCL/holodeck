@@ -532,7 +532,7 @@ class HolodeckEnvironment:
         package. It is given a name and any amount of string and number parameters that allow it to
         alter the state of the world.
         
-        If a command is sent that does not exist in the world, the environment will crash.
+        If a command is sent that does not exist in the world, the environment will exit.
 
         Args:
             name (:obj:`str`): The name of the command, ex "OpenDoor"
