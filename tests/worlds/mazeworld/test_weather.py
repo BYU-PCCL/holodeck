@@ -3,7 +3,6 @@ Test that weather options can be configured both from scenario and programmatica
 """
 import os
 import uuid
-from typing import List, Tuple
 
 import pytest
 from _pytest.fixtures import FixtureRequest
