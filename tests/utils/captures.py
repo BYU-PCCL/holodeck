@@ -3,6 +3,8 @@ from typing import List, Tuple, Optional
 
 import cv2
 
+from tests.utils.equality import mean_square_err
+
 
 def display_multiple(images: List[Tuple[List, Optional[str]]]):
     """Displays one or more captures in a CV2 window. Useful for debugging
@@ -38,6 +40,22 @@ def display(pixels, title="Camera Output"):
 
     """
     display_multiple([(pixels, title)])
+
+
+def compare_rgb_with_baseline(sensor_data, base_path, baseline_name,
+                              show_images=False) -> float:
+    """
+    Compare data from RGB sensor with baseline file in `expected` folder and
+    return mean squared error
+    """
+    pixels = sensor_data[:, :, 0:3]
+    baseline = cv2.imread(
+        os.path.join(base_path, "expected", f"{baseline_name}.png"))
+    if show_images:
+        # Show images when debugging--this will block tests until user input
+        # is provided
+        display_multiple([(pixels, "pixels"), (baseline, "baseline")])
+    return mean_square_err(pixels, baseline)
 
 
 def write_image_from_rgb_sensor_data(sensor_data, base_path, name):

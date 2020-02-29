@@ -1,32 +1,19 @@
 """
-Test that weather options can be configured both from scenario and programmatically
+Test that weather options can be configured both from scenario and
+programmatically
 """
-import os
-import uuid
 
 import pytest
 from _pytest.fixtures import FixtureRequest
-from cv2 import cv2
-from holodeck import packagemanager as pm, HolodeckException
+from holodeck import HolodeckException
 from holodeck.environments import HolodeckEnvironment
 
-from tests.utils.captures import display_multiple
-from tests.utils.equality import mean_square_err
+from tests.utils.captures import compare_rgb_with_baseline
+from tests.worlds.mazeworld.conftest import env_with_config
 
-weather_type_test_data = [
-    # weather_type, max_err
-    pytest.param("sunny", 500, id="Sunny"),
-    pytest.param("cloudy", 500, id="Cloudy"),
-    pytest.param("rain", 500, id="Rain"),
-]
-
-fog_test_data = [
-    # fog_depth, max_err
-    pytest.param(1, 500, id="Fog density 100%"),
-    pytest.param(0, 500, id="Fog density 0%"),
-]
-
-config = {
+# TODO: Maybe we should consider creating a config used across the board for
+#  visual tests with data from RGBCamera sensor
+weather_config = {
     "name": "test_weather_config",
     "world": "MazeWorld",
     "main_agent": "sphere0",
@@ -49,99 +36,222 @@ config = {
     "window_height": 1024
 }
 
+weather_type_test_data = [
+    # weather_type, max_err
+    pytest.param("sunny", 1000, id="Sunny"),
+    pytest.param("cloudy", 1000, id="Cloudy"),
+    pytest.param("rain", 1000, id="Rain"),
+]
 
-def env_with_config(config):
-    binary_path = pm.get_binary_path_for_package("DefaultWorlds")
-    return HolodeckEnvironment(scenario=config,
-                               binary_path=binary_path,
-                               show_viewport=False,
-                               uuid=str(uuid.uuid4()))
+fog_density_test_data = [
+    # fog_depth, max_err
+    pytest.param(0, 1000, id="Fog density 0%"),
+    pytest.param(1, 1000, id="Fog density 100%"),
+]
 
-
-def compare_rgb_with_baseline(sensor_data, base_path, baseline_name, show_images=False) -> float:
-    """
-    Compare data from RGB sensor with baseline file in `expected` folder and return mean squared error
-    """
-    pixels = sensor_data[:, :, 0:3]
-    baseline = cv2.imread(os.path.join(base_path, "expected", f"{baseline_name}.png"))
-    if show_images:
-        # Show images when debugging--this will block tests until user input is provided
-        display_multiple([(pixels, "pixels"), (baseline, "baseline")])
-    return mean_square_err(pixels, baseline)
+time_test_data = [
+    # hour, max_err
+    pytest.param(0, 1000, id="Time 0"),
+    pytest.param(12, 1000, id="Time 12"),
+    pytest.param(23, 1000, id="Time 23")
+]
 
 
 @pytest.mark.parametrize("weather_type, max_err", weather_type_test_data)
-def test_weather_type_scenario(weather_type: str, max_err: float, request: FixtureRequest) -> None:
-    """Validate that weather type is loaded correctly from scenario by comparing RGB sensor data with saved baseline
+def test_weather_type_scenario(weather_type: str, max_err: float,
+                               request: FixtureRequest) -> None:
+    """Validate that weather type is loaded correctly from scenario by
+    comparing RGB sensor data with saved baseline
     data
 
     Args:
         weather_type: type of weather in ["sunny", "cloudy", "rain"]
-        max_err: maximum mean squared error between sensor data and baseline data allowed for test to pass
+        max_err: maximum mean squared error between sensor data and baseline
+        data allowed for test to pass
         request:
 
     """
-    current_config = config.copy()
-    current_config["weather"] = {"type": weather_type}
+    config = weather_config.copy()
+    config["weather"] = {"type": weather_type}
 
-    with env_with_config(current_config) as env:
+    with env_with_config(config) as env:
         env.tick(5)
-        err = compare_rgb_with_baseline(env.tick()["TestCamera"], request.fspath.dirname,
+        err = compare_rgb_with_baseline(env.tick()["TestCamera"],
+                                        request.fspath.dirname,
                                         f"weather_type_{weather_type}")
         assert err < max_err
 
 
-@pytest.mark.parametrize("fog_density, max_err", fog_test_data)
-def test_weather_fog_scenario(fog_density: float, max_err: float, request: FixtureRequest) -> None:
-    """Validate that fog density is loaded correctly from scenario by comparing RGB sensor data with saved baseline data
+@pytest.mark.parametrize("fog_density, max_err", fog_density_test_data)
+def test_weather_fog_density_scenario(fog_density: float, max_err: float,
+                                      request: FixtureRequest) -> None:
+    """Validate that fog density is loaded correctly from scenario by
+    comparing RGB sensor data with saved baseline data
     image
 
     Args:
-        fog_density: density of fog on interval [0, 1]
-        max_err: maximum mean squared error between sensor data and baseline data allowed for test to pass
+        fog_density: density of fog in interval [0, 1]
+        max_err: maximum mean squared error between sensor data and baseline
+        data allowed for test to pass
         request:
 
     """
-    current_config = config.copy()
-    current_config["weather"] = {"fog_density": fog_density}
+    config = weather_config.copy()
+    config["weather"] = {"fog_density": fog_density}
 
-    with env_with_config(current_config) as env:
+    with env_with_config(config) as env:
         env.tick(5)
 
-        err = compare_rgb_with_baseline(env.tick()["TestCamera"], request.fspath.dirname,
+        err = compare_rgb_with_baseline(env.tick()["TestCamera"],
+                                        request.fspath.dirname,
                                         f"weather_fog_density_{fog_density}")
         assert err < max_err
 
 
-@pytest.mark.parametrize("weather_type, max_err", weather_type_test_data)
-def test_weather_type_programmatic(weather_type: str, max_err: float, request: FixtureRequest) -> None:
-    """Validate that weather type can be set programmatically by comparing RGB sensor data with saved baseline data
+@pytest.mark.parametrize("hour, max_err", time_test_data)
+def test_weather_time_scenario(hour: float, max_err: float,
+                               request: FixtureRequest) -> None:
+    """Validate that time can be set with scenario by comparing RGB sensor
+    data with saved baseline data
 
     Args:
-        weather_type: type of weather in ["sunny", "cloudy", "rain"]
-        max_err: maximum mean squared error between sensor data and baseline data allowed for test to pass
+        hour (:obj:`float`): The hour in 24-hour format: [0, 23].
+        max_err (:obj:`float`): maximum mean squared error between sensor
+        data and baseline
         request:
 
     """
-    with env_with_config(config) as env:
-        env.weather.set_weather(weather_type)
+    with env_with_config(weather_config) as env:
+        env.weather.set_day_time(hour)
         env.tick(5)
-        err = compare_rgb_with_baseline(env.tick()["TestCamera"], request.fspath.dirname,
-                                        f"weather_type_{weather_type}")
+        # TODO(vinhowe): Update time baseline images after
+        #  BYU-PCCL/holodeck-engine#205 is wrapped into release
+        # write_image_from_rgb_sensor_data(env.tick()["TestCamera"],
+        #                                  request.fspath.dirname,
+        #                                  f"weather_time_{hour}")
+        err = compare_rgb_with_baseline(env.tick()["TestCamera"],
+                                        request.fspath.dirname,
+                                        f"weather_time_{hour}")
         assert err < max_err
 
 
-def test_fail_incorrect_weather_type():
+def test_fail_incorrect_weather_type_scenario():
     """
-    Validate that an exception is thrown when an invalid weather type is specified in scenario
+    Validate that an exception is thrown when an invalid weather type is
+    specified in scenario
     """
-    binary_path = pm.get_binary_path_for_package("DefaultWorlds")
 
     # Hail is not a valid weather type--this is on purpose
+    config = weather_config.copy()
     config["weather"] = {"type": "hail"}
 
     with pytest.raises(HolodeckException):
-        HolodeckEnvironment(scenario=config,
-                            binary_path=binary_path,
-                            show_viewport=False,
-                            uuid=str(uuid.uuid4()))
+        env_with_config(config)
+
+
+@pytest.mark.parametrize("weather_type, max_err", weather_type_test_data)
+def test_weather_type_programmatic(weather_type: str, max_err: float,
+                                   weather_env: HolodeckEnvironment,
+                                   request: FixtureRequest) -> None:
+    """Validate that weather type can be set programmatically by comparing
+    RGB sensor data with saved baseline data
+
+    Args:
+        weather_type: type of weather in ["sunny", "cloudy", "rain"]
+        max_err: maximum mean squared error between sensor data and baseline
+        weather_env: environment fixture shared by programmatic tests
+        data allowed for test to pass
+        request:
+
+    """
+    weather_env.weather.set_weather(weather_type)
+    weather_env.tick(5)
+    err = compare_rgb_with_baseline(weather_env.tick()["TestCamera"],
+                                    request.fspath.dirname,
+                                    f"weather_type_{weather_type}")
+    assert err < max_err
+
+
+@pytest.mark.parametrize("fog_density, max_err", fog_density_test_data)
+def test_weather_fog_density_programmatic(fog_density: float, max_err: float,
+                                          weather_env: HolodeckEnvironment,
+                                          request: FixtureRequest) -> None:
+    """Validate that fog density can be set programmatically comparing RGB
+    sensor data with saved baseline data
+
+    Args:
+        fog_density: density of fog in interval [0, 1]
+        max_err: maximum mean squared error between sensor data and baseline
+        weather_env: environment fixture shared by programmatic tests
+        data allowed for test to pass
+        request:
+
+    """
+    weather_env.weather.set_fog_density(fog_density)
+    weather_env.tick(5)
+    err = compare_rgb_with_baseline(weather_env.tick()["TestCamera"],
+                                    request.fspath.dirname,
+                                    f"weather_fog_density_{fog_density}")
+
+    assert err < max_err
+
+
+@pytest.mark.parametrize("hour, max_err", time_test_data)
+def test_weather_time_programmatic(hour: float, max_err: float,
+                                   weather_env: HolodeckEnvironment,
+                                   request: FixtureRequest) -> None:
+    """Validate that time can be set programmatically comparing RGB
+    sensor data with saved baseline data
+
+    Args:
+        hour (:obj:`float`): The hour in 24-hour format: [0, 23].
+        max_err: maximum mean squared error between sensor data and baseline
+        weather_env: environment fixture shared by programmatic tests
+        data allowed for test to pass
+        request:
+
+    """
+    weather_env.weather.set_day_time(hour)
+    weather_env.tick(5)
+    err = compare_rgb_with_baseline(weather_env.tick()["TestCamera"],
+                                    request.fspath.dirname,
+                                    f"weather_time_{hour}")
+
+    assert err < max_err
+
+
+def test_fail_incorrect_weather_type_programmatic(
+        weather_env: HolodeckEnvironment):
+    """
+    Validate that an exception is thrown when an invalid weather type is
+    specified programmatically
+
+    Args:
+        weather_env: environment fixture shared by programmatic tests
+    """
+
+    with pytest.raises(HolodeckException):
+        # Hail is not a valid weather type--this is on purpose
+        weather_env.weather.set_weather("hail")
+
+
+# TODO(vinhowe): If someone knows of a better way to scope a fixture to a
+#  parameterized test, please let me know or use it here
+cur_programmatic_weather_env = None
+last_programmatic_test_name = None
+
+
+@pytest.fixture
+def weather_env(request: FixtureRequest):
+    """Get basic MazeWorld environment with RGBCamera sensor for use in
+    visual comparison tests where environments can be reused. Cached per test.
+    """
+
+    global cur_programmatic_weather_env
+
+    cur_programmatic_test_name = request.function.__name__
+    if cur_programmatic_test_name != last_programmatic_test_name or \
+            cur_programmatic_weather_env is None:
+        cur_programmatic_weather_env = env_with_config(weather_config)
+
+    return cur_programmatic_weather_env

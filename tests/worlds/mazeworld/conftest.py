@@ -1,9 +1,16 @@
+import uuid
+
+from holodeck.environments import HolodeckEnvironment
+
 from . import finish
 import holodeck
+from holodeck import packagemanager as pm
 import pytest
 
+
 def generate_mazeworld_walkthrough():
-    """Runs through Mazeworld and records state at every tic, so that tests can analyze the results
+    """Runs through Mazeworld and records state at every tic, so that tests
+    can analyze the results
     without having to run through the maze multiple times
 
     Returns: list of 4tuples, output from step()
@@ -24,17 +31,23 @@ def generate_mazeworld_walkthrough():
 
 def pytest_generate_tests(metafunc):
     if "DefaultWorlds" not in holodeck.installed_packages():
-        pytest.skip(msg="Skipping MazeWorld tests since DefaultWorlds is not installed",
-                    allow_module_level=True)
+        pytest.skip(
+            msg="Skipping MazeWorld tests since DefaultWorlds is not "
+                "installed",
+            allow_module_level=True)
 
     if 'complete_mazeworld_states' in metafunc.fixturenames:
-        metafunc.parametrize('complete_mazeworld_states', ["mazeworld"], indirect=True)
+        metafunc.parametrize('complete_mazeworld_states', ["mazeworld"],
+                             indirect=True)
+
 
 states = None
 
+
 @pytest.fixture
 def complete_mazeworld_states(request):
-    """Gets an environment for the scenario matching request.param. Creates the env
+    """Gets an environment for the scenario matching request.param. Creates
+    the env
     or uses a cached one. Calls .reset() for you
     """
     global states
@@ -43,3 +56,11 @@ def complete_mazeworld_states(request):
             states = generate_mazeworld_walkthrough()
 
         return states
+
+
+def env_with_config(config):
+    binary_path = pm.get_binary_path_for_package("DefaultWorlds")
+    return HolodeckEnvironment(scenario=config,
+                               binary_path=binary_path,
+                               show_viewport=False,
+                               uuid=str(uuid.uuid4()))
