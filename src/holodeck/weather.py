@@ -37,7 +37,7 @@ class WeatherController:
         By the next tick, the lighting and the skysphere will be updated with the new hour.
 
         If there is no skysphere, skylight, or directional source light in the world, this command
-        will crash the environment.
+        will exit the environment.
 
         Args:
             hour (:obj:`int`): The hour in 24-hour format: [0, 23].
@@ -53,7 +53,7 @@ class WeatherController:
         sky. The length of a day will be roughly equivalent to the number of minutes given.
 
         If there is no skysphere, skylight, or directional source light in the world, this command
-        will crash the environment.
+        will exit the environment.
 
         Args:
             day_length (:obj:`int`): The number of minutes each day will be.
@@ -71,7 +71,7 @@ class WeatherController:
         By the next tick, day cycle will stop where it is.
 
         If there is no skysphere, skylight, or directional source light in the world, this command
-        will crash the environment.
+        will exit the environment.
         """
         self._send_command("SetDayCycle", num_params=[0, -1])
 
@@ -85,7 +85,7 @@ class WeatherController:
         to the given weather.
 
         If there is no skysphere, skylight, or directional source light in the world, this command
-        will crash the environment.
+        will exit the environment.
 
         ..note::
             Because this command can affect the fog density, any changes made by a
@@ -102,7 +102,8 @@ class WeatherController:
             ``sunny``.
 
         """
-        if not weather_type.lower() in ["rain", "cloudy", "sunny"]:
+        weather_type = weather_type.lower()
+        if not weather_type in ["rain", "cloudy", "sunny"]:
             raise HolodeckException("Invalid weather type " + weather_type)
 
         self.cur_weather = weather_type
