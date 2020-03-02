@@ -10,10 +10,8 @@ from holodeck.environments import HolodeckEnvironment
 
 from tests.utils.captures import (
     compare_rgb_sensor_data_with_baseline,
-    write_image_from_rgb_sensor_data,
     compare_rgb_sensor_data,
 )
-from tests.utils.equality import mean_square_err
 from tests.worlds.mazeworld.conftest import env_with_config
 
 # TODO: Maybe we should consider creating a config used across the board for
@@ -56,7 +54,7 @@ fog_density_test_data = [
 
 time_test_data = [
     # hour, max_err
-    pytest.param(1, 1000, id="Time 0"),
+    pytest.param(0, 1000, id="Time 0"),
     pytest.param(12, 1000, id="Time 12"),
     pytest.param(23, 1000, id="Time 23"),
 ]
@@ -67,6 +65,17 @@ day_cycle_test_data = [
     pytest.param(5, 500, 1000, 1000, id="5 minute day cycle"),
     pytest.param(30, 500, 1000, 1000, id="30 minute day cycle"),
 ]
+
+
+def mean_square_error_before_after_reset(env: HolodeckEnvironment):
+    env.tick(5)
+    before_data = env.tick()["TestCamera"]
+
+    env.reset()
+    env.tick(5)
+    after_data = env.tick()["TestCamera"]
+
+    return compare_rgb_sensor_data(before_data, after_data)
 
 
 @pytest.mark.parametrize("weather_type, max_err", weather_type_test_data)
@@ -190,7 +199,7 @@ def test_weather_time_scenario(
     config = weather_config.copy()
     config["weather"] = {"hour": hour}
 
-    with env_with_config(weather_config) as env:
+    with env_with_config(config) as env:
         env.tick(5)
         # TODO(vinhowe): Update time baseline images after
         #  BYU-PCCL/holodeck-engine#205 is wrapped into release
@@ -201,6 +210,7 @@ def test_weather_time_scenario(
             env.tick()["TestCamera"],
             request.fspath.dirname,
             f"weather_time_{hour}",
+            show_images=True
         )
         assert err < max_err
 
@@ -231,17 +241,43 @@ def test_weather_type_persists_after_reset_scenario(
     config = weather_config.copy()
     config["weather"] = {"type": weather_type}
 
-    with env_with_config(weather_config) as env:
-        env.tick(5)
-        before_data = env.tick()["TestCamera"]
+    err = mean_square_error_before_after_reset(env_with_config(config))
 
-        env.reset()
-        env.tick(5)
-        after_data = env.tick()["TestCamera"]
+    assert err < max_err
 
-        err = compare_rgb_sensor_data(before_data, after_data)
 
-        assert err < max_err
+@pytest.mark.parametrize("fog_density, max_err", fog_density_test_data)
+def test_weather_fog_density_persists_after_reset_scenario(
+    fog_density: float, max_err: float,
+):
+    """
+    Validate that fog density set in scenario persists after an environment
+    reset
+    """
+
+    config = weather_config.copy()
+    config["weather"] = {"fog_density": fog_density}
+
+    err = mean_square_error_before_after_reset(env_with_config(config))
+
+    assert err < max_err
+
+
+@pytest.mark.parametrize("hour, max_err", time_test_data)
+def test_weather_time_persists_after_reset_scenario(
+    hour: int, max_err: float,
+):
+    """
+    Validate that time set in scenario persists after an environment
+    reset
+    """
+
+    config = weather_config.copy()
+    config["weather"] = {"hour": hour}
+
+    err = mean_square_error_before_after_reset(env_with_config(config))
+
+    assert err < max_err
 
 
 @pytest.mark.parametrize("weather_type, max_err", weather_type_test_data)
