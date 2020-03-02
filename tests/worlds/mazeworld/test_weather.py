@@ -11,7 +11,8 @@ from holodeck.environments import HolodeckEnvironment
 from tests.utils.captures import (
     compare_rgb_sensor_data_with_baseline,
     write_image_from_rgb_sensor_data,
-    compare_rgb_sensor_data)
+    compare_rgb_sensor_data,
+)
 from tests.utils.equality import mean_square_err
 from tests.worlds.mazeworld.conftest import env_with_config
 
@@ -220,7 +221,7 @@ def test_fail_incorrect_weather_type_scenario():
 
 @pytest.mark.parametrize("weather_type, max_err", weather_type_test_data)
 def test_weather_type_persists_after_reset_scenario(
-    weather_type: str, max_err: float, request: FixtureRequest
+    weather_type: str, max_err: float,
 ):
     """
     Validate that weather type set in scenario persists after an environment
