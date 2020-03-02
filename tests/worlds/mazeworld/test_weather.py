@@ -210,7 +210,6 @@ def test_weather_time_scenario(
             env.tick()["TestCamera"],
             request.fspath.dirname,
             f"weather_time_{hour}",
-            show_images=True
         )
         assert err < max_err
 
