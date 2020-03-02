@@ -9,9 +9,10 @@ from holodeck import HolodeckException
 from holodeck.environments import HolodeckEnvironment
 
 from tests.utils.captures import (
-    compare_rgb_with_baseline,
+    compare_rgb_sensor_data_with_baseline,
     write_image_from_rgb_sensor_data,
-)
+    compare_rgb_sensor_data)
+from tests.utils.equality import mean_square_err
 from tests.worlds.mazeworld.conftest import env_with_config
 
 # TODO: Maybe we should consider creating a config used across the board for
@@ -87,7 +88,7 @@ def test_weather_type_scenario(
 
     with env_with_config(config) as env:
         env.tick(5)
-        err = compare_rgb_with_baseline(
+        err = compare_rgb_sensor_data_with_baseline(
             env.tick()["TestCamera"],
             request.fspath.dirname,
             f"weather_type_{weather_type}",
@@ -116,7 +117,7 @@ def test_weather_fog_density_scenario(
     with env_with_config(config) as env:
         env.tick(5)
 
-        err = compare_rgb_with_baseline(
+        err = compare_rgb_sensor_data_with_baseline(
             env.tick()["TestCamera"],
             request.fspath.dirname,
             f"weather_fog_density_{fog_density}",
@@ -153,7 +154,7 @@ def test_weather_day_cycle_scenario(
 
     with env_with_config(config) as env:
         env.tick(5)
-        err_before = compare_rgb_with_baseline(
+        err_before = compare_rgb_sensor_data_with_baseline(
             env.tick()["TestCamera"],
             request.fspath.dirname,
             f"weather_time_before_{cycle_length}",
@@ -161,7 +162,7 @@ def test_weather_day_cycle_scenario(
 
         env.tick(ticks)
 
-        err_after = compare_rgb_with_baseline(
+        err_after = compare_rgb_sensor_data_with_baseline(
             env.tick()["TestCamera"],
             request.fspath.dirname,
             f"weather_time_after_{cycle_length}",
@@ -185,15 +186,17 @@ def test_weather_time_scenario(
         request:
 
     """
+    config = weather_config.copy()
+    config["weather"] = {"hour": hour}
+
     with env_with_config(weather_config) as env:
-        env.weather.set_day_time(hour)
         env.tick(5)
         # TODO(vinhowe): Update time baseline images after
         #  BYU-PCCL/holodeck-engine#205 is wrapped into release
         # write_image_from_rgb_sensor_data(env.tick()["TestCamera"],
         #                                  request.fspath.dirname,
         #                                  f"weather_time_{hour}")
-        err = compare_rgb_with_baseline(
+        err = compare_rgb_sensor_data_with_baseline(
             env.tick()["TestCamera"],
             request.fspath.dirname,
             f"weather_time_{hour}",
@@ -216,6 +219,31 @@ def test_fail_incorrect_weather_type_scenario():
 
 
 @pytest.mark.parametrize("weather_type, max_err", weather_type_test_data)
+def test_weather_type_persists_after_reset_scenario(
+    weather_type: str, max_err: float, request: FixtureRequest
+):
+    """
+    Validate that weather type set in scenario persists after an environment
+    reset
+    """
+
+    config = weather_config.copy()
+    config["weather"] = {"type": weather_type}
+
+    with env_with_config(weather_config) as env:
+        env.tick(5)
+        before_data = env.tick()["TestCamera"]
+
+        env.reset()
+        env.tick(5)
+        after_data = env.tick()["TestCamera"]
+
+        err = compare_rgb_sensor_data(before_data, after_data)
+
+        assert err < max_err
+
+
+@pytest.mark.parametrize("weather_type, max_err", weather_type_test_data)
 def test_weather_type_programmatic(
     weather_type: str,
     max_err: float,
@@ -235,7 +263,7 @@ def test_weather_type_programmatic(
     """
     weather_env.weather.set_weather(weather_type)
     weather_env.tick(5)
-    err = compare_rgb_with_baseline(
+    err = compare_rgb_sensor_data_with_baseline(
         weather_env.tick()["TestCamera"],
         request.fspath.dirname,
         f"weather_type_{weather_type}",
@@ -263,7 +291,7 @@ def test_weather_time_programmatic(
     """
     weather_env.weather.set_day_time(hour)
     weather_env.tick(5)
-    err = compare_rgb_with_baseline(
+    err = compare_rgb_sensor_data_with_baseline(
         weather_env.tick()["TestCamera"],
         request.fspath.dirname,
         f"weather_time_{hour}",
@@ -300,7 +328,7 @@ def test_weather_day_cycle_programmatic(
     """
     weather_env.tick(5)
     weather_env.weather.start_day_cycle(cycle_length)
-    err_before = compare_rgb_with_baseline(
+    err_before = compare_rgb_sensor_data_with_baseline(
         weather_env.tick()["TestCamera"],
         request.fspath.dirname,
         f"weather_time_before_{cycle_length}",
@@ -308,7 +336,7 @@ def test_weather_day_cycle_programmatic(
 
     weather_env.tick(ticks)
 
-    err_after = compare_rgb_with_baseline(
+    err_after = compare_rgb_sensor_data_with_baseline(
         weather_env.tick()["TestCamera"],
         request.fspath.dirname,
         f"weather_time_after_{cycle_length}",
@@ -338,7 +366,7 @@ def test_weather_fog_density_programmatic(
     """
     weather_env.weather.set_fog_density(fog_density)
     weather_env.tick(5)
-    err = compare_rgb_with_baseline(
+    err = compare_rgb_sensor_data_with_baseline(
         weather_env.tick()["TestCamera"],
         request.fspath.dirname,
         f"weather_fog_density_{fog_density}",
