@@ -4,9 +4,10 @@
 Installation
 ============
 
-Holodeck is installed in two portions: a client python library (``holodeck``) is
-installed first, which then downloads world packages. The python portion is very
-small, while the world packages ("binaries") can be several gigabytes.
+Holodeck is installed in two portions: a client python library (``holodeck``)
+is installed first, which then downloads world packages. The python portion is
+very small, while the world packages ("binaries") can be several gigabytes.
+
 
 Requirements
 ============
@@ -22,6 +23,14 @@ Install Client via pip
 The latest stable Holodeck package is available in a pip repository:
 
 ``pip install holodeck``
+
+.. note::
+   On some Ubuntu systems a dependency of Holodeck (``posix-ipc``) can fail to
+   install if you do not have the ``python3-dev`` package installed.
+
+   .. code-block:: console
+
+      $ apt install python3-dev
 
 Install Client via git
 =======================
@@ -57,8 +66,8 @@ Currently the following tags are availible:
 .. _`pccl/holodeck`: https://hub.docker.com/r/pccl/holodeck
 
 .. note::
-   Holodeck cannot be run with root privileges, so the user ``holodeckuser`` with
-   password ``holodeck`` is provided in the docker image.
+   Holodeck cannot be run with root privileges, so the user ``holodeckuser``
+   with password ``holodeck`` is provided in the docker image.
 
 Managing World Packages
 =======================
@@ -88,15 +97,15 @@ Install a Package Automatically
 Installation Location
 ---------------------
 
-By default, Holodeck will install packages local to your user profile. See 
+By default, Holodeck will install packages local to your user profile. See
 :ref:`package-locations` for more information.
 
 Manually Installing a Package
 -----------------------------
 
 To manually install a package, you will be provided a ``.zip`` file.
-Simply extract it into the ``worlds`` folder in your
-Holodeck installation location (see :ref:`package-locations`)
+Extract it into the ``worlds`` folder in your Holodeck installation location 
+(see :ref:`package-locations`)
 
 .. note::
 
