@@ -11,7 +11,7 @@ small, while the world packages ("binaries") can be several gigabytes.
 Requirements
 ============
 
-- Python 3
+- >= Python 3.5
 - Several gigabytes of storage
 - pip3
 - Linux: OpenGL 3+
