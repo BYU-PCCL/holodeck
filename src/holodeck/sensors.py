@@ -520,6 +520,38 @@ class CollisionSensor(HolodeckSensor):
         return [1]
 
 
+class RangeFinderSensor(HolodeckSensor):
+    """Returns collision distances in directions specified by parameters.
+
+    **Configuration**
+
+    The ``configuration`` block (see :ref:`configuration-block`) accepts the 
+    following options:
+
+    - ``LazerRotation``: Rotation of forward lazer (default 0,0,0)
+    - ``LazerCount``: Number of lazers in sensor (default 1)
+    - ``LazerAngle``: Angle of lazers from origin (default 0)
+    """
+
+    sensor_type = "RangeFinderSensor"
+    
+    def __init__(self, client, agent_name, agent_type, 
+                 name="RangeFinderSensor", config=None):
+        super().__init__(client, agent_name, agent_type, name, config)
+
+        config = {} if config is None else config
+        if "LazerCount" in config:
+            self.lazer_count = config["LazerCount"]
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [self.lazer_count]
+
+
 class WorldNumSensor(HolodeckSensor):
     """Returns any numeric value from the world corresponding to a given key. This is world specific.
 
@@ -588,6 +620,7 @@ class SensorDefinition:
         "VelocitySensor": VelocitySensor,
         "PressureSensor": PressureSensor,
         "CollisionSensor": CollisionSensor,
+        "RangeFinderSensor": RangeFinderSensor,
         "WorldNumSensor": WorldNumSensor,
         "BallLocationSensor": BallLocationSensor
     }
