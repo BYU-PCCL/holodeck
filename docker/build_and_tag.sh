@@ -1,0 +1,1 @@
+docker build -t pccl/holodeck:ubuntu18.04-with-worlds -f ./Dockerfile_ubuntu_18.04 ..
