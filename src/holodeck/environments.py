@@ -643,7 +643,7 @@ class HolodeckEnvironment:
         # Copy the environment variables and re,pve the DISPLAY variable to hide viewport
         # https://answers.unrealengine.com/questions/815764/in-the-release-notes-it-says-the-engine-can-now-cr.html?sort=oldest
         environment = dict(os.environ.copy())
-        if not show_viewport:
+        if not show_viewport and 'DISPLAY' in environment:
             del environment['DISPLAY']
         self._world_process = \
             subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
