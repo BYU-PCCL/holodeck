@@ -36,15 +36,18 @@ class ControlSchemes:
     # Nav Agent Control Schemes
     NAV_TARGET_LOCATION = 0
 
+    # Turtle agent
+    TURTLE_DIRECT_TORQUES = 0
+
     # UAV Control Schemes
     UAV_TORQUES = 0
     UAV_ROLL_PITCH_YAW_RATE_ALT = 1
 
     # HandAgent Control Schemes
     HAND_AGENT_MAX_TORQUES = 0
-    HAND_AGENT_MAX_SCALED_TORQUES = 1    
+    HAND_AGENT_MAX_SCALED_TORQUES = 1
     HAND_AGENT_MAX_TORQUES_FLOAT = 2
-    
+
 
 class HolodeckAgent:
     """A learning agent in Holodeck
@@ -236,7 +239,6 @@ class HolodeckAgent:
         raise NotImplementedError("Child class must implement this function")
 
     def __act__(self, action):
-        
         # Allow for smaller arrays to be provided as input
         if len(self._action_buffer) > len(action):
             action = np.copy(action)
@@ -251,6 +253,19 @@ class HolodeckAgent:
 
 
 class UavAgent(HolodeckAgent):
+    # constants in Uav.h in holodeck-engine
+    __MAX_ROLL = 6.5080
+    __MIN_ROLL = -__MAX_ROLL
+
+    __MAX_PITCH = 5.087
+    __MIN_PITCH = -__MAX_PITCH
+
+    __MAX_YAW_RATE = .8
+    __MIN_YAW_RATE = -__MAX_YAW_RATE
+
+    __MAX_FORCE = 59.844
+    __MIN_FORCE = -__MAX_FORCE
+
     """A UAV (quadcopter) agent
 
     **Action Space:**
@@ -269,16 +284,32 @@ class UavAgent(HolodeckAgent):
 
     @property
     def control_schemes(self):
+        torques_min = [self.__MIN_PITCH, self.__MIN_ROLL, self.__MIN_YAW_RATE, self.__MIN_FORCE]
+        torques_max = [self.__MAX_PITCH, self.__MAX_ROLL, self.__MAX_YAW_RATE, self.__MAX_FORCE]
+        no_min_max = [None, None, None, None]
         return [("[pitch_torque, roll_torque, yaw_torque, thrust]",
-                 ContinuousActionSpace([4])),
+                 ContinuousActionSpace([4], low=torques_min, high=torques_max)),
                 ("[pitch_target, roll_target, yaw_rate_target, altitude_target]",
-                 ContinuousActionSpace([4]))]
+                 ContinuousActionSpace([4], low=no_min_max, high=no_min_max))]
 
     def __repr__(self):
         return "UavAgent " + self.name
 
+    def get_joint_constraints(self, joint_name):
+        return None
+
 
 class SphereAgent(HolodeckAgent):
+    # constants in SphereRobot.h in holodeck-engine
+    __DISCRETE_MIN = 0
+    __DISCRETE_MAX = 4
+
+    __MAX_ROTATION_SPEED = 20
+    __MIN_ROTATION_SPEED = -__MAX_ROTATION_SPEED
+
+    __MAX_FORWARD_SPEED = 20
+    __MIN_FORWARD_SPEED = -__MAX_FORWARD_SPEED
+
     """A basic sphere robot.
 
     See :ref:`sphere-agent` for more details.
@@ -308,9 +339,14 @@ class SphereAgent(HolodeckAgent):
 
     @property
     def control_schemes(self):
-        return [("[forward_movement, rotation]", ContinuousActionSpace([2])),
-                ("0: Move forward\n1: Move backward\n2: Turn right\n3: Turn left",
-                 DiscreteActionSpace([1], 0, 4, buffer_shape=[2]))]
+        cont_min = [self.__MIN_FORWARD_SPEED, self.__MIN_ROTATION_SPEED]
+        cont_max = [self.__MAX_FORWARD_SPEED, self.__MAX_ROTATION_SPEED]
+        return [("0: Move forward\n1: Move backward\n2: Turn right\n3: Turn left",
+                 DiscreteActionSpace([1], low=self.__DISCRETE_MIN, high=self.__DISCRETE_MAX, buffer_shape=[2])),
+                ("[forward_movement, rotation]", ContinuousActionSpace([2], low=cont_min, high=cont_max))]
+
+    def get_joint_constraints(self, joint_name):
+        return None
 
     def __act__(self, action):
         if self._current_control_scheme is ControlSchemes.SPHERE_CONTINUOUS:
@@ -341,14 +377,25 @@ class AndroidAgent(HolodeckAgent):
     There are 18 joints with 3 DOF, 10 with 2 DOF, and 20 with 1 DOF.
 
     Inherits from :class:`HolodeckAgent`."""
+    # constants in Android.h in holodeck-engine
+    __MAX_TORQUE = 20
+    __MIN_TORQUE = -__MAX_TORQUE
+    __JOINTS_VECTOR_SIZE = 94
 
     agent_type = "Android"
 
     @property
     def control_schemes(self):
-        return [("[Raw Bone Torques] * 94", ContinuousActionSpace([94])),
+        direct_min = [self.__MIN_TORQUE for _ in range(self.__JOINTS_VECTOR_SIZE)]
+        direct_max = [self.__MAX_TORQUE for _ in range(self.__JOINTS_VECTOR_SIZE)]
+        scaled_min = [-1 for _ in range(self.__JOINTS_VECTOR_SIZE)]
+        scaled_max = [1 for _ in range(self.__JOINTS_VECTOR_SIZE)]
+
+        return [("[Raw Bone Torques] * 94",
+                 ContinuousActionSpace([self.__JOINTS_VECTOR_SIZE], low=direct_min, high=direct_max)),
                 ("[-1 to 1] * 94, where 1 is the maximum torque for a given "
-                 "joint (based on mass of bone)", ContinuousActionSpace([94]))]
+                 "joint (based on mass of bone)",
+                 ContinuousActionSpace([self.__JOINTS_VECTOR_SIZE], low=scaled_min, high=scaled_max))]
 
     def __repr__(self):
         return "AndroidAgent " + self.name
@@ -448,16 +495,36 @@ class HandAgent(HolodeckAgent):
     Inherits from :class:`HolodeckAgent`.
     
     """
+    # constants in HandAgent.h in holodeck-engine
+    __MAX_MOVEMENT_METERS = 0.5
+    __MIN_MOVEMENT_METERS = -__MAX_MOVEMENT_METERS
+
+    __MAX_TORQUE = 20
+    __MIN_TORQUE = -__MAX_TORQUE
+
+    __JOINTS_DOF = 23
+    __JOINTS_AND_DIST = 26
 
     agent_type = "HandAgent"
 
     @property
     def control_schemes(self):
-        return [("[Raw Bone Torques] * 23", ContinuousActionSpace([23])),
-                ("[-1 to 1] * 23, where 1 is the maximum torque for a given "
-                 "joint (based on mass of bone)", ContinuousActionSpace([23])),
-                 ("[-1 to 1] * 23, scaled torques, then [x, y, z] transform",
-                 ContinuousActionSpace([26]))]
+        raw_min = [self.__MIN_TORQUE for _ in range(self.__JOINTS_DOF)]
+        raw_max = [self.__MAX_TORQUE for _ in range(self.__JOINTS_DOF)]
+        joint_min = [-1 for _ in range(self.__JOINTS_DOF)]
+        joint_max = [1 for _ in range(self.__JOINTS_DOF)]
+
+        scaled_min = [-1.0 if i < self.__JOINTS_DOF
+                      else self.__MIN_MOVEMENT_METERS for i in range(self.__JOINTS_AND_DIST)]
+        scaled_max = [1.0 if i < self.__JOINTS_DOF
+                      else self.__MAX_MOVEMENT_METERS for i in range(self.__JOINTS_AND_DIST)]
+
+        return [("[Raw Bone Torques] * 23", ContinuousActionSpace([self.__JOINTS_DOF], low=raw_min, high=raw_max)),
+                ("[-1 to 1] * 23, where 1 is the maximum torque for the given index"
+                 "joint (based on mass of bone)",
+                 ContinuousActionSpace([self.__JOINTS_DOF], low=joint_min, high=joint_max)),
+                ("[-1 to 1] * 23, scaled torques, then [x, y, z] transform",
+                 ContinuousActionSpace([self.__JOINTS_AND_DIST], low=scaled_min, high=scaled_max))]
 
     def __repr__(self):
         return "HandAgent " + self.name
@@ -520,11 +587,20 @@ class NavAgent(HolodeckAgent):
        
     """
 
+    # constants in NavAgent.h in holodeck-engine
+    __MAX_DISTANCE = 0.5
+    __MIN_DISTANCE = -__MAX_DISTANCE
+
     agent_type = "NavAgent"
 
     @property
     def control_schemes(self):
-        return [("[x_target, y_target, z_target]", ContinuousActionSpace([3]))]
+        low = [self.__MIN_DISTANCE for _ in range(3)]
+        high = [self.__MAX_DISTANCE for _ in range(3)]
+        return [("[x_target, y_target, z_target]", ContinuousActionSpace([3], low=low, high=high))]
+
+    def get_joint_constraints(self, joint_name):
+        return None
 
     def __repr__(self):
         return "NavAgent " + self.name
@@ -546,12 +622,23 @@ class TurtleAgent(HolodeckAgent):
     - ``rot_force`` is capped at 35 either direction
 
     Inherits from :class:`HolodeckAgent`."""
+    # constants in TurtleAgent.h in holodeck-engine
+    __MAX_THRUST = 160.0
+    __MIN_THRUST = -__MAX_THRUST
+
+    __MAX_YAW = 35.0
+    __MIN_YAW = -__MAX_YAW
 
     agent_type = "TurtleAgent"
 
     @property
     def control_schemes(self):
-        return [("[forward_force, rot_force]", ContinuousActionSpace([2]))]
+        low = [self.__MIN_THRUST, self.__MIN_YAW]
+        high = [self.__MAX_THRUST, self.__MAX_YAW]
+        return [("[forward_force, rot_force]", ContinuousActionSpace([2], low=low, high=high))]
+
+    def get_joint_constraints(self, joint_name):
+        return None
 
     def __repr__(self):
         return "TurtleAgent " + self.name
@@ -596,7 +683,7 @@ class AgentDefinition:
         for i, sensor_def in enumerate(self.sensors):
             if not isinstance(sensor_def, SensorDefinition):
                 self.sensors[i] = \
-                    SensorDefinition(agent_name, agent_type, 
+                    SensorDefinition(agent_name, agent_type,
                                      sensor_def.sensor_type, sensor_def)
         self.name = agent_name
 
@@ -609,6 +696,7 @@ class AgentDefinition:
 class AgentFactory:
     """Creates an agent object
     """
+
     @staticmethod
     def build_agent(client, agent_def):
         """Constructs an agent
