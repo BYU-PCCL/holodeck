@@ -14,8 +14,6 @@ from tests.utils.captures import (
 )
 from tests.worlds.mazeworld.conftest import env_with_config
 
-# TODO: Maybe we should consider creating a config used across the board for
-#  visual tests with data from RGBCamera sensor
 weather_config = {
     "name": "test_weather_config",
     "world": "MazeWorld",
@@ -68,6 +66,15 @@ day_cycle_test_data = [
 
 
 def mean_square_error_before_after_reset(env: HolodeckEnvironment):
+    """
+
+    Args:
+        env: Environment to reset and test on
+
+    Returns: mean squared error between RGB sensor data capture before and
+    after and environment reset
+
+    """
     env.tick(5)
     before_data = env.tick()["TestCamera"]
 
@@ -87,10 +94,10 @@ def test_weather_type_scenario(
     data
 
     Args:
-        weather_type: type of weather in ["sunny", "cloudy", "rain"]
-        max_err: maximum mean squared error between sensor data and baseline
+        weather_type: Type of weather in ["sunny", "cloudy", "rain"]
+        max_err: Maximum mean squared error between sensor data and baseline
         data allowed for test to pass
-        request:
+        request: pytest fixture request information
 
     """
     config = weather_config.copy()
@@ -115,10 +122,10 @@ def test_weather_fog_density_scenario(
     image
 
     Args:
-        fog_density: density of fog in interval [0, 1]
-        max_err: maximum mean squared error between sensor data and baseline
+        fog_density: Density of fog in interval [0, 1]
+        max_err: Maximum mean squared error between sensor data and baseline
         data allowed for test to pass
-        request:
+        request: pytest fixture request information
 
     """
     config = weather_config.copy()
@@ -149,14 +156,14 @@ def test_weather_day_cycle_scenario(
     data with saved baseline data
 
     Args:
-        cycle_length (:obj:`float`): The hour in 24-hour format: [0, 23].
-        ticks (:obj:`int`): number of ticks between captures
-        max_err_before: maximum mean squared error between sensor data and
+        cycle_length: The hour in 24-hour format: [0, 23].
+        ticks: Number of ticks between captures
+        max_err_before: Maximum mean squared error between sensor data and
         baseline for `before` image
-        max_err_before: maximum mean squared error between sensor data and
+        max_err_before: Maximum mean squared error between sensor data and
         baseline for `after` image
         data allowed for test to pass
-        request:
+        request: pytest fixture request information
 
     """
     config = weather_config.copy()
@@ -190,10 +197,10 @@ def test_weather_time_scenario(
     data with saved baseline data
 
     Args:
-        hour (:obj:`float`): The hour in 24-hour format: [0, 23].
-        max_err (:obj:`float`): maximum mean squared error between sensor
+        hour: The hour in 24-hour format: [0, 23].
+        max_err: Maximum mean squared error between sensor
         data and baseline
-        request:
+        request: pytest fixture request information
 
     """
     config = weather_config.copy()
@@ -207,9 +214,7 @@ def test_weather_time_scenario(
         #                                  request.fspath.dirname,
         #                                  f"weather_time_{hour}")
         err = compare_rgb_sensor_data_with_baseline(
-            env.tick()["TestCamera"],
-            request.fspath.dirname,
-            f"weather_time_{hour}",
+            env.tick()["TestCamera"], request.fspath.dirname, f"weather_time_{hour}",
         )
         assert err < max_err
 
@@ -235,6 +240,10 @@ def test_weather_type_persists_after_reset_scenario(
     """
     Validate that weather type set in scenario persists after an environment
     reset
+
+    Args:
+        weather_type: Type of weather in ["sunny", "cloudy", "rain"]
+        max_err: Maximum mean squared error between sensor data and baseline
     """
 
     config = weather_config.copy()
@@ -252,6 +261,10 @@ def test_weather_fog_density_persists_after_reset_scenario(
     """
     Validate that fog density set in scenario persists after an environment
     reset
+
+    Args:
+        fog_density: Density of fog in interval [0, 1]
+        max_err: Maximum mean squared error between sensor data and baseline
     """
 
     config = weather_config.copy()
@@ -269,6 +282,10 @@ def test_weather_time_persists_after_reset_scenario(
     """
     Validate that time set in scenario persists after an environment
     reset
+
+    Args:
+        hour: The hour in 24-hour format: [0, 23].
+        max_err: Maximum mean squared error between sensor data and baseline
     """
 
     config = weather_config.copy()
@@ -290,11 +307,11 @@ def test_weather_type_programmatic(
     RGB sensor data with saved baseline data
 
     Args:
-        weather_type: type of weather in ["sunny", "cloudy", "rain"]
-        max_err: maximum mean squared error between sensor data and baseline
-        weather_env: environment fixture shared by programmatic tests
+        weather_type: Type of weather in ["sunny", "cloudy", "rain"]
+        max_err: Maximum mean squared error between sensor data and baseline
+        weather_env: Environment fixture shared by programmatic tests
         data allowed for test to pass
-        request:
+        request: pytest fixture request information
 
     """
     weather_env.weather.set_weather(weather_type)
@@ -319,10 +336,10 @@ def test_weather_time_programmatic(
 
     Args:
         hour (:obj:`float`): The hour in 24-hour format: [0, 23].
-        max_err: maximum mean squared error between sensor data and baseline
-        weather_env: environment fixture shared by programmatic tests
+        max_err: Maximum mean squared error between sensor data and baseline
+        weather_env: Environment fixture shared by programmatic tests
         data allowed for test to pass
-        request:
+        request: pytest fixture request information
 
     """
     weather_env.weather.set_day_time(hour)
@@ -351,15 +368,15 @@ def test_weather_day_cycle_programmatic(
     sensor data with saved baseline data
 
     Args:
-        cycle_length (:obj:`float`): The hour in 24-hour format: [0, 23].
-        ticks (:obj:`int`): number of ticks between captures
-        max_err_before: maximum mean squared error between sensor data and
+        cycle_length: The hour in 24-hour format: [0, 23].
+        ticks : Number of ticks between captures
+        max_err_before: Maximum mean squared error between sensor data and
         baseline for `before` image
-        max_err_before: maximum mean squared error between sensor data and
+        max_err_before: Maximum mean squared error between sensor data and
         baseline for `after` image
-        weather_env: environment fixture shared by programmatic tests
+        weather_env: Environment fixture shared by programmatic tests
         data allowed for test to pass
-        request:
+        request: pytest fixture request information
 
     """
     weather_env.tick(5)
@@ -393,11 +410,11 @@ def test_weather_fog_density_programmatic(
     sensor data with saved baseline data
 
     Args:
-        fog_density: density of fog in interval [0, 1]
-        max_err: maximum mean squared error between sensor data and baseline
-        weather_env: environment fixture shared by programmatic tests
+        fog_density: Density of fog in interval [0, 1]
+        max_err: Maximum mean squared error between sensor data and baseline
+        weather_env: Environment fixture shared by programmatic tests
         data allowed for test to pass
-        request:
+        request: pytest fixture request information
 
     """
     weather_env.weather.set_fog_density(fog_density)
@@ -411,15 +428,13 @@ def test_weather_fog_density_programmatic(
     assert err < max_err
 
 
-def test_fail_incorrect_weather_type_programmatic(
-    weather_env: HolodeckEnvironment,
-):
+def test_fail_incorrect_weather_type_programmatic(weather_env: HolodeckEnvironment,):
     """
     Validate that an exception is thrown when an invalid weather type is
     specified programmatically
 
     Args:
-        weather_env: environment fixture shared by programmatic tests
+        weather_env: Environment fixture shared by programmatic tests
     """
 
     with pytest.raises(HolodeckException):
@@ -437,6 +452,9 @@ last_programmatic_test_name = None
 def weather_env(request: FixtureRequest):
     """Get basic MazeWorld environment with RGBCamera sensor for use in
     visual comparison tests where environments can be reused. Cached per test.
+
+    Args:
+        request: pytest fixture request information
     """
 
     global cur_programmatic_weather_env
