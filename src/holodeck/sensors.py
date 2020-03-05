@@ -554,6 +554,24 @@ class BallLocationSensor(WorldNumSensor):
         return np.int8
 
 
+class AbuseSensor(HolodeckSensor):
+    """
+
+    """
+
+    sensor_type = "AbuseSensor"
+
+    default_config = {"Key": "BallLocation"}
+
+    @property
+    def dtype(self):
+        return np.int8
+
+    @property
+    def data_shape(self):
+        return [1]
+
+
 class SensorDefinition:
     """A class for new sensors and their parameters, to be used for adding new sensors.
 
@@ -589,7 +607,8 @@ class SensorDefinition:
         "PressureSensor": PressureSensor,
         "CollisionSensor": CollisionSensor,
         "WorldNumSensor": WorldNumSensor,
-        "BallLocationSensor": BallLocationSensor
+        "BallLocationSensor": BallLocationSensor,
+        "AbuseSensor": AbuseSensor,
     }
 
     def get_config_json_string(self):
