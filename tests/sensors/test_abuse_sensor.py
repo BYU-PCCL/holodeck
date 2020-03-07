@@ -77,27 +77,26 @@ def test_abuse_sensor(abuse_agent_type):
 
     """
 
-    # binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
+    binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
     with holodeck.environments.HolodeckEnvironment(scenario=configs[abuse_agent_type],
-                                                   # binary_path=binary_path,
+                                                   binary_path=binary_path,
                                                    show_viewport=True,
                                                    start_world=False,
-                                                   # uuid=str(uuid.uuid4())) as env:
-                                                   ) as env:
+                                                   uuid=str(uuid.uuid4())) as env:
+
         abused = False
         for _ in range(100):
             if env.tick()["AbuseSensor"] == 1:
                 abused = True
         assert abused
 
+        env.reset()
         if abuse_agent_type is "Uav":
-            env.reset()
             env.agents["uav0"].teleport([0, 0, 1], [0, 180, 0])
             env.tick(20)
             assert env.tick()["AbuseSensor"] == 1
         elif abuse_agent_type is "Turtle":
-            env.reset()
             env.agents["uav0"].teleport([0, 0, 1], [0, 180, 0])
             assert env.tick()["AbuseSensor"] == 1
 
