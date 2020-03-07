@@ -32,6 +32,10 @@ New Features
   If the full 3D distance is desired, set the ``3dDistance`` flag in the 
   configuration block of the :ref:`distance-task`.
   (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
+- Added :class:`~holodeck.sensors.AbuseSensor`, which senses if an agent
+  has been abused. Agents experience abuse when they fall from a high distance
+  or other agent-specific situations.
+  (`#262 <https://github.com/BYU-PCCL/holodeck/issues/262>`_)
 
 Changes
 ~~~~~~~
@@ -40,13 +44,13 @@ Changes
 Bug Fixes
 ~~~~~~~~~
 - Fixed UAV blades rotating incorrectly (thanks @sethmnielsen!)
-  (`#331 <https://github.com/BYU-PCCL/holodeck/issues/331>`_
+  (`#331 <https://github.com/BYU-PCCL/holodeck/issues/331>`_)
 - Fixed `posix_ipc.BusyError: Semaphore is busy` error on Linux systems when
   creating a scenario
-  (`#285 https://github.com/BYU-PCCL/holodeck/issues/285`)
+  (`#285 <https://github.com/BYU-PCCL/holodeck/issues/285>`_)
 - Fixed a bug where the UE4 editor crashes when an agent is manually added
   to a level
-  (`#361 https://github.com/BYU-PCCL/holodeck/issues/361`)
+  (`#361 <https://github.com/BYU-PCCL/holodeck/issues/361>`_)
 
 Known Issues
 ~~~~~~~~~~~~

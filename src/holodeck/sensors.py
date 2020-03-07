@@ -555,13 +555,15 @@ class BallLocationSensor(WorldNumSensor):
 
 
 class AbuseSensor(HolodeckSensor):
-    """
+    """Returns True if the agent has been abused. Abuse is calculated differently for
+    different agents. The Sphere and Hand agent cannot be abused. The Uav, Android,
+    and Turtle agents can be abused by experiencing high levels of acceleration.
+    The Uav is abused when its blades collide with another object, and the Turtle
+    agent is abused when it's flipped over.
 
     """
 
     sensor_type = "AbuseSensor"
-
-    default_config = {"Key": "BallLocation"}
 
     @property
     def dtype(self):
