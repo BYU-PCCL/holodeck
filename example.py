@@ -72,16 +72,17 @@ def android_example():
 
 def multi_agent_example():
     """A basic example of using multiple agents"""
-    env = holodeck.make("CyberPunkCity-Follow")
+    env = holodeck.make("CyberPunkCity-FollowSight")
 
-    cmd0 = np.array([0, 0, 20, 100])
-    cmd1 = np.array([0, 0, 200])
+    cmd0 = np.array([0, 0, -2, 10])
+    cmd1 = np.array([0, 0, 0])
     for i in range(10):
         env.reset()
+        env.tick()
         env.act("uav0", cmd0)
         env.act("nav0", cmd1)
         for _ in range(1000):
-            states, a, b, c = env.tick()
+            states = env.tick()
             pixels = states["uav0"]["RGBCamera"]
 
 
@@ -171,4 +172,4 @@ def editor_multi_agent_example():
 
 if __name__ == "__main__":
 
-    multi_agent_example()
+    uav_example()

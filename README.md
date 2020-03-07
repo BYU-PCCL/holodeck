@@ -93,9 +93,9 @@ for i in range(300):
 You can access the reward, terminal and location for a multi agent environment as follows:
 
 ``` python
-s['uav0']['reward']
-s['uav0']['terminal']
-s['uav0']['location']
+s['uav0'][Sensors.REWARD]
+s['uav0'][Sensors.TERMINAL]
+s['uav0'][Sensors.LOCATION_SENSOR]
 ```
 
 (`uav0` comes from the [scenario configuration file](https://holodeck.readthedocs.io/en/latest/packages/docs/scenarios.html))
