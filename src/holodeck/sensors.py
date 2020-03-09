@@ -528,7 +528,7 @@ class RangeFinderSensor(HolodeckSensor):
     The ``configuration`` block (see :ref:`configuration-block`) accepts the 
     following options:
 
-    - ``LazerRotation``: Rotation of forward lazer (default 0,0,0)
+    - ``LazerMaxDistance``: Max Distance of RangeFinder (default 100)
     - ``LazerCount``: Number of lazers in sensor (default 1)
     - ``LazerAngle``: Angle of lazers from origin (default 0)
     """
