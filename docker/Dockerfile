@@ -7,6 +7,8 @@ RUN pip3 install -U pip setuptools wheel
 
 RUN pip3 install numpy posix_ipc holodeck pytest opencv-python
 
+RUN adduser --disabled-password --gecos "" holodeckuser
+
 WORKDIR /home/holodeckuser/source/holodeck/
 
 # This should be COPY ../ but docker doesn't allow copying files outside the context
