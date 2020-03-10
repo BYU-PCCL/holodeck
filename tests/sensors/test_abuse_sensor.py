@@ -83,19 +83,25 @@ def test_abuse_sensor(abuse_agent_type):
                                                    start_world=False,
                                                    uuid=str(uuid.uuid4())) as env:
 
+        # Test if falling from a distance causes abuse
         abused = False
         for _ in range(100):
             if env.tick()["AbuseSensor"] == 1:
                 abused = True
-        assert abused
+        assert abused, "The abuse sensor didn't trigger after dropping!"
 
+        # Test agent specific abuse conditions
         env.reset()
         if abuse_agent_type is "Uav":
+            # Collide the uav's blades with the ground and check for abuse.
             env.agents["uav0"].teleport([0, 0, 1], [0, 180, 0])
             env.tick(20)
-            assert env.tick()["AbuseSensor"] == 1
+            assert env.tick()["AbuseSensor"] == 1, "The abuse sensor didn't trigger" \
+                                                   " from uav blade collision!"
         elif abuse_agent_type is "Turtle":
+            # Flip the turtle and check if it's abused
             env.agents["uav0"].teleport([0, 0, 1], [0, 180, 0])
-            assert env.tick()["AbuseSensor"] == 1
+            assert env.tick()["AbuseSensor"] == 1, "The abuse sensor didn't trigger" \
+                                                   " from the turtle agent flipping over"
 
 
