@@ -521,7 +521,8 @@ class CollisionSensor(HolodeckSensor):
 
 
 class WorldNumSensor(HolodeckSensor):
-    """Returns any numeric value from the world corresponding to a given key. This is world specific.
+    """Returns any numeric value from the world corresponding to a given key. This is
+    world specific.
 
     """
 
@@ -560,6 +561,11 @@ class AbuseSensor(HolodeckSensor):
     and Turtle agents can be abused by experiencing high levels of acceleration.
     The Uav is abused when its blades collide with another object, and the Turtle
     agent is abused when it's flipped over.
+
+    **Configuration**
+
+    - ``AccelerationLimit``: Maximum acceleration the agent can endure from before
+    being abused. Usually around 300 m/s^2.
 
     """
 
