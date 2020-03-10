@@ -32,6 +32,9 @@ New Features
   If the full 3D distance is desired, set the ``3dDistance`` flag in the 
   configuration block of the :ref:`distance-task`.
   (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
+- Added :class:`~holodeck.sensors.RangeFinderSensor` which calculates the
+  distance from the sensor to the first collision in the environment. The
+  sensor can be duplicated in a 360 array around the agent.
 
 Changes
 ~~~~~~~
