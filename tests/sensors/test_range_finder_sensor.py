@@ -28,8 +28,7 @@ sphere_config_count = {
 
 
 def test_range_finder_sensor_count():
-    """Make sure the location sensor updates after a teleport. Also verifies that the coordinates for the teleport
-    command match the coordinates used by the location sensor
+    """Make sure the range sensor updates after specifying laxer count.
     """
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
@@ -38,14 +37,14 @@ def test_range_finder_sensor_count():
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
 
-        for _ in range(10):
-            env.tick()
+        env.tick(10)
 
         state = env.tick()
         actual = state["RangeFinderSensor"]
 
-        assert len(actual) == sphere_config_count["agents"][0]["sensors"][0]["configuration"]["LazerCount"], \
-            "Sensed range size did not match the expected size!"
+        expected = sphere_config_count["agents"][0]["sensors"][0]["configuration"]["LazerCount"]
+
+        assert len(actual) == expected, "Sensed range size did not match the expected size!"
 
 
 sphere_config_max = {
@@ -60,7 +59,7 @@ sphere_config_max = {
                 {
                     "sensor_type": "RangeFinderSensor",
                     "configuration": {
-                        "LazerMaxDistance": 10,
+                        "LazerMaxDistance": 1,
                         "LazerCount": 12
                     }
                 }
@@ -72,40 +71,41 @@ sphere_config_max = {
 }
 
 
-def test_range_finder_sensor_default():
-    """Make sure the location sensor updates after a teleport. Also verifies that the coordinates for the teleport
-    command match the coordinates used by the location sensor
+def test_range_finder_sensor_max():
+    """Make sure the range sensor set max distance correctly.
     """
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
-    with holodeck.environments.HolodeckEnvironment(scenario=sphere_config_default,
+    with holodeck.environments.HolodeckEnvironment(scenario=sphere_config_max,
                                                    binary_path=binary_path,
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
 
-        for _ in range(10):
-            env.tick()
+        env.tick(10)
 
         state = env.tick()
         actual = state["RangeFinderSensor"]
 
+        expected = sphere_config_max["agents"][0]["sensors"][0]["configuration"]["LazerMaxDistance"]
+
         assert all(x > 0 for x in actual), "Sensed range includes 0!"
-        assert all(x <= 1 for x in actual), "Sensed range includes value greater than 1!"
+        assert all(x <= expected for x in actual), "Sensed range includes value greater than 1!"
 
 
 uav_config = {
     "name": "test_range_finder_sensor",
     "world": "TestWorld",
-    "main_agent": "sphere0",
+    "main_agent": "uav0",
     "agents": [
         {
-            "agent_name": "sphere0",
-            "agent_type": "SphereAgent",
+            "agent_name": "uav0",
+            "agent_type": "UavAgent",
             "sensors": [
                 {
                     "sensor_type": "RangeFinderSensor",
                     "configuration": {
-                        "LazerAngle": -90
+                        "LazerAngle": -90,
+                        "LazerMaxDistance": 15
                     }
                 }
             ],
@@ -117,7 +117,7 @@ uav_config = {
 
 
 def test_range_finder_sensor_falling():
-    """Makes sure that the location sensor updates as the UAV falls, and after it comes to a rest
+    """Makes sure that the range sensor updates as the UAV falls, and after it comes to a rest.
     """
 
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
@@ -129,14 +129,13 @@ def test_range_finder_sensor_falling():
 
         last_range = env.tick()["RangeFinderSensor"][0]
 
-        for _ in range(85):
-            new_range = env.tick()["RangeFinderSensor"][0]
+        for _ in range(10):
+            new_range = env.tick(4)["RangeFinderSensor"][0]
             assert new_range < last_range, "UAV's range sensor did not detect falling!"
             last_range = new_range
 
         # Give the UAV time to bounce and settle
-        for _ in range(80):
-            env.tick()
+        env.tick(80)
 
         # Make sure it is stationary now
         last_range = env.tick()["RangeFinderSensor"][0]
