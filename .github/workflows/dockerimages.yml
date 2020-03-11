@@ -8,7 +8,7 @@ on:
 
 jobs:
   
-  build and push images:
+  build-images:
     env:
       IMAGE_NAME: pccl/holodeck
 
