@@ -265,10 +265,7 @@ class HolodeckEnvironment:
                 self.weather.set_fog_density(weather["fog_density"])
             if "day_cycle_length" in weather:
                 day_cycle_length = weather["day_cycle_length"]
-                if day_cycle_length <= 0:
-                    self.weather.stop_day_cycle()
-                elif day_cycle_length > 0:
-                    self.weather.start_day_cycle(day_cycle_length)
+                self.weather.start_day_cycle(day_cycle_length)
 
     def reset(self):
         """Resets the environment, and returns the state.
