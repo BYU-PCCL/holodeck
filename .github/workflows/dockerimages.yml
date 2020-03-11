@@ -19,7 +19,7 @@ jobs:
       
     - name: Login to DockerHub registry
       run: |
-        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER -password-stdin
+        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
