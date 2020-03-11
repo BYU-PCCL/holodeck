@@ -19,9 +19,9 @@ jobs:
       
     - name: Login to DockerHub registry
       run: |
-        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
+        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
       env:
-        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build base image
