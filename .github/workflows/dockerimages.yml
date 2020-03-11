@@ -19,7 +19,7 @@ jobs:
       
     - name: Login to DockerHub registry
       run: |
-        echo ${{DOCKER_PASSWORD}} | docker login -u ${{DOCKER_USER}} -password-stdin
+        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER -password-stdin
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -27,18 +27,18 @@ jobs:
     - name: Build base image
       working-directory: ./docker
       run: |
-        docker build -t ${{ IMAGE_NAME }}:base -f ./Dockerfile ..
+        docker build -t ${IMAGE_NAME}:base -f ./Dockerfile ..
         
     - name: Build default worlds image
       working-directory: ./docker
-      run: docker build -t ${{ IMAGE_NAME }}:default-worlds -f ./Dockerfile_default_worlds ..
+      run: docker build -t ${IMAGE_NAME}:default-worlds -f ./Dockerfile_default_worlds ..
         
     - name: Build default worlds image
       working-directory: ./docker
-      run: docker build -t ${{ IMAGE_NAME }}:dexterity -f ./Dockerfile_dexterity ..
+      run: docker build -t ${IMAGE_NAME}:dexterity -f ./Dockerfile_dexterity ..
         
     - name: Push images
       run: |
-        docker push ${{ IMAGE_NAME }}:base
-        docker push ${{ IMAGE_NAME }}:default-worlds
-        docker push ${{ IMAGE_NAME }}:dexterity
+        docker push ${IMAGE_NAME}:base
+        docker push ${IMAGE_NAME}:default-worlds
+        docker push ${IMAGE_NAME}:dexterity
