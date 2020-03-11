@@ -49,16 +49,19 @@ The repository on DockerHub is `pccl/holodeck`_.
 
 Currently the following tags are availible:
 
-- ``ubuntu18.04-with-worlds``
-- ``ubuntu18.04-without-worlds``
-- ``ubuntu16.04-without-worlds``
-- ``ubuntu16.04-with-worlds``
+- ``base`` : base image without any worlds
+- ``default-worlds`` : comes with the default worlds pre-installed
+- ``dexterity`` : comes with the dexterity package pre-installed
 
 .. _`pccl/holodeck`: https://hub.docker.com/r/pccl/holodeck
 
+This is an example command to start a holodeck container
+
+``nvidia-docker run --rm -it --name holodeck pccl/holodeck:default-worlds``
+
 .. note::
    Holodeck cannot be run with root privileges, so the user ``holodeckuser`` with
-   password ``holodeck`` is provided in the docker image.
+   no password is provided in the docker image.
 
 Managing World Packages
 =======================
