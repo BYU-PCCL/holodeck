@@ -505,6 +505,7 @@ class HolodeckEnvironment:
 
     def set_render_quality(self, render_quality):
         """Adjusts the rendering quality of Holodeck.
+        
         Args:
             render_quality (:obj:`int`): An integer between 0 = Low Quality and 3 = Epic quality.
         """

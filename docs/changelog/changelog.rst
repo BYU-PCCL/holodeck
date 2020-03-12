@@ -41,14 +41,17 @@ New Features
 
 Changes
 ~~~~~~~
+
+- Holodeck now requires Python >= 3.5
+  (`#389 <https://github.com/BYU-PCCL/holodeck/issues/389>`_)
 - Moved weather/time methods from
   :class:`~holodeck.environments.HolodeckEnvironment` to new
   :class:`~holodeck.weather.WeatherController`
   (`#196 <https://github.com/BYU-PCCL/holodeck/issues/196>`_,
   `#263 <https://github.com/BYU-PCCL/holodeck/issues/263>`_)
 - Calling :meth:`~holodeck.environments.HolodeckEnvironment.send_world_command`
-  for an environment without the given command will now crash
-  the environment rather than fail silently.
+  for an environment without the given command will now cause
+  the environment to exit rather than fail silently.
   This includes all relevant methods in the
   :class:`~holodeck.weather.WeatherController`.
 
