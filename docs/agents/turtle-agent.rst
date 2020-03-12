@@ -17,6 +17,13 @@ TurtleAgent is subject to gravity and can climb ramps and slopes.
 
 See :class:`~holodeck.agents.TurtleAgent` for more details.
 
+Control Schemes
+---------------
+
+**Sphere continuous** (``1``)
+  A 2-length floating point vector used to specify
+  the agent's forward force (index 0) and rotation force (index 1).
+
 Sockets
 -------
 
