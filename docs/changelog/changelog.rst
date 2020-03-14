@@ -27,7 +27,7 @@ New Features
   :ref:`location-randomization`.
   (`#295 <https://github.com/BYU-PCCL/holodeck/issues/295>`_)
 - :meth:`~holodeck.environment.spawn_prop` now allows for programmatically
-  spawning basic unreal actors into the environment.
+  spawning basic Unreal actors into the environment.
   (`#397 <https://github.com/BYU-PCCL/holodeck/issues/397>`_)
 - :ref:`distance-task` by default now calculates the distance to the objective
   along the XY plane, to discourage flying straight up.
