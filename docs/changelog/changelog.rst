@@ -54,6 +54,10 @@ Changes
   the environment to exit rather than fail silently.
   This includes all relevant methods in the
   :class:`~holodeck.weather.WeatherController`.
+- Removed the ability to toggle sensors during runtime with the removal of
+  :class:`~holodeck.environments.command.SetSensorEnabledCommand`,
+  :meth:`~holodeck.environments.HolodeckEnvironment.set_sensor_enabled`, and
+  :meth:`~holodeck.sensors.HolodeckSensor.set_sensor_enable`.
 
 Bug Fixes
 ~~~~~~~~~
