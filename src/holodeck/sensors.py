@@ -4,7 +4,7 @@ import json
 import numpy as np
 import holodeck
 
-from holodeck.command import SetSensorEnabledCommand, RGBCameraRateCommand, RotateSensorCommand, CustomCommand
+from holodeck.command import RGBCameraRateCommand, RotateSensorCommand, CustomCommand
 from holodeck.exceptions import HolodeckConfigurationException
 
 
@@ -34,16 +34,6 @@ class HolodeckSensor:
                                 self.data_shape, self.dtype)
 
         self.config = {} if config is None else config
-
-    def set_sensor_enable(self, enable):
-        """Enable or disable this sensor
-
-        Args:
-            enable (:obj:`bool`): State to set sensor to
-
-        """
-        command_to_send = SetSensorEnabledCommand(self.agent_name, self.name, enable)
-        self._client.command_center.enqueue_command(command_to_send)
 
     @property
     def sensor_data(self):
