@@ -21,13 +21,14 @@ See :class:`~holodeck.agents.SphereAgent` for more details.
 Control Schemes
 ---------------
 
-- Discrete
-- Continuous Control Scheme
+**Sphere discrete** (``0``)
+  A single-length integer vector that accepts 1 of four
+  possible numbers; 0: move forward, 1: move backward, 
+  2: turn right, 3: turn left
 
-See :class:`~holodeck.agents.SphereAgent` for details on how to use 
-the control schemes.
-
-.. TODO: Example code?
+**Sphere continuous** (``1``)
+  A 2-length floating point vector used to specify 
+  the agent's forward speed (index 0) and rotation speed (index 1).
 
 Sockets
 ---------------

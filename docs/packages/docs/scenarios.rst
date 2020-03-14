@@ -57,12 +57,19 @@ Scenario File
       "agents":[
          "array of agent objects"
       ],
+      "weather": {
+         "hour": 12,
+         "type": "'sunny' or 'cloudy' or 'rain'",
+         "fog_density": 0,
+         "day_cycle_length": 86400
+      },
       "window_width":  1280,
       "window_height": 720
    }
 
 ``window_width/height`` control the size of the window opened when an
-environment is created.
+environment is created. For more information about weather options, see
+:ref:`weather`.
 
 .. note::
    The first agent in the ``agents`` array is the "main agent"
