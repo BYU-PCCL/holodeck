@@ -33,6 +33,7 @@ Welcome to Holodeck's documentation!
    holodeck/shmem
    holodeck/util
    holodeck/exceptions
+   holodeck/weather
 
 
 Indices and tables
