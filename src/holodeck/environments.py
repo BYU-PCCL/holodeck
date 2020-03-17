@@ -565,10 +565,10 @@ class HolodeckEnvironment:
         loading_semaphore = \
             posix_ipc.Semaphore('/HOLODECK_LOADING_SEM' + self._uuid, os.O_CREAT | os.O_EXCL,
                                 initial_value=0)
-        # Copy the environment variables and re,pve the DISPLAY variable to hide viewport
+        # Copy the environment variables and remove the DISPLAY variable to hide viewport
         # https://answers.unrealengine.com/questions/815764/in-the-release-notes-it-says-the-engine-can-now-cr.html?sort=oldest
         environment = dict(os.environ.copy())
-        if not show_viewport:
+        if not show_viewport and 'DISPLAY' in environment:
             del environment['DISPLAY']
         self._world_process = \
             subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
