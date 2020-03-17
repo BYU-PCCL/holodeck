@@ -33,7 +33,7 @@ jobs:
       working-directory: ./docker
       run: docker build -t ${IMAGE_NAME}:default-worlds -f ./Dockerfile_default_worlds ..
         
-    - name: Build default worlds image
+    - name: Build dexterity image
       working-directory: ./docker
       run: docker build -t ${IMAGE_NAME}:dexterity -f ./Dockerfile_dexterity ..
         
