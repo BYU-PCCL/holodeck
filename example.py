@@ -72,7 +72,7 @@ def android_example():
 
 def multi_agent_example():
     """A basic example of using multiple agents"""
-    env = holodeck.make("CyberPunkCity-FollowSight")
+    env = holodeck.make("CyberPunkCity-Follow")
 
     cmd0 = np.array([0, 0, -2, 10])
     cmd1 = np.array([0, 0, 0])
@@ -83,7 +83,13 @@ def multi_agent_example():
         env.act("nav0", cmd1)
         for _ in range(1000):
             states = env.tick()
+
             pixels = states["uav0"]["RGBCamera"]
+            location = states["uav0"]["LocationSensor"]
+
+            task = states["uav0"]["FollowTask"]
+            reward = task[0]
+            terminal = task[1]
 
 
 def world_command_examples():
