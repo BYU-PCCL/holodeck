@@ -69,7 +69,6 @@ def test_sim_physics_prop():
 
         # spawn a ball to fall on top of the agent
         env.spawn_prop("sphere", location=[0, 0.1, 3], scale= 3, sim_physics=True)
-        env.tick(100)
 
         # get the final location after the uav has been knocked over
         final_location = env.tick(100)["LocationSensor"]
