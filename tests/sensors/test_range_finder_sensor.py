@@ -4,49 +4,7 @@ import uuid
 from tests.utils.equality import almost_equal
 
 
-sphere_config_count = {
-    "name": "test_range_finder_sensor",
-    "world": "TestWorld",
-    "main_agent": "sphere0",
-    "agents": [
-        {
-            "agent_name": "sphere0",
-            "agent_type": "SphereAgent",
-            "sensors": [
-                {
-                    "sensor_type": "RangeFinderSensor",
-                    "configuration": {
-                        "LaserCount": 4
-                    }
-                }
-            ],
-            "control_scheme": 0,
-            "location": [.95, -1.75, .5]
-        }
-    ]
-}
-
-
-def test_range_finder_sensor_count():
-    """Make sure the range sensor updates after specifying laser count.
-    """
-    binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
-
-    with holodeck.environments.HolodeckEnvironment(scenario=sphere_config_count,
-                                                   binary_path=binary_path,
-                                                   show_viewport=False,
-                                                   uuid=str(uuid.uuid4())) as env:
-
-        state = env.tick(10)
-
-        actual = state["RangeFinderSensor"]
-
-        expected = sphere_config_count["agents"][0]["sensors"][0]["configuration"]["LaserCount"]
-
-        assert len(actual) == expected, "Sensed range size did not match the expected size!"
-
-
-sphere_config_max = {
+sphere_config = {
     "name": "test_range_finder_sensor",
     "world": "TestWorld",
     "main_agent": "sphere0",
@@ -75,7 +33,7 @@ def test_range_finder_sensor_max():
     """
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
-    with holodeck.environments.HolodeckEnvironment(scenario=sphere_config_max,
+    with holodeck.environments.HolodeckEnvironment(scenario=sphere_config,
                                                    binary_path=binary_path,
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
@@ -84,10 +42,12 @@ def test_range_finder_sensor_max():
 
         actual = state["RangeFinderSensor"]
 
-        expected = sphere_config_max["agents"][0]["sensors"][0]["configuration"]["LaserMaxDistance"]
+        expected_count = sphere_config["agents"][0]["sensors"][0]["configuration"]["LaserCount"]
+        assert len(actual) == expected_count, "Sensed range size did not match the expected size!"
 
+        expected_dist = sphere_config["agents"][0]["sensors"][0]["configuration"]["LaserMaxDistance"]
         assert all(x > 0 for x in actual), "Sensed range includes 0!"
-        assert all(x <= expected for x in actual), "Sensed range includes value greater than 1!"
+        assert all(x <= expected_dist for x in actual), "Sensed range includes value greater than 1!"
 
 
 uav_config = {
