@@ -16,7 +16,7 @@ sphere_config_count = {
                 {
                     "sensor_type": "RangeFinderSensor",
                     "configuration": {
-                        "LazerCount": 4
+                        "LaserCount": 4
                     }
                 }
             ],
@@ -28,7 +28,7 @@ sphere_config_count = {
 
 
 def test_range_finder_sensor_count():
-    """Make sure the range sensor updates after specifying laxer count.
+    """Make sure the range sensor updates after specifying laser count.
     """
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
@@ -37,12 +37,11 @@ def test_range_finder_sensor_count():
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
 
-        env.tick(10)
+        state = env.tick(10)
 
-        state = env.tick()
         actual = state["RangeFinderSensor"]
 
-        expected = sphere_config_count["agents"][0]["sensors"][0]["configuration"]["LazerCount"]
+        expected = sphere_config_count["agents"][0]["sensors"][0]["configuration"]["LaserCount"]
 
         assert len(actual) == expected, "Sensed range size did not match the expected size!"
 
@@ -59,8 +58,8 @@ sphere_config_max = {
                 {
                     "sensor_type": "RangeFinderSensor",
                     "configuration": {
-                        "LazerMaxDistance": 1,
-                        "LazerCount": 12
+                        "LaserMaxDistance": 1,
+                        "LaserCount": 12
                     }
                 }
             ],
@@ -81,12 +80,11 @@ def test_range_finder_sensor_max():
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
 
-        env.tick(10)
+        state = env.tick(10)
 
-        state = env.tick()
         actual = state["RangeFinderSensor"]
 
-        expected = sphere_config_max["agents"][0]["sensors"][0]["configuration"]["LazerMaxDistance"]
+        expected = sphere_config_max["agents"][0]["sensors"][0]["configuration"]["LaserMaxDistance"]
 
         assert all(x > 0 for x in actual), "Sensed range includes 0!"
         assert all(x <= expected for x in actual), "Sensed range includes value greater than 1!"
@@ -104,8 +102,8 @@ uav_config = {
                 {
                     "sensor_type": "RangeFinderSensor",
                     "configuration": {
-                        "LazerAngle": -90,
-                        "LazerMaxDistance": 15
+                        "LaserAngle": -90,
+                        "LaserMaxDistance": 15
                     }
                 }
             ],

@@ -528,10 +528,10 @@ class RangeFinderSensor(HolodeckSensor):
     The ``configuration`` block (see :ref:`configuration-block`) accepts the 
     following options:
 
-    - ``LazerMaxDistance``: Max Distance in meters of RangeFinder. (default 10)
-    - ``LazerCount``: Number of lazers in sensor. (default 1)
-    - ``LazerAngle``: Angle of lazers from origin. Measured in degrees. Positive angles point up. (default 0)
-    - ``LazerDebug``: Show debug traces. (default false)
+    - ``LaserMaxDistance``: Max Distance in meters of RangeFinder. (default 10)
+    - ``LaserCount``: Number of lasers in sensor. (default 1)
+    - ``LaserAngle``: Angle of lasers from origin. Measured in degrees. Positive angles point up. (default 0)
+    - ``LaserDebug``: Show debug traces. (default false)
     """
 
     sensor_type = "RangeFinderSensor"
@@ -540,7 +540,7 @@ class RangeFinderSensor(HolodeckSensor):
                  name="RangeFinderSensor", config=None):
 
         config = {} if config is None else config
-        self.lazer_count = config["LazerCount"] if "LazerCount" in config else 1
+        self.laser_count = config["LaserCount"] if "LaserCount" in config else 1
 
         super().__init__(client, agent_name, agent_type, name, config)
 
@@ -550,7 +550,7 @@ class RangeFinderSensor(HolodeckSensor):
 
     @property
     def data_shape(self):
-        return [self.lazer_count]
+        return [self.laser_count]
 
 
 class WorldNumSensor(HolodeckSensor):
