@@ -521,11 +521,16 @@ class CollisionSensor(HolodeckSensor):
 
 
 class RangeFinderSensor(HolodeckSensor):
-    """Returns collision distances in directions specified by parameters.
+    """Returns distances to nearest collisions in the directions specified by
+    the parameters. For example, if an agent had two range sensors at different
+    angles with 24 lasers each, the LaserDebug traces would look something like
+    this:
+
+    .. image:: ../../docs/images/UAVRangeFinder.PNG
 
     **Configuration**
 
-    The ``configuration`` block (see :ref:`configuration-block`) accepts the 
+    The ``configuration`` block (see :ref:`configuration-block`) accepts the
     following options:
 
     - ``LaserMaxDistance``: Max Distance in meters of RangeFinder. (default 10)
