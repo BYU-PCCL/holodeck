@@ -87,7 +87,7 @@ class WeatherController:
         If there is no skysphere, skylight, or directional source light in the world, this command
         will exit the environment.
 
-        ..note::
+        .. note::
             Because this command can affect the fog density, any changes made by a
             ``change_fog_density`` command before a set_weather command called will be undone. It is
             recommended to call ``change_fog_density`` after calling set weather if you wish to

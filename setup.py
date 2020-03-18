@@ -15,7 +15,7 @@ setup(
     packages=find_packages('src'),
     package_dir={'': 'src'},
     license='MIT License',
-    python_requires=">=3",
+    python_requires=">=3.5",
     install_requires=[
         'posix_ipc >= 1.0.0; platform_system == "Linux"',
         'pywin32 >= 1.0; platform_system == "Windows"',

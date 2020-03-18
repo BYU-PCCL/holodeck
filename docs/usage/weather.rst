@@ -76,7 +76,8 @@ Day length
 
 .. image:: day_length.gif
 
-.. note:: By default, the day cycle in Holodeck worlds is turned off and time is fixed.
+.. note:: By default, the day cycle in Holodeck worlds is turned off and time 
+   is fixed.
 
 The day cycle length is set in minutes.
 

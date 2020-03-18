@@ -18,7 +18,7 @@ Holodeck is a high-fidelity simulator for reinforcement learning built on top of
 ## Installation
 `pip install holodeck`
 
-(requires Python 3)
+(requires >= Python 3.5)
 
 See [Installation](https://holodeck.readthedocs.io/en/latest/usage/installation.html) for complete instructions (including Docker).
 
