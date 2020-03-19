@@ -33,8 +33,8 @@ New Features
   configuration block of the :ref:`distance-task`.
   (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
 - Added :class:`~holodeck.sensors.RangeFinderSensor` which calculates the
-  distance from the sensor to the first collision in the environment. The
-  sensor can be duplicated in a 360 array around the agent.
+  distance from the sensor to the first collision in the environment. The 
+  sensor can send out multiple rays in a circle if desired.
 
 Changes
 ~~~~~~~
