@@ -426,8 +426,10 @@ class HolodeckEnvironment:
             self._agent = self.agents[agent_def.name]
 
     def spawn_prop(self, prop_type, location=None, rotation=None, scale=1, 
-                    sim_physics=False, material="", name=""):
-        """Spawns a basic prop object in the world like a box or sphere.
+                    sim_physics=False, material="", tag=""):
+        """Spawns a basic prop object in the world like a box or sphere. 
+        
+        Prop will not persist after environment reset.
 
         Args:
             prop_type (:obj:`string`):
@@ -444,15 +446,15 @@ class HolodeckEnvironment:
                 If given a single float value, then every dimension will be scaled to that value.
 
             sim_physics (:obj:`boolean`):
-                Whether the object is mobile and is affected by gravity and collisions.
+                Whether the object is mobile and is affected by gravity.
 
             material (:obj:`string`):
                 The type of material (texture) to apply to the prop. Can be ``white``, ``gold``,
                 ``cobblestone``, ``brick``, ``wood``, ``grass``, ``steel``, or ``black``. If left
-                empty, the prop will have the default unreal material.
+                empty, the prop will have the a simple checkered gray material.
 
-            name (:obj:`string`):
-                The name to apply to the prop. Useful for task references, like the
+            tag (:obj:`string`):
+                The tag to apply to the prop. Useful for task references, like the
                 :ref:`location-task`.
         """
         location = [0, 0, 0] if location is None else location
@@ -477,7 +479,7 @@ class HolodeckEnvironment:
                 material, available_materials))
 
         self.send_world_command("SpawnProp", num_params=[location, rotation, scale, sim_physics],
-                                string_params=[prop_type, material, name])
+                                string_params=[prop_type, material, tag])
 
     def draw_line(self, start, end, color=None, thickness=10.0):
         """Draws a debug line in the world
