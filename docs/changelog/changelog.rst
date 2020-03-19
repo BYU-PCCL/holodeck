@@ -58,6 +58,8 @@ Changes
   :class:`~holodeck.environments.command.SetSensorEnabledCommand`,
   :meth:`~holodeck.environments.HolodeckEnvironment.set_sensor_enabled`, and
   :meth:`~holodeck.sensors.HolodeckSensor.set_sensor_enable`.
+  To specify which sensors to include, use :ref:`custom-scenarios`.
+  (`#268 <https://github.com/BYU-PCCL/holodeck/issues/268>`_)
 
 Bug Fixes
 ~~~~~~~~~
