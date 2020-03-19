@@ -15,7 +15,7 @@ import numpy as np
 
 from holodeck.command import CommandCenter, SpawnAgentCommand, RGBCameraRateCommand, \
     TeleportCameraCommand, RenderViewportCommand, RenderQualityCommand, \
-    SetSensorEnabledCommand, CustomCommand, DebugDrawCommand
+    CustomCommand, DebugDrawCommand
 
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
@@ -523,20 +523,6 @@ class HolodeckEnvironment:
             print("No such agent %s" % agent_name)
         else:
             self.agents[agent_name].set_control_scheme(control_scheme)
-
-    def set_sensor_enabled(self, agent_name, sensor_name, enabled):
-        """Enable or disable an agent's sensor.
-
-        Args:
-            agent_name (:obj:`str`): The name of the agent whose sensor will be switched
-            sensor_name (:obj:`str`): The name of the sensor to be switched
-            enabled (:obj:`bool`): Boolean representing whether to enable or disable the sensor
-        """
-        if agent_name not in self._sensor_map:
-            print("No such agent %s" % agent_name)
-        else:
-            command_to_send = SetSensorEnabledCommand(agent_name, sensor_name, enabled)
-            self._enqueue_command(command_to_send)
 
     def send_world_command(self, name, num_params=None, string_params=None):
         """Send a custom command.

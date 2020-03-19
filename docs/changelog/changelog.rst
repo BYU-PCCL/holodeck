@@ -54,6 +54,12 @@ Changes
   the environment to exit rather than fail silently.
   This includes all relevant methods in the
   :class:`~holodeck.weather.WeatherController`.
+- Removed the ability to toggle sensors during runtime with the removal of
+  :class:`~holodeck.environments.command.SetSensorEnabledCommand`,
+  :meth:`~holodeck.environments.HolodeckEnvironment.set_sensor_enabled`, and
+  :meth:`~holodeck.sensors.HolodeckSensor.set_sensor_enable`.
+  To specify which sensors to include, use :ref:`custom-scenarios`.
+  (`#268 <https://github.com/BYU-PCCL/holodeck/issues/268>`_)
 
 Bug Fixes
 ~~~~~~~~~
@@ -61,10 +67,10 @@ Bug Fixes
   (`#331 <https://github.com/BYU-PCCL/holodeck/issues/331>`_
 - Fixed `posix_ipc.BusyError: Semaphore is busy` error on Linux systems when
   creating a scenario
-  (`#285 https://github.com/BYU-PCCL/holodeck/issues/285`)
+  (`#285 <https://github.com/BYU-PCCL/holodeck/issues/285>`_)
 - Fixed a bug where the UE4 editor crashes when an agent is manually added
   to a level
-  (`#361 https://github.com/BYU-PCCL/holodeck/issues/361`)
+  (`#361 <https://github.com/BYU-PCCL/holodeck/issues/361>`_)
 
 Known Issues
 ~~~~~~~~~~~~
