@@ -20,6 +20,7 @@ from holodeck.command import CommandCenter, SpawnAgentCommand, RGBCameraRateComm
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import AgentDefinition, SensorDefinition, AgentFactory
+from holodeck.weather import WeatherController
 
 
 class HolodeckEnvironment:
@@ -111,6 +112,9 @@ class HolodeckEnvironment:
         self._reset_ptr = self._client.malloc("RESET", [1], np.bool)
         self._reset_ptr[0] = False
 
+        # Initialize environment controller
+        self.weather = WeatherController(self.send_world_command)
+
         # Set up agents already in the world
         self.agents = dict()
         self._state_dict = dict()
@@ -168,7 +172,7 @@ class HolodeckEnvironment:
     def _load_scenario(self):
         """Loads the scenario defined in self._scenario_key.
 
-        Instantiates all agents and sensors.
+        Instantiates agents, sensors, and weather.
 
         If no scenario is defined, does nothing.
         """
@@ -250,6 +254,18 @@ class HolodeckEnvironment:
             self.add_agent(agent_def, is_main_agent)
             self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
             self._spawned_agent_defs.append(agent_def)
+
+        if "weather" in self._scenario:
+            weather = self._scenario["weather"]
+            if "hour" in weather:
+                self.weather.set_day_time(weather["hour"])
+            if "type" in weather:
+                self.weather.set_weather(weather["type"])
+            if "fog_density" in weather:
+                self.weather.set_fog_density(weather["fog_density"])
+            if "day_cycle_length" in weather:
+                day_cycle_length = weather["day_cycle_length"]
+                self.weather.start_day_cycle(day_cycle_length)
 
     def reset(self):
         """Resets the environment, and returns the state.
@@ -464,100 +480,6 @@ class HolodeckEnvironment:
         command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
         self._enqueue_command(command_to_send)
 
-    def set_fog_density(self, density):
-        """Change the fog density.
-
-        The change will occur when :meth:`tick` or :meth:`step` is called next.
-
-        By the next tick, the exponential height fog in the world will have the new density. If
-        there is no fog in the world, it will be created with the given density.
-
-        Args:
-            density (:obj:`float`): The new density value, between 0 and 1. The command will not be
-                sent if the given density is invalid.
-        """
-        if density < 0 or density > 1:
-            raise HolodeckException("Fog density should be between 0 and 1")
-
-        self.send_world_command("SetFogDensity", num_params=[density])
-
-    def set_day_time(self, hour):
-        """Change the time of day.
-
-        Daytime will change when :meth:`tick` or :meth:`step` is called next.
-
-        By the next tick, the lighting and the skysphere will be updated with the new hour.
-
-        If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
-
-        Args:
-            hour (:obj:`int`): The hour in 24-hour format, between 0 and 23 inclusive.
-        """
-        self.send_world_command("SetHour", num_params=[hour % 24])
-
-    def start_day_cycle(self, day_length):
-        """Start the day cycle.
-
-        The cycle will start when :meth:`tick` or :meth:`step` is called next.
-
-        The sky sphere will then update each tick with an updated sun angle as it moves about the]
-        sky. The length of a day will be roughly equivalent to the number of minutes given.
-
-        If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
-
-        Args:
-            day_length (:obj:`int`): The number of minutes each day will be.
-        """
-        if day_length <= 0:
-            raise HolodeckException("The given day length should be between above 0!")
-
-        self.send_world_command("SetDayCycle", num_params=[1, day_length])
-
-    def stop_day_cycle(self):
-        """Stop the day cycle.
-
-        The cycle will stop when :meth:`tick` or :meth:`step` is called next.
-
-        By the next tick, day cycle will stop where it is.
-
-        If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
-        """
-        self.send_world_command("SetDayCycle", num_params=[0, -1])
-
-    def set_weather(self, weather_type):
-        """Set the world's weather.
-
-        The new weather will be applied when :meth:`tick` or :meth:`step` is called next.
-
-        By the next tick, the lighting, skysphere, fog, and relevant particle systems will be
-        updated and/or spawned
-        to the given weather.
-
-        If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
-
-        ..note::
-            Because this command can affect the fog density, any changes made by a
-            ``change_fog_density`` command before a set_weather command called will be undone. It is
-            recommended to call ``change_fog_density`` after calling set weather if you wish to
-            apply your specific changes.
-
-        In all downloadable worlds, the weather is clear by default.
-
-        If the given type string is not available, the command will not be sent.
-
-        Args:
-            weather_type (:obj:`str`): The type of weather, which can be ``rain`` or ``cloudy``.
-
-        """
-        if not weather_type.lower() in ["rain", "cloudy"]:
-            raise HolodeckException("Invalid weather type " + weather_type)
-
-        self.send_world_command("SetWeather", string_params=[weather_type])
-
     def move_viewport(self, location, rotation):
         """Teleport the camera to the given location
 
@@ -583,6 +505,7 @@ class HolodeckEnvironment:
 
     def set_render_quality(self, render_quality):
         """Adjusts the rendering quality of Holodeck.
+        
         Args:
             render_quality (:obj:`int`): An integer between 0 = Low Quality and 3 = Epic quality.
         """
@@ -621,6 +544,8 @@ class HolodeckEnvironment:
         A custom command sends an abitrary command that may only exist in a specific world or
         package. It is given a name and any amount of string and number parameters that allow it to
         alter the state of the world.
+        
+        If a command is sent that does not exist in the world, the environment will exit.
 
         Args:
             name (:obj:`str`): The name of the command, ex "OpenDoor"
@@ -640,10 +565,10 @@ class HolodeckEnvironment:
         loading_semaphore = \
             posix_ipc.Semaphore('/HOLODECK_LOADING_SEM' + self._uuid, os.O_CREAT | os.O_EXCL,
                                 initial_value=0)
-        # Copy the environment variables and re,pve the DISPLAY variable to hide viewport
+        # Copy the environment variables and remove the DISPLAY variable to hide viewport
         # https://answers.unrealengine.com/questions/815764/in-the-release-notes-it-says-the-engine-can-now-cr.html?sort=oldest
         environment = dict(os.environ.copy())
-        if not show_viewport:
+        if not show_viewport and 'DISPLAY' in environment:
             del environment['DISPLAY']
         self._world_process = \
             subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),

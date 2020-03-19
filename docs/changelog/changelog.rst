@@ -29,17 +29,35 @@ New Features
 - :ref:`distance-task` by default now calculates the distance to the objective
   along the XY plane, to discourage flying straight up.
 
-  If the full 3D distance is desired, set the ``3dDistance`` flag in the 
+  If the full 3D distance is desired, set the ``3dDistance`` flag in the
   configuration block of the :ref:`distance-task`.
   (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
 - Added :class:`~holodeck.sensors.AbuseSensor`, which senses if an agent
   has been abused. Agents experience abuse when they fall from a high distance
   or other agent-specific situations.
   (`#262 <https://github.com/BYU-PCCL/holodeck/issues/262>`_)
+- Environment weather/time can be optionally configured with :ref:`scenarios`
+  (`#263 <https://github.com/BYU-PCCL/holodeck/issues/263>`_). See
+  :ref:`weather`.
+- :meth:`~holodeck.weather.WeatherController.set_weather` now has sunny
+  weather available.
+  (`#376 <https://github.com/BYU-PCCL/holodeck/issues/376>`_)
 
 Changes
 ~~~~~~~
 
+- Holodeck now requires Python >= 3.5
+  (`#389 <https://github.com/BYU-PCCL/holodeck/issues/389>`_)
+- Moved weather/time methods from
+  :class:`~holodeck.environments.HolodeckEnvironment` to new
+  :class:`~holodeck.weather.WeatherController`
+  (`#196 <https://github.com/BYU-PCCL/holodeck/issues/196>`_,
+  `#263 <https://github.com/BYU-PCCL/holodeck/issues/263>`_)
+- Calling :meth:`~holodeck.environments.HolodeckEnvironment.send_world_command`
+  for an environment without the given command will now cause
+  the environment to exit rather than fail silently.
+  This includes all relevant methods in the
+  :class:`~holodeck.weather.WeatherController`.
 
 Bug Fixes
 ~~~~~~~~~
