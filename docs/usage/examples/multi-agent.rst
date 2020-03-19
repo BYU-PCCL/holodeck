@@ -29,7 +29,6 @@ Code
 
    import holodeck
    import numpy as np
-   from holodeck.sensors import Sensors
 
    env = holodeck.make('CyberPunkCity-Follow')
    env.reset()
@@ -37,10 +36,11 @@ Code
    env.act('uav0', np.array([0, 0, 0, 100]))
    env.act('nav0', np.array([0, 0, 0]))
    for i in range(300):
-      s = env.tick()
+      states = env.tick()
 
-      # s is a dictionary now
-      s['uav0'][Sensors.REWARD]
-      s['uav0'][Sensors.TERMINAL]
-      s['uav0'][Sensors.LOCATION_SENSOR]
+      # states is a dictionary
+      task = states["uav0"]["FollowTask"]
 
+      reward = task[0]
+      terminal = task[1]
+      location = states["uav0"]["LocationSensor"]

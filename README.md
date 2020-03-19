@@ -63,9 +63,7 @@ If you want to access the data of a specific sensor, import sensors and
 retrieving the correct value from the state dictionary:
 
 ```python
-from holodeck.sensors import Sensors
-
-print(state[Sensors.LOCATION_SENSOR])
+print(state["LocationSensor"])
 ```
 
 ## Multi Agent-Environments
@@ -77,7 +75,10 @@ Calls to [`step`](https://holodeck.readthedocs.io/en/latest/holodeck/environment
 action has been provided, [`tick`](https://holodeck.readthedocs.io/en/latest/holodeck/environments.html#holodeck.environments.HolodeckEnvironment.tick) will advance the simulation forward. The action is persisted until another call to `act` provides a different action.
 
 ```python
-env = holodeck.make('CyberPunkCity-Follow')
+import holodeck
+import numpy as np
+
+env = holodeck.make("CyberPunkCity-Follow")
 env.reset()
 
 # Provide an action for each agent
@@ -86,16 +87,18 @@ env.act('nav0', np.array([0, 0, 0]))
 
 # Advance the simulation
 for i in range(300):
-    # The action provided above is repeated
-    s = env.tick()
+  # The action provided above is repeated
+  states = env.tick()
 ```
 
 You can access the reward, terminal and location for a multi agent environment as follows:
 
-``` python
-s['uav0'][Sensors.REWARD]
-s['uav0'][Sensors.TERMINAL]
-s['uav0'][Sensors.LOCATION_SENSOR]
+```python
+task = states["uav0"]["FollowTask"]
+
+reward = task[0]
+terminal = task[1]
+location = states["uav0"]["LocationSensor"]
 ```
 
 (`uav0` comes from the [scenario configuration file](https://holodeck.readthedocs.io/en/latest/packages/docs/scenarios.html))
