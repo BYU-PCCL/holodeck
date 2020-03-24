@@ -38,6 +38,9 @@ New Features
 - :meth:`~holodeck.weather.WeatherController.set_weather` now has sunny
   weather available.
   (`#376 <https://github.com/BYU-PCCL/holodeck/issues/376>`_)
+- Added :class:`~holodeck.sensors.RangeFinderSensor` which calculates the
+  distance from the sensor to the first collision in the environment. The 
+  sensor can send out multiple rays in a circle if desired.
 
 Changes
 ~~~~~~~

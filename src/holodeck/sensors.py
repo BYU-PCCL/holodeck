@@ -510,6 +510,44 @@ class CollisionSensor(HolodeckSensor):
         return [1]
 
 
+class RangeFinderSensor(HolodeckSensor):
+    """Returns distances to nearest collisions in the directions specified by
+    the parameters. For example, if an agent had two range sensors at different
+    angles with 24 lasers each, the LaserDebug traces would look something like
+    this:
+
+    .. image:: ../../docs/images/UAVRangeFinder.PNG
+
+    **Configuration**
+
+    The ``configuration`` block (see :ref:`configuration-block`) accepts the
+    following options:
+
+    - ``LaserMaxDistance``: Max Distance in meters of RangeFinder. (default 10)
+    - ``LaserCount``: Number of lasers in sensor. (default 1)
+    - ``LaserAngle``: Angle of lasers from origin. Measured in degrees. Positive angles point up. (default 0)
+    - ``LaserDebug``: Show debug traces. (default false)
+    """
+
+    sensor_type = "RangeFinderSensor"
+    
+    def __init__(self, client, agent_name, agent_type, 
+                 name="RangeFinderSensor", config=None):
+
+        config = {} if config is None else config
+        self.laser_count = config["LaserCount"] if "LaserCount" in config else 1
+
+        super().__init__(client, agent_name, agent_type, name, config)
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [self.laser_count]
+
+
 class WorldNumSensor(HolodeckSensor):
     """Returns any numeric value from the world corresponding to a given key. This is world specific.
 
@@ -578,6 +616,7 @@ class SensorDefinition:
         "VelocitySensor": VelocitySensor,
         "PressureSensor": PressureSensor,
         "CollisionSensor": CollisionSensor,
+        "RangeFinderSensor": RangeFinderSensor,
         "WorldNumSensor": WorldNumSensor,
         "BallLocationSensor": BallLocationSensor
     }
