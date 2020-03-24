@@ -20,6 +20,7 @@ from holodeck.command import CommandCenter, SpawnAgentCommand, RGBCameraRateComm
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import AgentDefinition, SensorDefinition, AgentFactory
+from holodeck.logging import export_call_log
 from holodeck.weather import WeatherController
 
 
@@ -600,6 +601,7 @@ class HolodeckEnvironment:
             self._world_process.kill()
             self._world_process.wait(5)
 
+        export_call_log()
         self._exited = True
 
     # Context manager APIs, allows `with` statement to be used

@@ -2,7 +2,9 @@
 import os
 
 from holodeck.exceptions import HolodeckException
+from holodeck.logging import log_call
 from holodeck.shmem import Shmem
+
 
 class HolodeckClient:
     """HolodeckClient for controlling a shared memory session.
@@ -12,6 +14,7 @@ class HolodeckClient:
             The same UUID should be passed to the world through a command line flag. Defaults to "".
         should_timeout (:obj:`boolean`, optional): If the client should time out after 5s waiting for the engine
     """
+
     def __init__(self, uuid="", should_timeout=False):
         self._uuid = uuid
 
@@ -36,25 +39,38 @@ class HolodeckClient:
         else:
             raise HolodeckException("Currently unsupported os: " + os.name)
 
+        # TODO(vinhowe): This should run when testing only--is there a
+        #  "right way" to do this?
+        self._get_semaphore_fn = log_call(self._get_semaphore_fn, self._uuid)
+        self._release_semaphore_fn = log_call(
+            self._release_semaphore_fn, self._uuid
+        )
+        self.unlink = log_call(self.unlink, self._uuid)
+
     def __windows_init__(self):
         import win32event
+
         semaphore_all_access = 0x1F0003
 
-        self.timeout = 5000 if self.should_timeout else win32event.INFINITE            
+        self.timeout = 5000 if self.should_timeout else win32event.INFINITE
 
-        self._semaphore1 = \
-            win32event.OpenSemaphore(semaphore_all_access, False,
-                                     "Global\\HOLODECK_SEMAPHORE_SERVER" + self._uuid)
-        self._semaphore2 = \
-            win32event.OpenSemaphore(semaphore_all_access, False,
-                                     "Global\\HOLODECK_SEMAPHORE_CLIENT" + self._uuid)
+        self._semaphore1 = win32event.OpenSemaphore(
+            semaphore_all_access,
+            False,
+            "Global\\HOLODECK_SEMAPHORE_SERVER" + self._uuid,
+        )
+        self._semaphore2 = win32event.OpenSemaphore(
+            semaphore_all_access,
+            False,
+            "Global\\HOLODECK_SEMAPHORE_CLIENT" + self._uuid,
+        )
 
         def windows_acquire_semaphore(sem):
             result = win32event.WaitForSingleObject(sem, self.timeout)
 
             if result != win32event.WAIT_OBJECT_0:
                 raise TimeoutError("Timed out or error waiting for engine!")
-            
+
         def windows_release_semaphore(sem):
             win32event.ReleaseSemaphore(sem, 1)
 
@@ -67,8 +83,13 @@ class HolodeckClient:
 
     def __posix_init__(self):
         import posix_ipc
-        self._semaphore1 = posix_ipc.Semaphore("/HOLODECK_SEMAPHORE_SERVER" + self._uuid)
-        self._semaphore2 = posix_ipc.Semaphore("/HOLODECK_SEMAPHORE_CLIENT" + self._uuid)
+
+        self._semaphore1 = posix_ipc.Semaphore(
+            "/HOLODECK_SEMAPHORE_SERVER" + self._uuid
+        )
+        self._semaphore2 = posix_ipc.Semaphore(
+            "/HOLODECK_SEMAPHORE_CLIENT" + self._uuid
+        )
 
         # Unfortunately, OSX doesn't support sem_timedwait(), so setting this timeout
         # does nothing.
@@ -114,9 +135,11 @@ class HolodeckClient:
         Returns:
             :obj:`np.ndarray`: The numpy array that is positioned on the shared memory.
         """
-        if key not in self._memory or \
-           self._memory[key].shape != shape or \
-           self._memory[key].dtype != dtype:
+        if (
+            key not in self._memory
+            or self._memory[key].shape != shape
+            or self._memory[key].dtype != dtype
+        ):
             self._memory[key] = Shmem(key, shape, dtype, self._uuid)
 
         return self._memory[key].np_array
