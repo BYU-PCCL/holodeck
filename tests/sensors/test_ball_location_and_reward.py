@@ -33,7 +33,7 @@ cfg = {
     }
 
 
-@pytest.mark.skip("Dexterity" not in holodeck.installed_packages(),
+@pytest.mark.skipif("Dexterity" not in holodeck.installed_packages(),
                     reason='Dexterity package not installed')
 def test_ball_location_and_reward():
     """Shuffle the ball using a seed. Ensure that after shuffling the ball location sensor
