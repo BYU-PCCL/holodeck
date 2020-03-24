@@ -29,9 +29,15 @@ New Features
 - :ref:`distance-task` by default now calculates the distance to the objective
   along the XY plane, to discourage flying straight up.
 
-  If the full 3D distance is desired, set the ``3dDistance`` flag in the 
+  If the full 3D distance is desired, set the ``3dDistance`` flag in the
   configuration block of the :ref:`distance-task`.
   (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
+- Environment weather/time can be optionally configured with :ref:`scenarios`
+  (`#263 <https://github.com/BYU-PCCL/holodeck/issues/263>`_). See
+  :ref:`weather`.
+- :meth:`~holodeck.weather.WeatherController.set_weather` now has sunny
+  weather available.
+  (`#376 <https://github.com/BYU-PCCL/holodeck/issues/376>`_)
 - Added :class:`~holodeck.sensors.RangeFinderSensor` which calculates the
   distance from the sensor to the first collision in the environment. The 
   sensor can send out multiple rays in a circle if desired.
@@ -39,6 +45,24 @@ New Features
 Changes
 ~~~~~~~
 
+- Holodeck now requires Python >= 3.5
+  (`#389 <https://github.com/BYU-PCCL/holodeck/issues/389>`_)
+- Moved weather/time methods from
+  :class:`~holodeck.environments.HolodeckEnvironment` to new
+  :class:`~holodeck.weather.WeatherController`
+  (`#196 <https://github.com/BYU-PCCL/holodeck/issues/196>`_,
+  `#263 <https://github.com/BYU-PCCL/holodeck/issues/263>`_)
+- Calling :meth:`~holodeck.environments.HolodeckEnvironment.send_world_command`
+  for an environment without the given command will now cause
+  the environment to exit rather than fail silently.
+  This includes all relevant methods in the
+  :class:`~holodeck.weather.WeatherController`.
+- Removed the ability to toggle sensors during runtime with the removal of
+  :class:`~holodeck.environments.command.SetSensorEnabledCommand`,
+  :meth:`~holodeck.environments.HolodeckEnvironment.set_sensor_enabled`, and
+  :meth:`~holodeck.sensors.HolodeckSensor.set_sensor_enable`.
+  To specify which sensors to include, use :ref:`custom-scenarios`.
+  (`#268 <https://github.com/BYU-PCCL/holodeck/issues/268>`_)
 
 Bug Fixes
 ~~~~~~~~~
@@ -46,10 +70,10 @@ Bug Fixes
   (`#331 <https://github.com/BYU-PCCL/holodeck/issues/331>`_
 - Fixed `posix_ipc.BusyError: Semaphore is busy` error on Linux systems when
   creating a scenario
-  (`#285 https://github.com/BYU-PCCL/holodeck/issues/285`)
+  (`#285 <https://github.com/BYU-PCCL/holodeck/issues/285>`_)
 - Fixed a bug where the UE4 editor crashes when an agent is manually added
   to a level
-  (`#361 https://github.com/BYU-PCCL/holodeck/issues/361`)
+  (`#361 <https://github.com/BYU-PCCL/holodeck/issues/361>`_)
 
 Known Issues
 ~~~~~~~~~~~~

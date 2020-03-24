@@ -7,7 +7,8 @@ def almost_equal(item1, item2, r_thresh=0.01, a_thresh=1e-4):
     if len(item1) != len(item2):
         return False
 
-    return all(np.isclose(item1, item2, rtol=r_thresh,atol=a_thresh))
+    return all(np.isclose(item1, item2, rtol=r_thresh, atol=a_thresh))
+
 
 def mean_square_err(im1, im2):
     """Compute the mean square error of the two images to determine if they

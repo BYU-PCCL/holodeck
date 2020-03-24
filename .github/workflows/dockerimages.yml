@@ -1,0 +1,44 @@
+name: Docker build
+
+on:
+  push:
+    branches: [ docker-improvement ]
+  pull_request:
+    branches: [ docker-improvement ]
+
+jobs:
+  
+  build-images:
+    env:
+      IMAGE_NAME: pccl/holodeck
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Login to DockerHub registry
+      run: |
+        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build base image
+      working-directory: ./docker
+      run: |
+        docker build -t ${IMAGE_NAME}:base -f ./Dockerfile ..
+        
+    - name: Build default worlds image
+      working-directory: ./docker
+      run: docker build -t ${IMAGE_NAME}:default-worlds -f ./Dockerfile_default_worlds ..
+        
+    - name: Build dexterity image
+      working-directory: ./docker
+      run: docker build -t ${IMAGE_NAME}:dexterity -f ./Dockerfile_dexterity ..
+        
+    - name: Push images
+      run: |
+        docker push ${IMAGE_NAME}:base
+        docker push ${IMAGE_NAME}:default-worlds
+        docker push ${IMAGE_NAME}:dexterity

@@ -296,23 +296,6 @@ class TeleportCameraCommand(Command):
         self.add_number_parameters(rotation)
 
 
-class SetSensorEnabledCommand(Command):
-    """Enable or disable a sensor on an agent
-
-    Args:
-        agent (:obj:`str`): Name of the agent to modify
-        sensor (:obj:`str`): Name of the sensor to enable or disable
-        enabled (:obj:`bool`): State to set sensor to
-
-    """
-    def __init__(self, agent, sensor, enabled):
-        Command.__init__(self)
-        self._command_type = "SetSensorEnabled"
-        self.add_string_parameters(agent)
-        self.add_string_parameters(sensor)
-        self.add_number_parameters(1 if enabled else 0)
-
-
 class AddSensorCommand(Command):
     """Add a sensor to an agent
 
