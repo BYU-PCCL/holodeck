@@ -42,7 +42,10 @@ def env_scenario(request):
     env = holodeck.make(scenario, show_viewport=False)
     env.reset()
     envs[scenario] = env
-    return env, scenario
+
+    yield env, scenario
+
+    env.__on_exit__()
 
 
 def scenario_test(
@@ -62,11 +65,9 @@ def scenario_test(
         ticks (int): number of ticks between actions to apply
 
     """
-    env = holodeck.make(scenario, show_viewport=False)
+    with holodeck.make(scenario, show_viewport=False) as env:
+        for action_arg in action_args:
+            env_action(env, action_arg)
+            for _ in range(ticks):
+                env.tick()
 
-    for action_arg in action_args:
-        env_action(env, action_arg)
-        for _ in range(ticks):
-            env.tick()
-
-    env.__on_exit__()

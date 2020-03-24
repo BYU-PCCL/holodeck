@@ -61,7 +61,9 @@ def env_1024(request):
 
     shared_1024_env.reset()
 
-    return shared_1024_env
+    yield shared_1024_env
+
+    shared_1024_env.__on_exit__()
 
 
 shared_rotation_env = None
@@ -101,7 +103,10 @@ def rotation_env(request):
                                                                         uuid=str(uuid.uuid4()))
 
     shared_rotation_env.reset()
-    return shared_rotation_env
+
+    yield shared_rotation_env
+
+    shared_rotation_env.__on_exit__()
 
 
 android_joints = [

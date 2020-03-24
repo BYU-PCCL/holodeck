@@ -3,6 +3,8 @@ import os
 
 from holodeck.exceptions import HolodeckException
 from holodeck.shmem import Shmem
+from holodeck.util import is_testing_env, print_posix_shm_info
+
 
 class HolodeckClient:
     """HolodeckClient for controlling a shared memory session.
@@ -32,6 +34,8 @@ class HolodeckClient:
         if os.name == "nt":
             self.__windows_init__()
         elif os.name == "posix":
+            if is_testing_env():
+                print_posix_shm_info()
             self.__posix_init__()
         else:
             raise HolodeckException("Currently unsupported os: " + os.name)

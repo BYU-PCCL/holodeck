@@ -50,4 +50,6 @@ def env(request):
 
     shared_env.reset()
 
-    return shared_env
+    yield shared_env
+
+    shared_env.__on_exit__()
