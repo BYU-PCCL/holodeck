@@ -549,7 +549,8 @@ class RangeFinderSensor(HolodeckSensor):
 
 
 class WorldNumSensor(HolodeckSensor):
-    """Returns any numeric value from the world corresponding to a given key. This is world specific.
+    """Returns any numeric value from the world corresponding to a given key. This is
+    world specific.
 
     """
 
@@ -580,6 +581,31 @@ class BallLocationSensor(WorldNumSensor):
     @property
     def dtype(self):
         return np.int8
+
+
+class AbuseSensor(HolodeckSensor):
+    """Returns True if the agent has been abused. Abuse is calculated differently for
+    different agents. The Sphere and Hand agent cannot be abused. The Uav, Android,
+    and Turtle agents can be abused by experiencing high levels of acceleration.
+    The Uav is abused when its blades collide with another object, and the Turtle
+    agent is abused when it's flipped over.
+
+    **Configuration**
+
+    - ``AccelerationLimit``: Maximum acceleration the agent can endure from before
+    being abused. Usually around 300 m/s^2.
+
+    """
+
+    sensor_type = "AbuseSensor"
+
+    @property
+    def dtype(self):
+        return np.int8
+
+    @property
+    def data_shape(self):
+        return [1]
 
 
 class SensorDefinition:
@@ -618,7 +644,8 @@ class SensorDefinition:
         "CollisionSensor": CollisionSensor,
         "RangeFinderSensor": RangeFinderSensor,
         "WorldNumSensor": WorldNumSensor,
-        "BallLocationSensor": BallLocationSensor
+        "BallLocationSensor": BallLocationSensor,
+        "AbuseSensor": AbuseSensor,
     }
 
     def get_config_json_string(self):

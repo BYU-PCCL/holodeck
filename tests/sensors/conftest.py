@@ -14,6 +14,8 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize('ticks_per_capture', [30, 15, 10, 5, 2])
     elif 'joint_agent_type' in metafunc.fixturenames:
         metafunc.parametrize('joint_agent_type', [("AndroidAgent", android_joints), ("HandAgent", handagent_joints)])
+    elif 'abuse_agent_type' in metafunc.fixturenames:
+        metafunc.parametrize('abuse_agent_type', ["Uav", "Android", "Turtle"])
     elif 'rotation_env' in metafunc.fixturenames:
         metafunc.parametrize('rotation_env', ['rotation_env'], indirect=True)
 
