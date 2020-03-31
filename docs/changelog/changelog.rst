@@ -13,24 +13,32 @@ Changelog
 
 Holodeck 0.3.1
 --------------
-*??/??/????*
+*03/31/2019*
 
+More bug fixes, improvements, and even a few new features.
 
 Highlights
 ~~~~~~~~~~
-
+- **Holodeck now requires Python 3.5 or greater**
+- Added :class:`~holodeck.sensors.AbuseSensor` and 
+  :class:`~holodeck.sensors.RangeFinderSensor`
+- Added programmatic spawning of props, see
+  :meth:`~holodeck.environments.HolodeckEnvironment.spawn_prop`
+- Weather can be specified in scenarios, see :ref:`weather`.
 
 New Features
 ~~~~~~~~~~~~
-- Agent start location and rotation can now be optionally randomized on
-  :meth:`~holodeck.environments.HolodeckEnvironment.reset`. See
+- Added optional start location and rotation randomization on 
+  :meth:`~holodeck.environments.HolodeckEnvironment.reset`. See 
   :ref:`location-randomization`.
   (`#295 <https://github.com/BYU-PCCL/holodeck/issues/295>`_)
-- :meth:`~holodeck.environment.spawn_prop` now allows basic objects (spheres, cubes, cylinders)
-  to be spawned at arbitrary locations in the environment
+- :meth:`~holodeck.environments.HolodeckEnvironment.spawn_prop` now allows 
+  basic objects (spheres, cubes, cylinders) to be spawned at arbitrary 
+  locations in the environment.
   (`#397 <https://github.com/BYU-PCCL/holodeck/issues/397>`_)
 - :ref:`distance-task` by default now calculates the distance to the objective
   along the XY plane, to discourage flying straight up.
+  (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
 
   If the full 3D distance is desired, set the ``3dDistance`` flag in the
   configuration block of the :ref:`distance-task`.
@@ -43,7 +51,7 @@ New Features
   (`#263 <https://github.com/BYU-PCCL/holodeck/issues/263>`_). See
   :ref:`weather`.
 - :meth:`~holodeck.weather.WeatherController.set_weather` now has sunny
-  weather available.
+  weather available, which allows you to revert back to the default weather.
   (`#376 <https://github.com/BYU-PCCL/holodeck/issues/376>`_)
 - Added :class:`~holodeck.sensors.RangeFinderSensor` which calculates the
   distance from the sensor to the first collision in the environment. The 
@@ -52,7 +60,7 @@ New Features
 Changes
 ~~~~~~~
 
-- Holodeck now requires Python >= 3.5
+- **Holodeck now requires Python >= 3.5**
   (`#389 <https://github.com/BYU-PCCL/holodeck/issues/389>`_)
 - Moved weather/time methods from
   :class:`~holodeck.environments.HolodeckEnvironment` to new
@@ -70,21 +78,43 @@ Changes
   :meth:`~holodeck.sensors.HolodeckSensor.set_sensor_enable`.
   To specify which sensors to include, use :ref:`custom-scenarios`.
   (`#268 <https://github.com/BYU-PCCL/holodeck/issues/268>`_)
+- Improved Docker images. See :ref:`docker`.
+  (`#347 <https://github.com/BYU-PCCL/holodeck/issues/347>`_)
+  
+  - Tests can now be run inside of Docker containers
+  - All images are based on Ubuntu 18.04 now
+  - Added image for Dexterity package, and an image with every package
+- Every control scheme now has limits on inputs (ie maximum or minimum thrust)
+  (`#369 <https://github.com/BYU-PCCL/holodeck/issues/369>`_)
+
+  See :meth:`~holodeck.spaces.ActionSpace.get_high` and 
+  :meth:`~holodeck.spaces.ActionSpace.get_low` to read them.
+- Scenario Changes:
+
+  - **EuropeanForest-MaxDistance, RedwoodForest-MaxDistance,**
+    **UrbanCity-MaxDistance:** Added :class:`~holodeck.sensors.AbuseSensor`
+  - **InfiniteForest-MaxDistance:** Added :class:`~holodeck.sensors.AbuseSensor` 
+    and :class:`~holodeck.sensors.RangeFinderSensor`.
+  - **MazeWorld-FinishMazeSphere:** Added 
+    :class:`~holodeck.sensors.RangeFinderSensor`
+
 
 Bug Fixes
 ~~~~~~~~~
 - Fixed UAV blades rotating incorrectly (thanks @sethmnielsen!)
   (`#331 <https://github.com/BYU-PCCL/holodeck/issues/331>`_)
-- Fixed `posix_ipc.BusyError: Semaphore is busy` error on Linux systems when
-  creating a scenario
+- Fixed some ``posix_ipc.BusyError: Semaphore is busy`` errors on Linux systems 
+  when creating a scenario
   (`#285 <https://github.com/BYU-PCCL/holodeck/issues/285>`_)
 - Fixed a bug where the UE4 editor crashes when an agent is manually added
   to a level
   (`#361 <https://github.com/BYU-PCCL/holodeck/issues/361>`_)
-
-Known Issues
-~~~~~~~~~~~~
-
+- Fixed crash when manually disabling viewport when it would've been disabled 
+  anyway.
+  (`#378 <https://github.com/BYU-PCCL/holodeck/issues/378>`_)
+- Fixed SphereAgent having the incorrect default control scheme
+  (`#350 <https://github.com/BYU-PCCL/holodeck/issues/350>`_)
+  
 Holodeck 0.3.0
 --------------
 *08/30/2019*
