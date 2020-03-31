@@ -32,8 +32,9 @@ New Features
   :meth:`~holodeck.environments.HolodeckEnvironment.reset`. See 
   :ref:`location-randomization`.
   (`#295 <https://github.com/BYU-PCCL/holodeck/issues/295>`_)
-- :meth:`~holodeck.environments.HolodeckEnvironment.spawn_prop` now allows basic objects 
-  (spheres, cubes, cylinders) to be spawned at arbitrary locations in the environment.
+- :meth:`~holodeck.environments.HolodeckEnvironment.spawn_prop` now allows 
+  basic objects (spheres, cubes, cylinders) to be spawned at arbitrary 
+  locations in the environment.
   (`#397 <https://github.com/BYU-PCCL/holodeck/issues/397>`_)
 - :ref:`distance-task` by default now calculates the distance to the objective
   along the XY plane, to discourage flying straight up.
@@ -74,7 +75,7 @@ Changes
 - Removed the ability to toggle sensors during runtime with the removal of
   :class:`~holodeck.environments.command.SetSensorEnabledCommand`,
   :meth:`~holodeck.environments.HolodeckEnvironment.set_sensor_enabled`, and
-  :meth:`~holodeck.sensors.HolodeckSensor.set_sensor_enabled`.
+  :meth:`~holodeck.sensors.HolodeckSensor.set_sensor_enable`.
   To specify which sensors to include, use :ref:`custom-scenarios`.
   (`#268 <https://github.com/BYU-PCCL/holodeck/issues/268>`_)
 - Improved Docker images. See :ref:`docker`.
@@ -90,24 +91,26 @@ Changes
   :meth:`~holodeck.spaces.ActionSpace.get_low` to read them.
 - Scenario Changes:
 
-  - **EuropeanForest-MaxDistance, RedwoodForest-MaxDistance, UrbanCity-MaxDistance:**
-    Added :class:`~holodeck.sensors.AbuseSensor`
-  - **InfiniteForest-MaxDistance:** Added :class:`~holodeck.sensors.AbuseSensor` and 
-    :class:`~holodeck.sensors.RangeFinderSensor`.
-  - **MazeWorld-FinishMazeSphere:** Added :class:`~holodeck.sensors.RangeFinderSensor`
+  - **EuropeanForest-MaxDistance, RedwoodForest-MaxDistance,**
+    **UrbanCity-MaxDistance:** Added :class:`~holodeck.sensors.AbuseSensor`
+  - **InfiniteForest-MaxDistance:** Added :class:`~holodeck.sensors.AbuseSensor` 
+    and :class:`~holodeck.sensors.RangeFinderSensor`.
+  - **MazeWorld-FinishMazeSphere:** Added 
+    :class:`~holodeck.sensors.RangeFinderSensor`
 
 
 Bug Fixes
 ~~~~~~~~~
 - Fixed UAV blades rotating incorrectly (thanks @sethmnielsen!)
   (`#331 <https://github.com/BYU-PCCL/holodeck/issues/331>`_)
-- Fixed some ``posix_ipc.BusyError: Semaphore is busy`` errors on Linux systems when
-  creating a scenario
+- Fixed some ``posix_ipc.BusyError: Semaphore is busy`` errors on Linux systems 
+  when creating a scenario
   (`#285 <https://github.com/BYU-PCCL/holodeck/issues/285>`_)
 - Fixed a bug where the UE4 editor crashes when an agent is manually added
   to a level
   (`#361 <https://github.com/BYU-PCCL/holodeck/issues/361>`_)
-- Fixed crash when manually disabling viewport when it would've been disabled anyway.
+- Fixed crash when manually disabling viewport when it would've been disabled 
+  anyway.
   (`#378 <https://github.com/BYU-PCCL/holodeck/issues/378>`_)
 - Fixed SphereAgent having the incorrect default control scheme
   (`#350 <https://github.com/BYU-PCCL/holodeck/issues/350>`_)

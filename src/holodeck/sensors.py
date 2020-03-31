@@ -592,8 +592,8 @@ class AbuseSensor(HolodeckSensor):
 
     **Configuration**
 
-    - ``AccelerationLimit``: Maximum acceleration the agent can endure from before
-      being abused. Usually around 300 m/s^2.
+    - ``AccelerationLimit``: Maximum acceleration the agent can endure before
+      being considered abused. The default depends on the agent, usually around 300 m/s^2.
 
     """
 
