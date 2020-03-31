@@ -12,18 +12,16 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Please provide sample code to reproduce the bug.
-
+```python
+import holodeck
+```
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
+**Logs**
+```
+Please include the client side output and the Engine debug log.
+```
 **Version Information:**
- - OS: [e.g. iOS]
- - Version [e.g. 22]
- - Holodeck Version
- - World/Scenario version
-
-**Additional context**
-Add any other context about the problem here.
+ - Platform / Version [e.g. Ubuntu 18.04 or Windows 10 1903]
+ - Holodeck Version (output of `holodeck.util.get_holodeck_version()`)
