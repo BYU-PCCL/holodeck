@@ -141,12 +141,41 @@ def world_command_examples():
 
 def editor_example():
     """This editor example shows how to interact with holodeck worlds while they are being built
-    in the Unreal Engine. Most people that use holodeck will not need this.
+    in the Unreal Engine Editor. Most people that use holodeck will not need this.
+
+    This example uses a custom scenario, see 
+    https://holodeck.readthedocs.io/en/latest/usage/examples/custom-scenarios.html
+
+    Note: When launching Holodeck from the editor, press the down arrow next to "Play" and select
+    "Standalone Game", otherwise the editor will lock up when the client stops ticking it.
     """
-    agent_sensors = [sensors.RGBCamera, sensors.LocationSensor, sensors.VelocitySensor]
-    agent = AgentDefinition("uav0", agents.UavAgent, agent_sensors)
-    env = HolodeckEnvironment([agent], start_world=False)
-    env.agents["uav0"].set_control_scheme(1)
+
+    config = {
+        "name": "test",
+        "world": "TestWorld",
+        "main_agent": "uav0",
+        "agents": [
+            {
+                "agent_name": "uav0",
+                "agent_type": "UavAgent",
+                "sensors": [
+                    {
+                        "sensor_type": "LocationSensor",
+                    },
+                    {
+                        "sensor_type": "VelocitySensor"
+                    },
+                    {
+                        "sensor_type": "RGBCamera"
+                    }
+                ],
+                "control_scheme": 1,
+                "location": [0, 0, 1]
+            }
+        ]
+    }
+
+    env = HolodeckEnvironment(scenario=config, start_world=False)
     command = [0, 0, 10, 50]
 
     for i in range(10):
@@ -158,12 +187,35 @@ def editor_example():
 def editor_multi_agent_example():
     """This editor example shows how to interact with holodeck worlds that have multiple agents.
     This is specifically for when working with UE4 directly and not a prebuilt binary.
+
+    Note: When launching Holodeck from the editor, press the down arrow next to "Play" and select
+    "Standalone Game", otherwise the editor will lock up when the client stops ticking it.
     """
-    agent_definitions = [
-        AgentDefinition("uav0", agents.UavAgent, [sensors.RGBCamera, sensors.LocationSensor]),
-        AgentDefinition("uav1", agents.UavAgent, [sensors.LocationSensor, sensors.VelocitySensor])
-    ]
-    env = HolodeckEnvironment(agent_definitions, start_world=False)
+    config = {
+        "name": "test_handagent",
+        "world": "TestWorld",
+        "main_agent": "hand0",
+        "agents": [
+            {
+                "agent_name": "uav0",
+                "agent_type": "UavAgent",
+                "sensors": [
+                ],
+                "control_scheme": 1,
+                "location": [0, 0, 1]
+            },
+            {
+                "agent_name": "uav1",
+                "agent_type": "UavAgent",
+                "sensors": [
+                ],
+                "control_scheme": 1,
+                "location": [0, 0, 5]
+            }
+        ]
+    }
+
+    env = HolodeckEnvironment(scenario=config, start_world=False)
 
     cmd0 = np.array([0, 0, -2, 10])
     cmd1 = np.array([0, 0, 5, 10])
@@ -175,7 +227,3 @@ def editor_multi_agent_example():
         for _ in range(1000):
             states = env.tick()
 
-
-if __name__ == "__main__":
-
-    uav_example()

@@ -15,6 +15,8 @@ Holodeck is a high-fidelity simulator for reinforcement learning built on top of
  - High performance - simulation speeds of up to 2x real time are possible. Performance penalty only for what you need
  - Run headless or watch your agents learn
 
+### Questions? [Join our Discord!](https://discord.gg/Xqqksje)
+
 ## Installation
 `pip install holodeck`
 
@@ -34,9 +36,10 @@ See [Installation](https://holodeck.readthedocs.io/en/latest/usage/installation.
 ## Usage Overview
 Holodeck's interface is similar to [OpenAI's Gym](https://gym.openai.com/). 
 
-We try and provide a "batteries included" approach to minimize the configuration you have to do.
+We try and provide a batteries included approach to let you jump right into using Holodeck, with minimal
+fiddling required.
 
-Here is a quick example using the `DefaultWorlds` package:
+To demonstrate, here is a quick example using the `DefaultWorlds` package:
 
 ```python
 import holodeck
