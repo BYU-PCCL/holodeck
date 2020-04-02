@@ -4,7 +4,7 @@ import json
 import numpy as np
 import holodeck
 
-from holodeck.command import SetSensorEnabledCommand, RGBCameraRateCommand, RotateSensorCommand, CustomCommand
+from holodeck.command import RGBCameraRateCommand, RotateSensorCommand, CustomCommand
 from holodeck.exceptions import HolodeckConfigurationException
 
 
@@ -34,16 +34,6 @@ class HolodeckSensor:
                                 self.data_shape, self.dtype)
 
         self.config = {} if config is None else config
-
-    def set_sensor_enable(self, enable):
-        """Enable or disable this sensor
-
-        Args:
-            enable (:obj:`bool`): State to set sensor to
-
-        """
-        command_to_send = SetSensorEnabledCommand(self.agent_name, self.name, enable)
-        self._client.command_center.enqueue_command(command_to_send)
 
     @property
     def sensor_data(self):
@@ -364,7 +354,7 @@ class JointRotationSensor(HolodeckSensor):
     """Returns the state of the :class:`~holodeck.agents.AndroidAgent`'s or the 
     :class:`~holodeck.agents.HandAgent`'s joints.
 
-    See :ref:`android-joints` or :ref:`handagent-joints` for the indexes into this vector.
+    See :ref:`android-joints` or :ref:`hand-joints` for the indexes into this vector.
 
     """
 
@@ -398,7 +388,7 @@ class PressureSensor(HolodeckSensor):
     joint.
 
     For each joint, returns ``[x_loc, y_loc, z_loc, force]``, in the order the joints are listed
-    in :ref:`android-joints` or :ref:`handagent-joints`.
+    in :ref:`android-joints` or :ref:`hand-joints`.
 
     """
 
@@ -520,8 +510,47 @@ class CollisionSensor(HolodeckSensor):
         return [1]
 
 
+class RangeFinderSensor(HolodeckSensor):
+    """Returns distances to nearest collisions in the directions specified by
+    the parameters. For example, if an agent had two range sensors at different
+    angles with 24 lasers each, the LaserDebug traces would look something like
+    this:
+
+    .. image:: ../../docs/images/UAVRangeFinder.PNG
+
+    **Configuration**
+
+    The ``configuration`` block (see :ref:`configuration-block`) accepts the
+    following options:
+
+    - ``LaserMaxDistance``: Max Distance in meters of RangeFinder. (default 10)
+    - ``LaserCount``: Number of lasers in sensor. (default 1)
+    - ``LaserAngle``: Angle of lasers from origin. Measured in degrees. Positive angles point up. (default 0)
+    - ``LaserDebug``: Show debug traces. (default false)
+    """
+
+    sensor_type = "RangeFinderSensor"
+    
+    def __init__(self, client, agent_name, agent_type, 
+                 name="RangeFinderSensor", config=None):
+
+        config = {} if config is None else config
+        self.laser_count = config["LaserCount"] if "LaserCount" in config else 1
+
+        super().__init__(client, agent_name, agent_type, name, config)
+
+    @property
+    def dtype(self):
+        return np.float32
+
+    @property
+    def data_shape(self):
+        return [self.laser_count]
+
+
 class WorldNumSensor(HolodeckSensor):
-    """Returns any numeric value from the world corresponding to a given key. This is world specific.
+    """Returns any numeric value from the world corresponding to a given key. This is
+    world specific.
 
     """
 
@@ -552,6 +581,31 @@ class BallLocationSensor(WorldNumSensor):
     @property
     def dtype(self):
         return np.int8
+
+
+class AbuseSensor(HolodeckSensor):
+    """Returns True if the agent has been abused. Abuse is calculated differently for
+    different agents. The Sphere and Hand agent cannot be abused. The Uav, Android,
+    and Turtle agents can be abused by experiencing high levels of acceleration.
+    The Uav is abused when its blades collide with another object, and the Turtle
+    agent is abused when it's flipped over.
+
+    **Configuration**
+
+    - ``AccelerationLimit``: Maximum acceleration the agent can endure before
+      being considered abused. The default depends on the agent, usually around 300 m/s^2.
+
+    """
+
+    sensor_type = "AbuseSensor"
+
+    @property
+    def dtype(self):
+        return np.int8
+
+    @property
+    def data_shape(self):
+        return [1]
 
 
 class SensorDefinition:
@@ -588,8 +642,10 @@ class SensorDefinition:
         "VelocitySensor": VelocitySensor,
         "PressureSensor": PressureSensor,
         "CollisionSensor": CollisionSensor,
+        "RangeFinderSensor": RangeFinderSensor,
         "WorldNumSensor": WorldNumSensor,
-        "BallLocationSensor": BallLocationSensor
+        "BallLocationSensor": BallLocationSensor,
+        "AbuseSensor": AbuseSensor,
     }
 
     def get_config_json_string(self):

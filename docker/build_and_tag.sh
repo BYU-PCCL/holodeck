@@ -1,0 +1,1 @@
+docker build -t pccl/holodeck:base -f ./Dockerfile ..

@@ -1,5 +1,6 @@
 import holodeck
 import uuid
+import pytest
 
 cfg = {
         "name": "test_clean_up_reward",
@@ -28,6 +29,8 @@ cfg = {
     }
 
 
+@pytest.mark.skipif("Dexterity" not in holodeck.installed_packages(),
+                    reason='Dexterity package not installed')
 def test_ball_location_and_reward():
     """This is currently a stub test. There is no way to reliably test the trash world so this is just meant to a manual
     test where the tester makes sure that trash is spawning on a table. For now the reward and terminal should be zero.

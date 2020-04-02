@@ -47,9 +47,6 @@ using.
 
 See :ref:`custom-scenarios`.
 
-.. TODO: Should we document the set_sensor_enabled commands here? They are
-   broken right now and slated to be removed.
-
 Lowering the ``RGBCamera`` resolution
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

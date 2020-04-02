@@ -18,30 +18,33 @@ Control Schemes
 ---------------
 
 - **Raw Joint Torques** (``0``)
-  
+
   23 length vector of raw torques to pass into the joints, in the order listed
   beow in :ref:`hand-joints`
 
 - **Scaled Joint Torques** (``1``)
-  
+
   23 length vector of scaled torques, between ``-1`` and ``1``. The strength
   finger each joint is scaled depending on the weight of the bone and if it is
   a finger or not. ``1`` represents the maximum power in the forward direction
 
 
 - **Scaled Joint Torques + Floating** (``2``)
-  
+
   Same as above, but the vector is of length 26, with the last three values
   representing the amount of movement in the ``[x, y, z]`` directions (see
   :ref:`coordinate-system`), with a maximum of ``0.5`` meters of freedom.
+
+  The last coordinates allow the HandAgent to float around.
+
 
 .. _`hand-joints`:
 
 HandAgent Joints
 ----------------
 The control scheme for the HandAgent and the
-:class:`~holodeck.sensors.JointRotationSensor` use a 94 length vector refer 
-to 48 joints. 
+:class:`~holodeck.sensors.JointRotationSensor` use a 94 length vector refer
+to 48 joints.
 
 To gain insight into these joints, refer to the table below.
 
@@ -49,8 +52,8 @@ To gain insight into these joints, refer to the table below.
     Note that the index given is the start index for the joint, see the section
     header for how many values after this index each joint has.
 
-    Example: ``hand_r`` starts at index 0, and has ``[swing1, swing2, twist]``, 
-    so index 0 in the vector corresponds to ``swing1``, 1 corresponds to 
+    Example: ``hand_r`` starts at index 0, and has ``[swing1, swing2, twist]``,
+    so index 0 in the vector corresponds to ``swing1``, 1 corresponds to
     ``swing2``, and 2 corresponds to ``twist`` for ``hand_r``
 
 Returned in the following order:
@@ -110,7 +113,7 @@ Returned in the following order:
 
 HandAgent Bones
 ---------------
-The :class:`~holodeck.sensors.RelativeSkeletalPositionSensor` returns an 
+The :class:`~holodeck.sensors.RelativeSkeletalPositionSensor` returns an
 array with four entries for each of the 17 bones listed below.
 
 ========= ===============
@@ -141,5 +144,5 @@ Sockets
 
 - ``CameraSocket`` located behind and above the wrist
 - ``Viewport`` located looking at the agent from the side
-- All of the joints may be used as sockets. See 
+- All of the joints may be used as sockets. See
   :ref:`hand-joints`

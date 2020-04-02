@@ -1,5 +1,6 @@
 import holodeck
 import uuid
+import pytest
 
 cfg = {
         "name": "test_ball_location_and_reward",
@@ -32,6 +33,8 @@ cfg = {
     }
 
 
+@pytest.mark.skipif("Dexterity" not in holodeck.installed_packages(),
+                    reason='Dexterity package not installed')
 def test_ball_location_and_reward():
     """Shuffle the ball using a seed. Ensure that after shuffling the ball location sensor
     detects the correct position and move the sphere agent forward to collide with the correct cup.

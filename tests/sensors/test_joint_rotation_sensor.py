@@ -1,5 +1,6 @@
 import uuid
 import copy
+import numpy as np
 
 import holodeck
 
@@ -17,8 +18,9 @@ configs = {
                         "sensor_type": "JointRotationSensor",
                     }
                 ],
-                "control_scheme": 1, # Max Torque control scheme
-                "location": [0, 0, 5]
+                "control_scheme": 1,  # Max Torque control scheme
+                "location": [0, 0, 1],
+                "rotation": [90, 0, 0]
             }
         ]
     },
@@ -62,52 +64,74 @@ def test_joint_rotation_sensor(joint_agent_type):
 
     with holodeck.environments.HolodeckEnvironment(scenario=configs[agent_type],
                                                    binary_path=binary_path,
+                                                   show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
         
         # Let the Android collapse into a twitching mess on the ground
-        for _ in range(400):
+        for _ in range(200):
             env.tick()
         
-        for i in range(len(joints)):
-            name = joints[i]
+        failures = list()
 
-            action = copy.deepcopy(zeroes)
-            action[i] = 1
+        num_joints = len(joints)
+        num_steps = 10
+        for i in range(num_joints):
 
-            # Sample the joint rotation before torquing it
-            pre_rotation = env.step(action)[0]["JointRotationSensor"][i]
-
-            # Torque it for a few ticks
-            for _ in range(10):
-                env.step(action)
-            
-            # Sample it
-            post_rotation_1 = env.step(action)[0]["JointRotationSensor"][i]
+            torque_backwards = np.zeros(num_joints)
+            torque_backwards[i] = -1
+            torque_forwards = np.zeros(num_joints)
+            torque_forwards[i] = 1
 
             # Torque it in the opposite direction for a bit to make sure it wasn't
             # maxed out in the positive direction before
+            for _ in range(num_steps):
+                env.step(torque_backwards)
 
-            action[i] = -1
-            for _ in range(10):
-                env.step(action)
+            # Sample the joint rotation before torquing it
+            pre_rotation = env.step(torque_forwards)[0]["JointRotationSensor"][i]
+
+            # Torque it for a few ticks
+            for _ in range(num_steps):
+                env.step(torque_forwards)
             
-            post_rotation_2 = env.step(action)[0]["JointRotationSensor"][i]
+            # Sample it
+            post_rotation_forward = env.step(torque_forwards)[0]["JointRotationSensor"][i]
 
-            # print("{} {}/{}".format(name, abs(pre_rotation - post_rotation_1), abs(pre_rotation - post_rotation_2)))
+            # The joint should be at its maximum forward position. Now we should be able
+            # to torque it backwards and get a different value.
+            for _ in range(num_steps):
+                env.step(torque_backwards)
+            
+            post_rotation_backward = env.step(torque_backwards)[0]["JointRotationSensor"][i]
 
-            if "foot" in name:
-                # Ugly, disgusting hack. The foot joints behave strangely, I can't figure out why. Skip them for now
-                # BYU-PCCL/holodeck#297
-                continue
+            # print("{} {}/{}".format(name, abs(pre_rotation - post_rotation_forward), abs(pre_rotation - post_rotation_backward)))
+
+            #if "foot" in name or name == "head_swing1":
+            #    # Ugly, disgusting hack. Some joints behave strangely, I can't figure out why. Skip them for now
+            #    # BYU-PCCL/holodeck#297
+            #    continue
 
             # Make sure the rotation is different
-            assert abs(pre_rotation - post_rotation_1) > 1e-3 or \
-                   abs(pre_rotation - post_rotation_2) > 1e-3, \
-                   "The rotation for the joint {} (index {}) did not change enough!"\
-                   "Before: {}, after positive max torque: {}, after negative max torque{}"\
-                       .format(joints[i], i, pre_rotation, post_rotation_1, post_rotation_2)
-            
+
+            # if there is a large-ish difference between after max pos torque and max neg torque, we're fine
+            if abs(abs(post_rotation_forward) - abs(post_rotation_backward)) < 1e-3:
+                if abs(abs(pre_rotation) - abs(post_rotation_forward)) < 1e-3:
+                    failures.append("{}: After applying positive max torque, before: {}, after: {}".format(
+                        joints[i], pre_rotation, post_rotation_forward)
+                    )
+
+                if abs(abs(pre_rotation) - abs(post_rotation_backward)) < 1e-3:
+                    failures.append("{}: After applying negative max torque, before: {}, after: {}".format(
+                        joints[i], pre_rotation, post_rotation_backward)
+                    )
+
             # Let things settle
-            for _ in range(10):
+            for _ in range(num_steps):
                 env.tick()
 
+        if failures:
+            print("\nGot {} failures...".format(len(failures)))
+            for fail in failures:
+                print(fail)
+
+        assert len(failures) == 0

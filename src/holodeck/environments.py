@@ -7,18 +7,21 @@ with the agents.
 """
 import atexit
 import os
+import random
 import subprocess
 import sys
 
 import numpy as np
 
 from holodeck.command import CommandCenter, SpawnAgentCommand, RGBCameraRateCommand, \
-                             TeleportCameraCommand, RenderViewportCommand, RenderQualityCommand, \
-                             SetSensorEnabledCommand, CustomCommand, DebugDrawCommand
+    TeleportCameraCommand, RenderViewportCommand, RenderQualityCommand, \
+    CustomCommand, DebugDrawCommand
 
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import AgentDefinition, SensorDefinition, AgentFactory
+from holodeck.weather import WeatherController
+
 
 class HolodeckEnvironment:
     """Proxy for communicating with a Holodeck world
@@ -75,14 +78,14 @@ class HolodeckEnvironment:
 
         if window_size is None:
             # Check if it has been configured in the scenario
-                if scenario is not None and "window_height" in scenario:
-                    self._window_size = scenario["window_height"], scenario["window_width"]
-                else:
-                    # Default resolution
-                    self._window_size = 720, 1280
+            if scenario is not None and "window_height" in scenario:
+                self._window_size = scenario["window_height"], scenario["window_width"]
+            else:
+                # Default resolution
+                self._window_size = 720, 1280
         else:
             self._window_size = window_size
-        
+
         self._uuid = uuid
         self._pre_start_steps = pre_start_steps
         self._copy_state = copy_state
@@ -109,6 +112,9 @@ class HolodeckEnvironment:
         self._reset_ptr = self._client.malloc("RESET", [1], np.bool)
         self._reset_ptr[0] = False
 
+        # Initialize environment controller
+        self.weather = WeatherController(self.send_world_command)
+
         # Set up agents already in the world
         self.agents = dict()
         self._state_dict = dict()
@@ -126,7 +132,7 @@ class HolodeckEnvironment:
 
         if os.name == "posix" and show_viewport == False:
             self.should_render_viewport(False)
-        
+
         # Flag indicates if the user has called .reset() before .tick() and .step()
         self._initial_reset = False
         self.reset()
@@ -166,7 +172,7 @@ class HolodeckEnvironment:
     def _load_scenario(self):
         """Loads the scenario defined in self._scenario_key.
 
-        Instantiates all agents and sensors.
+        Instantiates agents, sensors, and weather.
 
         If no scenario is defined, does nothing.
         """
@@ -206,18 +212,41 @@ class HolodeckEnvironment:
                 'location': [0, 0, 0],
                 'rotation': [0, 0, 0],
                 'agent_name': agent['agent_type'],
-                'existing': False
+                'existing': False,
+                "location_randomization": [0, 0, 0],
+                "rotation_randomization": [0, 0, 0]
             }
 
             agent_config.update(agent)
             is_main_agent = False
-            
+
             if "main_agent" in self._scenario:
                 is_main_agent = self._scenario["main_agent"] == agent["agent_name"]
 
+            agent_location = agent_config["location"]
+            agent_rotation = agent_config["rotation"]
+
+            # Randomize the agent start location
+            dx = agent_config["location_randomization"][0]
+            dy = agent_config["location_randomization"][1]
+            dz = agent_config["location_randomization"][2]
+
+            agent_location[0] += random.uniform(-dx, dx)
+            agent_location[1] += random.uniform(-dy, dy)
+            agent_location[2] += random.uniform(-dz, dz)
+
+            # Randomize the agent rotation
+            d_pitch = agent_config["rotation_randomization"][0]
+            d_roll = agent_config["rotation_randomization"][1]
+            d_yaw = agent_config["rotation_randomization"][1]
+
+            agent_rotation[0] += random.uniform(-d_pitch, d_pitch)
+            agent_rotation[1] += random.uniform(-d_roll, d_roll)
+            agent_rotation[2] += random.uniform(-d_yaw, d_yaw)
+
             agent_def = AgentDefinition(agent_config['agent_name'], agent_config['agent_type'],
-                                        starting_loc=agent_config["location"],
-                                        starting_rot=agent_config["rotation"],
+                                        starting_loc=agent_location,
+                                        starting_rot=agent_rotation,
                                         sensors=sensors,
                                         existing=agent_config["existing"],
                                         is_main_agent=is_main_agent)
@@ -225,6 +254,18 @@ class HolodeckEnvironment:
             self.add_agent(agent_def, is_main_agent)
             self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
             self._spawned_agent_defs.append(agent_def)
+
+        if "weather" in self._scenario:
+            weather = self._scenario["weather"]
+            if "hour" in weather:
+                self.weather.set_day_time(weather["hour"])
+            if "type" in weather:
+                self.weather.set_weather(weather["type"])
+            if "fog_density" in weather:
+                self.weather.set_fog_density(weather["fog_density"])
+            if "day_cycle_length" in weather:
+                day_cycle_length = weather["day_cycle_length"]
+                self.weather.start_day_cycle(day_cycle_length)
 
     def reset(self):
         """Resets the environment, and returns the state.
@@ -255,7 +296,7 @@ class HolodeckEnvironment:
         self.agents = dict()
         self._state_dict = dict()
         for agent_def in self._initial_agent_defs:
-            self.add_agent(agent_def)
+            self.add_agent(agent_def, agent_def.is_main_agent)
 
         self._load_scenario()
 
@@ -301,13 +342,13 @@ class HolodeckEnvironment:
 
             reward, terminal = self._get_reward_terminal()
             last_state = self._default_state_fn(), reward, terminal, None
-        
+
         return last_state
 
     def act(self, agent_name, action):
         """Supplies an action to a particular agent, but doesn't tick the environment.
-        Primary mode of interaction for multi-agent environments. After all agent commands are
-            supplied, they can be applied with a call to `tick`.
+           Primary mode of interaction for multi-agent environments. After all agent commands are
+           supplied, they can be applied with a call to `tick`.
 
         Args:
             agent_name (:obj:`str`): The name of the agent to supply an action for.
@@ -316,6 +357,15 @@ class HolodeckEnvironment:
                 with another call to act.
         """
         self.agents[agent_name].act(action)
+
+    def get_joint_constraints(self, agent_name, joint_name):
+        """Returns the corresponding swing1, swing2 and twist limit values for the
+                specified agent and joint. Will return None if the joint does not exist for the agent.
+
+        Returns:
+            (:obj )
+        """
+        return self.agents[agent_name].get_joint_constraints(joint_name)
 
     def tick(self, num_ticks=1):
         """Ticks the environment once. Normally used for multi-agent environments.
@@ -375,6 +425,62 @@ class HolodeckEnvironment:
         if is_main_agent:
             self._agent = self.agents[agent_def.name]
 
+    def spawn_prop(self, prop_type, location=None, rotation=None, scale=1, 
+                    sim_physics=False, material="", tag=""):
+        """Spawns a basic prop object in the world like a box or sphere. 
+        
+        Prop will not persist after environment reset.
+
+        Args:
+            prop_type (:obj:`string`):
+                The type of prop to spawn. Can be ``box``, ``sphere``, ``cylinder``, or ``cone``.
+
+            location (:obj:`list` of :obj:`float`):
+                The ``[x, y, z]`` location of the prop.
+
+            rotation (:obj:`list` of :obj:`float`):
+                The ``[roll, pitch, yaw]`` rotation of the prop.
+
+            scale (:obj:`list` of :obj:`float`) or (:obj:`float`):
+                The ``[x, y, z]`` scalars to the prop size, where the default size is 1 meter.
+                If given a single float value, then every dimension will be scaled to that value.
+
+            sim_physics (:obj:`boolean`):
+                Whether the object is mobile and is affected by gravity.
+
+            material (:obj:`string`):
+                The type of material (texture) to apply to the prop. Can be ``white``, ``gold``,
+                ``cobblestone``, ``brick``, ``wood``, ``grass``, ``steel``, or ``black``. If left
+                empty, the prop will have the a simple checkered gray material.
+
+            tag (:obj:`string`):
+                The tag to apply to the prop. Useful for task references, like the
+                :ref:`location-task`.
+        """
+        location = [0, 0, 0] if location is None else location
+        rotation = [0, 0, 0] if rotation is None else rotation
+        # if the given scale is an single value, then scale every dimension to that value
+        if not isinstance(scale, list):
+            scale = [scale, scale, scale]
+        sim_physics = 1 if sim_physics else 0
+
+        prop_type = prop_type.lower()
+        material = material.lower()
+
+        available_props = ["box", "sphere", "cylinder", "cone"]
+        available_materials = ["white", "gold", "cobblestone", "brick",
+                               "wood", "grass", "steel", "black"]
+
+        if prop_type not in available_props:
+            raise HolodeckException("{} not an available prop. Available prop types: {}".format(
+                prop_type, available_props))
+        if material not in available_materials and material is not "":
+            raise HolodeckException("{} not an available material. Available material types: {}".format(
+                material, available_materials))
+
+        self.send_world_command("SpawnProp", num_params=[location, rotation, scale, sim_physics],
+                                string_params=[prop_type, material, tag])
+
     def draw_line(self, start, end, color=None, thickness=10.0):
         """Draws a debug line in the world
 
@@ -430,100 +536,6 @@ class HolodeckEnvironment:
         command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
         self._enqueue_command(command_to_send)
 
-    def set_fog_density(self, density):
-        """Change the fog density.
-
-        The change will occur when :meth:`tick` or :meth:`step` is called next.
-
-        By the next tick, the exponential height fog in the world will have the new density. If
-        there is no fog in the world, it will be created with the given density.
-
-        Args:
-            density (:obj:`float`): The new density value, between 0 and 1. The command will not be
-                sent if the given density is invalid.
-        """
-        if density < 0 or density > 1:
-            raise HolodeckException("Fog density should be between 0 and 1")
-
-        self.send_world_command("SetFogDensity", num_params=[density])
-
-    def set_day_time(self, hour):
-        """Change the time of day.
-
-        Daytime will change when :meth:`tick` or :meth:`step` is called next.
-
-        By the next tick, the lighting and the skysphere will be updated with the new hour.
-
-        If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
-
-        Args:
-            hour (:obj:`int`): The hour in 24-hour format, between 0 and 23 inclusive.
-        """
-        self.send_world_command("SetHour", num_params=[hour % 24])
-
-    def start_day_cycle(self, day_length):
-        """Start the day cycle.
-
-        The cycle will start when :meth:`tick` or :meth:`step` is called next.
-
-        The sky sphere will then update each tick with an updated sun angle as it moves about the]
-        sky. The length of a day will be roughly equivalent to the number of minutes given.
-
-        If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
-
-        Args:
-            day_length (:obj:`int`): The number of minutes each day will be.
-        """
-        if day_length <= 0:
-            raise HolodeckException("The given day length should be between above 0!")
-
-        self.send_world_command("SetDayCycle", num_params=[1, day_length])
-
-    def stop_day_cycle(self):
-        """Stop the day cycle.
-
-        The cycle will stop when :meth:`tick` or :meth:`step` is called next.
-
-        By the next tick, day cycle will stop where it is.
-
-        If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
-        """
-        self.send_world_command("SetDayCycle", num_params=[0, -1])
-
-    def set_weather(self, weather_type):
-        """Set the world's weather.
-
-        The new weather will be applied when :meth:`tick` or :meth:`step` is called next.
-
-        By the next tick, the lighting, skysphere, fog, and relevant particle systems will be
-        updated and/or spawned
-        to the given weather.
-
-        If there is no skysphere, skylight, or directional source light in the world, this command
-        will fail silently.
-
-        ..note::
-            Because this command can affect the fog density, any changes made by a
-            ``change_fog_density`` command before a set_weather command called will be undone. It is
-            recommended to call ``change_fog_density`` after calling set weather if you wish to
-            apply your specific changes.
-
-        In all downloadable worlds, the weather is clear by default.
-
-        If the given type string is not available, the command will not be sent.
-
-        Args:
-            weather_type (:obj:`str`): The type of weather, which can be ``rain`` or ``cloudy``.
-
-        """
-        if not weather_type.lower() in ["rain", "cloudy"]:
-            raise HolodeckException("Invalid weather type " + weather_type)
-
-        self.send_world_command("SetWeather", string_params=[weather_type])
-
     def move_viewport(self, location, rotation):
         """Teleport the camera to the given location
 
@@ -549,6 +561,7 @@ class HolodeckEnvironment:
 
     def set_render_quality(self, render_quality):
         """Adjusts the rendering quality of Holodeck.
+        
         Args:
             render_quality (:obj:`int`): An integer between 0 = Low Quality and 3 = Epic quality.
         """
@@ -567,26 +580,14 @@ class HolodeckEnvironment:
         else:
             self.agents[agent_name].set_control_scheme(control_scheme)
 
-    def set_sensor_enabled(self, agent_name, sensor_name, enabled):
-        """Enable or disable an agent's sensor.
-
-        Args:
-            agent_name (:obj:`str`): The name of the agent whose sensor will be switched
-            sensor_name (:obj:`str`): The name of the sensor to be switched
-            enabled (:obj:`bool`): Boolean representing whether to enable or disable the sensor
-        """
-        if agent_name not in self._sensor_map:
-            print("No such agent %s" % agent_name)
-        else:
-            command_to_send = SetSensorEnabledCommand(agent_name, sensor_name, enabled)
-            self._enqueue_command(command_to_send)
-
     def send_world_command(self, name, num_params=None, string_params=None):
-        """Send a custom command.
+        """Send a world command.
 
-        A custom command sends an abitrary command that may only exist in a specific world or
+        A world command sends an abitrary command that may only exist in a specific world or
         package. It is given a name and any amount of string and number parameters that allow it to
         alter the state of the world.
+        
+        If a command is sent that does not exist in the world, the environment will exit.
 
         Args:
             name (:obj:`str`): The name of the command, ex "OpenDoor"
@@ -606,10 +607,10 @@ class HolodeckEnvironment:
         loading_semaphore = \
             posix_ipc.Semaphore('/HOLODECK_LOADING_SEM' + self._uuid, os.O_CREAT | os.O_EXCL,
                                 initial_value=0)
-        # Copy the environment variables and re,pve the DISPLAY variable to hide viewport
+        # Copy the environment variables and remove the DISPLAY variable to hide viewport
         # https://answers.unrealengine.com/questions/815764/in-the-release-notes-it-says-the-engine-can-now-cr.html?sort=oldest
         environment = dict(os.environ.copy())
-        if not show_viewport:
+        if not show_viewport and 'DISPLAY' in environment:
             del environment['DISPLAY']
         self._world_process = \
             subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),

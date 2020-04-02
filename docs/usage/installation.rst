@@ -4,14 +4,15 @@
 Installation
 ============
 
-Holodeck is installed in two portions: a client python library (``holodeck``) is
-installed first, which then downloads world packages. The python portion is very
-small, while the world packages ("binaries") can be several gigabytes.
+Holodeck is installed in two portions: a client python library (``holodeck``)
+is installed first, which then downloads world packages. The python portion is
+very small, while the world packages ("binaries") can be several gigabytes.
+
 
 Requirements
 ============
 
-- Python 3
+- >= Python 3.5
 - Several gigabytes of storage
 - pip3
 - Linux: OpenGL 3+
@@ -22,6 +23,14 @@ Install Client via pip
 The latest stable Holodeck package is available in a pip repository:
 
 ``pip install holodeck``
+
+.. note::
+   On some Ubuntu systems a dependency of Holodeck (``posix-ipc``) can fail to
+   install if you do not have the ``python3-dev`` package installed.
+
+   .. code-block:: console
+
+      $ apt install python3-dev
 
 Install Client via git
 =======================
@@ -38,6 +47,8 @@ branch is the bleeding edge of development.
 If you want to download a specific release of Holodeck, each release is tagged
 in the Git repository.
 
+.. _docker:
+
 Docker Installation
 ===================
 
@@ -49,16 +60,19 @@ The repository on DockerHub is `pccl/holodeck`_.
 
 Currently the following tags are availible:
 
-- ``ubuntu18.04-with-worlds``
-- ``ubuntu18.04-without-worlds``
-- ``ubuntu16.04-without-worlds``
-- ``ubuntu16.04-with-worlds``
+- ``base`` : base image without any worlds
+- ``default-worlds`` : comes with the default worlds pre-installed
+- ``dexterity`` : comes with the dexterity package pre-installed
 
 .. _`pccl/holodeck`: https://hub.docker.com/r/pccl/holodeck
 
+This is an example command to start a holodeck container
+
+``nvidia-docker run --rm -it --name holodeck pccl/holodeck:default-worlds``
+
 .. note::
    Holodeck cannot be run with root privileges, so the user ``holodeckuser`` with
-   password ``holodeck`` is provided in the docker image.
+   no password is provided in the docker image.
 
 Managing World Packages
 =======================
@@ -88,15 +102,15 @@ Install a Package Automatically
 Installation Location
 ---------------------
 
-By default, Holodeck will install packages local to your user profile. See 
+By default, Holodeck will install packages local to your user profile. See
 :ref:`package-locations` for more information.
 
 Manually Installing a Package
 -----------------------------
 
 To manually install a package, you will be provided a ``.zip`` file.
-Simply extract it into the ``worlds`` folder in your
-Holodeck installation location (see :ref:`package-locations`)
+Extract it into the ``worlds`` folder in your Holodeck installation location 
+(see :ref:`package-locations`)
 
 .. note::
 

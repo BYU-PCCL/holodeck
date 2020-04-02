@@ -2,7 +2,10 @@
 import uuid
 
 from holodeck.environments import HolodeckEnvironment
-from holodeck.packagemanager import get_scenario, get_binary_path_for_scenario, get_package_config_for_scenario
+from holodeck.packagemanager import get_scenario,\
+    get_binary_path_for_scenario,\
+    get_package_config_for_scenario,\
+    get_binary_path_for_package
 from holodeck.exceptions import HolodeckException
 
 
@@ -26,7 +29,7 @@ def make(scenario_name="", scenario_cfg=None, gl_version=GL_VERSION.OPENGL4, win
             The name of the world to load as an environment. Must match the name of a world in an
             installed package.
 
-        scenario_config (:obj:`dict`): Dictionary containing scenario configuration, instead of loading a scenario
+        scenario_cfg (:obj:`dict`): Dictionary containing scenario configuration, instead of loading a scenario
             from the installed packages. Dictionary should match the format of the JSON configuration files
 
         gl_version (:obj:`int`, optional):
@@ -55,15 +58,16 @@ def make(scenario_name="", scenario_cfg=None, gl_version=GL_VERSION.OPENGL4, win
     """
 
     param_dict = dict()
+    binary_path = None
+
     if scenario_name != "":
         scenario = get_scenario(scenario_name)
+        binary_path = get_binary_path_for_scenario(scenario_name)
     elif scenario_cfg is not None:
         scenario = scenario_cfg
-        scenario_name = "{}-{}".format(scenario["name"], scenario["world"])
+        binary_path = get_binary_path_for_package(scenario["package_name"])
     else:
         raise HolodeckException("You must specify scenario_name or scenario_config")
-
-    binary_path = get_binary_path_for_scenario(scenario_name)
 
     # Get pre-start steps
     package_config = get_package_config_for_scenario(scenario)

@@ -14,8 +14,12 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize('ticks_per_capture', [30, 15, 10, 5, 2])
     elif 'joint_agent_type' in metafunc.fixturenames:
         metafunc.parametrize('joint_agent_type', [("AndroidAgent", android_joints), ("HandAgent", handagent_joints)])
+    elif 'abuse_world' in metafunc.fixturenames:
+        metafunc.parametrize('abuse_world', ["abuse_world"], indirect=True)
     elif 'rotation_env' in metafunc.fixturenames:
         metafunc.parametrize('rotation_env', ['rotation_env'], indirect=True)
+    elif 'agent_abuse_world' in metafunc.fixturenames:
+        metafunc.parametrize('agent_abuse_world', ['turtle0', 'uav0', 'android0'], indirect=True)
 
 
 shared_1024_env = None
@@ -65,7 +69,29 @@ def env_1024(request):
 
 
 shared_rotation_env = None
+shared_abuse_env = None
 
+def get_abuse_world():
+    global shared_abuse_env
+    binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
+    if shared_abuse_env is None:
+        shared_abuse_env = holodeck.environments.HolodeckEnvironment(
+            scenario=abuse_config,
+            binary_path=binary_path,
+            show_viewport=False,
+            uuid=str(uuid.uuid4())
+        )
+    shared_abuse_env.reset()
+    return shared_abuse_env
+
+@pytest.fixture
+def abuse_world(request):
+    return get_abuse_world()
+
+@pytest.fixture
+def agent_abuse_world(request):
+    env = get_abuse_world()
+    return request.param, env
 
 @pytest.fixture
 def rotation_env(request):
@@ -103,6 +129,49 @@ def rotation_env(request):
     shared_rotation_env.reset()
     return shared_rotation_env
 
+abuse_config = {
+    "name": "test_abuse_sensor",
+    "world": "TestWorld",
+    "main_agent": "uav0",
+    "agents": [
+        {
+            "agent_name": "uav0",
+            "agent_type": "UavAgent",
+            "sensors": [
+                {
+                    "sensor_type": "AbuseSensor",
+                }
+            ],
+            "control_scheme": 0,
+            "location": [1.5, 0, 9],
+            "rotation": [0, 0, 0]
+        },
+        {
+            "agent_name": "android0",
+            "agent_type": "AndroidAgent",
+            "sensors": [
+                {
+                    "sensor_type": "AbuseSensor",
+                }
+            ],
+            "control_scheme": 0,
+            "location": [0, 0, 10],
+            "rotation": [0, 0, 0]
+        },
+        {
+            "agent_name": "turtle0",
+            "agent_type": "TurtleAgent",
+            "sensors": [
+                {
+                    "sensor_type": "AbuseSensor",
+                }
+            ],
+            "control_scheme": 0,
+            "location": [2, 1.5, 8],
+            "rotation": [0, 0, 0]
+        }
+    ]
+}
 
 android_joints = [
     "head_swing1",

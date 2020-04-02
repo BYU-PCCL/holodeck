@@ -5,11 +5,116 @@ Changelog
   - Each release should have a New Features / Changes / Bug Fixes section.
   - Keep the first sentence of each point short and descriptive
   - The passive voice should be avoided
-  - Try to make the first word a verb in past tense. Bug fixes should use 
+  - Try to make the first word a verb in past tense. Bug fixes should use
     "Fixed"
-  - Add a link to the issue describing the change or the pull request that 
+  - Add a link to the issue describing the change or the pull request that
     merged it at the end in parentheses
+  - see https://github.com/BYU-PCCL/holodeck/wiki/Holodeck-Release-Notes-Template
 
+Holodeck 0.3.1
+--------------
+*04/02/2020*
+
+More bug fixes, improvements, and even a few new features.
+
+Highlights
+~~~~~~~~~~
+- **Holodeck now requires Python 3.5 or greater**
+- Added :class:`~holodeck.sensors.AbuseSensor` and 
+  :class:`~holodeck.sensors.RangeFinderSensor`
+- Added programmatic spawning of props, see
+  :meth:`~holodeck.environments.HolodeckEnvironment.spawn_prop`
+- Weather can be specified in scenarios, see :ref:`weather`.
+
+New Features
+~~~~~~~~~~~~
+- Added optional start location and rotation randomization on 
+  :meth:`~holodeck.environments.HolodeckEnvironment.reset`. See 
+  :ref:`location-randomization`.
+  (`#295 <https://github.com/BYU-PCCL/holodeck/issues/295>`_)
+- :meth:`~holodeck.environments.HolodeckEnvironment.spawn_prop` now allows 
+  basic objects (spheres, cubes, cylinders) to be spawned at arbitrary 
+  locations in the environment.
+  (`#397 <https://github.com/BYU-PCCL/holodeck/issues/397>`_)
+- :ref:`distance-task` by default now calculates the distance to the objective
+  along the XY plane, to discourage flying straight up.
+  (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
+
+  If the full 3D distance is desired, set the ``3dDistance`` flag in the
+  configuration block of the :ref:`distance-task`.
+  (`#360 <https://github.com/BYU-PCCL/holodeck/issues/360>`_)
+- Added :class:`~holodeck.sensors.AbuseSensor`, which senses if an agent
+  has been abused. Agents experience abuse when they fall from a high distance
+  or other agent-specific situations.
+  (`#262 <https://github.com/BYU-PCCL/holodeck/issues/262>`_)
+- Environment weather/time can be optionally configured with :ref:`scenarios`
+  (`#263 <https://github.com/BYU-PCCL/holodeck/issues/263>`_). See
+  :ref:`weather`.
+- :meth:`~holodeck.weather.WeatherController.set_weather` now has sunny
+  weather available, which allows you to revert back to the default weather.
+  (`#376 <https://github.com/BYU-PCCL/holodeck/issues/376>`_)
+- Added :class:`~holodeck.sensors.RangeFinderSensor` which calculates the
+  distance from the sensor to the first collision in the environment. The 
+  sensor can send out multiple rays in a circle if desired.
+
+Changes
+~~~~~~~
+
+- **Holodeck now requires Python >= 3.5**
+  (`#389 <https://github.com/BYU-PCCL/holodeck/issues/389>`_)
+- Moved weather/time methods from
+  :class:`~holodeck.environments.HolodeckEnvironment` to new
+  :class:`~holodeck.weather.WeatherController`
+  (`#196 <https://github.com/BYU-PCCL/holodeck/issues/196>`_,
+  `#263 <https://github.com/BYU-PCCL/holodeck/issues/263>`_)
+- Calling :meth:`~holodeck.environments.HolodeckEnvironment.send_world_command`
+  for an environment without the given command will now cause
+  the environment to exit rather than fail silently.
+  This includes all relevant methods in the
+  :class:`~holodeck.weather.WeatherController`.
+- Removed the ability to toggle sensors during runtime with the removal of
+  :class:`~holodeck.environments.command.SetSensorEnabledCommand`,
+  :meth:`~holodeck.environments.HolodeckEnvironment.set_sensor_enabled`, and
+  :meth:`~holodeck.sensors.HolodeckSensor.set_sensor_enable`.
+  To specify which sensors to include, use :ref:`custom-scenarios`.
+  (`#268 <https://github.com/BYU-PCCL/holodeck/issues/268>`_)
+- Improved Docker images. See :ref:`docker`.
+  (`#347 <https://github.com/BYU-PCCL/holodeck/issues/347>`_)
+  
+  - Tests can now be run inside of Docker containers
+  - All images are based on Ubuntu 18.04 now
+  - Added image for Dexterity package, and an image with every package
+- Every control scheme now has limits on inputs (ie maximum or minimum thrust)
+  (`#369 <https://github.com/BYU-PCCL/holodeck/issues/369>`_)
+
+  See :meth:`~holodeck.spaces.ActionSpace.get_high` and 
+  :meth:`~holodeck.spaces.ActionSpace.get_low` to read them.
+- Scenario Changes:
+
+  - **EuropeanForest-MaxDistance, RedwoodForest-MaxDistance,**
+    **UrbanCity-MaxDistance:** Added :class:`~holodeck.sensors.AbuseSensor`
+  - **InfiniteForest-MaxDistance:** Added :class:`~holodeck.sensors.AbuseSensor` 
+    and :class:`~holodeck.sensors.RangeFinderSensor`.
+  - **MazeWorld-FinishMazeSphere:** Added 
+    :class:`~holodeck.sensors.RangeFinderSensor`
+
+
+Bug Fixes
+~~~~~~~~~
+- Fixed UAV blades rotating incorrectly (thanks @sethmnielsen!)
+  (`#331 <https://github.com/BYU-PCCL/holodeck/issues/331>`_)
+- Fixed some ``posix_ipc.BusyError: Semaphore is busy`` errors on Linux systems 
+  when creating a scenario
+  (`#285 <https://github.com/BYU-PCCL/holodeck/issues/285>`_)
+- Fixed a bug where the UE4 editor crashes when an agent is manually added
+  to a level
+  (`#361 <https://github.com/BYU-PCCL/holodeck/issues/361>`_)
+- Fixed crash when manually disabling viewport when it would've been disabled 
+  anyway.
+  (`#378 <https://github.com/BYU-PCCL/holodeck/issues/378>`_)
+- Fixed SphereAgent having the incorrect default control scheme
+  (`#350 <https://github.com/BYU-PCCL/holodeck/issues/350>`_)
+  
 Holodeck 0.3.0
 --------------
 *11/02/2019*
@@ -20,7 +125,7 @@ agent to provide a simpler agent that can do many of the dexterity tasks.
 
 Highlights
 ~~~~~~~~~~
-- Added :ref:`dexterity-package` with new worlds and scenarios (see below for 
+- Added :ref:`dexterity-package` with new worlds and scenarios (see below for
   comprehensive listing)
 - Added :ref:`clean-up-task` and :ref:`cup-game-task` tasks
 - Added :ref:`hand-agent`
@@ -43,10 +148,10 @@ New Features
     - :ref:`cleanup-groundhand`
     - :ref:`cleanup-tableandroid`
     - :ref:`cleanup-tablehand`
-  
+
   - :ref:`cup-game-world`
     (`#288 <https://github.com/BYU-PCCL/holodeck/issues/288>`_)
-    
+
     - :ref:`cupgame-custom`
     - :ref:`cupgame-easy`
     - :ref:`cupgame-hard`
@@ -55,7 +160,7 @@ New Features
 
     - :ref:`grip-liftbottle`
 
-- Added the :ref:`hand-agent` - a simplified Android hand that can float 
+- Added the :ref:`hand-agent` - a simplified Android hand that can float
   around
   (`#287 <https://github.com/BYU-PCCL/holodeck/issues/287>`_)
 
@@ -87,8 +192,8 @@ New Features
 - The viewport now follows the main agent as specified in the
   config file by default.
   (`#238 <https://github.com/BYU-PCCL/holodeck/issues/238>`_)
-- You can now specify the number of ticks you want to occur in the 
-  :meth:`~holodeck.environments.HolodeckEnvironment.tick` and the 
+- You can now specify the number of ticks you want to occur in the
+  :meth:`~holodeck.environments.HolodeckEnvironment.tick` and the
   :meth:`~holodeck.environments.HolodeckEnvironment.step` methods,
   (`#313 <https://github.com/BYU-PCCL/holodeck/pull/313>`_)
 
@@ -110,21 +215,21 @@ Changes
   is black, and slightly smaller.
   (`#217 <https://github.com/BYU-PCCL/holodeck/issues/217>`_)
 - Removed the ``set_state()`` and ``teleport()`` methods from the
-  :class:`~holodeck.environments.HolodeckEnvironment` class. 
-  
+  :class:`~holodeck.environments.HolodeckEnvironment` class.
+
   These methods were duplicates of the corresponding methods on the
-  :class:`~holodeck.agents.HolodeckAgent` class. See the linked issue for 
+  :class:`~holodeck.agents.HolodeckAgent` class. See the linked issue for
   migration suggestions 👉
   (`#311 <https://github.com/BYU-PCCL/holodeck/issues/311>`_)
-- Removed the ``get/set_ticks_per_capture`` methods from the 
-  :class:`~holodeck.agents.HolodeckAgent` and 
+- Removed the ``get/set_ticks_per_capture`` methods from the
+  :class:`~holodeck.agents.HolodeckAgent` and
   :class:`~holodeck.environments.HolodeckEnvironment` classes, moved
   :meth:`~holodeck.sensors.RGBCamera.set_ticks_per_capture` method to the
-  :class:`~holodeck.sensors.RGBCamera` class. 
+  :class:`~holodeck.sensors.RGBCamera` class.
   (`#197 <https://github.com/BYU-PCCL/holodeck/issues/197>`_)
 - Viewport will now follow the main agent by default.
   (`#238 <https://github.com/BYU-PCCL/holodeck/issues/238>`_)
-- Viewport will not be rendered when it is hidden (``show_viewport`` param in 
+- Viewport will not be rendered when it is hidden (``show_viewport`` param in
   :class:`~holodeck.environments.HolodeckEnvironment`, Linux only)
   (`#283 <https://github.com/BYU-PCCL/holodeck/issues/283>`_)
 
@@ -150,7 +255,7 @@ Bug Fixes
   named ``RGBCamera``.
   (`#197 <https://github.com/BYU-PCCL/holodeck/issues/197>`_)
 - Fixed being unable to make a Holodeck window larger than the current screen
-  resolution 
+  resolution
   (`#301 <https://github.com/BYU-PCCL/holodeck/issues/301>`_)
 - Fixed being unable to configure :class:`~holodeck.sensors.ViewportCapture`
   sensor.
