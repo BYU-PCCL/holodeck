@@ -12,10 +12,11 @@ def compare_agent_states(state1, state2, thresh=0.01, is_close=True, to_ignore=N
             continue
         close = almost_equal(state1[sensor], state2[sensor], thresh)
         if is_close != close:
+            print("Sensor {} failed!".format(sensor))
             print(state1[sensor])
             print(state2[sensor])
-            return False
-    return True
+            print("--------------------------------")
+            assert is_close != close
 
 
 def almost_equal(item1, item2, r_thresh=0.01, a_thresh=1e-4):
@@ -56,7 +57,7 @@ def test_main_agent_after_resetting(env_scenario):
         env.reset()
         state = env._get_full_state()[main_agent]
 
-        assert compare_agent_states(init_state, state, 0.3, is_close=True, to_ignore=["RGBCamera", "BallLocationSensor"])
+        compare_agent_states(init_state, state, 0.3, is_close=True, to_ignore=["RGBCamera", "BallLocationSensor"])
         assert agent_count == len(env.agents)
         assert sensor_count == sum([len(env.agents[agent].sensors) for agent in env.agents])
 

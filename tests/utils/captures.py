@@ -51,7 +51,7 @@ def compare_rgb_sensor_data_with_baseline(
     """
     pixels = sensor_data[:, :, 0:3]
     baseline = cv2.imread(
-        os.path.join(base_path, "expected", f"{baseline_name}.png")
+        os.path.join(base_path, "expected", "{}.png".format(baseline_name))
     )
     if show_images:
         # Show images when debugging--this will block tests until user input
@@ -85,4 +85,4 @@ def write_image_from_rgb_sensor_data(sensor_data, base_path, name):
         name: Name of file to save, not including `png` file extension
     """
     pixels = sensor_data[:, :, 0:3]
-    cv2.imwrite(os.path.join(base_path, "expected", f"{name}.png"), pixels)
+    cv2.imwrite(os.path.join(base_path, "expected", "{}.png".format(name)), pixels)

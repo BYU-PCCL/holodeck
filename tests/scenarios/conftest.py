@@ -43,30 +43,3 @@ def env_scenario(request):
     env.reset()
     envs[scenario] = env
     return env, scenario
-
-
-def scenario_test(
-    scenario: str,
-    env_action: Callable[[HolodeckEnvironment, any], None],
-    action_args: List[any],
-    ticks: int = 30,
-) -> None:
-    """Run n parameterized actions on an environment loaded from a scenario
-
-    Args:
-        scenario (str): Scenario to test
-        env_action (function): Function
-        that takes environment and another argument and performs an action on
-        the environment with that argument
-        action_args (list): list of arguments to apply to f_action
-        ticks (int): number of ticks between actions to apply
-
-    """
-    env = holodeck.make(scenario, show_viewport=False)
-
-    for action_arg in action_args:
-        env_action(env, action_arg)
-        for _ in range(ticks):
-            env.tick()
-
-    env.__on_exit__()

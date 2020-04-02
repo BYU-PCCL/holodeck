@@ -1,19 +1,24 @@
 from holodeck.environments import HolodeckEnvironment
 
-from tests.scenarios.conftest import scenario_test
+def test_weather_type_scenario(env_scenario) -> None:
+    """Test that each weather type can be set in each scenario without errors.
+    If a world doesn't have the WeatherController, the engine will crash and the
+    test will fail.
 
-
-def test_weather_type_scenario(scenario: str) -> None:
-    """Test that weather can be set correctly in a scenario without errors
+    This test only really needs to be done for each world, but since we already
+    load up every scenario, it is faster to use those already initialized 
+    environments.
 
     Args:
-        scenario (str): Scenario to test
+        env_scenario (HolodeckEnvironment, str): Tuple to test
 
     """
-
-    def set_weather_type_action(env: HolodeckEnvironment, weather_type: str):
-        env.weather.set_weather(weather_type)
+    env, _ = env_scenario
 
     weather_types = ["sunny", "cloudy", "rain"]
-
-    scenario_test(scenario, set_weather_type_action, weather_types)
+    
+    for weather in weather_types:
+        env.weather.set_weather(weather)
+        for _ in range(10):
+            env.tick()
+        env.reset()
