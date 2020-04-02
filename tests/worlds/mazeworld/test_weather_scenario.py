@@ -28,11 +28,11 @@ def mean_square_error_before_after_reset(env: HolodeckEnvironment):
     after and environment reset
 
     """
-    env.tick(5)
+    env.tick(10)
     before_data = env.tick()["TestCamera"]
 
     env.reset()
-    env.tick(5)
+    env.tick(10)
     after_data = env.tick()["TestCamera"]
 
     return compare_rgb_sensor_data(before_data, after_data)
