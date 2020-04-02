@@ -13,7 +13,7 @@ Changelog
 
 Holodeck 0.3.1
 --------------
-*03/31/2019*
+*04/02/2020*
 
 More bug fixes, improvements, and even a few new features.
 
