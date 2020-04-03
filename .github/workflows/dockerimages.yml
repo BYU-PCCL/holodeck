@@ -2,13 +2,15 @@ name: Docker build
 
 on:
   push:
-    branches: [ docker-improvement ]
+    branches: [ docker_build_fix ]
   pull_request:
-    branches: [ docker-improvement ]
+    branches: [ docker_build_fix ]
 
+# Unfortunately, we have to split these jobs since Github actions only has max 14GB storage
 jobs:
-  
-  build-images:
+
+  # Build and push the base image
+  build-base-image:
     env:
       IMAGE_NAME: pccl/holodeck
 
@@ -24,21 +26,57 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build base image
+    - name: Build base
       working-directory: ./docker
-      run: |
-        docker build -t ${IMAGE_NAME}:base -f ./Dockerfile ..
+      run: docker build -t ${IMAGE_NAME}:base -f ./Dockerfile ..
+
+    - name: Push base
+      run: docker push ${IMAGE_NAME}:base
         
-    - name: Build default worlds image
+        
+  
+  # Build and push the default-worlds image
+  build-default-worlds-image:
+    env:
+      IMAGE_NAME: pccl/holodeck
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Login to DockerHub registry
+      run: |
+        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build default-worlds
       working-directory: ./docker
       run: docker build -t ${IMAGE_NAME}:default-worlds -f ./Dockerfile_default_worlds ..
-        
-    - name: Build dexterity image
+
+    - name: Push default-worlds
+      run: docker push ${IMAGE_NAME}:default-worlds
+
+
+  # Build and push the dexterity image
+  build-dexterity-image:
+    env:
+      IMAGE_NAME: pccl/holodeck
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Login to DockerHub registry
+      run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build dexterity
       working-directory: ./docker
       run: docker build -t ${IMAGE_NAME}:dexterity -f ./Dockerfile_dexterity ..
-        
-    - name: Push images
-      run: |
-        docker push ${IMAGE_NAME}:base
-        docker push ${IMAGE_NAME}:default-worlds
-        docker push ${IMAGE_NAME}:dexterity
+
+    - name: Push dexterity
+      run: docker push ${IMAGE_NAME}:dexterity
