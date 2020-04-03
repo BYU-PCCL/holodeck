@@ -2,9 +2,9 @@ name: Docker build
 
 on:
   push:
-    branches: [ docker-improvement ]
+    branches: [ master ]
   pull_request:
-    branches: [ docker-improvement ]
+    branches: [ master ]
 
 jobs:
   
