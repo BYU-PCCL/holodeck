@@ -425,6 +425,62 @@ class HolodeckEnvironment:
         if is_main_agent:
             self._agent = self.agents[agent_def.name]
 
+    def spawn_prop(self, prop_type, location=None, rotation=None, scale=1, 
+                    sim_physics=False, material="", tag=""):
+        """Spawns a basic prop object in the world like a box or sphere. 
+        
+        Prop will not persist after environment reset.
+
+        Args:
+            prop_type (:obj:`string`):
+                The type of prop to spawn. Can be ``box``, ``sphere``, ``cylinder``, or ``cone``.
+
+            location (:obj:`list` of :obj:`float`):
+                The ``[x, y, z]`` location of the prop.
+
+            rotation (:obj:`list` of :obj:`float`):
+                The ``[roll, pitch, yaw]`` rotation of the prop.
+
+            scale (:obj:`list` of :obj:`float`) or (:obj:`float`):
+                The ``[x, y, z]`` scalars to the prop size, where the default size is 1 meter.
+                If given a single float value, then every dimension will be scaled to that value.
+
+            sim_physics (:obj:`boolean`):
+                Whether the object is mobile and is affected by gravity.
+
+            material (:obj:`string`):
+                The type of material (texture) to apply to the prop. Can be ``white``, ``gold``,
+                ``cobblestone``, ``brick``, ``wood``, ``grass``, ``steel``, or ``black``. If left
+                empty, the prop will have the a simple checkered gray material.
+
+            tag (:obj:`string`):
+                The tag to apply to the prop. Useful for task references, like the
+                :ref:`location-task`.
+        """
+        location = [0, 0, 0] if location is None else location
+        rotation = [0, 0, 0] if rotation is None else rotation
+        # if the given scale is an single value, then scale every dimension to that value
+        if not isinstance(scale, list):
+            scale = [scale, scale, scale]
+        sim_physics = 1 if sim_physics else 0
+
+        prop_type = prop_type.lower()
+        material = material.lower()
+
+        available_props = ["box", "sphere", "cylinder", "cone"]
+        available_materials = ["white", "gold", "cobblestone", "brick",
+                               "wood", "grass", "steel", "black"]
+
+        if prop_type not in available_props:
+            raise HolodeckException("{} not an available prop. Available prop types: {}".format(
+                prop_type, available_props))
+        if material not in available_materials and material is not "":
+            raise HolodeckException("{} not an available material. Available material types: {}".format(
+                material, available_materials))
+
+        self.send_world_command("SpawnProp", num_params=[location, rotation, scale, sim_physics],
+                                string_params=[prop_type, material, tag])
+
     def draw_line(self, start, end, color=None, thickness=10.0):
         """Draws a debug line in the world
 
@@ -525,9 +581,9 @@ class HolodeckEnvironment:
             self.agents[agent_name].set_control_scheme(control_scheme)
 
     def send_world_command(self, name, num_params=None, string_params=None):
-        """Send a custom command.
+        """Send a world command.
 
-        A custom command sends an abitrary command that may only exist in a specific world or
+        A world command sends an abitrary command that may only exist in a specific world or
         package. It is given a name and any amount of string and number parameters that allow it to
         alter the state of the world.
         

@@ -64,7 +64,7 @@ def test_joint_rotation_sensor(joint_agent_type):
 
     with holodeck.environments.HolodeckEnvironment(scenario=configs[agent_type],
                                                    binary_path=binary_path,
-                                                   show_viewport=True,
+                                                   show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
         
         # Let the Android collapse into a twitching mess on the ground
