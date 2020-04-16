@@ -92,9 +92,8 @@ def ticks_per_capture_env():
             show_viewport=False,
             uuid=str(uuid.uuid4()))
 
-    yield shared_ticks_per_capture_env
-
-    shared_ticks_per_capture_env.__on_exit__()
+    with shared_ticks_per_capture_env:
+        yield shared_ticks_per_capture_env
 
 
 def test_rgb_camera_ticks_per_capture(ticks_per_capture, ticks_per_capture_env):

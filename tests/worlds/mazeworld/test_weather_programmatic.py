@@ -179,6 +179,5 @@ def weather_env(request: FixtureRequest):
     ):
         cur_programmatic_weather_env = env_with_config(weather_config)
 
-    yield cur_programmatic_weather_env
-
-    cur_programmatic_weather_env.__on_exit__()
+    with cur_programmatic_weather_env:
+        yield cur_programmatic_weather_env
