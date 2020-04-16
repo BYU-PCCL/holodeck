@@ -103,15 +103,15 @@ def is_testing_env():
     return "pytest" in sys.modules
 
 
-def _count_files_matching_glob(glob_str: str) -> int:
+def _count_files_matching_glob(glob_str):
     return len(glob(glob_str))
 
 
-def _open_semaphore_files_posix() -> int:
+def _open_semaphore_files_posix():
     return _count_files_matching_glob("/dev/shm/sem.HOLODECK_SEMAPHORE*")
 
 
-def _open_shared_memory_files_posix() -> int:
+def _open_shared_memory_files_posix():
     return _count_files_matching_glob("/dev/shm/HOLODECK_MEM*")
 
 
