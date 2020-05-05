@@ -63,9 +63,10 @@ def env_1024(request):
                                                                     show_viewport=False,
                                                                     uuid=str(uuid.uuid4()))
 
-    shared_1024_env.reset()
+    with shared_1024_env:
+        shared_1024_env.reset()
+        yield shared_1024_env
 
-    return shared_1024_env
 
 
 shared_rotation_env = None
@@ -126,8 +127,10 @@ def rotation_env(request):
                                                                         show_viewport=False,
                                                                         uuid=str(uuid.uuid4()))
 
-    shared_rotation_env.reset()
-    return shared_rotation_env
+    with shared_rotation_env:
+        shared_rotation_env.reset()
+        yield shared_rotation_env
+
 
 abuse_config = {
     "name": "test_abuse_sensor",

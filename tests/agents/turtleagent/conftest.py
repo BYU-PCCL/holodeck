@@ -18,14 +18,12 @@ def generate_turtle_walkthrough():
 
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
-    env = holodeck.environments.HolodeckEnvironment(scenario=cfg,
+    with holodeck.environments.HolodeckEnvironment(scenario=cfg,
                                                     binary_path=binary_path,
                                                     show_viewport=False,
-                                                    uuid=str(uuid.uuid4()))
+                                                    uuid=str(uuid.uuid4())) as env:
 
-    finish.navigate(env, on_step)
-
-    env.__on_exit__()
+        finish.navigate(env, on_step)
 
     return on_step.states
 

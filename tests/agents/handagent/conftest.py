@@ -48,6 +48,6 @@ def env(request):
                                                                show_viewport=False,
                                                                uuid=str(uuid.uuid4()))
 
-    shared_env.reset()
-
-    return shared_env
+    with shared_env:
+        shared_env.reset()
+        yield shared_env
