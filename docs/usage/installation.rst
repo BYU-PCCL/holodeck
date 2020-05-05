@@ -47,6 +47,8 @@ branch is the bleeding edge of development.
 If you want to download a specific release of Holodeck, each release is tagged
 in the Git repository.
 
+.. _docker:
+
 Docker Installation
 ===================
 

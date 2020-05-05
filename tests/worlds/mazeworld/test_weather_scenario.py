@@ -28,11 +28,11 @@ def mean_square_error_before_after_reset(env: HolodeckEnvironment):
     after and environment reset
 
     """
-    env.tick(5)
+    env.tick(10)
     before_data = env.tick()["TestCamera"]
 
     env.reset()
-    env.tick(5)
+    env.tick(10)
     after_data = env.tick()["TestCamera"]
 
     return compare_rgb_sensor_data(before_data, after_data)
@@ -61,7 +61,7 @@ def test_weather_type_scenario(
         err = compare_rgb_sensor_data_with_baseline(
             env.tick()["TestCamera"],
             request.fspath.dirname,
-            f"weather_type_{weather_type}",
+            "weather_type_{}".format(weather_type),
         )
         assert err < max_err
 
@@ -90,7 +90,7 @@ def test_weather_fog_density_scenario(
         err = compare_rgb_sensor_data_with_baseline(
             env.tick()["TestCamera"],
             request.fspath.dirname,
-            f"weather_fog_density_{fog_density}",
+            "weather_fog_density_{}".format(fog_density),
         )
         assert err < max_err
 
@@ -127,7 +127,7 @@ def test_weather_day_cycle_scenario(
         err_before = compare_rgb_sensor_data_with_baseline(
             env.tick()["TestCamera"],
             request.fspath.dirname,
-            f"weather_time_before_{cycle_length}",
+            "weather_time_before_{}".format(cycle_length),
         )
 
         env.tick(ticks)
@@ -135,7 +135,7 @@ def test_weather_day_cycle_scenario(
         err_after = compare_rgb_sensor_data_with_baseline(
             env.tick()["TestCamera"],
             request.fspath.dirname,
-            f"weather_time_after_{cycle_length}",
+            "weather_time_after_{}".format(cycle_length),
         )
 
         assert err_before < max_err_before
@@ -161,15 +161,10 @@ def test_weather_time_scenario(
 
     with env_with_config(config) as env:
         env.tick(5)
-        # TODO(vinhowe): Update time baseline images after
-        #  BYU-PCCL/holodeck-engine#205 is wrapped into release
-        # write_image_from_rgb_sensor_data(env.tick()["TestCamera"],
-        #                                  request.fspath.dirname,
-        #                                  f"weather_time_{hour}")
         err = compare_rgb_sensor_data_with_baseline(
             env.tick()["TestCamera"],
             request.fspath.dirname,
-            f"weather_time_{hour}",
+            "weather_time_{}".format(hour),
         )
         assert err < max_err
 
