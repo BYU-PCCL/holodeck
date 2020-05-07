@@ -6,6 +6,7 @@ It specifies an environment, which contains a number of agents, and the interfac
 with the agents.
 """
 import atexit
+import gc
 import os
 import random
 import subprocess
@@ -136,6 +137,14 @@ class HolodeckEnvironment:
         # Flag indicates if the user has called .reset() before .tick() and .step()
         self._initial_reset = False
         self.reset()
+
+    def clean_up_resources(self):
+        self._command_center.clean_up_resources()
+        if hasattr(self, "_reset_ptr"):
+            del self._reset_ptr
+        for key in list(self.agents.keys()):
+            self.agents[key].clean_up_resources()
+            del self.agents[key]
 
     @property
     def action_space(self):
@@ -474,7 +483,7 @@ class HolodeckEnvironment:
         if prop_type not in available_props:
             raise HolodeckException("{} not an available prop. Available prop types: {}".format(
                 prop_type, available_props))
-        if material not in available_materials and material is not "":
+        if material not in available_materials and material != "":
             raise HolodeckException("{} not an available material. Available material types: {}".format(
                 material, available_materials))
 
@@ -629,6 +638,8 @@ class HolodeckEnvironment:
             raise HolodeckException("Timed out waiting for binary to load. Ensure that holodeck is "
                                     "not being run with root priveleges.")
         loading_semaphore.unlink()
+        loading_semaphore.close()
+
 
     def __windows_start_process__(self, binary_path, task_key, verbose):
         import win32event
@@ -651,7 +662,13 @@ class HolodeckEnvironment:
         if hasattr(self, '_exited'):
             return
 
-        self._client.unlink()
+        self.clean_up_resources()
+        # TODO(daniekpo) remove this
+        gc.collect()
+
+        if hasattr(self, "_client"):
+            self._client.unlink()
+
         if hasattr(self, '_world_process'):
             self._world_process.kill()
             self._world_process.wait(5)
