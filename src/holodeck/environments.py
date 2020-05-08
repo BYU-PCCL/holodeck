@@ -6,7 +6,6 @@ It specifies an environment, which contains a number of agents, and the interfac
 with the agents.
 """
 import atexit
-import gc
 import os
 import random
 import subprocess
@@ -663,8 +662,6 @@ class HolodeckEnvironment:
             return
 
         self.clean_up_resources()
-        # TODO(daniekpo) remove this
-        gc.collect()
 
         if hasattr(self, "_client"):
             self._client.unlink()
