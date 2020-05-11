@@ -8,6 +8,7 @@ with the agents.
 import atexit
 import os
 import random
+import signal
 import subprocess
 import sys
 
@@ -137,13 +138,27 @@ class HolodeckEnvironment:
         self._initial_reset = False
         self.reset()
 
+        # System event handlers for graceful exit. We may only need to handle
+        # SIGHUB, but I'm being a little paranoid
+        signal.signal(signal.SIGHUP, self.graceful_exit)
+        signal.signal(signal.SIGTERM, self.graceful_exit)
+        signal.signal(signal.SIGINT, self.graceful_exit)
+
     def clean_up_resources(self):
+        """ Frees up references to mapped memory files.
+        """
         self._command_center.clean_up_resources()
         if hasattr(self, "_reset_ptr"):
             del self._reset_ptr
         for key in list(self.agents.keys()):
             self.agents[key].clean_up_resources()
             del self.agents[key]
+
+    def graceful_exit(self, signum, frame):
+        """ Signal handler to gracefully exit the script
+        """
+        self.__on_exit__()
+        sys.exit()
 
     @property
     def action_space(self):
