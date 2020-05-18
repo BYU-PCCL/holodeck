@@ -337,8 +337,8 @@ class HolodeckEnvironment:
                 self._agent.act(action)
 
             self._command_center.handle_buffer()
-            self._client.release()
             self._client.acquire()
+            self._client.release()
 
             reward, terminal = self._get_reward_terminal()
             last_state = self._default_state_fn(), reward, terminal, None
@@ -385,9 +385,10 @@ class HolodeckEnvironment:
         for _ in range(num_ticks):
             self._command_center.handle_buffer()
 
-            self._client.release()
             self._client.acquire()
+            
             state = self._default_state_fn()
+            self._client.release()
 
         return state
 

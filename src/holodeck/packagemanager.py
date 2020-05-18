@@ -327,7 +327,6 @@ def get_binary_path_for_package(package_name):
         NotFoundException: When the package requested is not found
 
     """
-
     for config, path in _iter_packages():
         try:
             if config["name"] == package_name:
