@@ -140,7 +140,7 @@ class HolodeckEnvironment:
 
         # System event handlers for graceful exit. We may only need to handle
         # SIGHUB, but I'm being a little paranoid
-        signal.signal(signal.SIGHUP, self.graceful_exit)
+        # signal.signal(signal.SIGHUP, self.graceful_exit)
         signal.signal(signal.SIGTERM, self.graceful_exit)
         signal.signal(signal.SIGINT, self.graceful_exit)
 
@@ -289,6 +289,29 @@ class HolodeckEnvironment:
             if "day_cycle_length" in weather:
                 day_cycle_length = weather["day_cycle_length"]
                 self.weather.start_day_cycle(day_cycle_length)
+        
+        if "props" in self._scenario:
+            props = self._scenario["props"]
+            for prop in props:
+                # prop default values
+                to_spawn = {
+                    "location": [0, 0, 0],
+                    "rotation": [0, 0, 0],
+                    "scale": 1,
+                    "sim_physics": False,
+                    "material": "",
+                    "tag": ""
+                }
+                to_spawn.update(prop)
+                self.spawn_prop(
+                    to_spawn["type"],
+                    to_spawn["location"],
+                    to_spawn["rotation"],
+                    to_spawn["scale"],
+                    to_spawn["sim_physics"],
+                    to_spawn["material"],
+                    to_spawn["tag"]
+                )
 
     def reset(self):
         """Resets the environment, and returns the state.
