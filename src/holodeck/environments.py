@@ -140,7 +140,7 @@ class HolodeckEnvironment:
 
         # System event handlers for graceful exit. We may only need to handle
         # SIGHUB, but I'm being a little paranoid
-        # signal.signal(signal.SIGHUP, self.graceful_exit)
+        signal.signal(signal.SIGHUP, self.graceful_exit)
         signal.signal(signal.SIGTERM, self.graceful_exit)
         signal.signal(signal.SIGINT, self.graceful_exit)
 
