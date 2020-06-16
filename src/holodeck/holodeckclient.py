@@ -26,7 +26,7 @@ class HolodeckClient:
         self.should_timeout = should_timeout
 
         self._memory = dict()
-        self._sensors = dict()
+        self._sensors = dict()  # never used
         self._agents = dict()
         self._settings = dict()
 
@@ -82,10 +82,13 @@ class HolodeckClient:
             sem.release()
 
         def posix_unlink():
+            self._semaphore1.close()
+            self._semaphore2.close()
             posix_ipc.unlink_semaphore(self._semaphore1.name)
             posix_ipc.unlink_semaphore(self._semaphore2.name)
-            for shmem_block in self._memory.values():
-                shmem_block.unlink()
+            for key in list(self._memory.keys()):
+                self._memory[key].unlink()
+                del self._memory[key]
 
         self._get_semaphore_fn = posix_acquire_semaphore
         self._release_semaphore_fn = posix_release_semaphore

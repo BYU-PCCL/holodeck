@@ -1,4 +1,5 @@
 """Definitions for different agents that can be controlled from Holodeck"""
+import math
 from functools import reduce
 
 import numpy as np
@@ -91,6 +92,23 @@ class HolodeckAgent:
                                                           np.uint8)
         self._current_control_scheme = 0
         self.set_control_scheme(0)
+
+    def clean_up_resources(self):
+        if hasattr(self, "_action_buffer"):
+            del self._action_buffer
+        if hasattr(self, "_teleport_type_buffer"):
+            del self._teleport_type_buffer
+        if hasattr(self, "_teleport_buffer"):
+            del self._teleport_buffer
+        if hasattr(self, "_control_scheme_buffer"):
+            del self._control_scheme_buffer
+
+        for key in list(self.agent_state_dict.keys()):
+            del self.agent_state_dict[key]
+
+        for key in list(self.sensors.keys()):
+            self.sensors[key].clean_up_resources()
+            del self.sensors[key]
 
     def act(self, action):
         """Sets the command for the agent. Action depends on the agent type and current control
@@ -286,11 +304,12 @@ class UavAgent(HolodeckAgent):
     def control_schemes(self):
         torques_min = [self.__MIN_PITCH, self.__MIN_ROLL, self.__MIN_YAW_RATE, self.__MIN_FORCE]
         torques_max = [self.__MAX_PITCH, self.__MAX_ROLL, self.__MAX_YAW_RATE, self.__MAX_FORCE]
-        no_min_max = [None, None, None, None]
+        no_min = [-math.inf, -math.inf, -math.inf, -math.inf]
+        no_max = [math.inf, math.inf, math.inf, math.inf]
         return [("[pitch_torque, roll_torque, yaw_torque, thrust]",
                  ContinuousActionSpace([4], low=torques_min, high=torques_max)),
                 ("[pitch_target, roll_target, yaw_rate_target, altitude_target]",
-                 ContinuousActionSpace([4], low=no_min_max, high=no_min_max))]
+                 ContinuousActionSpace([4], low=no_min, high=no_max))]
 
     def __repr__(self):
         return "UavAgent " + self.name

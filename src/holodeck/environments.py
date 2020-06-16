@@ -8,6 +8,7 @@ with the agents.
 import atexit
 import os
 import random
+import signal
 import subprocess
 import sys
 
@@ -136,6 +137,29 @@ class HolodeckEnvironment:
         # Flag indicates if the user has called .reset() before .tick() and .step()
         self._initial_reset = False
         self.reset()
+
+        # System event handlers for graceful exit. We may only need to handle
+        # SIGHUB, but I'm being a little paranoid
+        if os.name == "posix":
+            signal.signal(signal.SIGHUP, self.graceful_exit)
+        signal.signal(signal.SIGTERM, self.graceful_exit)
+        signal.signal(signal.SIGINT, self.graceful_exit)
+
+    def clean_up_resources(self):
+        """ Frees up references to mapped memory files.
+        """
+        self._command_center.clean_up_resources()
+        if hasattr(self, "_reset_ptr"):
+            del self._reset_ptr
+        for key in list(self.agents.keys()):
+            self.agents[key].clean_up_resources()
+            del self.agents[key]
+
+    def graceful_exit(self, signum, frame):
+        """ Signal handler to gracefully exit the script
+        """
+        self.__on_exit__()
+        sys.exit()
 
     @property
     def action_space(self):
@@ -266,6 +290,29 @@ class HolodeckEnvironment:
             if "day_cycle_length" in weather:
                 day_cycle_length = weather["day_cycle_length"]
                 self.weather.start_day_cycle(day_cycle_length)
+        
+        if "props" in self._scenario:
+            props = self._scenario["props"]
+            for prop in props:
+                # prop default values
+                to_spawn = {
+                    "location": [0, 0, 0],
+                    "rotation": [0, 0, 0],
+                    "scale": 1,
+                    "sim_physics": False,
+                    "material": "",
+                    "tag": ""
+                }
+                to_spawn.update(prop)
+                self.spawn_prop(
+                    to_spawn["type"],
+                    to_spawn["location"],
+                    to_spawn["rotation"],
+                    to_spawn["scale"],
+                    to_spawn["sim_physics"],
+                    to_spawn["material"],
+                    to_spawn["tag"]
+                )
 
     def reset(self):
         """Resets the environment, and returns the state.
@@ -474,67 +521,13 @@ class HolodeckEnvironment:
         if prop_type not in available_props:
             raise HolodeckException("{} not an available prop. Available prop types: {}".format(
                 prop_type, available_props))
-        if material not in available_materials and material is not "":
+        if material not in available_materials and material != "":
             raise HolodeckException("{} not an available material. Available material types: {}".format(
                 material, available_materials))
 
         self.send_world_command("SpawnProp", num_params=[location, rotation, scale, sim_physics],
                                 string_params=[prop_type, material, tag])
 
-    def draw_line(self, start, end, color=None, thickness=10.0):
-        """Draws a debug line in the world
-
-        Args:
-            start (:obj:`list` of :obj:`float`): The start ``[x, y, z]`` location of the line.
-                (see :ref:`coordinate-system`)
-            end (:obj:`list` of :obj:`float`): The end ``[x, y, z]`` location of the line
-            color (:obj:`list``): ``[r, g, b]`` color value
-            thickness (:obj:`float`): thickness of the line
-        """
-        color = [255, 0, 0] if color is None else color
-        command_to_send = DebugDrawCommand(0, start, end, color, thickness)
-        self._enqueue_command(command_to_send)
-
-    def draw_arrow(self, start, end, color=None, thickness=10.0):
-        """Draws a debug arrow in the world
-
-        Args:
-            start (:obj:`list` of :obj:`float`): The start ``[x, y, z]`` location of the line.
-                (see :ref:`coordinate-system`)
-            end (:obj:`list` of :obj:`float`): The end ``[x, y, z]`` location of the arrow
-            color (:obj:`list`): ``[r, g, b]`` color value
-            thickness (:obj:`float`): thickness of the arrow
-        """
-        color = [255, 0, 0] if color is None else color
-        command_to_send = DebugDrawCommand(1, start, end, color, thickness)
-        self._enqueue_command(command_to_send)
-
-    def draw_box(self, center, extent, color=None, thickness=10.0):
-        """Draws a debug box in the world
-
-        Args:
-            center (:obj:`list` of :obj:`float`): The start ``[x, y, z]`` location of the box.
-                (see :ref:`coordinate-system`)
-            extent (:obj:`list` of :obj:`float`): The ``[x, y, z]`` extent of the box
-            color (:obj:`list`): ``[r, g, b]`` color value
-            thickness (:obj:`float`): thickness of the lines
-        """
-        color = [255, 0, 0] if color is None else color
-        command_to_send = DebugDrawCommand(2, center, extent, color, thickness)
-        self._enqueue_command(command_to_send)
-
-    def draw_point(self, loc, color=None, thickness=10.0):
-        """Draws a debug point in the world
-
-        Args:
-            loc (:obj:`list` of :obj:`float`): The ``[x, y, z]`` start of the box. 
-                (see :ref:`coordinate-system`)
-            color (:obj:`list` of :obj:`float`): ``[r, g, b]`` color value
-            thickness (:obj:`float`): thickness of the point
-        """
-        color = [255, 0, 0] if color is None else color
-        command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
-        self._enqueue_command(command_to_send)
 
     def move_viewport(self, location, rotation):
         """Teleport the camera to the given location
@@ -629,6 +622,8 @@ class HolodeckEnvironment:
             raise HolodeckException("Timed out waiting for binary to load. Ensure that holodeck is "
                                     "not being run with root priveleges.")
         loading_semaphore.unlink()
+        loading_semaphore.close()
+
 
     def __windows_start_process__(self, binary_path, task_key, verbose):
         import win32event
@@ -651,7 +646,11 @@ class HolodeckEnvironment:
         if hasattr(self, '_exited'):
             return
 
-        self._client.unlink()
+        self.clean_up_resources()
+
+        if hasattr(self, "_client"):
+            self._client.unlink()
+
         if hasattr(self, '_world_process'):
             self._world_process.kill()
             self._world_process.wait(5)
