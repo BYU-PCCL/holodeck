@@ -528,60 +528,6 @@ class HolodeckEnvironment:
         self.send_world_command("SpawnProp", num_params=[location, rotation, scale, sim_physics],
                                 string_params=[prop_type, material, tag])
 
-    def draw_line(self, start, end, color=None, thickness=10.0):
-        """Draws a debug line in the world
-
-        Args:
-            start (:obj:`list` of :obj:`float`): The start ``[x, y, z]`` location of the line.
-                (see :ref:`coordinate-system`)
-            end (:obj:`list` of :obj:`float`): The end ``[x, y, z]`` location of the line
-            color (:obj:`list``): ``[r, g, b]`` color value
-            thickness (:obj:`float`): thickness of the line
-        """
-        color = [255, 0, 0] if color is None else color
-        command_to_send = DebugDrawCommand(0, start, end, color, thickness)
-        self._enqueue_command(command_to_send)
-
-    def draw_arrow(self, start, end, color=None, thickness=10.0):
-        """Draws a debug arrow in the world
-
-        Args:
-            start (:obj:`list` of :obj:`float`): The start ``[x, y, z]`` location of the line.
-                (see :ref:`coordinate-system`)
-            end (:obj:`list` of :obj:`float`): The end ``[x, y, z]`` location of the arrow
-            color (:obj:`list`): ``[r, g, b]`` color value
-            thickness (:obj:`float`): thickness of the arrow
-        """
-        color = [255, 0, 0] if color is None else color
-        command_to_send = DebugDrawCommand(1, start, end, color, thickness)
-        self._enqueue_command(command_to_send)
-
-    def draw_box(self, center, extent, color=None, thickness=10.0):
-        """Draws a debug box in the world
-
-        Args:
-            center (:obj:`list` of :obj:`float`): The start ``[x, y, z]`` location of the box.
-                (see :ref:`coordinate-system`)
-            extent (:obj:`list` of :obj:`float`): The ``[x, y, z]`` extent of the box
-            color (:obj:`list`): ``[r, g, b]`` color value
-            thickness (:obj:`float`): thickness of the lines
-        """
-        color = [255, 0, 0] if color is None else color
-        command_to_send = DebugDrawCommand(2, center, extent, color, thickness)
-        self._enqueue_command(command_to_send)
-
-    def draw_point(self, loc, color=None, thickness=10.0):
-        """Draws a debug point in the world
-
-        Args:
-            loc (:obj:`list` of :obj:`float`): The ``[x, y, z]`` start of the box. 
-                (see :ref:`coordinate-system`)
-            color (:obj:`list` of :obj:`float`): ``[r, g, b]`` color value
-            thickness (:obj:`float`): thickness of the point
-        """
-        color = [255, 0, 0] if color is None else color
-        command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
-        self._enqueue_command(command_to_send)
 
     def move_viewport(self, location, rotation):
         """Teleport the camera to the given location
