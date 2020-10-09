@@ -424,6 +424,12 @@ class HolodeckEnvironment:
         self.agents[agent_def.name].add_sensors(agent_def.sensors)
         if is_main_agent:
             self._agent = self.agents[agent_def.name]
+    
+
+    def get_main_agent(self):
+        """Returns the main agent in the environment"""
+        return self._agent
+
 
     def spawn_prop(self, prop_type, location=None, rotation=None, scale=1, 
                     sim_physics=False, material="", tag=""):
