@@ -24,30 +24,25 @@ base_handagent_config = {
 
 
 def pytest_generate_tests(metafunc):
-    if 'env' in metafunc.fixturenames:
-        metafunc.parametrize('env', [base_handagent_config], indirect=True)
+    if 'shared_env' in metafunc.fixturenames:
+        metafunc.parametrize('shared_env', [base_handagent_config], indirect=True)
 
 
-shared_env = -1
+@pytest.fixture(scope="package")
+def shared_env(request):
+    cfg = request.param
+    binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
+
+    with holodeck.environments.HolodeckEnvironment(scenario=cfg,
+                                                   binary_path=binary_path,
+                                                   show_viewport=False,
+                                                   uuid=str(uuid.uuid4())) as env:
+        # resetting is handled by `env` and cleanup happens immediately after exiting
+        # the module
+        yield env
 
 
 @pytest.fixture
-def env(request):
-    """Gets an environment for the scenario matching request.param. Creates the env
-    or uses a cached one. Calls .reset() for you
-    """
-    global shared_env
-
-    cfg = request.param
-
-    binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
-
-    if shared_env == -1:
-        shared_env = holodeck.environments.HolodeckEnvironment(scenario=cfg,
-                                                               binary_path=binary_path,
-                                                               show_viewport=False,
-                                                               uuid=str(uuid.uuid4()))
-
-    with shared_env:
-        shared_env.reset()
-        yield shared_env
+def env(shared_env):
+    shared_env.reset()
+    return shared_env
