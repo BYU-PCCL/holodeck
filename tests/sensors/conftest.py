@@ -29,6 +29,22 @@ def pytest_generate_tests(metafunc):
 
 
 shared_1024_env = None
+shared_rotation_env = None
+shared_abuse_env = None
+
+
+@pytest.fixture(scope="package", autouse=True)
+def env_cleanup():
+    global shared_1024_env, shared_rotation_env, shared_abuse_env
+
+    yield
+
+    shared_envs = [shared_1024_env, shared_rotation_env, shared_abuse_env]
+
+    for env in filter(
+        lambda env: callable(getattr(env, "__on_exit__", None)), shared_envs
+    ):
+        env.__on_exit__()
 
 
 @pytest.fixture
@@ -72,10 +88,6 @@ def env_1024(request):
 
     shared_1024_env.reset()
     return shared_1024_env
-
-
-shared_rotation_env = None
-shared_abuse_env = None
 
 
 def get_abuse_world():
@@ -137,9 +149,8 @@ def rotation_env(request):
             uuid=str(uuid.uuid4()),
         )
 
-    with shared_rotation_env:
-        shared_rotation_env.reset()
-        yield shared_rotation_env
+    shared_rotation_env.reset()
+    return shared_rotation_env
 
 
 abuse_config = {
