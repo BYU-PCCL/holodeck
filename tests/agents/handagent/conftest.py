@@ -45,7 +45,7 @@ def env_cleanup():
 def env(request):
     global shared_env
 
-    if not shared_env:
+    if shared_env is None:
         cfg = request.param
         binary_path = holodeck.packagemanager.get_binary_path_for_package(
             "DefaultWorlds"
