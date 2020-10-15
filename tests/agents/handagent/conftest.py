@@ -47,7 +47,9 @@ def env(request):
 
     if not shared_env:
         cfg = request.param
-        binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
+        binary_path = holodeck.packagemanager.get_binary_path_for_package(
+            "DefaultWorlds"
+        )
         shared_env = holodeck.environments.HolodeckEnvironment(
             scenario=cfg,
             binary_path=binary_path,
