@@ -97,7 +97,7 @@ class Command:
                 A string or list of strings to add to the parameters.
 
         """
-        if isinstance(string, list) or isinstance(string, tuple):
+        if isinstance(string, (list, tuple, np.ndarray)):
             for x in string:
                 self.add_string_parameters(x)
             return
