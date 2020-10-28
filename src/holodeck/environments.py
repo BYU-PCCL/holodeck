@@ -607,7 +607,7 @@ class HolodeckEnvironment:
             del environment['DISPLAY']
         self._world_process = \
             subprocess.Popen([binary_path, task_key, '-HolodeckOn', '-opengl' + str(gl_version),
-                              '-LOG=' + os.environ.get('PYTEST_CURRENT_TEST').split(':')[-1].split(' ')[0] + self._uuid + '.txt', '-ForceRes', '-ResX=' + str(self._window_size[1]),
+                              '-LOG=HolodeckLog.txt', '-ForceRes', '-ResX=' + str(self._window_size[1]),
                               '-ResY=' + str(self._window_size[0]), '--HolodeckUUID=' + self._uuid,
                               '-TicksPerSec=' + str(self._ticks_per_sec)],
                              stdout=out_stream,
@@ -645,8 +645,6 @@ class HolodeckEnvironment:
     def __on_exit__(self):
         if hasattr(self, '_exited'):
             return
-
-        print("exiting env %s" % self._uuid)
 
         self.clean_up_resources()
 
