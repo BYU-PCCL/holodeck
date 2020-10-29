@@ -69,7 +69,7 @@ def test_rgb_camera(resolution, request):
 shared_ticks_per_capture_env = None
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def ticks_per_capture_env():
     """test_rgb_camera_ticks_per_capture shares an environment with different
     instances of the same test
