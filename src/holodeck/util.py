@@ -1,6 +1,10 @@
 """Helpful Utilities"""
 import math
 import os
+import sys
+from datetime import datetime
+from glob import glob
+
 import holodeck
 from multiprocessing import Process, Event
 
@@ -95,6 +99,35 @@ def human_readable_size(size_bytes):
     power = math.pow(1024, base)
     size = round(size_bytes / power, 2)
     return "%s %s" % (size, size_name[base])
+
+
+def is_testing_env():
+    return "pytest" in sys.modules
+
+
+def _count_files_matching_glob(glob_str):
+    return len(glob(glob_str))
+
+
+def _open_semaphore_files_posix():
+    return _count_files_matching_glob("/dev/shm/sem.HOLODECK_SEMAPHORE*")
+
+
+def _open_shared_memory_files_posix():
+    return _count_files_matching_glob("/dev/shm/HOLODECK_MEM*")
+
+
+def print_posix_shm_info():
+    if os.name != "posix":
+        return
+
+    time_now = datetime.now().strftime("%X")
+    semaphores_open = _open_semaphore_files_posix()
+    shared_memory_files = _open_shared_memory_files_posix()
+    print(
+        f"{time_now}: {semaphores_open} sem file(s), "
+        f"{shared_memory_files} shm file(s)"
+    )
 
 
 def draw_line(env, start, end, color=None, thickness=10.0):
