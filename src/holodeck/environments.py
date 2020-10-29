@@ -668,7 +668,7 @@ class HolodeckEnvironment:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        # TODO: Suppress exceptions?
+        # TODO: Surpress exceptions?
         self.__on_exit__()
 
     def _get_single_state(self):
