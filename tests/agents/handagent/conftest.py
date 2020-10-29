@@ -11,17 +11,21 @@ base_handagent_config = {
         {
             "agent_name": "hand0",
             "agent_type": "HandAgent",
-            "sensors": [{"sensor_type": "LocationSensor",}],
+            "sensors": [
+                {
+                    "sensor_type": "LocationSensor",
+                }
+            ],
             "control_scheme": 2,
-            "location": [0, 0, 1],
+            "location": [0, 0, 1]
         }
-    ],
+    ]
 }
 
 
 def pytest_generate_tests(metafunc):
-    if "env" in metafunc.fixturenames:
-        metafunc.parametrize("env", [base_handagent_config], indirect=True)
+    if 'env' in metafunc.fixturenames:
+        metafunc.parametrize('env', [base_handagent_config], indirect=True)
 
 
 shared_env = None
