@@ -28,6 +28,8 @@ envs = {}
 
 @pytest.fixture(scope='package', autouse=True)
 def env_cleanup():
+    global envs
+
     yield
 
     for scenario, env in envs.items():
