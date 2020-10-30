@@ -15,7 +15,7 @@ import numpy as np
 
 from holodeck.command import CommandCenter, SpawnAgentCommand, RGBCameraRateCommand, \
     TeleportCameraCommand, RenderViewportCommand, RenderQualityCommand, \
-    CustomCommand, DebugDrawCommand # , SpawnAgentUavCommand
+    CustomCommand, DebugDrawCommand
 
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
