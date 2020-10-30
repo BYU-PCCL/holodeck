@@ -15,7 +15,7 @@ import numpy as np
 
 from holodeck.command import CommandCenter, SpawnAgentCommand, RGBCameraRateCommand, \
     TeleportCameraCommand, RenderViewportCommand, RenderQualityCommand, \
-    CustomCommand, DebugDrawCommand
+    CustomCommand, DebugDrawCommand # , SpawnAgentUavCommand
 
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
@@ -212,6 +212,7 @@ class HolodeckEnvironment:
                 'location': [0, 0, 0],
                 'rotation': [0, 0, 0],
                 'agent_name': agent['agent_type'],
+                'max_height': agent['max_height'], # Chris
                 'existing': False,
                 "location_randomization": [0, 0, 0],
                 "rotation_randomization": [0, 0, 0]
@@ -222,6 +223,8 @@ class HolodeckEnvironment:
 
             if "main_agent" in self._scenario:
                 is_main_agent = self._scenario["main_agent"] == agent["agent_name"]
+
+            max_height = agent_config["max_height"] # Chris
 
             agent_location = agent_config["location"]
             agent_rotation = agent_config["rotation"]
@@ -244,12 +247,21 @@ class HolodeckEnvironment:
             agent_rotation[1] += random.uniform(-d_roll, d_roll)
             agent_rotation[2] += random.uniform(-d_yaw, d_yaw)
 
+            # agent_type = agent_config['agent_type']
+
+            # this is Chris' code
+            # if agent_type == "UavAgent":
+            #     max_height = agent_config['max_height']
+            # end of Chris' code
+
             agent_def = AgentDefinition(agent_config['agent_name'], agent_config['agent_type'],
+                                        max_height=max_height, # -- commented out so it runs
                                         starting_loc=agent_location,
                                         starting_rot=agent_rotation,
                                         sensors=sensors,
                                         existing=agent_config["existing"],
-                                        is_main_agent=is_main_agent)
+                                        is_main_agent=is_main_agent
+                                        )
 
             self.add_agent(agent_def, is_main_agent)
             self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
@@ -417,6 +429,7 @@ class HolodeckEnvironment:
                 rotation=agent_def.starting_rot,
                 name=agent_def.name,
                 agent_type=agent_def.type.agent_type,
+                max_height=agent_def.max_height,
                 is_main_agent=agent_def.is_main_agent
             )
 

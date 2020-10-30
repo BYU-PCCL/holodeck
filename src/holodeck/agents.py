@@ -655,6 +655,8 @@ class AgentDefinition:
         agent_name (:obj:`str`): The name of the agent to control.
         agent_type (:obj:`str` or type): The type of HolodeckAgent to control, string or class
             reference.
+        max_height (:obj:'float'): The max height that the agent can reach 
+            before upwards movement is limited.
         sensors (:class:`~holodeck.sensors.SensorDefinition` or class type (if no duplicate sensors)): A list of
             HolodeckSensors to read from this agent.
         starting_loc (:obj:`list` of :obj:`float`): Starting ``[x, y, z]`` location for agent 
@@ -673,11 +675,12 @@ class AgentDefinition:
         "TurtleAgent": TurtleAgent
     }
 
-    def __init__(self, agent_name, agent_type, sensors=None, starting_loc=(0, 0, 0),
+    def __init__(self, agent_name, agent_type, max_height, sensors=None, starting_loc=(0, 0, 0),
                  starting_rot=(0, 0, 0), existing=False, is_main_agent=False):
         self.starting_loc = starting_loc
         self.starting_rot = starting_rot
         self.existing = existing
+        self.max_height = max_height
         self.sensors = sensors or list()
         self.is_main_agent = is_main_agent
         for i, sensor_def in enumerate(self.sensors):
