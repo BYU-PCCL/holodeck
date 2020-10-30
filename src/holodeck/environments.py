@@ -212,7 +212,7 @@ class HolodeckEnvironment:
                 'location': [0, 0, 0],
                 'rotation': [0, 0, 0],
                 'agent_name': agent['agent_type'],
-                'max_height': agent['max_height'], # Chris
+                'max_height': 100, # Chris
                 'existing': False,
                 "location_randomization": [0, 0, 0],
                 "rotation_randomization": [0, 0, 0]
@@ -247,15 +247,8 @@ class HolodeckEnvironment:
             agent_rotation[1] += random.uniform(-d_roll, d_roll)
             agent_rotation[2] += random.uniform(-d_yaw, d_yaw)
 
-            # agent_type = agent_config['agent_type']
-
-            # this is Chris' code
-            # if agent_type == "UavAgent":
-            #     max_height = agent_config['max_height']
-            # end of Chris' code
-
             agent_def = AgentDefinition(agent_config['agent_name'], agent_config['agent_type'],
-                                        max_height=max_height, # -- commented out so it runs
+                                        max_height=max_height, # Chris
                                         starting_loc=agent_location,
                                         starting_rot=agent_rotation,
                                         sensors=sensors,
@@ -429,7 +422,7 @@ class HolodeckEnvironment:
                 rotation=agent_def.starting_rot,
                 name=agent_def.name,
                 agent_type=agent_def.type.agent_type,
-                max_height=agent_def.max_height,
+                max_height=agent_def.max_height, # Chris
                 is_main_agent=agent_def.is_main_agent
             )
 

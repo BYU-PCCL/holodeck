@@ -186,69 +186,72 @@ class CommandCenter:
         return self._commands.size
 
 
-# class SpawnAgentCommand(Command):
-#     """Spawn an agent in the world.
 
-#     Args:
-#         location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
-#         name (:obj:`str`): The name of the agent.
-#         agent_type (:obj:`str` or type): The type of agent to spawn (UAVAgent, NavAgent, ...)
+class SpawnAgentCommand(Command):
+    """Spawn an agent in the world.
 
-#     """
+    Args:
+        location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
+        name (:obj:`str`): The name of the agent.
+        agent_type (:obj:`str` or type): The type of agent to spawn (UAVAgent, NavAgent, ...)
 
-#     def __init__(self, location, rotation, name, agent_type, is_main_agent=False):
-#         super(SpawnAgentCommand, self).__init__()
-#         self._command_type = "SpawnAgent"
-#         self.set_location(location)
-#         self.set_rotation(rotation)
-#         self.set_type(agent_type)
-#         self.set_name(name)
-#         self.add_number_parameters(int(is_main_agent))
-#         # Chris
+    """
+
+    def __init__(self, location, rotation, name, agent_type, max_height, is_main_agent=False): # Chris
+        super(SpawnAgentCommand, self).__init__()
+        self._command_type = "SpawnAgent"
+        self.set_location(location)
+        self.set_rotation(rotation)
+        self.set_type(agent_type)
+        self.set_name(name)
+        self.add_number_parameters(max_height) # Chris
+        self.add_number_parameters(int(is_main_agent))
 
 
-#     def set_location(self, location):
-#         """Set where agent will be spawned.
 
-#         Args:
-#             location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
+    def set_location(self, location):
+        """Set where agent will be spawned.
 
-#         """
-#         if len(location) != 3:
-#             raise HolodeckException("Invalid location given to spawn agent command")
-#         self.add_number_parameters(location)
+        Args:
+            location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
 
-#     def set_rotation(self, rotation):
-#         """Set where agent will be spawned.
+        """
+        if len(location) != 3:
+            raise HolodeckException("Invalid location given to spawn agent command")
+        self.add_number_parameters(location)
 
-#         Args:
-#             rotation (:obj:`list` of :obj:`float`): ``[roll, pitch, yaw]`` rotation for agent.
-#                 (see :ref:`rotations`)
+    def set_rotation(self, rotation):
+        """Set where agent will be spawned.
 
-#         """
-#         if len(rotation) != 3:
-#             raise HolodeckException("Invalid rotation given to spawn agent command")
-#         self.add_number_parameters(rotation)
+        Args:
+            rotation (:obj:`list` of :obj:`float`): ``[roll, pitch, yaw]`` rotation for agent.
+                (see :ref:`rotations`)
 
-#     def set_name(self, name):
-#         """Set agents name
+        """
+        if len(rotation) != 3:
+            raise HolodeckException("Invalid rotation given to spawn agent command")
+        self.add_number_parameters(rotation)
 
-#         Args:
-#             name (:obj:`str`): The name to set the agent to.
+    def set_name(self, name):
+        """Set agents name
 
-#         """
-#         self.add_string_parameters(name)
+        Args:
+            name (:obj:`str`): The name to set the agent to.
 
-#     def set_type(self, agent_type):
-        # """Set the type of agent.
+        """
+        self.add_string_parameters(name)
 
-        # Args:
-        #     agent_type (:obj:`str` or :obj:`type`): The type of agent to spawn.
+    def set_type(self, agent_type):
+        """Set the type of agent.
 
-        # """
-        # if not isinstance(agent_type, str):
-        #     agent_type = agent_type.agent_type  # Get str from type
-        # self.add_string_parameters(agent_type)
+        Args:
+            agent_type (:obj:`str` or :obj:`type`): The type of agent to spawn.
+
+        """
+        if not isinstance(agent_type, str):
+            agent_type = agent_type.agent_type  # Get str from type
+        self.add_string_parameters(agent_type)
+
 
 
 class DebugDrawCommand(Command):
@@ -421,81 +424,65 @@ class CustomCommand(Command):
         self.add_string_parameters(string_params)
 
 
-# Chris
-class SpawnAgentCommand(Command):
-    """Spawn an agent in the world.
+# class SpawnAgentCommand(Command): (The old one without max_height)
+#     """Spawn an agent in the world.
 
-    Args:
-        location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
-        name (:obj:`str`): The name of the agent.
-        agent_type (:obj:`str` or type): The type of agent to spawn (UAVAgent, NavAgent, ...)
+#     Args:
+#         location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
+#         name (:obj:`str`): The name of the agent.
+#         agent_type (:obj:`str` or type): The type of agent to spawn (UAVAgent, NavAgent, ...)
 
-    """
+#     """
 
-    def __init__(self, location, rotation, name, agent_type, max_height, is_main_agent=False):
-        super(SpawnAgentCommand, self).__init__()
-        self._command_type = "SpawnAgent"
-        self.set_location(location)
-        self.set_rotation(rotation)
-        self.set_type(agent_type)
-        self.set_name(name)
-        # Chris
-        self.add_number_parameters(max_height)
-        # Chris
-        self.add_number_parameters(int(is_main_agent))
-        
+#     def __init__(self, location, rotation, name, agent_type, is_main_agent=False):
+#         super(SpawnAgentCommand, self).__init__()
+#         self._command_type = "SpawnAgent"
+#         self.set_location(location)
+#         self.set_rotation(rotation)
+#         self.set_type(agent_type)
+#         self.set_name(name)
+#         self.add_number_parameters(int(is_main_agent))
 
 
-    def set_location(self, location):
-        """Set where agent will be spawned.
-
-        Args:
-            location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
-
-        """
-        if len(location) != 3:
-            raise HolodeckException("Invalid location given to spawn agent command")
-        self.add_number_parameters(location)
-
-    def set_rotation(self, rotation):
-        """Set where agent will be spawned.
-
-        Args:
-            rotation (:obj:`list` of :obj:`float`): ``[roll, pitch, yaw]`` rotation for agent.
-                (see :ref:`rotations`)
-
-        """
-        if len(rotation) != 3:
-            raise HolodeckException("Invalid rotation given to spawn agent command")
-        self.add_number_parameters(rotation)
-
-    def set_name(self, name):
-        """Set agents name
-
-        Args:
-            name (:obj:`str`): The name to set the agent to.
-
-        """
-        self.add_string_parameters(name)
-
-    def set_type(self, agent_type):
-        """Set the type of agent.
-
-        Args:
-            agent_type (:obj:`str` or :obj:`type`): The type of agent to spawn.
-
-        """
-        if not isinstance(agent_type, str):
-            agent_type = agent_type.agent_type  # Get str from type
-        self.add_string_parameters(agent_type)
-
-# # Might not even need this heyoooo
-#     def set_maxHeight(self, maxHeight):
-#         """Set maxHeight of Uav
+#     def set_location(self, location):
+#         """Set where agent will be spawned.
 
 #         Args:
-#             maxHeight is a float for the maximum height the agent should reach before halting vertical movement
-#             not this -> location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
+#             location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
 
 #         """
-#         self.add_number_parameters(maxHeight)
+#         if len(location) != 3:
+#             raise HolodeckException("Invalid location given to spawn agent command")
+#         self.add_number_parameters(location)
+
+#     def set_rotation(self, rotation):
+#         """Set where agent will be spawned.
+
+#         Args:
+#             rotation (:obj:`list` of :obj:`float`): ``[roll, pitch, yaw]`` rotation for agent.
+#                 (see :ref:`rotations`)
+
+#         """
+#         if len(rotation) != 3:
+#             raise HolodeckException("Invalid rotation given to spawn agent command")
+#         self.add_number_parameters(rotation)
+
+#     def set_name(self, name):
+#         """Set agents name
+
+#         Args:
+#             name (:obj:`str`): The name to set the agent to.
+
+#         """
+#         self.add_string_parameters(name)
+
+#     def set_type(self, agent_type):
+        # """Set the type of agent.
+
+        # Args:
+        #     agent_type (:obj:`str` or :obj:`type`): The type of agent to spawn.
+
+        # """
+        # if not isinstance(agent_type, str):
+        #     agent_type = agent_type.agent_type  # Get str from type
+        # self.add_string_parameters(agent_type)
