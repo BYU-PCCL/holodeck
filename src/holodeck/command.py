@@ -197,14 +197,14 @@ class SpawnAgentCommand(Command):
 
     """
 
-    def __init__(self, location, rotation, name, agent_type, max_height, is_main_agent=False): # Chris
+    def __init__(self, location, rotation, name, agent_type, max_height, is_main_agent=False):
         super(SpawnAgentCommand, self).__init__()
         self._command_type = "SpawnAgent"
         self.set_location(location)
         self.set_rotation(rotation)
         self.set_type(agent_type)
         self.set_name(name)
-        self.add_number_parameters(max_height) # Chris
+        self.add_number_parameters(max_height)
         self.add_number_parameters(int(is_main_agent))
 
 
