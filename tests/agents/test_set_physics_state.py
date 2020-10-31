@@ -48,8 +48,6 @@ def test_set_physics_state():
 
     state = env.tick()
 
-
-    
     newLocation = np.array([100,100,50])
     newRotation = np.array([75,75,50])
     newVelocity = np.array([60,60,0])
@@ -61,43 +59,21 @@ def test_set_physics_state():
     sensed_rot = newState["RotationSensor"]
     sensed_vel = newState["VelocitySensor"]
 
-   # assert almost_equal(newLocation, sensed_loc), "The location was not set correctly!"
-    assert almost_equal(newRotation, sensed_rot), "The rotation was not set correctly!"
-    print("the senses vel:   ")
+    print("The sensed location: ")
+    print(sensed_loc)
+    print("The expected location: ")
+    print(newLocation)
+    print("The sensed rotation: ")
+    print(sensed_rot)
+    print("The expected rotation: ")
+    print(newRotation)
+    print("the sensed velocity: ")
     print(sensed_vel)
-    print("The expected velocity:    ") 
+    print("The expected velocity: ") 
     print(newVelocity)
+
+
+    assert almost_equal(newLocation, sensed_loc), "The location was not set correctly!"
+    assert almost_equal(newRotation, sensed_rot), "The rotation was not set correctly!"
     assert almost_equal(newVelocity, sensed_vel), "The velocity was not set correctly!"
     
-# def test_set_physics_state_rotation():
-     
-#      env = holodeck.make("MazeWorld-FinishMazeSphere")
-
-#      print(env.tick())
-
-#      state = env.tick()
-
-#      start_rot = state["RotationSensor"]
-
-#      env.set_physics_state([0,0,0], [25,50,75])
-
-#      newState = env.tick()
-#      sensed_rot = newState["RotationSensor"]
-
-#      assert almost_equal(start_rot, sensed_rot), "The rotation was not set correctly!"
-
-# def test_set_physics_state_velocity():
-#     env = holodeck.make("MazeWorld-FinishMazeSphere")
-
-#     print(env.tick())
-
-#     state = env.tick()
-
-#     start_vel = stat["VelocitySensor"]
-
-#     env.set_physics_state([0,0,0], [0,0,0], [100,100,50], [0,0,0,])
-
-#     newState = env.tick()
-#     sensed_vel = newState["VelocitySensor"]
-
-#     assert almost_equal(start_vel, sensed_vel)
