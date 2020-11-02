@@ -3,6 +3,7 @@ from typing import Callable, List
 import holodeck
 import pytest
 from holodeck import packagemanager as pm
+from holodeck.environments import HolodeckEnvironment
 
 
 def pytest_generate_tests(metafunc):
