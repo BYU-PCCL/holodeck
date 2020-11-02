@@ -5,6 +5,8 @@ import numpy as np
 import os
 import uuid
 
+import pytest
+
 from tests.utils.equality import mean_square_err
 
 
