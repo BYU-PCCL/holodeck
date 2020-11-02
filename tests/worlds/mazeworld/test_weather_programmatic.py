@@ -167,11 +167,9 @@ def env_cleanup():
 
     yield
 
-    print("CLEANING UP WEATHER STUFF")
     if cur_programmatic_weather_env is not None and hasattr(
         cur_programmatic_weather_env, "_reset_ptr"
     ):
-        print("(actually) CLEANING UP WEATHER STUFF")
         cur_programmatic_weather_env.__on_exit__()
 
 
@@ -187,7 +185,6 @@ def weather_env(request: FixtureRequest):
     global cur_programmatic_weather_env
 
     cur_programmatic_test_name = request.function.__name__
-    print(request.function.__name__)
     if (
         cur_programmatic_test_name != last_programmatic_test_name
         or cur_programmatic_weather_env is None
