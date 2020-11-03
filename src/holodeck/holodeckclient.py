@@ -4,6 +4,7 @@ import os
 from holodeck.exceptions import HolodeckException
 from holodeck.shmem import Shmem
 
+
 class HolodeckClient:
     """HolodeckClient for controlling a shared memory session.
 
