@@ -12,8 +12,7 @@ def test_load_scenario(scenario):
 
     """
     with holodeck.make(scenario, show_viewport=False) as env:
-        for _ in range(30):
-            env.tick()
+        env.tick(30)
 
 
 def test_all_agents_and_sensors_present(env_scenario):
