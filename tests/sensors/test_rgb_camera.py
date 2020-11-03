@@ -1,7 +1,6 @@
 import holodeck
 import cv2
 import copy
-import numpy as np
 import os
 import uuid
 
