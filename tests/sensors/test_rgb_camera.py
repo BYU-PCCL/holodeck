@@ -3,7 +3,6 @@ import cv2
 import copy
 import os
 import uuid
-
 import pytest
 
 from tests.utils.equality import mean_square_err
