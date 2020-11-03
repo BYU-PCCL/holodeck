@@ -146,9 +146,7 @@ def test_weather_fog_density_programmatic(
     assert err < max_err
 
 
-def test_fail_incorrect_weather_type_programmatic(
-    weather_env: HolodeckEnvironment,
-):
+def test_fail_incorrect_weather_type_programmatic(weather_env: HolodeckEnvironment):
     """
     Validate that an exception is thrown when an invalid weather type is
     specified programmatically
@@ -181,8 +179,8 @@ def weather_env(request: FixtureRequest):
 
     cur_programmatic_test_name = request.function.__name__
     if (
-            cur_programmatic_test_name != last_programmatic_test_name
-            or cur_programmatic_weather_env is None
+        cur_programmatic_test_name != last_programmatic_test_name
+        or cur_programmatic_weather_env is None
     ):
         cur_programmatic_weather_env = env_with_config(weather_config)
 
