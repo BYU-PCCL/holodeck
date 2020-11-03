@@ -83,7 +83,7 @@ class Command:
                 A number or list of numbers to add to the parameters.
 
         """
-        if isinstance(number, list) or isinstance(number, tuple):
+        if isinstance(number, (list, tuple, np.ndarray)):
             for x in number:
                 self.add_number_parameters(x)
             return
@@ -97,7 +97,7 @@ class Command:
                 A string or list of strings to add to the parameters.
 
         """
-        if isinstance(string, list) or isinstance(string, tuple):
+        if isinstance(string, (list, tuple, np.ndarray)):
             for x in string:
                 self.add_string_parameters(x)
             return
