@@ -161,6 +161,18 @@ cur_programmatic_weather_env = None
 last_programmatic_test_name = None
 
 
+@pytest.fixture(scope="package", autouse=True)
+def env_cleanup():
+    global cur_programmatic_weather_env
+
+    yield
+
+    if cur_programmatic_weather_env is not None and hasattr(
+        cur_programmatic_weather_env, "_reset_ptr"
+    ):
+        cur_programmatic_weather_env.__on_exit__()
+
+
 @pytest.fixture
 def weather_env(request: FixtureRequest):
     """Get basic MazeWorld environment with RGBCamera sensor for use in
@@ -174,9 +186,13 @@ def weather_env(request: FixtureRequest):
 
     cur_programmatic_test_name = request.function.__name__
     if (
-            cur_programmatic_test_name != last_programmatic_test_name
-            or cur_programmatic_weather_env is None
+        cur_programmatic_test_name != last_programmatic_test_name
+        or cur_programmatic_weather_env is None
     ):
+        if cur_programmatic_weather_env is not None and hasattr(
+            cur_programmatic_weather_env, "_reset_ptr"
+        ):
+            cur_programmatic_weather_env.__on_exit__()
         cur_programmatic_weather_env = env_with_config(weather_config)
 
     return cur_programmatic_weather_env

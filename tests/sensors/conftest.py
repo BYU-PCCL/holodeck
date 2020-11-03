@@ -23,6 +23,22 @@ def pytest_generate_tests(metafunc):
 
 
 shared_1024_env = None
+shared_rotation_env = None
+shared_abuse_env = None
+
+
+@pytest.fixture(scope="package", autouse=True)
+def env_cleanup():
+    global shared_1024_env, shared_rotation_env, shared_abuse_env
+
+    yield
+
+    shared_envs = [shared_1024_env, shared_rotation_env, shared_abuse_env]
+
+    for env in filter(
+        lambda env: callable(getattr(env, "__on_exit__", None)), shared_envs
+    ):
+        env.__on_exit__()
 
 
 @pytest.fixture
@@ -68,13 +84,12 @@ def env_1024(request):
     return shared_1024_env
 
 
-shared_rotation_env = None
-shared_abuse_env = None
-
 def get_abuse_world():
     global shared_abuse_env
-    binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
     if shared_abuse_env is None:
+        binary_path = holodeck.packagemanager.get_binary_path_for_package(
+            "DefaultWorlds"
+        )
         shared_abuse_env = holodeck.environments.HolodeckEnvironment(
             scenario=abuse_config,
             binary_path=binary_path,
