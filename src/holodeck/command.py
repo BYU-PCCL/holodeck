@@ -186,7 +186,6 @@ class CommandCenter:
         return self._commands.size
 
 
-
 class SpawnAgentCommand(Command):
     """Spawn an agent in the world.
 
@@ -206,8 +205,6 @@ class SpawnAgentCommand(Command):
         self.set_name(name)
         self.add_number_parameters(max_height)
         self.add_number_parameters(int(is_main_agent))
-
-
 
     def set_location(self, location):
         """Set where agent will be spawned.
@@ -251,7 +248,6 @@ class SpawnAgentCommand(Command):
         if not isinstance(agent_type, str):
             agent_type = agent_type.agent_type  # Get str from type
         self.add_string_parameters(agent_type)
-
 
 
 class DebugDrawCommand(Command):
