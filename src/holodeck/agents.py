@@ -157,7 +157,7 @@ class HolodeckAgent:
             val += 2
         self._teleport_type_buffer[0] = val
 
-    def set_physics_state(self, location, rotation, velocity, angular_velocity):
+    def set_physics_state(self, location=None, rotation=None, velocity=None, angular_velocity=None):
         """Sets the location, rotation, velocity and angular velocity of an agent.
 
         Args:
@@ -168,6 +168,16 @@ class HolodeckAgent:
                 (see :ref:`coordinate-system`))
 
         """
+
+        
+     
+     #   np.copyto(self._teleport_buffer[0:3], location)
+    
+    #    np.copyto(self._teleport_buffer[3:6], rotation)
+
+     #   self.teleport(location, rotation)
+     
+        
         np.copyto(self._teleport_buffer[0:3], location)
         np.copyto(self._teleport_buffer[3:6], rotation)
         np.copyto(self._teleport_buffer[6:9], velocity)
