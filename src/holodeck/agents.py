@@ -157,7 +157,7 @@ class HolodeckAgent:
             val += 2
         self._teleport_type_buffer[0] = val
 
-    def set_physics_state(self, location=None, rotation=None, velocity=None, angular_velocity=None):
+    def set_physics_state(self, location, rotation, velocity, angular_velocity):
         """Sets the location, rotation, velocity and angular velocity of an agent.
 
         Args:

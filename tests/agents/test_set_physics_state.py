@@ -48,7 +48,7 @@ def test_set_physics_state_loc_and_rot():
                                                    uuid=str(uuid.uuid4())) as env:
 
     
-        state = env.tick(1)
+        
 
         new_loc = np.array([0,0,100])
         new_rot = np.array([90,10,10])
@@ -56,12 +56,12 @@ def test_set_physics_state_loc_and_rot():
         #This should change the location and the rotation of the agent. 
         env.agents["turtle0"].set_physics_state(new_loc, new_rot, [0,0,0], [0,0,0])
         
-        new_state = env.tick(1)
+        new_state = env.tick()
         sensed_loc = new_state["LocationSensor"]
         sensed_rot = new_state["RotationSensor"]
 
         #Check to see if the newly sensed loc and rot are what we wanted to set them too. 
-        assert almost_equal(new_loc, sensed_loc,), "The location was not set correctly!"
+        assert almost_equal(new_loc, sensed_loc), "The location was not set correctly!"
         assert almost_equal(new_rot, sensed_rot), "The rotation was not set correctly!"
     
 
@@ -77,14 +77,14 @@ def test_set_physics_state_vel():
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
 
-        state = env.tick(1)
+        
     
         new_vel = np.array([50,0,0])
 
         #This should change the velocity of the agent. 
         env.agents["turtle0"].set_physics_state([0,0,0], [0,0,0], new_vel, [0,0,0])
 
-        new_state = env.tick(1)
+        new_state = env.tick()
         sensed_vel = new_state["VelocitySensor"]
 
         #Check to see that the newly sensed vel is what we wanted to set it too. 
@@ -104,15 +104,15 @@ def test_set_physics_state_ang_vel():
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
 
-        state = env.tick(1)
-
+        
+        state = env.tick()
         new_ang_vel = np.array([90,0,0])
-        start_rot = np.array([0,0,0])
+        start_rot = state["RotationSensor"]
 
         #This should change the angular velocity of the agent.
         env.agents["turtle0"].set_physics_state([0,0,0], start_rot, [0,0,0], new_ang_vel)
 
-        new_state = env.tick(1)
+        new_state = env.tick()
         sensed_rot = new_state["RotationSensor"]
 
         #Check to see if the agent changes rotation, if angular velocity was set correctly the rotation should change. 
@@ -133,14 +133,14 @@ def test_set_physics_state_collision():
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
 
-        state = env.tick(1)
+        state = env.tick()
         start_loc = state["LocationSensor"]
         new_loc = np.array([100,0,0])
 
         #This should not work, the agent should collide with wall and not teleport completely.
         env.agents["turtle0"].set_physics_state(new_loc,[0,0,0],[0,0,0],[0,0,0])
 
-        new_state = env.tick(1)
+        new_state = env.tick()
         sensed_loc = new_state["LocationSensor"]
 
         #Checking the collision by validating that it did not teleport to the desire location. 
