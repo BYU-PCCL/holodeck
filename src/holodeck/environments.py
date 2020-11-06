@@ -224,9 +224,7 @@ class HolodeckEnvironment:
             if "main_agent" in self._scenario:
                 is_main_agent = self._scenario["main_agent"] == agent["agent_name"]
 
-            max_height = sys.maxsize
-            if "max_height" in agent:
-                max_height = agent_config["max_height"]
+            max_height = agent_config["max_height"]
 
             agent_location = agent_config["location"]
             agent_rotation = agent_config["rotation"]
