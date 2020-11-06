@@ -168,7 +168,6 @@ class HolodeckAgent:
                 (see :ref:`coordinate-system`))
 
         """
-        
         np.copyto(self._teleport_buffer[0:3], location)
         np.copyto(self._teleport_buffer[3:6], rotation)
         np.copyto(self._teleport_buffer[6:9], velocity)
