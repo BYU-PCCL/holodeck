@@ -3,9 +3,7 @@ import uuid
 import numpy as np
 from holodeck import packagemanager as pm
 from holodeck.environments import HolodeckEnvironment
-
 from tests.utils.equality import almost_equal
-
 
 
 sphere_config = {
@@ -34,7 +32,6 @@ sphere_config = {
 }
 
 
-
 def test_set_physics_state_loc_and_rot():
     """Validates that the set_physics_state function correctly sets the location and rotation of the agent.
 
@@ -46,9 +43,6 @@ def test_set_physics_state_loc_and_rot():
                                                    binary_path=binary_path,
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
-
-    
-        
 
         new_loc = np.array([0,0,100])
         new_rot = np.array([90,10,10])
@@ -77,8 +71,6 @@ def test_set_physics_state_vel():
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
 
-        
-    
         new_vel = np.array([50,0,0])
 
         #This should change the velocity of the agent. 
@@ -89,6 +81,7 @@ def test_set_physics_state_vel():
 
         #Check to see that the newly sensed vel is what we wanted to set it too. 
         assert almost_equal(new_vel, sensed_vel,0.0,0.3), "The velocity was not set correctly!"
+
 
 def test_set_physics_state_ang_vel():
     """Validates that the set_physics_state function correctly sets the angular velocity of the agent.
@@ -104,7 +97,6 @@ def test_set_physics_state_ang_vel():
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4())) as env:
 
-        
         state = env.tick()
         new_ang_vel = np.array([90,0,0])
         start_rot = state["RotationSensor"]
@@ -146,13 +138,3 @@ def test_set_physics_state_collision():
         #Checking the collision by validating that it did not teleport to the desire location. 
         assert not almost_equal(start_loc, sensed_loc), "The location was not set correctly!"
         assert not almost_equal(new_loc, sensed_loc), "The location was not set correctly!"
-
-
-
-
-
-
-
-
-
-
