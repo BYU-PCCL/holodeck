@@ -5,7 +5,6 @@ from holodeck import packagemanager as pm
 from holodeck.environments import HolodeckEnvironment
 from tests.utils.equality import almost_equal
 
-
 sphere_config = {
     "name": "test_location_sensor",
     "world": "TestWorld",
