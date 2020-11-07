@@ -35,7 +35,6 @@ def test_default_height():
                                                    )as env:
 
         command = [0, 0, 0, 1000]
-        # changing bed space, leaving and come back in jan, or leaving bed space after thanks
 
         
         moving = True

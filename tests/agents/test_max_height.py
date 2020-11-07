@@ -41,7 +41,6 @@ def test_higher_than_mh():
         command = [0, 0, 0, 1000]
         max_height = 5 # in meters
 
-        # changing bed space, leaving and come back in jan, or leaving bed space after thanks
         for _ in range(900):
             state, reward, terminal, _ = env.step(command)
 
