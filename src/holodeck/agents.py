@@ -85,7 +85,7 @@ class HolodeckAgent:
 
         self._action_buffer = \
             self._client.malloc(name, [self._max_control_scheme_length], np.float32)
-        # Teleport flag: 0: do nothing, 1: teleport, 2: rotate, 3: teleport and rotate, 4: set physics state
+        # Teleport bit flags: 0: do nothing, 1: teleport, 2: rotate, 3: teleport and rotate, 4: set physics state
         self._teleport_type_buffer = self._client.malloc(name + "_teleport_flag", [1], np.uint8)
         self._teleport_buffer = self._client.malloc(name + "_teleport_command", [12], np.float32)
         self._control_scheme_buffer = self._client.malloc(name + "_control_scheme", [1],
