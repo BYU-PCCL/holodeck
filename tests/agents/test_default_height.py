@@ -35,9 +35,7 @@ def test_default_height():
                                                    )as env:
 
         command = [0, 0, 0, 1000]
-
         
-        moving = True
         for _ in range(10):
             state = env.tick()
             sensed_loc = state["LocationSensor"]
