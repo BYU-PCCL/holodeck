@@ -28,24 +28,13 @@ def test_default_height():
     """Make sure the location sensor updates after a teleport. Also verifies that the coordinates for the teleport
     command match the coordinates used by the location sensor
     """
-    # binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
-
-    # assert (False), "test3"
-
-    # Spawn the UAV 10 meters up
-    # cfg["agents"][0]["location"] = [0, 0, 2]
 
     with holodeck.environments.HolodeckEnvironment(scenario=uav_config2,
                                                    show_viewport=False,
                                                    start_world=False
                                                    )as env:
 
-        # assert (False), "test"
         command = [0, 0, 0, 1000]
-        # assert (False), "agh"
-        # state = env.tick()
-        # max_height = 5 # in meters
-        # max_height = state["max_height"]
         # changing bed space, leaving and come back in jan, or leaving bed space after thanks
 
         

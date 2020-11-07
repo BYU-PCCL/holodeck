@@ -39,22 +39,12 @@ def test_higher_than_mh():
                                                    )as env:
 
         command = [0, 0, 0, 1000]
-        # state = env.tick()
         max_height = 5 # in meters
-        # max_height = state["max_height"]
+
         # changing bed space, leaving and come back in jan, or leaving bed space after thanks
         for _ in range(900):
             state, reward, terminal, _ = env.step(command)
-        
-        
-        # for _ in range(10):
-        #     env.tick()
 
-        # loc = [507, 301, 1620]
-        # env.agents['sphere0'].teleport(loc, [0,0,0])
-
-        # state = env.tick()
-        
         sensed_loc = state["LocationSensor"]
         print(sensed_loc[2])
 
