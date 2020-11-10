@@ -2,8 +2,6 @@ import holodeck
 import uuid
 import numpy as np
 import pytest
-from holodeck import packagemanager as pm
-from holodeck.environments import HolodeckEnvironment
 from tests.utils.equality import almost_equal
 
 turtle_config = {
@@ -43,7 +41,6 @@ def set_physics_state_env():
     global shared_set_physics_state_env
 
     if shared_set_physics_state_env is None:
-        
         
         binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 

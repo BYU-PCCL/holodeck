@@ -71,11 +71,18 @@ class HolodeckAgent:
         agent_state_dict (dict): A dictionary that maps sensor names to sensor observation data.
     """
 
+    
+
+
     def __init__(self, client, name="DefaultAgent"):
         self.name = name
         self._client = client
         self.agent_state_dict = dict()
         self.sensors = dict()
+
+        self.TELEPORT_LOCATION = 0x1
+        self.TELEPORT_ROTATE = 0x2
+        self.TELEPORT_SET_PHYSICS_STATE = 0x4
 
         self._num_control_schemes = len(self.control_schemes)
 
@@ -168,11 +175,13 @@ class HolodeckAgent:
                 (see :ref:`coordinate-system`))
 
         """
+        global TELEPORT_SET_PHYSICS_STATE
+
         np.copyto(self._teleport_buffer[0:3], location)
         np.copyto(self._teleport_buffer[3:6], rotation)
         np.copyto(self._teleport_buffer[6:9], velocity)
         np.copyto(self._teleport_buffer[9:12], angular_velocity)
-        self._teleport_type_buffer[0] = 4
+        self._teleport_type_buffer[0] = self.TELEPORT_SET_PHYSICS_STATE
 
     def add_sensors(self, sensor_defs):
         """Adds a sensor to a particular agent object and attaches an instance of the sensor to the
