@@ -153,17 +153,13 @@ class HolodeckAgent:
                 If ``None`` (default), keeps the current rotation.
 
         """
-        if location is not None and rotation is None:
+        if location is not None:
             np.copyto(self._teleport_buffer[0:3], location)
-            self._teleport_type_buffer[0] = TeleportFlags.TELEPORT_LOCATION
-        if rotation is not None and location is None:
+            self._teleport_type_buffer[0] |= TeleportFlags.TELEPORT_LOCATION
+        if rotation is not None:
             np.copyto(self._teleport_buffer[3:6], rotation)
-            self._teleport_type_buffer[0] = TeleportFlags.TELEPORT_ROTATE
-        else:
-            np.copyto(self._teleport_buffer[0:3], location)
-            np.copyto(self._teleport_buffer[3:6], rotation)
-            self._teleport_type_buffer[0] = (TeleportFlags.TELEPORT_LOCATION | TeleportFlags.TELEPORT_ROTATE)
-
+            self._teleport_type_buffer[0] |= TeleportFlags.TELEPORT_ROTATE
+        
     def set_physics_state(self, location, rotation, velocity, angular_velocity):
         """Sets the location, rotation, velocity and angular velocity of an agent.
 
