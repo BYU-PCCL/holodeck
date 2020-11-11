@@ -76,9 +76,6 @@ class HolodeckAgent:
         agent_state_dict (dict): A dictionary that maps sensor names to sensor observation data.
     """
 
-    
-
-
     def __init__(self, client, name="DefaultAgent"):
         self.name = name
         self._client = client
