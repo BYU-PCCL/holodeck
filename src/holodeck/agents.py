@@ -49,6 +49,11 @@ class ControlSchemes:
     HAND_AGENT_MAX_SCALED_TORQUES = 1
     HAND_AGENT_MAX_TORQUES_FLOAT = 2
 
+class TeleportFlags:
+    """The constant values of valid teleport bit flags."""
+    TELEPORT_LOCATION = 0x1
+    TELEPORT_ROTATE = 0x2
+    TELEPORT_SET_PHYSICS_STATE = 0x4
 
 class HolodeckAgent:
     """A learning agent in Holodeck
@@ -85,7 +90,7 @@ class HolodeckAgent:
 
         self._action_buffer = \
             self._client.malloc(name, [self._max_control_scheme_length], np.float32)
-        # Teleport flag: 0: do nothing, 1: teleport, 2: rotate, 3: teleport and rotate
+        # Teleport bit flags: See values from the TeleportFlags class.
         self._teleport_type_buffer = self._client.malloc(name + "_teleport_flag", [1], np.uint8)
         self._teleport_buffer = self._client.malloc(name + "_teleport_command", [12], np.float32)
         self._control_scheme_buffer = self._client.malloc(name + "_control_scheme", [1],
@@ -148,15 +153,13 @@ class HolodeckAgent:
                 If ``None`` (default), keeps the current rotation.
 
         """
-        val = 0
         if location is not None:
-            val += 1
             np.copyto(self._teleport_buffer[0:3], location)
+            self._teleport_type_buffer[0] |= TeleportFlags.TELEPORT_LOCATION
         if rotation is not None:
             np.copyto(self._teleport_buffer[3:6], rotation)
-            val += 2
-        self._teleport_type_buffer[0] = val
-
+            self._teleport_type_buffer[0] |= TeleportFlags.TELEPORT_ROTATE
+        
     def set_physics_state(self, location, rotation, velocity, angular_velocity):
         """Sets the location, rotation, velocity and angular velocity of an agent.
 
@@ -172,7 +175,7 @@ class HolodeckAgent:
         np.copyto(self._teleport_buffer[3:6], rotation)
         np.copyto(self._teleport_buffer[6:9], velocity)
         np.copyto(self._teleport_buffer[9:12], angular_velocity)
-        self._teleport_type_buffer[0] = 15
+        self._teleport_type_buffer[0] = TeleportFlags.TELEPORT_SET_PHYSICS_STATE
 
     def add_sensors(self, sensor_defs):
         """Adds a sensor to a particular agent object and attaches an instance of the sensor to the
