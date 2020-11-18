@@ -36,10 +36,8 @@ def test_default_height():
 
         command = [0, 0, 0, 1000]
         
-        for _ in range(10):
-            state = env.tick()
-            sensed_loc = state["LocationSensor"]
-            for _ in range(50):
-                state, reward, terminal, _ = env.step(command)
-            state = env.tick()
-            assert ((sensed_loc[2] < state["LocationSensor"][2]) and not (almost_equal(sensed_loc[2], state["LocationSensor"][2]))), "WHY IT STOP"
+        state = env.tick()
+        sensed_loc = state["LocationSensor"]
+        env.act("uav1", command)
+        state = env.tick(50)
+        assert ((sensed_loc[2] < state["LocationSensor"][2]) and not (almost_equal(sensed_loc[2], state["LocationSensor"][2]))), "UAV stopped moving up despite no set max height!"

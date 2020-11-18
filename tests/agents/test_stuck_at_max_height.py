@@ -7,10 +7,10 @@ from tests.utils.equality import almost_equal
 uav_config = {
     "name": "test_max_height",
     "world": "TestWorld",
-    "main_agent": "uav0",
+    "main_agent": "uav3",
     "agents": [
         {
-            "agent_name": "uav0",
+            "agent_name": "uav3",
             "agent_type": "UavAgent",
             "sensors": [
                 {
@@ -19,13 +19,13 @@ uav_config = {
             ],
             "control_scheme": 0,
             "location": [0, 0, 2],
-            "max_height": 3
+            "max_height": 5 # in centimeters
         }
     ]
 }
 
 
-def test_stuck_at_mh():
+def test_not_stuck_at_mh():
     """Make sure the location sensor updates after a teleport. Also verifies that the coordinates for the teleport
     command match the coordinates used by the location sensor
     """
@@ -38,14 +38,15 @@ def test_stuck_at_mh():
                                                    # uuid=str(uuid.uuid4()) 
                                                    )as env:
 
-        command = [0, 0, 0, 1000]
         max_height = uav_config["agents"][0]["max_height"]
-
-        env.act("uav0", command)
+        command = [0, 0, 0, 100]
+        env.act("uav3", command)
+        state = env.tick(50)
+        command = [0, 0, 0, 0]
+        env.act("uav3", command)
         state = env.tick(50)
 
         sensed_loc = state["LocationSensor"]
         print(sensed_loc[2])
 
-        assert ((sensed_loc[2] < max_height) or almost_equal(sensed_loc[2], max_height, r_thresh=12)), "UAV ignored max height that was set!"
-        # The threshold is 12 (11.8283691) because for whatever reason, the UAV goes slightly above the set max height. No one knows why.
+        assert ((sensed_loc[2] < max_height) and not (almost_equal(sensed_loc[2], max_height))), "UAV did not fall from max height!"
