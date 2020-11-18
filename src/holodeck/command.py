@@ -6,6 +6,7 @@ worry about these.
 
 
 import numpy as np
+import sys
 from holodeck.exceptions import HolodeckException
 
 class CommandsGroup:
@@ -196,7 +197,7 @@ class SpawnAgentCommand(Command):
 
     """
 
-    def __init__(self, location, rotation, name, agent_type, max_height, is_main_agent=False):
+    def __init__(self, location, rotation, name, agent_type, max_height=sys.maxsize, is_main_agent=False):
         super(SpawnAgentCommand, self).__init__()
         self._command_type = "SpawnAgent"
         self.set_location(location)
