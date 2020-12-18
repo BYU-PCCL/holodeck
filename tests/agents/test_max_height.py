@@ -89,8 +89,6 @@ def test_stuck_at_max_height():
         current_location = state["LocationSensor"]
 
         assert ((current_location[2] < max_height) and not (almost_equal(current_location[2], max_height))), "UAV did not fall from max height!"
-
-
 def test_no_max_height_set():
     """Make sure that not setting a max height will default to not applying a max height.
     """
