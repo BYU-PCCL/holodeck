@@ -1,4 +1,5 @@
 import holodeck
+import pytest
 import uuid
 from copy import deepcopy
 
@@ -45,50 +46,67 @@ no_height_config = {
 
 binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
-def test_max_height_set():
+max_height_env = None
+
+
+@pytest.fixture(scope="module")
+def set_physics_state_env():
+    """shares an environment with different
+    instances of the same test
+    """
+
+    global max_height_env
+
+    if max_height_env is None:
+        
+        binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
+
+        max_height_env = holodeck.environments.HolodeckEnvironment(scenario=height_config,
+                                                   binary_path=binary_path,
+                                                   show_viewport=False,
+                                                   uuid=str(uuid.uuid4()))
+
+    with max_height_env:
+        yield max_height_env
+
+
+def test_max_height_set(max_height_env):
     """Make sure that the agent doesn't travel higher than the set max height.
     """
-    binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
+    max_height_env.reset()
 
-    with holodeck.environments.HolodeckEnvironment(scenario=height_config,
-                                                   binary_path=binary_path,
-                                                   show_viewport=False,
-                                                   uuid=str(uuid.uuid4())) as env:
+    max_height = height_config["agents"][0]["max_height"]
 
-        max_height = height_config["agents"][0]["max_height"]
+    command = [0, 0, 0, 1000]
+    max_height_env.act("uav0", command)
+    state = max_height_env.tick(50)
 
-        command = [0, 0, 0, 1000]
-        env.act("uav0", command)
-        state = env.tick(50)
+    current_location = state["LocationSensor"]
 
-        current_location = state["LocationSensor"]
-
-        assert ((current_location[2] < max_height) or almost_equal(current_location[2], max_height, r_thresh=12)), "UAV ignored max height that was set!"
-        # The threshold is 12 (11.8283691) because for whatever reason, the UAV goes slightly above the set max height. No one knows why.
+    assert ((current_location[2] < max_height) or almost_equal(current_location[2], max_height, r_thresh=12)), "UAV ignored max height that was set!"
+    # The threshold is 12 (11.8283691) because for whatever reason, the UAV goes slightly above the set max height. No one knows why.
 
 
-def test_stuck_at_max_height():
+def test_stuck_at_max_height(max_height_env):
     """Make sure that the agent doesn't get stuck at the max height after it is first stopped.
     """
+    max_height_env.reset()
 
-    with holodeck.environments.HolodeckEnvironment(scenario=height_config,
-                                                   binary_path=binary_path,
-                                                   show_viewport=False,
-                                                   uuid=str(uuid.uuid4())) as env:
+    max_height = height_config["agents"][0]["max_height"]
 
-        max_height = height_config["agents"][0]["max_height"]
+    command = [0, 0, 0, 100]
+    max_height_env.act("uav0", command)
+    state = max_height_env.tick(50)
 
-        command = [0, 0, 0, 100]
-        env.act("uav0", command)
-        state = env.tick(50)
+    command = [0, 0, 0, 0]
+    max_height_env.act("uav0", command)
+    state = max_height_env.tick(50)
 
-        command = [0, 0, 0, 0]
-        env.act("uav0", command)
-        state = env.tick(50)
+    current_location = state["LocationSensor"]
 
-        current_location = state["LocationSensor"]
+    assert ((current_location[2] < max_height) and not (almost_equal(current_location[2], max_height))), "UAV did not fall from max height!"
 
-        assert ((current_location[2] < max_height) and not (almost_equal(current_location[2], max_height))), "UAV did not fall from max height!"
+
 def test_no_max_height_set():
     """Make sure that not setting a max height will default to not applying a max height.
     """
