@@ -46,28 +46,28 @@ no_height_config = {
 
 binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
-max_height_env = None
+shared_max_height_env = None
 
 
 @pytest.fixture(scope="module")
-def set_physics_state_env():
+def max_height_env():
     """shares an environment with different
     instances of the same test
     """
 
-    global max_height_env
+    global shared_max_height_env
 
-    if max_height_env is None:
+    if shared_max_height_env is None:
         
         binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
-        max_height_env = holodeck.environments.HolodeckEnvironment(scenario=height_config,
+        shared_max_height_env = holodeck.environments.HolodeckEnvironment(scenario=height_config,
                                                    binary_path=binary_path,
                                                    show_viewport=False,
                                                    uuid=str(uuid.uuid4()))
 
-    with max_height_env:
-        yield max_height_env
+    with shared_max_height_env:
+        yield shared_max_height_env
 
 
 def test_max_height_set(max_height_env):
