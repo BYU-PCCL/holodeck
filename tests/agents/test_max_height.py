@@ -1,7 +1,6 @@
 import holodeck
 import pytest
 import uuid
-from copy import deepcopy
 
 from tests.utils.equality import almost_equal
 
