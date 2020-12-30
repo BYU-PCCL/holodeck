@@ -158,3 +158,15 @@ def draw_point(env, loc, color=None, thickness=10.0):
     color = [255, 0, 0] if color is None else color
     command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
     env._enqueue_command(command_to_send)
+
+
+def where_are_the_logs():
+    """Gets path for logs.
+
+    Returns:
+        :obj:`str`: The file path of where the logs are located
+    """
+    print(os.path.expanduser(r'~\AppData\Local\UnrealEngine\4.22\Saved\Logs'))
+    print(os.path.expanduser(r'~\AppData\Local\UnrealHeaderTool\Saved\Logs'))
+    print(os.path.expanduser(r'~\AppData\Local\UnrealBuildTool'))
+    
