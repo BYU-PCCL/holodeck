@@ -134,6 +134,12 @@ class CommandCenter:
         self._commands = CommandsGroup()
         self._should_write_to_command_buffer = False
 
+    def clean_up_resources(self):
+        if hasattr(self, "_command_bool_ptr"):
+            del self._command_bool_ptr
+        if hasattr(self, "_command_buffer_ptr"):
+            del self._command_buffer_ptr
+
     def clear(self):
         """Clears pending commands
 

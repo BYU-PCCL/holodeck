@@ -1,9 +1,11 @@
 import holodeck
 import cv2
 import copy
-import numpy as np
 import os
 import uuid
+import pytest
+
+import pytest
 
 from tests.utils.equality import mean_square_err
 
@@ -67,29 +69,34 @@ def test_rgb_camera(resolution, request):
 shared_ticks_per_capture_env = None
 
 
-def make_ticks_per_capture_env():
+@pytest.fixture(scope="module")
+def ticks_per_capture_env():
     """test_rgb_camera_ticks_per_capture shares an environment with different
     instances of the same test
     """
     global base_cfg, shared_ticks_per_capture_env
 
-    cfg = copy.deepcopy(base_cfg)
+    if shared_ticks_per_capture_env is None:
+        cfg = copy.deepcopy(base_cfg)
 
-    cfg["agents"][0]["sensors"][0]["configuration"] = {
-        "CaptureWidth": 512,
-        "CaptureHeight": 512
-    }
+        cfg["agents"][0]["sensors"][0]["configuration"] = {
+            "CaptureWidth": 512,
+            "CaptureHeight": 512
+        }
 
-    binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
+        binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
-    shared_ticks_per_capture_env = holodeck.environments.HolodeckEnvironment(
-        scenario=cfg,
-        binary_path=binary_path,
-        show_viewport=False,
-        uuid=str(uuid.uuid4()))
+        shared_ticks_per_capture_env = holodeck.environments.HolodeckEnvironment(
+            scenario=cfg,
+            binary_path=binary_path,
+            show_viewport=False,
+            uuid=str(uuid.uuid4()))
+
+    with shared_ticks_per_capture_env:
+        yield shared_ticks_per_capture_env
 
 
-def test_rgb_camera_ticks_per_capture(ticks_per_capture):
+def test_rgb_camera_ticks_per_capture(ticks_per_capture, ticks_per_capture_env):
     """Validate that the ticks_per_capture method actually makes the RGBCamera take fewer
     screenshots. 
 
@@ -97,27 +104,25 @@ def test_rgb_camera_ticks_per_capture(ticks_per_capture):
     change until ticks_per_capture ticks have elapsed.
 
     """
-    global shared_ticks_per_capture_env
-    
-    if shared_ticks_per_capture_env is None:
-        make_ticks_per_capture_env()
 
-    env = shared_ticks_per_capture_env
-    env.reset()
+    ticks_per_capture_env.reset()
 
     # The agent needs to be moving for the image to change
-    env.act("sphere0", [2])
+    ticks_per_capture_env.act("sphere0", [2])
 
-    env.agents["sphere0"].sensors["TestCamera"].set_ticks_per_capture(ticks_per_capture)
+    ticks_per_capture_env.agents["sphere0"] \
+        .sensors["TestCamera"].set_ticks_per_capture(
+        ticks_per_capture
+    )
 
     # Take the initial capture, and wait until it changes
-    initial = env.tick()['TestCamera'][:, :, 0:3]
+    initial = ticks_per_capture_env.tick()['TestCamera'][:, :, 0:3]
 
     MAX_TRIES = 50
     tries = 0
 
     while tries < MAX_TRIES:
-        intermediate = env.tick()['TestCamera'][:, :, 0:3]
+        intermediate = ticks_per_capture_env.tick()['TestCamera'][:, :, 0:3]
         if mean_square_err(initial, intermediate) > 10:
             break
         tries += 1
@@ -129,11 +134,11 @@ def test_rgb_camera_ticks_per_capture(ticks_per_capture):
     initial = intermediate 
     for _ in range(ticks_per_capture - 1):
         # Make sure it doesn't change
-        intermediate = env.tick()['TestCamera'][:, :, 0:3]
+        intermediate = ticks_per_capture_env.tick()['TestCamera'][:, :, 0:3]
         assert mean_square_err(initial, intermediate) < 10, "The RGBCamera output changed unexpectedly!"
 
     # Now it should change
 
-    final = env.tick()['TestCamera'][:, :, 0:3]
+    final = ticks_per_capture_env.tick()['TestCamera'][:, :, 0:3]
     assert mean_square_err(initial, final) > 10, "The RGBCamera output did not change when expected!"
 

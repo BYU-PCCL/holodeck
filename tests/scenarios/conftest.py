@@ -27,19 +27,30 @@ def pytest_generate_tests(metafunc):
 envs = {}
 
 
-@pytest.fixture
+@pytest.fixture(scope='package', autouse=True)
+def env_cleanup():
+    global envs
+
+    yield
+
+    for scenario, env in envs.items():
+        env.__on_exit__()
+
+
+@pytest.fixture(scope="package")
 def env_scenario(request):
     """Gets an environment for the scenario matching request.param. Creates the
     env or uses a cached one. Calls .reset() for you.
     """
+
     global envs
     scenario = request.param
+
     if scenario in envs:
         env = envs[scenario]
-        env.reset()
-        return env, scenario
+    else:
+        env = holodeck.make(scenario, show_viewport=False)
+        envs[scenario] = env
 
-    env = holodeck.make(scenario, show_viewport=False)
     env.reset()
-    envs[scenario] = env
     return env, scenario

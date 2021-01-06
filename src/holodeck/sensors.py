@@ -35,6 +35,10 @@ class HolodeckSensor:
 
         self.config = {} if config is None else config
 
+    def clean_up_resources(self):
+        if hasattr(self, "_sensor_data_buffer"):
+            del self._sensor_data_buffer
+
     @property
     def sensor_data(self):
         """Get the sensor data buffer

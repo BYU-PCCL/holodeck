@@ -4,17 +4,22 @@ from holodeck import HolodeckException
 from holodeck.environments import HolodeckEnvironment
 
 from tests.utils.captures import compare_rgb_sensor_data_with_baseline
-from tests.worlds.mazeworld.conftest import weather_type_test_data, \
-    time_test_data, day_cycle_test_data, fog_density_test_data, \
-    env_with_config, weather_config
+from tests.worlds.mazeworld.conftest import (
+    weather_type_test_data,
+    time_test_data,
+    day_cycle_test_data,
+    fog_density_test_data,
+    env_with_config,
+    weather_config,
+)
 
 
 @pytest.mark.parametrize("weather_type, max_err", weather_type_test_data)
 def test_weather_type_programmatic(
-        weather_type: str,
-        max_err: float,
-        weather_env: HolodeckEnvironment,
-        request: FixtureRequest,
+    weather_type: str,
+    max_err: float,
+    weather_env: HolodeckEnvironment,
+    request: FixtureRequest,
 ) -> None:
     """Validate that weather type can be set programmatically by comparing
     RGB sensor data with saved baseline data
@@ -39,10 +44,10 @@ def test_weather_type_programmatic(
 
 @pytest.mark.parametrize("hour, max_err", time_test_data)
 def test_weather_time_programmatic(
-        hour: float,
-        max_err: float,
-        weather_env: HolodeckEnvironment,
-        request: FixtureRequest,
+    hour: float,
+    max_err: float,
+    weather_env: HolodeckEnvironment,
+    request: FixtureRequest,
 ) -> None:
     """Validate that time can be set programmatically by comparing RGB
     sensor data with saved baseline data
@@ -70,12 +75,12 @@ def test_weather_time_programmatic(
     "cycle_length, ticks, max_err_before, max_err_after", day_cycle_test_data
 )
 def test_weather_day_cycle_programmatic(
-        cycle_length: float,
-        ticks: int,
-        max_err_before: float,
-        max_err_after: float,
-        weather_env: HolodeckEnvironment,
-        request: FixtureRequest,
+    cycle_length: float,
+    ticks: int,
+    max_err_before: float,
+    max_err_after: float,
+    weather_env: HolodeckEnvironment,
+    request: FixtureRequest,
 ) -> None:
     """Verify that day cycle can be started programmatically by comparing RGB
     sensor data with saved baseline data
@@ -114,10 +119,10 @@ def test_weather_day_cycle_programmatic(
 
 @pytest.mark.parametrize("fog_density, max_err", fog_density_test_data)
 def test_weather_fog_density_programmatic(
-        fog_density: float,
-        max_err: float,
-        weather_env: HolodeckEnvironment,
-        request: FixtureRequest,
+    fog_density: float,
+    max_err: float,
+    weather_env: HolodeckEnvironment,
+    request: FixtureRequest,
 ) -> None:
     """Validate that fog density can be set programmatically by comparing RGB
     sensor data with saved baseline data
@@ -141,7 +146,7 @@ def test_weather_fog_density_programmatic(
     assert err < max_err
 
 
-def test_fail_incorrect_weather_type_programmatic(weather_env: HolodeckEnvironment,):
+def test_fail_incorrect_weather_type_programmatic(weather_env: HolodeckEnvironment):
     """
     Validate that an exception is thrown when an invalid weather type is
     specified programmatically
@@ -161,6 +166,18 @@ cur_programmatic_weather_env = None
 last_programmatic_test_name = None
 
 
+@pytest.fixture(scope="package", autouse=True)
+def env_cleanup():
+    global cur_programmatic_weather_env
+
+    yield
+
+    if cur_programmatic_weather_env is not None and hasattr(
+        cur_programmatic_weather_env, "_reset_ptr"
+    ):
+        cur_programmatic_weather_env.__on_exit__()
+
+
 @pytest.fixture
 def weather_env(request: FixtureRequest):
     """Get basic MazeWorld environment with RGBCamera sensor for use in
@@ -174,9 +191,13 @@ def weather_env(request: FixtureRequest):
 
     cur_programmatic_test_name = request.function.__name__
     if (
-            cur_programmatic_test_name != last_programmatic_test_name
-            or cur_programmatic_weather_env is None
+        cur_programmatic_test_name != last_programmatic_test_name
+        or cur_programmatic_weather_env is None
     ):
+        if cur_programmatic_weather_env is not None and hasattr(
+            cur_programmatic_weather_env, "_reset_ptr"
+        ):
+            cur_programmatic_weather_env.__on_exit__()
         cur_programmatic_weather_env = env_with_config(weather_config)
 
     return cur_programmatic_weather_env
