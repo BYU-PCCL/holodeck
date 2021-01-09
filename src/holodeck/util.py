@@ -160,13 +160,15 @@ def draw_point(env, loc, color=None, thickness=10.0):
     env._enqueue_command(command_to_send)
 
 
-def where_are_the_logs():
+def logs_path():
     """Gets path for logs.
 
     Returns:
         :obj:`str`: The file path of where the logs are located
     """
-    print(os.path.expanduser(r'~\AppData\Local\UnrealEngine\4.22\Saved\Logs'))
-    print(os.path.expanduser(r'~\AppData\Local\UnrealHeaderTool\Saved\Logs'))
-    print(os.path.expanduser(r'~\AppData\Local\UnrealBuildTool'))
-    
+    if os.name == "nt":
+        print(os.path.expanduser(r'~\AppData\Local\UnrealEngine\4.22\Saved\Logs'))
+        print(os.path.expanduser(r'~\AppData\Local\UnrealHeaderTool\Saved\Logs'))
+        print(os.path.expanduser(r'~\AppData\Local\UnrealBuildTool'))
+    if os.name == "posix":
+        print(os.path.expanduser(r'~/.local/share/holodeck/0.3.0/worlds/DefaultWorlds/LinuxNoEditor/Holodeck/Saved/Logs/'))
