@@ -86,9 +86,8 @@ def test_max_height_set(max_height_env):
     current_location = state["LocationSensor"]
 
     assert (current_location[2] < max_height) or almost_equal(
-        current_location[2], max_height, r_thresh=12
+        current_location[2], max_height
     ), "UAV ignored max height that was set!"
-    # The threshold is 12 (11.8283691) because for whatever reason, the UAV goes slightly above the set max height. No one knows why.
 
 
 def test_stuck_at_max_height(max_height_env):
