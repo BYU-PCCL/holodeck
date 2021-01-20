@@ -19,4 +19,3 @@ class TimeoutException(HolodeckException):
 
 class NotFoundException(HolodeckException):
     """Raised when a package cannot be found"""
-
