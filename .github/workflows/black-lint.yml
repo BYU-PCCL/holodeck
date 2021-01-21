@@ -3,10 +3,14 @@
 name: Black Lint
 on:
   push:
+    paths: 
+      - '**.py'
     branches:
       - develop
       - master
   pull_request:
+    paths: 
+      - '**.py'
 jobs:
   build:
     runs-on: ubuntu-latest
