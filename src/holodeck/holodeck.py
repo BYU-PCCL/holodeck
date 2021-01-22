@@ -2,10 +2,12 @@
 import uuid
 
 from holodeck.environments import HolodeckEnvironment
-from holodeck.packagemanager import get_scenario,\
-    get_binary_path_for_scenario,\
-    get_package_config_for_scenario,\
-    get_binary_path_for_package
+from holodeck.packagemanager import (
+    get_scenario,
+    get_binary_path_for_scenario,
+    get_package_config_for_scenario,
+    get_binary_path_for_package,
+)
 from holodeck.exceptions import HolodeckException
 
 
@@ -16,12 +18,21 @@ class GL_VERSION:
         OPENGL3 (:obj:`int`): The value for OpenGL3.
         OPENGL4 (:obj:`int`): The value for OpenGL4.
     """
+
     OPENGL4 = 4
     OPENGL3 = 3
 
 
-def make(scenario_name="", scenario_cfg=None, gl_version=GL_VERSION.OPENGL4, window_res=None, verbose=False,
-         show_viewport=True, ticks_per_sec=30, copy_state=True):
+def make(
+    scenario_name="",
+    scenario_cfg=None,
+    gl_version=GL_VERSION.OPENGL4,
+    window_res=None,
+    verbose=False,
+    show_viewport=True,
+    ticks_per_sec=30,
+    copy_state=True,
+):
     """Creates a Holodeck environment
 
     Args:
@@ -71,7 +82,11 @@ def make(scenario_name="", scenario_cfg=None, gl_version=GL_VERSION.OPENGL4, win
 
     # Get pre-start steps
     package_config = get_package_config_for_scenario(scenario)
-    world = [world for world in package_config["worlds"] if world["name"] == scenario["world"]][0]
+    world = [
+        world
+        for world in package_config["worlds"]
+        if world["name"] == scenario["world"]
+    ][0]
     param_dict["pre_start_steps"] = world["pre_start_steps"]
 
     param_dict["scenario"] = scenario

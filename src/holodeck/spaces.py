@@ -12,6 +12,7 @@ class ActionSpace:
 
             Only use this when it is different from shape.
     """
+
     def __init__(self, shape, buffer_shape=None):
         super(ActionSpace, self).__init__()
         self._shape = shape
@@ -40,7 +41,7 @@ class ActionSpace:
         Returns:
             (:obj:`list` of :obj:`float` or :obj:`float`): the action space's minimum value(s)
         """
-        raise NotImplementedError('Must be implemented by the child class')
+        raise NotImplementedError("Must be implemented by the child class")
 
     def get_high(self):
         """The maximum value(s) for the action space.
@@ -48,7 +49,7 @@ class ActionSpace:
         Returns:
             (:obj:`list` of :obj:`float` or :obj:`float`): the action space's maximum value(s)
         """
-        raise NotImplementedError('Must be implemented by the child class')
+        raise NotImplementedError("Must be implemented by the child class")
 
 
 class ContinuousActionSpace(ActionSpace):
@@ -66,7 +67,8 @@ class ContinuousActionSpace(ActionSpace):
             written to the shared memory.
 
             Only use this when it is different from ``shape``.
-        """
+    """
+
     def __init__(self, shape, low=None, high=None, sample_fn=None, buffer_shape=None):
         super(ContinuousActionSpace, self).__init__(shape, buffer_shape=buffer_shape)
         self.sample_fn = sample_fn or ContinuousActionSpace._default_sample_fn
@@ -118,5 +120,12 @@ class DiscreteActionSpace(ActionSpace):
         return self._high
 
     def __repr__(self):
-        return "[DiscreteActionSpace " + str(self._shape) + ", min: " +\
-               str(self._low) + ", max: " + str(self._high) + "]"
+        return (
+            "[DiscreteActionSpace "
+            + str(self._shape)
+            + ", min: "
+            + str(self._low)
+            + ", max: "
+            + str(self._high)
+            + "]"
+        )

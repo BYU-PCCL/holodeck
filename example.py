@@ -115,7 +115,7 @@ def world_command_examples():
     env.reset()
 
     # The set_fog_density changes the density of the fog in the world. 1 is the maximum density.
-    env.weather.set_fog_density(.25)
+    env.weather.set_fog_density(0.25)
     for _ in range(300):
         _ = env.tick()
     env.reset()
@@ -143,7 +143,7 @@ def editor_example():
     """This editor example shows how to interact with holodeck worlds while they are being built
     in the Unreal Engine Editor. Most people that use holodeck will not need this.
 
-    This example uses a custom scenario, see 
+    This example uses a custom scenario, see
     https://holodeck.readthedocs.io/en/latest/usage/examples/custom-scenarios.html
 
     Note: When launching Holodeck from the editor, press the down arrow next to "Play" and select
@@ -159,20 +159,14 @@ def editor_example():
                 "agent_name": "uav0",
                 "agent_type": "UavAgent",
                 "sensors": [
-                    {
-                        "sensor_type": "LocationSensor",
-                    },
-                    {
-                        "sensor_type": "VelocitySensor"
-                    },
-                    {
-                        "sensor_type": "RGBCamera"
-                    }
+                    {"sensor_type": "LocationSensor"},
+                    {"sensor_type": "VelocitySensor"},
+                    {"sensor_type": "RGBCamera"},
                 ],
                 "control_scheme": 1,
-                "location": [0, 0, 1]
+                "location": [0, 0, 1],
             }
-        ]
+        ],
     }
 
     env = HolodeckEnvironment(scenario=config, start_world=False)
@@ -199,20 +193,18 @@ def editor_multi_agent_example():
             {
                 "agent_name": "uav0",
                 "agent_type": "UavAgent",
-                "sensors": [
-                ],
+                "sensors": [],
                 "control_scheme": 1,
-                "location": [0, 0, 1]
+                "location": [0, 0, 1],
             },
             {
                 "agent_name": "uav1",
                 "agent_type": "UavAgent",
-                "sensors": [
-                ],
+                "sensors": [],
                 "control_scheme": 1,
-                "location": [0, 0, 5]
-            }
-        ]
+                "location": [0, 0, 5],
+            },
+        ],
     }
 
     env = HolodeckEnvironment(scenario=config, start_world=False)

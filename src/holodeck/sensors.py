@@ -19,19 +19,26 @@ class HolodeckSensor:
         name (:obj:`str`): Name of the sensor
         config (:obj:`dict`): Configuration dictionary to pass to the engine
     """
+
     default_config = {}
 
-    def __init__(self, client, agent_name=None, agent_type=None,
-                    name="DefaultSensor", config=None):
+    def __init__(
+        self,
+        client,
+        agent_name=None,
+        agent_type=None,
+        name="DefaultSensor",
+        config=None,
+    ):
         self.name = name
         self._client = client
         self.agent_name = agent_name
         self.agent_type = agent_type
         self._buffer_name = self.agent_name + "_" + self.name
 
-        self._sensor_data_buffer = \
-            self._client.malloc(self._buffer_name + "_sensor_data",
-                                self.data_shape, self.dtype)
+        self._sensor_data_buffer = self._client.malloc(
+            self._buffer_name + "_sensor_data", self.data_shape, self.dtype
+        )
 
         self.config = {} if config is None else config
 
@@ -157,7 +164,9 @@ class CupGameTask(HolodeckSensor):
         use_seed = seed is not None
         if seed is None:
             seed = 0  # have to pass a value
-        config_command = CustomCommand("CupGameConfig", num_params=[speed, num_shuffles, int(use_seed), seed])
+        config_command = CustomCommand(
+            "CupGameConfig", num_params=[speed, num_shuffles, int(use_seed), seed]
+        )
         start_command = CustomCommand("StartCupGame")
         self._client.command_center.enqueue_command(config_command)
         self._client.command_center.enqueue_command(start_command)
@@ -186,10 +195,14 @@ class CleanUpTask(HolodeckSensor):
         """
 
         if self.config is not None or self.config is not {}:
-            raise HolodeckConfigurationException("Called CleanUpTask start_task when configuration block already \
-                specified. Must remove configuration block before calling.")
+            raise HolodeckConfigurationException(
+                "Called CleanUpTask start_task when configuration block already \
+                specified. Must remove configuration block before calling."
+            )
 
-        config_command = CustomCommand("CleanUpConfig", num_params=[num_trash, int(use_table)])
+        config_command = CustomCommand(
+            "CleanUpConfig", num_params=[num_trash, int(use_table)]
+        )
         self._client.command_center.enqueue_command(config_command)
 
 
@@ -199,7 +212,7 @@ class ViewportCapture(HolodeckSensor):
     The ViewportCapture is faster than the RGB camera, but there can only be one camera
     and it must capture what the viewport is capturing. If performance is
     critical, consider this camera instead of the RGBCamera.
-    
+
     It may be useful
     to position the camera with
     :meth:`~holodeck.environments.HolodeckEnvironment.teleport_camera`.
@@ -220,13 +233,15 @@ class ViewportCapture(HolodeckSensor):
 
     The default resolution is ``1280x720``, matching the default Viewport resolution.
     """
+
     sensor_type = "ViewportCapture"
 
-    def __init__(self, client, agent_name, agent_type,
-                 name="ViewportCapture", config=None):
+    def __init__(
+        self, client, agent_name, agent_type, name="ViewportCapture", config=None
+    ):
 
         self.config = {} if config is None else config
-        
+
         width = 1280
         height = 720
 
@@ -238,7 +253,9 @@ class ViewportCapture(HolodeckSensor):
 
         self.shape = (height, width, 4)
 
-        super(ViewportCapture, self).__init__(client, agent_name, agent_type, name=name, config=config)
+        super(ViewportCapture, self).__init__(
+            client, agent_name, agent_type, name=name, config=config
+        )
 
     @property
     def dtype(self):
@@ -267,7 +284,7 @@ class RGBCamera(HolodeckSensor):
 
     sensor_type = "RGBCamera"
 
-    def __init__(self, client, agent_name, agent_type, name="RGBCamera",  config=None):
+    def __init__(self, client, agent_name, agent_type, name="RGBCamera", config=None):
 
         self.config = {} if config is None else config
 
@@ -282,7 +299,9 @@ class RGBCamera(HolodeckSensor):
 
         self.shape = (height, width, 4)
 
-        super(RGBCamera, self).__init__(client, agent_name, agent_type, name=name, config=config)
+        super(RGBCamera, self).__init__(
+            client, agent_name, agent_type, name=name, config=config
+        )
 
     @property
     def dtype(self):
@@ -303,10 +322,15 @@ class RGBCamera(HolodeckSensor):
             ticks_per_capture (:obj:`int`): The amount of ticks to wait between camera captures.
         """
         if not isinstance(ticks_per_capture, int) or ticks_per_capture < 1:
-            raise HolodeckConfigurationException("Invalid ticks_per_capture value " + str(ticks_per_capture))
+            raise HolodeckConfigurationException(
+                "Invalid ticks_per_capture value " + str(ticks_per_capture)
+            )
 
-        command_to_send = RGBCameraRateCommand(self.agent_name, self.name, ticks_per_capture)
+        command_to_send = RGBCameraRateCommand(
+            self.agent_name, self.name, ticks_per_capture
+        )
         self._client.command_center.enqueue_command(command_to_send)
+
 
 class OrientationSensor(HolodeckSensor):
     """Gets the forward, right, and up vector for the agent.
@@ -355,7 +379,7 @@ class IMUSensor(HolodeckSensor):
 
 
 class JointRotationSensor(HolodeckSensor):
-    """Returns the state of the :class:`~holodeck.agents.AndroidAgent`'s or the 
+    """Returns the state of the :class:`~holodeck.agents.AndroidAgent`'s or the
     :class:`~holodeck.agents.HandAgent`'s joints.
 
     See :ref:`android-joints` or :ref:`hand-joints` for the indexes into this vector.
@@ -372,10 +396,14 @@ class JointRotationSensor(HolodeckSensor):
             # AHandAgent::TOTAL_JOINT_DOF
             self.elements = 23
         else:
-            raise HolodeckConfigurationException("Attempting to use JointRotationSensor with unsupported" \
-                                                 "agent type '{}'!".format(agent_type))
+            raise HolodeckConfigurationException(
+                "Attempting to use JointRotationSensor with unsupported"
+                "agent type '{}'!".format(agent_type)
+            )
 
-        super(JointRotationSensor, self).__init__(client, agent_name, agent_type, name, config)
+        super(JointRotationSensor, self).__init__(
+            client, agent_name, agent_type, name, config
+        )
 
     @property
     def dtype(self):
@@ -387,7 +415,7 @@ class JointRotationSensor(HolodeckSensor):
 
 
 class PressureSensor(HolodeckSensor):
-    """For each joint on the :class:`~holodeck.agents.AndroidAgent` or the 
+    """For each joint on the :class:`~holodeck.agents.AndroidAgent` or the
     :class:`~holodeck.agents.HandAgent`, returns the pressure on the
     joint.
 
@@ -406,10 +434,14 @@ class PressureSensor(HolodeckSensor):
             # AHandAgent::NUM_JOINTS
             self.elements = 16
         else:
-            raise HolodeckConfigurationException("Attempting to use PressureSensor with unsupported" \
-                                                 "agent type '{}'!".format(agent_type))
+            raise HolodeckConfigurationException(
+                "Attempting to use PressureSensor with unsupported"
+                "agent type '{}'!".format(agent_type)
+            )
 
-        super(PressureSensor, self).__init__(client, agent_name, agent_type, name, config)
+        super(PressureSensor, self).__init__(
+            client, agent_name, agent_type, name, config
+        )
 
     @property
     def dtype(self):
@@ -417,13 +449,13 @@ class PressureSensor(HolodeckSensor):
 
     @property
     def data_shape(self):
-        return [self.elements*(3+1)]
+        return [self.elements * (3 + 1)]
 
 
 class RelativeSkeletalPositionSensor(HolodeckSensor):
     """Gets the position of each bone in a skeletal mesh as a quaternion.
 
-    Returns a numpy array with four entries for each bone (see 
+    Returns a numpy array with four entries for each bone (see
     :ref:`android-bones` or :ref:`hand-bones` for the order used)
     """
 
@@ -435,9 +467,13 @@ class RelativeSkeletalPositionSensor(HolodeckSensor):
             # AHandAgent::NumBones
             self.elements = 17
         else:
-            raise HolodeckConfigurationException("Attempting to use RelativeSkeletalPositionSensor with unsupported" \
-                                                 "agent type {}!".format(agent_type))
-        super(RelativeSkeletalPositionSensor, self).__init__(client, agent_name, agent_type, name, config)
+            raise HolodeckConfigurationException(
+                "Attempting to use RelativeSkeletalPositionSensor with unsupported"
+                "agent type {}!".format(agent_type)
+            )
+        super(RelativeSkeletalPositionSensor, self).__init__(
+            client, agent_name, agent_type, name, config
+        )
 
     sensor_type = "RelativeSkeletalPositionSensor"
 
@@ -472,6 +508,7 @@ class RotationSensor(HolodeckSensor):
 
     Returns ``[roll, pitch, yaw]`` (see :ref:`rotations`)
     """
+
     sensor_type = "RotationSensor"
 
     @property
@@ -484,9 +521,8 @@ class RotationSensor(HolodeckSensor):
 
 
 class VelocitySensor(HolodeckSensor):
-    """Returns the x, y, and z velocity of the agent.
-    
-    """
+    """Returns the x, y, and z velocity of the agent."""
+
     sensor_type = "VelocitySensor"
 
     @property
@@ -499,9 +535,7 @@ class VelocitySensor(HolodeckSensor):
 
 
 class CollisionSensor(HolodeckSensor):
-    """Returns true if the agent is colliding with anything (including the ground).
-    
-    """
+    """Returns true if the agent is colliding with anything (including the ground)."""
 
     sensor_type = "CollisionSensor"
 
@@ -534,9 +568,10 @@ class RangeFinderSensor(HolodeckSensor):
     """
 
     sensor_type = "RangeFinderSensor"
-    
-    def __init__(self, client, agent_name, agent_type, 
-                 name="RangeFinderSensor", config=None):
+
+    def __init__(
+        self, client, agent_name, agent_type, name="RangeFinderSensor", config=None
+    ):
 
         config = {} if config is None else config
         self.laser_count = config["LaserCount"] if "LaserCount" in config else 1
@@ -571,11 +606,11 @@ class WorldNumSensor(HolodeckSensor):
 
 class BallLocationSensor(WorldNumSensor):
     """For the CupGame task, returns which cup the ball is underneath.
-    
+
     The cups are numbered 0-2, from the agents perspective, left to right. As soon
     as a swap begins, the number returned by this sensor is updated to the balls new
     position after the swap ends.
-    
+
     Only works in the CupGame world.
 
     """
@@ -661,12 +696,21 @@ class SensorDefinition:
         """
         param_str = json.dumps(self.config)
         # Prepare configuration string for transport to the engine
-        param_str = param_str.replace("\"", "\\\"")
+        param_str = param_str.replace('"', '\\"')
         return param_str
 
-    def __init__(self, agent_name, agent_type, sensor_name, sensor_type, 
-                 socket="", location=(0, 0, 0), rotation=(0, 0, 0), config=None, 
-                 existing=False):
+    def __init__(
+        self,
+        agent_name,
+        agent_type,
+        sensor_name,
+        sensor_type,
+        socket="",
+        location=(0, 0, 0),
+        rotation=(0, 0, 0),
+        config=None,
+        existing=False,
+    ):
         self.agent_name = agent_name
         self.agent_type = agent_type
         self.sensor_name = sensor_name
@@ -683,11 +727,9 @@ class SensorDefinition:
         self.existing = existing
 
 
-
 class SensorFactory:
-    """Given a sensor definition, constructs the appropriate HolodeckSensor object.
+    """Given a sensor definition, constructs the appropriate HolodeckSensor object."""
 
-    """
     @staticmethod
     def _default_name(sensor_class):
         return sensor_class.sensor_type
@@ -706,5 +748,10 @@ class SensorFactory:
         if sensor_def.sensor_name is None:
             sensor_def.sensor_name = SensorFactory._default_name(sensor_def.type)
 
-        return sensor_def.type(client, sensor_def.agent_name, sensor_def.agent_type,
-                               sensor_def.sensor_name, config=sensor_def.config)
+        return sensor_def.type(
+            client,
+            sensor_def.agent_name,
+            sensor_def.agent_type,
+            sensor_def.sensor_name,
+            config=sensor_def.config,
+        )

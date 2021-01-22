@@ -8,6 +8,7 @@ class WeatherController:
     Args:
         send_world_command (function): Callback for sending commands to a world
     """
+
     def __init__(self, send_world_command):
         self._send_command = send_world_command
         self.cur_weather = "sunny"
