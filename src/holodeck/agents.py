@@ -287,6 +287,22 @@ class HolodeckAgent:
 
 
 class UavAgent(HolodeckAgent):
+<<<<<<< HEAD
+=======
+    # constants in Uav.h in holodeck-engine
+    __MAX_ROLL = 6.5080
+    __MIN_ROLL = -__MAX_ROLL
+
+    __MAX_PITCH = 5.087
+    __MIN_PITCH = -__MAX_PITCH
+
+    __MAX_YAW_RATE = 0.8
+    __MIN_YAW_RATE = -__MAX_YAW_RATE
+
+    __MAX_FORCE = 59.844
+    __MIN_FORCE = -__MAX_FORCE
+
+>>>>>>> 64483be68779a46a18a8325dc1aba54ea141f093
     """A UAV (quadcopter) agent
 
     **Action Space:**
@@ -664,10 +680,17 @@ class NavAgent(HolodeckAgent):
     See :ref:`nav-agent` for more details.
 
     **Action Space:**
+<<<<<<< HEAD
 
     Continuous control scheme of the form ``[x_target, y_target, z_target]``.
     (see :ref:`coordinate-system`)
 
+=======
+
+    Continuous control scheme of the form ``[x_target, y_target, z_target]``.
+    (see :ref:`coordinate-system`)
+
+>>>>>>> 64483be68779a46a18a8325dc1aba54ea141f093
     Inherits from :class:`HolodeckAgent`.
 
     """
@@ -751,12 +774,21 @@ class AgentDefinition:
         agent_name (:obj:`str`): The name of the agent to control.
         agent_type (:obj:`str` or type): The type of HolodeckAgent to control, string or class
             reference.
+<<<<<<< HEAD
         sensors (:class:`~holodeck.sensors.SensorDefinition` or class type (if no duplicate
             sensors)): A list of HolodeckSensors to read from this agent.
         starting_loc (:obj:`list` of :obj:`float`): Starting ``[x, y, z]`` location for agent
             (see :ref:`coordinate-system`)
         starting_rot (:obj:`list` of :obj:`float`): Starting ``[roll, pitch, yaw]``
             rotation for agent (see :ref:`rotations`)
+=======
+        sensors (:class:`~holodeck.sensors.SensorDefinition` or class type (if no duplicate sensors)): A list of
+            HolodeckSensors to read from this agent.
+        starting_loc (:obj:`list` of :obj:`float`): Starting ``[x, y, z]`` location for agent
+            (see :ref:`coordinate-system`)
+        starting_rot (:obj:`list` of :obj:`float`): Starting ``[roll, pitch, yaw]`` rotation for agent
+            (see :ref:`rotations`)
+>>>>>>> 64483be68779a46a18a8325dc1aba54ea141f093
         existing (:obj:`bool`): If the agent exists in the world or not (deprecated)
     """
 

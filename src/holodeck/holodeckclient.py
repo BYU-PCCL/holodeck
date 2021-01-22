@@ -42,6 +42,10 @@ class HolodeckClient:
             raise HolodeckException("Currently unsupported os: " + os.name)
 
     def __windows_init__(self):
+<<<<<<< HEAD
+=======
+        import win32event
+>>>>>>> 64483be68779a46a18a8325dc1aba54ea141f093
 
         semaphore_all_access = 0x1F0003
 
@@ -75,6 +79,10 @@ class HolodeckClient:
         self.unlink = windows_unlink
 
     def __posix_init__(self):
+<<<<<<< HEAD
+=======
+        import posix_ipc
+>>>>>>> 64483be68779a46a18a8325dc1aba54ea141f093
 
         self._semaphore1 = posix_ipc.Semaphore(
             "/HOLODECK_SEMAPHORE_SERVER" + self._uuid
