@@ -631,7 +631,7 @@ class HolodeckEnvironment:
             loading_semaphore.acquire(10)
         except posix_ipc.BusyError:
             raise HolodeckException("Timed out waiting for binary to load. Ensure that holodeck is "
-                                    "not being run with root priveleges.")
+                                    "not being run with root privileges.")
         loading_semaphore.unlink()
         loading_semaphore.close()
 
