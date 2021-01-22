@@ -79,8 +79,8 @@ class HolodeckSensor:
         :meth:`~holodeck.environments.HolodeckEnvironment.step` or
         :meth:`~holodeck.environments.HolodeckEnvironment.tick`.)
 
-        This will not persist after a call to reset(). If you want a persistent rotation for a sensor,
-        specify it in your scenario configuration.
+        This will not persist after a call to reset(). If you want a persistent rotation
+        for a sensor, specify it in your scenario configuration.
 
         Args:
             rotation (:obj:`list` of :obj:`float`): rotation for sensor (see :ref:`rotations`).
@@ -153,13 +153,15 @@ class CupGameTask(HolodeckSensor):
         return [2]
 
     def start_game(self, num_shuffles, speed=3, seed=None):
-        """Start the cup game and set its configuration. Do not call if the config file contains a cup task configuration
-        block, as it will override the configuration and cause undefined behavior.
+        """Start the cup game and set its configuration. Do not call if the config file contains
+        a cup task configuration block, as it will override the configuration and cause undefined
+        behavior.
 
         Args:
             num_shuffles (:obj:`int`): Number of shuffles
             speed (:obj:`int`): Speed of the shuffle. Works best between 1-10
-            seed (:obj:`int`): Seed to rotate the cups the same way every time. If none is given, a seed will not be used.
+            seed (:obj:`int`): Seed to rotate the cups the same way every time. If none is given,
+            a seed will not be used.
         """
         use_seed = seed is not None
         if seed is None:
@@ -184,14 +186,15 @@ class CleanUpTask(HolodeckSensor):
         return [2]
 
     def start_task(self, num_trash, use_table=False):
-        """Spawn trash around the trash can. Do not call if the config file contains a clean up task configuration
-        block.
+        """Spawn trash around the trash can. Do not call if the config file contains a clean up
+        task configuration block.
 
         Args:
             num_trash (:obj:`int`): Amount of trash to spawn
-            use_table (:obj:`bool`, optional): If True a table will spawn next to the trash can, all trash will be on
-                the table, and the trash can lid will be absent. This makes the task significantly easier. If False,
-                all trash will spawn on the ground. Defaults to False.
+            use_table (:obj:`bool`, optional): If True a table will spawn next to the trash can,
+                all trash will be on the table, and the trash can lid will be absent. This makes
+                the task significantly easier. If False, all trash will spawn on the ground.
+                Defaults to False.
         """
 
         if self.config is not None or self.config is not {}:
@@ -563,7 +566,8 @@ class RangeFinderSensor(HolodeckSensor):
 
     - ``LaserMaxDistance``: Max Distance in meters of RangeFinder. (default 10)
     - ``LaserCount``: Number of lasers in sensor. (default 1)
-    - ``LaserAngle``: Angle of lasers from origin. Measured in degrees. Positive angles point up. (default 0)
+    - ``LaserAngle``: Angle of lasers from origin. Measured in degrees. Positive angles
+        point up. (default 0)
     - ``LaserDebug``: Show debug traces. (default false)
     """
 
