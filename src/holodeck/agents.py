@@ -3,11 +3,11 @@ import math
 from functools import reduce
 
 import numpy as np
-from . import joint_constraints
-
 from holodeck.spaces import ContinuousActionSpace, DiscreteActionSpace
 from holodeck.sensors import SensorDefinition, SensorFactory, RGBCamera
 from holodeck.command import AddSensorCommand, RemoveSensorCommand
+from . import joint_constraints
+
 
 
 class ControlSchemes:
@@ -24,7 +24,8 @@ class ControlSchemes:
             well as thrust.
         UAV_ROLL_PITCH_YAW_RATE_ALT (int): Control scheme for UAV. Takes roll, pitch, yaw rate, and
             altitude targets.
-        HAND_AGENT_MAX_TORQUES (int): Default Android control scheme. Specify a torque for each joint.
+        HAND_AGENT_MAX_TORQUES (int): Default Android control scheme.
+            Specify a torque for each joint.
     """
 
     # Android Control Schemes
@@ -286,19 +287,6 @@ class HolodeckAgent:
 
 
 class UavAgent(HolodeckAgent):
-    # constants in Uav.h in holodeck-engine
-    __MAX_ROLL = 6.5080
-    __MIN_ROLL = -__MAX_ROLL
-
-    __MAX_PITCH = 5.087
-    __MIN_PITCH = -__MAX_PITCH
-
-    __MAX_YAW_RATE = 0.8
-    __MIN_YAW_RATE = -__MAX_YAW_RATE
-
-    __MAX_FORCE = 59.844
-    __MIN_FORCE = -__MAX_FORCE
-
     """A UAV (quadcopter) agent
 
     **Action Space:**
@@ -312,6 +300,19 @@ class UavAgent(HolodeckAgent):
 
     Inherits from :class:`HolodeckAgent`.
     """
+
+    # constants in Uav.h in holodeck-engine
+    __MAX_ROLL = 6.5080
+    __MIN_ROLL = -__MAX_ROLL
+
+    __MAX_PITCH = 5.087
+    __MIN_PITCH = -__MAX_PITCH
+
+    __MAX_YAW_RATE = 0.8
+    __MIN_YAW_RATE = -__MAX_YAW_RATE
+
+    __MAX_FORCE = 59.844
+    __MIN_FORCE = -__MAX_FORCE
 
     agent_type = "UAV"
 
@@ -350,16 +351,6 @@ class UavAgent(HolodeckAgent):
 
 
 class SphereAgent(HolodeckAgent):
-    # constants in SphereRobot.h in holodeck-engine
-    __DISCRETE_MIN = 0
-    __DISCRETE_MAX = 4
-
-    __MAX_ROTATION_SPEED = 20
-    __MIN_ROTATION_SPEED = -__MAX_ROTATION_SPEED
-
-    __MAX_FORWARD_SPEED = 20
-    __MIN_FORWARD_SPEED = -__MAX_FORWARD_SPEED
-
     """A basic sphere robot.
 
     See :ref:`sphere-agent` for more details.
@@ -384,6 +375,16 @@ class SphereAgent(HolodeckAgent):
 
     Inherits from :class:`HolodeckAgent`.
     """
+
+    # constants in SphereRobot.h in holodeck-engine
+    __DISCRETE_MIN = 0
+    __DISCRETE_MAX = 4
+
+    __MAX_ROTATION_SPEED = 20
+    __MIN_ROTATION_SPEED = -__MAX_ROTATION_SPEED
+
+    __MAX_FORWARD_SPEED = 20
+    __MIN_FORWARD_SPEED = -__MAX_FORWARD_SPEED
 
     agent_type = "SphereRobot"
 
@@ -425,7 +426,7 @@ class SphereAgent(HolodeckAgent):
 
 
 class AndroidAgent(HolodeckAgent):
-    """An humanoid android agent.
+    """A humanoid android agent.
 
     Can be controlled via torques supplied to its joints.
 
@@ -750,12 +751,12 @@ class AgentDefinition:
         agent_name (:obj:`str`): The name of the agent to control.
         agent_type (:obj:`str` or type): The type of HolodeckAgent to control, string or class
             reference.
-        sensors (:class:`~holodeck.sensors.SensorDefinition` or class type (if no duplicate sensors)): A list of
-            HolodeckSensors to read from this agent.
+        sensors (:class:`~holodeck.sensors.SensorDefinition` or class type (if no duplicate
+            sensors)): A list of HolodeckSensors to read from this agent.
         starting_loc (:obj:`list` of :obj:`float`): Starting ``[x, y, z]`` location for agent
             (see :ref:`coordinate-system`)
-        starting_rot (:obj:`list` of :obj:`float`): Starting ``[roll, pitch, yaw]`` rotation for agent
-            (see :ref:`rotations`)
+        starting_rot (:obj:`list` of :obj:`float`): Starting ``[roll, pitch, yaw]``
+            rotation for agent (see :ref:`rotations`)
         existing (:obj:`bool`): If the agent exists in the world or not (deprecated)
     """
 

@@ -1,4 +1,4 @@
-"""Module containing high level interface for loading environments."""
+"""Module conpylaining high level interface for loading environments."""
 import uuid
 
 from holodeck.environments import HolodeckEnvironment

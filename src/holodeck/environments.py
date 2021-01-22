@@ -11,8 +11,10 @@ import random
 import signal
 import subprocess
 import sys
+import win32event
 
 import numpy as np
+
 
 from holodeck.command import (
     CommandCenter,
@@ -59,7 +61,8 @@ class HolodeckEnvironment:
             If engine log output should be printed to stdout
 
         pre_start_steps (:obj:`int`):
-            Number of ticks to call after initializing the world, allows the level to load and settle.
+            Number of ticks to call after initializing the world, allows the level to
+            load and settle.
 
         show_viewport (:obj:`bool`, optional):
             If the viewport should be shown (Linux only) Defaults to True.
@@ -155,7 +158,7 @@ class HolodeckEnvironment:
 
         self._client.acquire()
 
-        if os.name == "posix" and show_viewport == False:
+        if os.name == "posix" and not show_viewport:
             self.should_render_viewport(False)
 
         # Flag indicates if the user has called .reset() before .tick() and .step()
@@ -278,13 +281,13 @@ class HolodeckEnvironment:
             agent_rotation = agent_config["rotation"]
 
             # Randomize the agent start location
-            dx = agent_config["location_randomization"][0]
-            dy = agent_config["location_randomization"][1]
-            dz = agent_config["location_randomization"][2]
+            d_x = agent_config["location_randomization"][0]
+            d_y = agent_config["location_randomization"][1]
+            d_z = agent_config["location_randomization"][2]
 
-            agent_location[0] += random.uniform(-dx, dx)
-            agent_location[1] += random.uniform(-dy, dy)
-            agent_location[2] += random.uniform(-dz, dz)
+            agent_location[0] += random.uniform(-d_x, d_x)
+            agent_location[1] += random.uniform(-d_y, d_y)
+            agent_location[2] += random.uniform(-d_z, d_z)
 
             # Randomize the agent rotation
             d_pitch = agent_config["rotation_randomization"][0]
@@ -440,7 +443,8 @@ class HolodeckEnvironment:
 
     def get_joint_constraints(self, agent_name, joint_name):
         """Returns the corresponding swing1, swing2 and twist limit values for the
-                specified agent and joint. Will return None if the joint does not exist for the agent.
+                specified agent and joint. Will return None if the joint does not
+                exist for the agent.
 
         Returns:
             (:obj )
@@ -598,8 +602,8 @@ class HolodeckEnvironment:
         Args:
             location (:obj:`list` of :obj:`float`): The ``[x, y, z]`` location to give the camera
                 (see :ref:`coordinate-system`)
-            rotation (:obj:`list` of :obj:`float`): The ``[roll, pitch, yaw]`` rotation to give the camera
-                (see :ref:`rotations`)
+            rotation (:obj:`list` of :obj:`float`): The ``[roll, pitch, yaw]`` rotation to give
+                the camera (see :ref:`rotations`)
 
         """
         # test_viewport_capture_after_teleport
@@ -701,7 +705,6 @@ class HolodeckEnvironment:
         loading_semaphore.close()
 
     def __windows_start_process__(self, binary_path, task_key, verbose):
-        import win32event
 
         out_stream = sys.stdout if verbose else open(os.devnull, "w")
         loading_semaphore = win32event.CreateSemaphore(

@@ -203,7 +203,8 @@ class SpawnAgentCommand(Command):
     """Spawn an agent in the world.
 
     Args:
-        location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
+        location (:obj:`list` of :obj:`float`): ``[x, y, z]``
+            location to spawn agent (see :ref:`coordinate-system`)
         name (:obj:`str`): The name of the agent.
         agent_type (:obj:`str` or type): The type of agent to spawn (UAVAgent, NavAgent, ...)
 
@@ -222,7 +223,8 @@ class SpawnAgentCommand(Command):
         """Set where agent will be spawned.
 
         Args:
-            location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
+            location (:obj:`list` of :obj:`float`): ``[x, y, z]``
+                location to spawn agent (see :ref:`coordinate-system`)
 
         """
         if len(location) != 3:
@@ -299,8 +301,8 @@ class TeleportCameraCommand(Command):
     Args:
         location (:obj:`list` of :obj:`float`): The ``[x, y, z]`` location to give the camera
             (see :ref:`coordinate-system`)
-        rotation (:obj:`list` of :obj:`float`): The ``[roll, pitch, yaw]`` rotation to give the camera
-            (see :ref:`rotations`)
+        rotation (:obj:`list` of :obj:`float`): The ``[roll, pitch, yaw]`` rotation to give
+            the camera (see :ref:`rotations`)
 
     """
 
@@ -371,8 +373,8 @@ class RotateSensorCommand(Command):
 
 
 class RenderViewportCommand(Command):
-    """Enable or disable the viewport. Note that this does not prevent the viewport from being shown,
-    it just prevents it from being updated.
+    """Enable or disable the viewport. Note that this does not prevent the viewport
+    from being shown, it just prevents it from being updated.
 
     Args:
         render_viewport (:obj:`bool`): If viewport should be rendered
