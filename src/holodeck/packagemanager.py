@@ -342,7 +342,7 @@ def get_binary_path_for_package(package_name):
         try:
             if config["name"] == package_name:
                 return os.path.join(path, config["path"])
-        except KeyError as e:
+        except KeyError as error:
             print("Error parsing config file for {}".format(path))
 
     raise NotFoundException("Package `{}` not found!".format(package_name))

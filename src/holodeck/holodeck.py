@@ -11,7 +11,7 @@ from holodeck.packagemanager import (
 from holodeck.exceptions import HolodeckException
 
 
-class GL_VERSION:
+class GLVersion:
     """OpenGL Version enum.
 
     Attributes:
@@ -26,7 +26,7 @@ class GL_VERSION:
 def make(
     scenario_name="",
     scenario_cfg=None,
-    gl_version=GL_VERSION.OPENGL4,
+    gl_version=GLVersion.OPENGL4,
     window_res=None,
     verbose=False,
     show_viewport=True,
@@ -40,15 +40,16 @@ def make(
             The name of the world to load as an environment. Must match the name of a world in an
             installed package.
 
-        scenario_cfg (:obj:`dict`): Dictionary containing scenario configuration, instead of loading a scenario
-            from the installed packages. Dictionary should match the format of the JSON configuration files
+        scenario_cfg (:obj:`dict`): Dictionary containing scenario configuration, instead of loading
+            a scenario from the installed packages. Dictionary should match the format of the JSON
+            configuration files
 
         gl_version (:obj:`int`, optional):
             The OpenGL version to use (Linux only). Defaults to GL_VERSION.OPENGL4.
 
         window_res ((:obj:`int`, :obj:`int`), optional):
-            The (height, width) to load the engine window at. Overrides the (optional) resolution in the
-            scenario config file
+            The (height, width) to load the engine window at. Overrides the (optional) resolution
+            in the scenario config file
 
         verbose (:obj:`bool`, optional):
             Whether to run in verbose mode. Defaults to False.

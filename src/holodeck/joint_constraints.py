@@ -1,3 +1,4 @@
+"""This module defines the joint constrains on the hand agent and the android agent."""
 hand_agent_joints_constraints = {
     "hand_r": {"swing2_limit": 170.0, "swing1_limit": 170.0, "twist_limit": 170.0},
     "thumb_01_r": {"swing2_limit": 35.0, "swing1_limit": 30.0, "twist_limit": 2.0},
