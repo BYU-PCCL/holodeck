@@ -9,7 +9,6 @@ from holodeck.command import AddSensorCommand, RemoveSensorCommand
 from . import joint_constraints
 
 
-
 class ControlSchemes:
     """All allowed control schemes.
 
@@ -248,7 +247,8 @@ class HolodeckAgent:
 
         Returns:
             :class:`~holodeck.spaces.ActionSpace`: The action space for this agent and control
-                scheme."""
+                scheme.
+        """
         return self.control_schemes[self._current_control_scheme][1]
 
     @property
@@ -287,8 +287,6 @@ class HolodeckAgent:
 
 
 class UavAgent(HolodeckAgent):
-<<<<<<< HEAD
-=======
     # constants in Uav.h in holodeck-engine
     __MAX_ROLL = 6.5080
     __MIN_ROLL = -__MAX_ROLL
@@ -302,7 +300,6 @@ class UavAgent(HolodeckAgent):
     __MAX_FORCE = 59.844
     __MIN_FORCE = -__MAX_FORCE
 
->>>>>>> 64483be68779a46a18a8325dc1aba54ea141f093
     """A UAV (quadcopter) agent
 
     **Action Space:**
@@ -455,7 +452,8 @@ class AndroidAgent(HolodeckAgent):
 
     There are 18 joints with 3 DOF, 10 with 2 DOF, and 20 with 1 DOF.
 
-    Inherits from :class:`HolodeckAgent`."""
+    Inherits from :class:`HolodeckAgent`.
+    """
 
     # constants in Android.h in holodeck-engine
     __MAX_TORQUE = 20
@@ -680,17 +678,10 @@ class NavAgent(HolodeckAgent):
     See :ref:`nav-agent` for more details.
 
     **Action Space:**
-<<<<<<< HEAD
 
     Continuous control scheme of the form ``[x_target, y_target, z_target]``.
     (see :ref:`coordinate-system`)
 
-=======
-
-    Continuous control scheme of the form ``[x_target, y_target, z_target]``.
-    (see :ref:`coordinate-system`)
-
->>>>>>> 64483be68779a46a18a8325dc1aba54ea141f093
     Inherits from :class:`HolodeckAgent`.
 
     """
@@ -734,7 +725,8 @@ class TurtleAgent(HolodeckAgent):
     - ``forward_force`` is capped at 160 in either direction
     - ``rot_force`` is capped at 35 either direction
 
-    Inherits from :class:`HolodeckAgent`."""
+    Inherits from :class:`HolodeckAgent`.
+    """
 
     # constants in TurtleAgent.h in holodeck-engine
     __MAX_THRUST = 160.0
@@ -774,21 +766,12 @@ class AgentDefinition:
         agent_name (:obj:`str`): The name of the agent to control.
         agent_type (:obj:`str` or type): The type of HolodeckAgent to control, string or class
             reference.
-<<<<<<< HEAD
         sensors (:class:`~holodeck.sensors.SensorDefinition` or class type (if no duplicate
             sensors)): A list of HolodeckSensors to read from this agent.
         starting_loc (:obj:`list` of :obj:`float`): Starting ``[x, y, z]`` location for agent
             (see :ref:`coordinate-system`)
         starting_rot (:obj:`list` of :obj:`float`): Starting ``[roll, pitch, yaw]``
             rotation for agent (see :ref:`rotations`)
-=======
-        sensors (:class:`~holodeck.sensors.SensorDefinition` or class type (if no duplicate sensors)): A list of
-            HolodeckSensors to read from this agent.
-        starting_loc (:obj:`list` of :obj:`float`): Starting ``[x, y, z]`` location for agent
-            (see :ref:`coordinate-system`)
-        starting_rot (:obj:`list` of :obj:`float`): Starting ``[roll, pitch, yaw]`` rotation for agent
-            (see :ref:`rotations`)
->>>>>>> 64483be68779a46a18a8325dc1aba54ea141f093
         existing (:obj:`bool`): If the agent exists in the world or not (deprecated)
     """
 

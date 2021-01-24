@@ -15,10 +15,6 @@ import win32event
 
 import numpy as np
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 64483be68779a46a18a8325dc1aba54ea141f093
 from holodeck.command import (
     CommandCenter,
     SpawnAgentCommand,
@@ -708,10 +704,6 @@ class HolodeckEnvironment:
         loading_semaphore.close()
 
     def __windows_start_process__(self, binary_path, task_key, verbose):
-<<<<<<< HEAD
-=======
-        import win32event
->>>>>>> 64483be68779a46a18a8325dc1aba54ea141f093
 
         out_stream = sys.stdout if verbose else open(os.devnull, "w")
         loading_semaphore = win32event.CreateSemaphore(

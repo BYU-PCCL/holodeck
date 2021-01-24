@@ -26,11 +26,7 @@ class GLVersion:
 def make(
     scenario_name="",
     scenario_cfg=None,
-<<<<<<< HEAD
-    gl_version=GLVersion.OPENGL4,
-=======
     gl_version=GL_VERSION.OPENGL4,
->>>>>>> 64483be68779a46a18a8325dc1aba54ea141f093
     window_res=None,
     verbose=False,
     show_viewport=True,
