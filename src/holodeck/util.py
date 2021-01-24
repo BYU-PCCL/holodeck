@@ -166,9 +166,10 @@ def logs_path():
     Returns:
         :obj:`str`: The file path of where the logs are located
     """
+
     if os.name == "nt":
-        print(os.path.expanduser(r'~\AppData\Local\UnrealEngine\4.22\Saved\Logs'))
-        print(os.path.expanduser(r'~\AppData\Local\UnrealHeaderTool\Saved\Logs'))
-        print(os.path.expanduser(r'~\AppData\Local\UnrealBuildTool'))
+        print(os.path.join(get_holodeck_path(), r'\worlds\DefaultWorlds\WindowsNoEditor\Holodeck\Saved\Logs'))
+        return os.path.join(get_holodeck_path(), r'\worlds\DefaultWorlds\WindowsNoEditor\Holodeck\Saved\Logs')
     if os.name == "posix":
-        print(os.path.expanduser(r'~/.local/share/holodeck/0.3.0/worlds/DefaultWorlds/LinuxNoEditor/Holodeck/Saved/Logs/'))
+        print(os.path.join(get_holodeck_path(), r'/worlds/DefaultWorlds/LinuxNoEditor/Holodeck/Saved/Logs/'))
+        return os.path.join(get_holodeck_path(), r'/worlds/DefaultWorlds/LinuxNoEditor/Holodeck/Saved/Logs/')
