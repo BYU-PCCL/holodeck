@@ -1,5 +1,5 @@
-import holodeck
 import uuid
+import holodeck
 import numpy as np
 import pytest
 from tests.utils.equality import almost_equal

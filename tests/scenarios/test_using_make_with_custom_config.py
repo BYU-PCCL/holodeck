@@ -1,5 +1,5 @@
-import holodeck
 import random
+import holodeck
 
 
 def test_using_make_with_custom_config():

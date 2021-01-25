@@ -4,8 +4,9 @@ import holodeck
 def test_load_scenario(scenario):
     """Tests that every scenario can be loaded without any errors
 
-    TODO: We need some way of communicating with the engine to verify that the expected level was loaded.
-          If the level isn't found, then Unreal just picks a default one, so we're missing that case
+    TODO: We need some way of communicating with the engine to verify that the expected level was
+          loaded. If the level isn't found, then Unreal just picks a default one, so we're missing
+          that case.
 
     Args:
         scenario (str): Scenario to test
