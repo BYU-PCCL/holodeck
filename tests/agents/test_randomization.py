@@ -15,20 +15,16 @@ base_conf = {
             "agent_name": "sphere0",
             "agent_type": "SphereAgent",
             "sensors": [
-                {
-                    "sensor_type": "LocationSensor"
-                },
-                {
-                    "sensor_type": "RotationSensor"
-                }
+                {"sensor_type": "LocationSensor"},
+                {"sensor_type": "RotationSensor"},
             ],
             "control_scheme": 0,
             "location": [0.95, -1.75, 0.5],
             "rotation": [1.0, 2.0, 3.0],
             "location_randomization": [0.6, 0.5, 0.5],
-            "rotation_randomization": [0.4, 0.3, 0.6]
+            "rotation_randomization": [0.4, 0.3, 0.6],
         }
-    ]
+    ],
 }
 
 
@@ -56,7 +52,9 @@ def test_location_with_randomization():
     bin_path = pm.get_binary_path_for_package("DefaultWorlds")
     conf = copy.deepcopy(base_conf)
 
-    with HolodeckEnvironment(scenario=conf, binary_path=bin_path, show_viewport=False, uuid=str(uuid.uuid4())) as env:
+    with HolodeckEnvironment(
+        scenario=conf, binary_path=bin_path, show_viewport=False, uuid=str(uuid.uuid4())
+    ) as env:
         prev_location = conf["agents"][0]["location"]
         default_start_location = conf["agents"][0]["location"]
         variance = conf["agents"][0]["location_randomization"]
@@ -66,7 +64,9 @@ def test_location_with_randomization():
             cur_location = env.tick()["LocationSensor"]
 
             assert is_different_3d_vector(cur_location, prev_location)
-            assert check_3d_vector_variance(cur_location, default_start_location, variance)
+            assert check_3d_vector_variance(
+                cur_location, default_start_location, variance
+            )
 
             prev_location = cur_location
             env.reset()
@@ -83,7 +83,9 @@ def test_rotation_with_randomization():
     bin_path = pm.get_binary_path_for_package("DefaultWorlds")
     conf = copy.deepcopy(base_conf)
 
-    with HolodeckEnvironment(scenario=conf, binary_path=bin_path, show_viewport=False, uuid=str(uuid.uuid4())) as env:
+    with HolodeckEnvironment(
+        scenario=conf, binary_path=bin_path, show_viewport=False, uuid=str(uuid.uuid4())
+    ) as env:
         prev_start_rotation = conf["agents"][0]["rotation"]
 
         num_resets = 5

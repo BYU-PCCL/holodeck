@@ -18,9 +18,9 @@ sphere_config = {
                 }
             ],
             "control_scheme": 0,
-            "location": [.95, -1.75, .5]
+            "location": [0.95, -1.75, 0.5],
         }
-    ]
+    ],
 }
 
 
@@ -30,21 +30,25 @@ def test_location_sensor_after_teleport():
     """
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
-    with holodeck.environments.HolodeckEnvironment(scenario=sphere_config,
-                                                   binary_path=binary_path,
-                                                   show_viewport=False,
-                                                   uuid=str(uuid.uuid4())) as env:
+    with holodeck.environments.HolodeckEnvironment(
+        scenario=sphere_config,
+        binary_path=binary_path,
+        show_viewport=False,
+        uuid=str(uuid.uuid4()),
+    ) as env:
 
         for _ in range(10):
             env.tick()
 
         loc = [507, 301, 1620]
-        env.agents['sphere0'].teleport(loc, [0,0,0])
+        env.agents["sphere0"].teleport(loc, [0, 0, 0])
 
         state = env.tick()
         sensed_loc = state["LocationSensor"]
 
-        assert almost_equal(loc, sensed_loc), "Sensed location did not match the expected location!"
+        assert almost_equal(
+            loc, sensed_loc
+        ), "Sensed location did not match the expected location!"
 
 
 uav_config = {
@@ -61,15 +65,14 @@ uav_config = {
                 }
             ],
             "control_scheme": 0,
-            "location": [.95, -1.75, .5]
+            "location": [0.95, -1.75, 0.5],
         }
-    ]
+    ],
 }
 
 
 def test_location_sensor_falling():
-    """Makes sure that the location sensor updates as the UAV falls, and after it comes to a rest
-    """
+    """Makes sure that the location sensor updates as the UAV falls, and after it comes to a rest"""
     cfg = deepcopy(uav_config)
 
     # Spawn the UAV 10 meters up
@@ -77,16 +80,20 @@ def test_location_sensor_falling():
 
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
-    with holodeck.environments.HolodeckEnvironment(scenario=cfg,
-                                                   binary_path=binary_path,
-                                                   show_viewport=False,
-                                                   uuid=str(uuid.uuid4())) as env:
+    with holodeck.environments.HolodeckEnvironment(
+        scenario=cfg,
+        binary_path=binary_path,
+        show_viewport=False,
+        uuid=str(uuid.uuid4()),
+    ) as env:
 
         last_location = env.tick()["LocationSensor"]
 
         for _ in range(85):
             new_location = env.tick()["LocationSensor"]
-            assert new_location[2] < last_location[2], "UAV's location sensor did not detect falling!"
+            assert (
+                new_location[2] < last_location[2]
+            ), "UAV's location sensor did not detect falling!"
             last_location = new_location
 
         # Give the UAV time to bounce and settle
@@ -97,5 +104,6 @@ def test_location_sensor_falling():
         last_location = env.tick()["LocationSensor"]
         new_location = env.tick()["LocationSensor"]
 
-        assert almost_equal(last_location, new_location), "The UAV did not seem to settle!"
-
+        assert almost_equal(
+            last_location, new_location
+        ), "The UAV did not seem to settle!"

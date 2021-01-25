@@ -56,4 +56,3 @@ def test_movement_capped(env):
 
     """
     validate_movement(env, 2, 0.5)
-

@@ -8,12 +8,7 @@ def test_using_make_with_custom_config():
     of loading it from a config file
     """
 
-    conf = {
-        "name": "test_randomization",
-        "agents": [
-
-        ]
-    }
+    conf = {"name": "test_randomization", "agents": []}
 
     # pick a random world from the installed packages
     pkg = random.choice(list(holodeck.packagemanager._iter_packages()))
@@ -27,4 +22,3 @@ def test_using_make_with_custom_config():
     with holodeck.make(scenario_cfg=conf, show_viewport=False) as env:
         for _ in range(0, 10):
             env.tick()
-

@@ -39,7 +39,6 @@ def test_main_agent_after_resetting(env_scenario):
 
     """
 
-
     env, scenario = env_scenario
     scenario_config = holodeck.packagemanager.get_scenario(scenario)
 
@@ -57,7 +56,14 @@ def test_main_agent_after_resetting(env_scenario):
         env.reset()
         state = env._get_full_state()[main_agent]
 
-        compare_agent_states(init_state, state, 0.3, is_close=True, to_ignore=["RGBCamera", "BallLocationSensor"])
+        compare_agent_states(
+            init_state,
+            state,
+            0.3,
+            is_close=True,
+            to_ignore=["RGBCamera", "BallLocationSensor"],
+        )
         assert agent_count == len(env.agents)
-        assert sensor_count == sum([len(env.agents[agent].sensors) for agent in env.agents])
-
+        assert sensor_count == sum(
+            [len(env.agents[agent].sensors) for agent in env.agents]
+        )
