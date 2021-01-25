@@ -29,7 +29,7 @@ turtle_config = {
     ],
 }
 
-shared_set_physics_state_env = None
+SHARED_SET_PHYSICS_STATE_ENV = None
 
 
 @pytest.fixture(scope="module")
@@ -38,27 +38,28 @@ def set_physics_state_env():
     instances of the same test
     """
 
-    global shared_set_physics_state_env
+    global SHARED_SET_PHYSICS_STATE_ENV
 
-    if shared_set_physics_state_env is None:
+    if SHARED_SET_PHYSICS_STATE_ENV is None:
 
         binary_path = holodeck.packagemanager.get_binary_path_for_package(
             "DefaultWorlds"
         )
 
-        shared_set_physics_state_env = holodeck.environments.HolodeckEnvironment(
+        SHARED_SET_PHYSICS_STATE_ENV = holodeck.environments.HolodeckEnvironment(
             scenario=turtle_config,
             binary_path=binary_path,
             show_viewport=False,
             uuid=str(uuid.uuid4()),
         )
 
-    with shared_set_physics_state_env:
-        yield shared_set_physics_state_env
+    with SHARED_SET_PHYSICS_STATE_ENV:
+        yield SHARED_SET_PHYSICS_STATE_ENV
 
 
 def test_set_physics_state_loc_and_rot(set_physics_state_env):
-    """Validates that the set_physics_state function correctly sets the location and rotation of the agent."""
+    """Validates that the set_physics_state function correctly sets the location
+    and rotation of the agent."""
 
     set_physics_state_env.reset()
 
@@ -101,9 +102,9 @@ def test_set_physics_state_vel(set_physics_state_env):
 
 
 def test_set_physics_state_ang_vel(set_physics_state_env):
-    """Validates that the set_physics_state function correctly sets the angular velocity of the agent.
-    There is no angular velocity sensor so it checks to see if the agent is spinning (rotation changes)
-    after changing the angular velocity.
+    """Validates that the set_physics_state function correctly sets the angular velocity of
+    the agent. There is no angular velocity sensor so it checks to see if the agent is spinning
+    (rotation changes) after changing the angular velocity.
 
     """
 
@@ -121,16 +122,18 @@ def test_set_physics_state_ang_vel(set_physics_state_env):
     new_state = set_physics_state_env.tick()
     sensed_rot = new_state["RotationSensor"]
 
-    # Check to see if the agent changes rotation, if angular velocity was set correctly the rotation should change.
+    # Check to see if the agent changes rotation, if angular velocity was set
+    #correctly the rotation should change.
     assert not almost_equal(
         start_rot, sensed_rot
     ), "Angular Velocity was not set correctly!"
 
 
 def test_set_physics_state_collision(set_physics_state_env):
-    """Validates that the agent will collide with something and not finish teleporting when using the set_physics_state
-    function if there is an obstacle in the way.
-    The teleport function of the agent will do a sweep and thus stopping whenever an obstacle is encountered.
+    """Validates that the agent will collide with something and not finish teleporting when using
+    the set_physics_state function if there is an obstacle in the way.
+    The teleport function of the agent will do a sweep and thus stopping whenever an obstacle
+    is encountered.
 
     """
 
