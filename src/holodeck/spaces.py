@@ -59,8 +59,10 @@ class ContinuousActionSpace(ActionSpace):
         shape (:obj:`list` of :obj:`int`): The shape of data that should be input to step or tick.
         sample_fn (function, optional): A function that takes a shape parameter and outputs a
             sampled command.
-        low (:obj:`list` of :obj:`float` or :obj:`float`): the low value(s) for the action space. Can be a scalar or an array
-        high (:obj:`list` of :obj:`float` or :obj:`float`): the high value(s) for the action space. Cand be a scalar or an array
+        low (:obj:`list` of :obj:`float` or :obj:`float`): the low value(s) for the action space.
+            Can be a scalar or an array
+        high (:obj:`list` of :obj:`float` or :obj:`float`): the high value(s) for the action space.
+            Can be a scalar or an array
 
             If this is not given, it will default to sampling from a unit gaussian.
         buffer_shape (:obj:`list` of :obj:`int`, optional): The shape of the data that will be

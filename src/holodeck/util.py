@@ -1,8 +1,8 @@
 """Helpful Utilities"""
 import math
 import os
-import holodeck
 from multiprocessing import Process, Event
+import holodeck
 
 from holodeck.command import DebugDrawCommand
 
