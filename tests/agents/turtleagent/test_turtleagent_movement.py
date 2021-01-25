@@ -9,11 +9,11 @@ def test_turtleagent_falling(complete_mazeworld_states):
     """
 
     # Test to make sure the turtleagent falls
-    s1 = complete_mazeworld_states[0]
-    s2 = complete_mazeworld_states[100]
+    s_1 = complete_mazeworld_states[0]
+    s_2 = complete_mazeworld_states[100]
 
     assert (
-        s1[0]["LocationSensor"][2] - s2[0]["LocationSensor"][2] >= 0.1
+        s_1[0]["LocationSensor"][2] - s_2[0]["LocationSensor"][2] >= 0.1
     ), "The TurtleAgent didn't seem to fall!"
 
 

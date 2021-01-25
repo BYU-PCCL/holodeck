@@ -1,6 +1,6 @@
+import uuid
 import holodeck
 import pytest
-import uuid
 
 
 base_handagent_config = {
@@ -28,34 +28,34 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize("env", [base_handagent_config], indirect=True)
 
 
-shared_env = None
+SHARED_ENV = None
 
 
 @pytest.fixture(scope="package", autouse=True)
 def env_cleanup():
-    global shared_env
+    global SHARED_ENV
 
     yield
 
-    if callable(getattr(shared_env, "__on_exit__", None)):
-        shared_env.__on_exit__()
+    if callable(getattr(SHARED_ENV, "__on_exit__", None)):
+        SHARED_ENV.__on_exit__()
 
 
 @pytest.fixture
 def env(request):
-    global shared_env
+    global SHARED_ENV
 
-    if shared_env is None:
+    if SHARED_ENV is None:
         cfg = request.param
         binary_path = holodeck.packagemanager.get_binary_path_for_package(
             "DefaultWorlds"
         )
-        shared_env = holodeck.environments.HolodeckEnvironment(
+        SHARED_ENV = holodeck.environments.HolodeckEnvironment(
             scenario=cfg,
             binary_path=binary_path,
             show_viewport=False,
             uuid=str(uuid.uuid4()),
         )
 
-    shared_env.reset()
-    return shared_env
+    SHARED_ENV.reset()
+    return SHARED_ENV

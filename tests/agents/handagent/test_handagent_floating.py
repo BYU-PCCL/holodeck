@@ -1,5 +1,6 @@
 """
-Validates the floating portion of the HAND_AGENT_MAX_TORQUES_FLOAT / UHandAgentMaxTorqueFloat control scheme.
+Validates the floating portion of the HAND_AGENT_MAX_TORQUES_FLOAT / UHandAgentMaxTorqueFloat
+control scheme.
 
 """
 
@@ -13,9 +14,9 @@ def validate_movement(env, amount_to_move, expected_movement):
     action[23] = amount_to_move
     env.step(action)
     new_location = env.tick()["LocationSensor"]
-    dx = abs(new_location[0] - last_location[0])
+    d_x = abs(new_location[0] - last_location[0])
 
-    assert abs(dx - expected_movement) < 0.001
+    assert abs(d_x - expected_movement) < 0.001
 
     last_location = new_location
 
@@ -25,9 +26,9 @@ def validate_movement(env, amount_to_move, expected_movement):
     action[24] = amount_to_move
     env.step(action)
     new_location = env.tick()["LocationSensor"]
-    dy = abs(new_location[1] - last_location[1])
+    d_y = abs(new_location[1] - last_location[1])
 
-    assert (dy - expected_movement) < 0.001
+    assert (d_y - expected_movement) < 0.001
 
     last_location = new_location
 
@@ -37,13 +38,14 @@ def validate_movement(env, amount_to_move, expected_movement):
     action[25] = amount_to_move
     env.step(action)
     new_location = env.tick()["LocationSensor"]
-    dz = abs(new_location[2] - last_location[2])
+    d_z = abs(new_location[2] - last_location[2])
 
-    assert abs(dz - expected_movement) < 0.001
+    assert abs(d_z - expected_movement) < 0.001
 
 
 def test_can_float(env):
-    """Basic test to make sure the floating control scheme is working. Moves the HandAgent around and uses the
+    """Basic test to make sure the floating control scheme is working.
+    Moves the HandAgent around and uses the
     LocationSensor to validate that it moved the expected amount
 
     """
@@ -51,8 +53,8 @@ def test_can_float(env):
 
 
 def test_movement_capped(env):
-    """The HandAgent should only be able to float a maximum of 0.5 meters in any direction. Try and move it more
-    than that and verify that it was capped.
+    """The HandAgent should only be able to float a maximum of 0.5 meters in any direction.
+    Try and move it more than that and verify that it was capped.
 
     """
     validate_movement(env, 2, 0.5)

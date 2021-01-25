@@ -5,8 +5,8 @@ import pytest
 
 
 def generate_turtle_walkthrough():
-    """Runs through the maze in TestWorld and records state at every tic, so that tests can analyze the results
-    without having to run through the maze multiple times
+    """Runs through the maze in TestWorld and records state at every tic, so that tests
+    can analyze the results without having to run through the maze multiple times
 
     Returns: list of 4tuples, output from step()
     """
