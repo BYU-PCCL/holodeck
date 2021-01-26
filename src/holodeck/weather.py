@@ -104,7 +104,7 @@ class WeatherController:
 
         """
         weather_type = weather_type.lower()
-        if not weather_type in ["rain", "cloudy", "sunny"]:
+        if weather_type not in ["rain", "cloudy", "sunny"]:
             raise HolodeckException("Invalid weather type " + weather_type)
 
         self.cur_weather = weather_type

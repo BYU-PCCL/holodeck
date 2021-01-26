@@ -133,7 +133,7 @@ def _find_file_in_worlds_dir(filename):
         :obj:`str`: The path or an empty string if the file was not found
 
     """
-    for root, _, filenames in os.walk(util.get_holodeck_path(), "worlds"):
+    for root, _, filenames in os.walk(os.path.join(util.get_holodeck_path(), "worlds")):
         for match in fnmatch.filter(filenames, filename):
             return os.path.join(root, match)
     return ""
@@ -247,9 +247,7 @@ def prune():
     Don't use this function if you have overridden the path.
     """
     if "HOLODECKPATH" in os.environ:
-        print(
-            "This function is not available when using HOLODECKPATH", stream=sys.stderr
-        )
+        print("This function is not available when using HOLODECKPATH", file=sys.stderr)
         return
 
     holodeck_folder = util._get_holodeck_folder()
