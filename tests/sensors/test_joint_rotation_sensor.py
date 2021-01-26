@@ -114,7 +114,7 @@ def test_joint_rotation_sensor(joint_agent_type):
 
             # if "foot" in name or name == "head_swing1":
             #    # Ugly, disgusting hack. Some joints behave strangely, I can't figure out why.
-                 # Skip them for now
+            #    # Skip them for now
             #    # BYU-PCCL/holodeck#297
             #    continue
 

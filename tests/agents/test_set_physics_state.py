@@ -123,7 +123,7 @@ def test_set_physics_state_ang_vel(set_physics_state_env):
     sensed_rot = new_state["RotationSensor"]
 
     # Check to see if the agent changes rotation, if angular velocity was set
-    #correctly the rotation should change.
+    # correctly the rotation should change.
     assert not almost_equal(
         start_rot, sensed_rot
     ), "Angular Velocity was not set correctly!"
