@@ -11,7 +11,6 @@ import random
 import signal
 import subprocess
 import sys
-import win32event
 
 import numpy as np
 
@@ -706,6 +705,7 @@ class HolodeckEnvironment:
         loading_semaphore.close()
 
     def __windows_start_process__(self, binary_path, task_key, verbose):
+        import win32event
 
         out_stream = sys.stdout if verbose else open(os.devnull, "w")
         loading_semaphore = win32event.CreateSemaphore(

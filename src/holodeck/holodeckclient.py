@@ -1,7 +1,5 @@
 """The client used for subscribing shared memory between python and c++."""
 import os
-import win32event
-import posix_ipc
 
 from holodeck.exceptions import HolodeckException
 from holodeck.shmem import Shmem
@@ -42,6 +40,7 @@ class HolodeckClient:
             raise HolodeckException("Currently unsupported os: " + os.name)
 
     def __windows_init__(self):
+        import win32event
 
         semaphore_all_access = 0x1F0003
 
@@ -75,6 +74,7 @@ class HolodeckClient:
         self.unlink = windows_unlink
 
     def __posix_init__(self):
+        import posix_ipc
 
         self._semaphore1 = posix_ipc.Semaphore(
             "/HOLODECK_SEMAPHORE_SERVER" + self._uuid
