@@ -70,7 +70,6 @@ def make(
     """
 
     param_dict = dict()
-    binary_path = None
 
     if scenario_name != "":
         scenario = get_scenario(scenario_name)

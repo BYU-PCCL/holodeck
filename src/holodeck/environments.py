@@ -178,7 +178,7 @@ class HolodeckEnvironment:
             self.agents[key].clean_up_resources()
             del self.agents[key]
 
-    def graceful_exit(self, signum, frame):
+    def graceful_exit(self, _signum, _frame):
         """Signal handler to gracefully exit the script"""
         self.__on_exit__()
         sys.exit()

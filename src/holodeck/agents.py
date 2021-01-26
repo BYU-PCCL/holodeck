@@ -287,19 +287,6 @@ class HolodeckAgent:
 
 
 class UavAgent(HolodeckAgent):
-    # constants in Uav.h in holodeck-engine
-    __MAX_ROLL = 6.5080
-    __MIN_ROLL = -__MAX_ROLL
-
-    __MAX_PITCH = 5.087
-    __MIN_PITCH = -__MAX_PITCH
-
-    __MAX_YAW_RATE = 0.8
-    __MIN_YAW_RATE = -__MAX_YAW_RATE
-
-    __MAX_FORCE = 59.844
-    __MIN_FORCE = -__MAX_FORCE
-
     """A UAV (quadcopter) agent
 
     **Action Space:**

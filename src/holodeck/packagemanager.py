@@ -149,7 +149,6 @@ def scenario_info(scenario_name="", scenario=None, base_indent=0):
             (overrides world_name and scenario_name)
         base_indent (:obj:`int`, optional): How much to indent output by
     """
-    scenario_file = ""
     if scenario is None:
         # Find this file in the worlds/ directory
         filename = "{}.json".format(scenario_name)
@@ -342,7 +341,7 @@ def get_binary_path_for_package(package_name):
         try:
             if config["name"] == package_name:
                 return os.path.join(path, config["path"])
-        except KeyError as error:
+        except KeyError:
             print("Error parsing config file for {}".format(path))
 
     raise NotFoundException("Package `{}` not found!".format(package_name))
