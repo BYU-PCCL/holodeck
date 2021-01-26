@@ -412,6 +412,8 @@ class HolodeckEnvironment:
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .step()")
 
+        last_state = None
+
         for _ in range(ticks):
             if self._agent is not None:
                 self._agent.act(action)
@@ -462,6 +464,8 @@ class HolodeckEnvironment:
         """
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .tick()")
+
+        state = None
 
         for _ in range(num_ticks):
             self._command_center.handle_buffer()
