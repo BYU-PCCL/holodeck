@@ -1,5 +1,5 @@
-import holodeck
 import uuid
+import holodeck
 
 uav_config = {
     "name": "test_collision_sensor",

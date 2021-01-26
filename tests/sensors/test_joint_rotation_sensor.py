@@ -109,16 +109,19 @@ def test_joint_rotation_sensor(joint_agent_type):
                 "JointRotationSensor"
             ][i]
 
-            # print("{} {}/{}".format(name, abs(pre_rotation - post_rotation_forward), abs(pre_rotation - post_rotation_backward)))
+            # print("{} {}/{}".format(name, abs(pre_rotation - post_rotation_forward),
+            # abs(pre_rotation - post_rotation_backward)))
 
             # if "foot" in name or name == "head_swing1":
-            #    # Ugly, disgusting hack. Some joints behave strangely, I can't figure out why. Skip them for now
+            #    # Ugly, disgusting hack. Some joints behave strangely, I can't figure out why.
+                 # Skip them for now
             #    # BYU-PCCL/holodeck#297
             #    continue
 
             # Make sure the rotation is different
 
-            # if there is a large-ish difference between after max pos torque and max neg torque, we're fine
+            # if there is a large-ish difference between after max pos torque and max neg
+            # torque, we're fine
             if abs(abs(post_rotation_forward) - abs(post_rotation_backward)) < 1e-3:
                 if abs(abs(pre_rotation) - abs(post_rotation_forward)) < 1e-3:
                     failures.append(

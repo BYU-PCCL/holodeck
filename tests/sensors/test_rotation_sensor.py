@@ -1,7 +1,7 @@
+import uuid
 import holodeck
 import numpy as np
 from tests.utils.equality import almost_equal
-import uuid
 
 
 base_cfg = {

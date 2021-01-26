@@ -1,5 +1,5 @@
-import holodeck
 import uuid
+import holodeck
 import pytest
 
 cfg = {
@@ -34,9 +34,10 @@ cfg = {
     reason="Dexterity package not installed",
 )
 def test_ball_location_and_reward():
-    """This is currently a stub test. There is no way to reliably test the trash world so this is just meant to a manual
-    test where the tester makes sure that trash is spawning on a table. For now the reward and terminal should be zero.
-    Eventually there should be a way to add a debug option in the config so it can be tested programmatically.
+    """This is currently a stub test. There is no way to reliably test the trash world so this is
+    just meant to a manual test where the tester makes sure that trash is spawning on a table. For
+    now the reward and terminal should be zero. Eventually there should be a way to add a debug
+    option in the config so it can be tested programmatically.
     """
 
     # TODO: Spawn trash above trashcan so it falls in and the reward can be verified

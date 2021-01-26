@@ -1,11 +1,10 @@
-import holodeck
-import cv2
 import copy
 import os
 import uuid
+import holodeck
+import cv2
 import pytest
 
-import pytest
 
 from tests.utils.equality import mean_square_err
 

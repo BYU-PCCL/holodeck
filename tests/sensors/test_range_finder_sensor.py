@@ -1,5 +1,5 @@
-import holodeck
 import uuid
+import holodeck
 
 from tests.utils.equality import almost_equal
 

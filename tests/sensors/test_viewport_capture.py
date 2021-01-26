@@ -1,8 +1,8 @@
 import copy
 import uuid
-import cv2
 import os
 import time
+import cv2
 
 from tests.utils.equality import mean_square_err
 
@@ -98,7 +98,8 @@ def validate_rendering_viewport_disabled(env_1024, between_tests_callback):
 
     Args:
         env_1024: environment to use
-        between_tests_callback: callback to call before teleporting the camera and taking a 2nd screenshot
+        between_tests_callback: callback to call before teleporting the camera and taking a 2nd
+        screenshot
 
     """
     start = time.perf_counter()
@@ -149,7 +150,8 @@ def test_viewport_capture_stops_after_disabling_rendering(env_1024):
 
 
 def test_disabling_viewport_persists_after_reset(env_1024):
-    """Make sure that after disabling the viewport and calling .reset(), that rendering is still disabled"""
+    """Make sure that after disabling the viewport and calling .reset(), that rendering is
+    still disabled"""
 
     def callback(env_1024):
         pass

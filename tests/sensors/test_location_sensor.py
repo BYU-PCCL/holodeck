@@ -1,5 +1,5 @@
-import holodeck
 import uuid
+import holodeck
 from copy import deepcopy
 
 from tests.utils.equality import almost_equal
@@ -25,8 +25,8 @@ sphere_config = {
 
 
 def test_location_sensor_after_teleport():
-    """Make sure the location sensor updates after a teleport. Also verifies that the coordinates for the teleport
-    command match the coordinates used by the location sensor
+    """Make sure the location sensor updates after a teleport. Also verifies that the
+    coordinates for the teleport command match the coordinates used by the location sensor
     """
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
