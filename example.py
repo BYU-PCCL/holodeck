@@ -17,19 +17,21 @@ def uav_example():
     for i in range(10):
         env.reset()
 
-        # This command tells the UAV to not roll or pitch, but to constantly yaw left at 10m altitude.
+        # This command tells the UAV to not roll or pitch, but to constantly yaw left at
+        # 10m altitude.
         command = np.array([0, 0, 2, 1000])
         for _ in range(1000):
             state, reward, terminal, _ = env.step(command)
             # To access specific sensor data:
             pixels = state["RGBCamera"]
             velocity = state["VelocitySensor"]
-            # For a full list of sensors the UAV has, consult the configuration file "InfiniteForest-MaxDistance.json"
+            # For a full list of sensors the UAV has, consult the configuration file
+            # "InfiniteForest-MaxDistance.json"
 
     # You can control the AgentFollower camera (what you see) by pressing V to toggle spectator
     # mode. This detaches the camera and allows you to move freely about the world.
-    # You can also press C to snap to the location of the camera to see the world from the perspective of the
-    # agent. See the Controls section of the ReadMe for more details.
+    # You can also press C to snap to the location of the camera to see the world from the
+    # perspective of the agent. See the Controls section of the ReadMe for more details.
 
 
 def sphere_example():
@@ -54,7 +56,8 @@ def android_example():
     """A basic example of how to use the android agent."""
     env = holodeck.make("AndroidPlayground-MaxDistance")
 
-    # The Android's command is a 94 length vector representing torques to be applied at each of his joints
+    # The Android's command is a 94 length vector representing torques to be applied at each
+    # of his joints
     command = np.ones(94) * 10
     for i in range(10):
         env.reset()
@@ -101,7 +104,8 @@ def world_command_examples():
         _ = env.tick()
     env.reset()
 
-    # The set_day_time_command sets the hour between 0 and 23 (military time). This example sets it to 6 AM.
+    # The set_day_time_command sets the hour between 0 and 23 (military time).
+    # This example sets it to 6 AM.
     env.weather.set_day_time(6)
     for _ in range(300):
         _ = env.tick()
@@ -120,9 +124,9 @@ def world_command_examples():
         _ = env.tick()
     env.reset()
 
-    # The set_weather_command changes the weather in the world. The two available options are "rain" and "cloudy".
-    # The rainfall particle system is attached to the agent, so the rain particles will only be found around each agent.
-    # Every world is clear by default.
+    # The set_weather_command changes the weather in the world. The two available options are "rain"
+    # and "cloudy". The rainfall particle system is attached to the agent, so the rain particles will
+    # only be found around each agent. Every world is clear by default.
     env.weather.set_weather("rain")
     for _ in range(500):
         _ = env.tick()
@@ -218,4 +222,3 @@ def editor_multi_agent_example():
         env.act("uav1", cmd1)
         for _ in range(1000):
             states = env.tick()
-
