@@ -26,7 +26,7 @@ class GLVersion:
 def make(
     scenario_name="",
     scenario_cfg=None,
-    gl_version=GL_VERSION.OPENGL4,
+    gl_version=GLVersion.OPENGL4,
     window_res=None,
     verbose=False,
     show_viewport=True,
@@ -45,7 +45,7 @@ def make(
             configuration files
 
         gl_version (:obj:`int`, optional):
-            The OpenGL version to use (Linux only). Defaults to GL_VERSION.OPENGL4.
+            The OpenGL version to use (Linux only). Defaults to GLVersion.OPENGL4.
 
         window_res ((:obj:`int`, :obj:`int`), optional):
             The (height, width) to load the engine window at. Overrides the (optional) resolution
