@@ -6,7 +6,7 @@ import numpy as np
 from holodeck.spaces import ContinuousActionSpace, DiscreteActionSpace
 from holodeck.sensors import SensorDefinition, SensorFactory, RGBCamera
 from holodeck.command import AddSensorCommand, RemoveSensorCommand
-import joint_constraints
+from . import joint_constraints
 
 
 class ControlSchemes:
