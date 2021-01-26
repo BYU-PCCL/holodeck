@@ -2,11 +2,7 @@
 
 
 class HolodeckException(Exception):
-    """Base class for a generic exception in Holodeck.
-
-    Args:
-        message (str): The error string.
-    """
+    """Base class for a generic exception in Holodeck."""
 
 
 class HolodeckConfigurationException(HolodeckException):

@@ -36,8 +36,8 @@ def make(
     """Creates a Holodeck environment
 
     Args:
-        world_name (:obj:`str`):
-            The name of the world to load as an environment. Must match the name of a world in an
+        scenario_name (:obj:`str`):
+            The name of the scenario to load as an environment. Must match the name of a scenario in an
             installed package.
 
         scenario_cfg (:obj:`dict`): Dictionary containing scenario configuration, instead of loading
