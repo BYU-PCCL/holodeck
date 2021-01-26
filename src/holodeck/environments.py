@@ -398,7 +398,7 @@ class HolodeckEnvironment:
 
         Args:
             action (:obj:`np.ndarray`): An action for the main agent to carry out on the next tick.
-            ticks (:obj:`int`): Number of times to step the environment wiht this action.
+            ticks (:obj:`int`): Number of times to step the environment with this action.
                 If ticks > 1, this function returns the last state generated.
 
         Returns:
@@ -638,7 +638,7 @@ class HolodeckEnvironment:
     def send_world_command(self, name, num_params=None, string_params=None):
         """Send a world command.
 
-        A world command sends an abitrary command that may only exist in a specific world or
+        A world command sends an arbitrary command that may only exist in a specific world or
         package. It is given a name and any amount of string and number parameters that allow it to
         alter the state of the world.
 
@@ -696,7 +696,7 @@ class HolodeckEnvironment:
         except posix_ipc.BusyError:
             raise HolodeckException(
                 "Timed out waiting for binary to load. Ensure that holodeck is "
-                "not being run with root priveleges."
+                "not being run with root privileges."
             )
         loading_semaphore.unlink()
         loading_semaphore.close()

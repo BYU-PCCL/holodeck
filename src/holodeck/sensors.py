@@ -229,7 +229,7 @@ class ViewportCapture(HolodeckSensor):
     - ``CaptureWidth``: Width of captured image
     - ``CaptureHeight``: Height of captured image
 
-    **THESE DIMENSIONS MUST MATCH THE VIEWPORT DIMENSTIONS**
+    **THESE DIMENSIONS MUST MATCH THE VIEWPORT DIMENSIONS**
 
     If you have configured the size of the  viewport (``window_height/width``), you must
     make sure that ``CaptureWidth/Height`` of this configuration block is set to the same

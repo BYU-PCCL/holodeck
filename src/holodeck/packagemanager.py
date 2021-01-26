@@ -233,7 +233,7 @@ def _check_for_old_versions():
         print("Use packagemanager.prune() to delete old packages")
         print("Versions:", not_matching)
         print(
-            "Place an `ignore_old_packages` file in {} to surpress this message".format(
+            "Place an `ignore_old_packages` file in {} to suppress this message".format(
                 path
             )
         )
@@ -245,7 +245,7 @@ def prune():
 
     **DO NOT USE WITH HOLODECKPATH**
 
-    Don't use this function if you have overidden the path.
+    Don't use this function if you have overridden the path.
     """
     if "HOLODECKPATH" in os.environ:
         print(
@@ -486,12 +486,12 @@ def _download_binary(binary_location, install_location, block_size=1000000):
 
     if os.name == "posix":
         print("Fixing Permissions")
-        _make_excecutable(install_location)
+        _make_executable(install_location)
 
     print("Finished.")
 
 
-def _make_excecutable(install_path):
+def _make_executable(install_path):
     for path, _, files in os.walk(install_path):
         for f in files:
             os.chmod(os.path.join(path, f), 0o777)

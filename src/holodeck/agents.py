@@ -230,7 +230,7 @@ class HolodeckAgent:
             self._client.command_center.enqueue_command(command_to_send)
 
     def has_camera(self):
-        """Indicatates whether this agent has a camera or not.
+        """Indicates whether this agent has a camera or not.
 
         Returns:
             :obj:`bool`: If the agent has a sensor or not
