@@ -55,8 +55,7 @@ def convert_unicode(value):
     """
     if isinstance(value, dict):
         return {
-            convert_unicode(key): convert_unicode(value)
-            for key, value in value.items()
+            convert_unicode(key): convert_unicode(value) for key, value in value.items()
         }
 
     if isinstance(value, list):
