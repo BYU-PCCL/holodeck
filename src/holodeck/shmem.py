@@ -19,11 +19,12 @@ class Shmem:
         dtype (type, optional): data type of the shared memory. Defaults to np.float32
         uuid (:obj:`str`, optional): UUID of the memory block. Defaults to ""
     """
+
     _numpy_to_ctype = {
         np.float32: ctypes.c_float,
         np.uint8: ctypes.c_uint8,
         np.bool: ctypes.c_bool,
-        np.byte: ctypes.c_byte
+        np.byte: ctypes.c_byte,
     }
 
     def __init__(self, name, shape, dtype=np.float32, uuid=""):
@@ -44,12 +45,16 @@ class Shmem:
             os.fsync(f)
 
             self._mem_pointer = mmap.mmap(f, size_bytes)
-            os.close(f)  # we don't need the file descriptor to stay open. see the man page
+            os.close(
+                f
+            )  # we don't need the file descriptor to stay open. see the man page
         else:
             raise HolodeckException("Currently unsupported os: " + os.name)
 
         self.np_array = np.ndarray(shape, dtype=dtype)
-        self.np_array.data = (Shmem._numpy_to_ctype[dtype] * size).from_buffer(self._mem_pointer)
+        self.np_array.data = (Shmem._numpy_to_ctype[dtype] * size).from_buffer(
+            self._mem_pointer
+        )
 
     def unlink(self):
         """unlinks the shared memory"""
