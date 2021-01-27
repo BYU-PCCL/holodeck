@@ -20,6 +20,9 @@ def compare_agent_states(state1, state2, thresh=0.01, is_close=True, to_ignore=N
 
 
 def almost_equal(item1, item2, r_thresh=0.01, a_thresh=1e-4):
+    """Takes two items and a threshold and checks to see if they are close enough
+    to be considered equal.
+    """
     item1 = np.array(item1).flatten()
     item2 = np.array(item2).flatten()
     if len(item1) != len(item2):
@@ -39,7 +42,6 @@ def test_main_agent_after_resetting(env_scenario):
 
     """
 
-
     env, scenario = env_scenario
     scenario_config = holodeck.packagemanager.get_scenario(scenario)
 
@@ -57,7 +59,14 @@ def test_main_agent_after_resetting(env_scenario):
         env.reset()
         state = env._get_full_state()[main_agent]
 
-        compare_agent_states(init_state, state, 0.3, is_close=True, to_ignore=["RGBCamera", "BallLocationSensor"])
+        compare_agent_states(
+            init_state,
+            state,
+            0.3,
+            is_close=True,
+            to_ignore=["RGBCamera", "BallLocationSensor"],
+        )
         assert agent_count == len(env.agents)
-        assert sensor_count == sum([len(env.agents[agent].sensors) for agent in env.agents])
-
+        assert sensor_count == sum(
+            [len(env.agents[agent].sensors) for agent in env.agents]
+        )

@@ -7,8 +7,7 @@ from holodeck.environments import HolodeckEnvironment
 
 
 def pytest_generate_tests(metafunc):
-    """Iterate over every scenario
-    """
+    """Iterate over every scenario"""
     scenarios = set()
     for config, full_path in pm._iter_packages():
         for world_entry in config["worlds"]:
@@ -27,7 +26,7 @@ def pytest_generate_tests(metafunc):
 envs = {}
 
 
-@pytest.fixture(scope='package', autouse=True)
+@pytest.fixture(scope="package", autouse=True)
 def env_cleanup():
     global envs
 
