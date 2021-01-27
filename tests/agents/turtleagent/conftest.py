@@ -5,8 +5,8 @@ import pytest
 
 
 def generate_turtle_walkthrough():
-    """Runs through the maze in TestWorld and records state at every tic, so that tests can analyze the results
-    without having to run through the maze multiple times
+    """Runs through the maze in TestWorld and records state at every tic, so that tests
+    can analyze the results without having to run through the maze multiple times
 
     Returns: list of 4tuples, output from step()
     """
@@ -18,10 +18,12 @@ def generate_turtle_walkthrough():
 
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
-    with holodeck.environments.HolodeckEnvironment(scenario=cfg,
-                                                    binary_path=binary_path,
-                                                    show_viewport=False,
-                                                    uuid=str(uuid.uuid4())) as env:
+    with holodeck.environments.HolodeckEnvironment(
+        scenario=cfg,
+        binary_path=binary_path,
+        show_viewport=False,
+        uuid=str(uuid.uuid4()),
+    ) as env:
 
         finish.navigate(env, on_step)
 
@@ -29,8 +31,8 @@ def generate_turtle_walkthrough():
 
 
 def pytest_generate_tests(metafunc):
-    if 'complete_mazeworld_states' in metafunc.fixturenames:
-        metafunc.parametrize('complete_mazeworld_states', ["mazeworld"], indirect=True)
+    if "complete_mazeworld_states" in metafunc.fixturenames:
+        metafunc.parametrize("complete_mazeworld_states", ["mazeworld"], indirect=True)
 
 
 states = None
@@ -60,23 +62,19 @@ cfg = {
             "main_agent": True,
             "control_scheme": 0,
             "sensors": [
-                {
-                    "sensor_type": "RotationSensor"
-                },
-                {
-                    "sensor_type": "LocationSensor"
-                },
+                {"sensor_type": "RotationSensor"},
+                {"sensor_type": "LocationSensor"},
                 {
                     "sensor_type": "DistanceTask",
                     "configuration": {
                         "GoalActor": "teapot",
                         "Interval": 0.5,
                         "GoalDistance": 2,
-                        "MaximizeDistance": False 
-                    }
-                }
+                        "MaximizeDistance": False,
+                    },
+                },
             ],
             "location": [-6, 29.8, 5.8],
         }
-    ]
+    ],
 }

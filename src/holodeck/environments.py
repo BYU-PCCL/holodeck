@@ -14,9 +14,14 @@ import sys
 
 import numpy as np
 
-from holodeck.command import CommandCenter, SpawnAgentCommand, RGBCameraRateCommand, \
-    TeleportCameraCommand, RenderViewportCommand, RenderQualityCommand, \
-    CustomCommand, DebugDrawCommand
+from holodeck.command import (
+    CommandCenter,
+    SpawnAgentCommand,
+    TeleportCameraCommand,
+    RenderViewportCommand,
+    RenderQualityCommand,
+    CustomCommand,
+)
 
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
@@ -52,7 +57,8 @@ class HolodeckEnvironment:
             If engine log output should be printed to stdout
 
         pre_start_steps (:obj:`int`):
-            Number of ticks to call after initializing the world, allows the level to load and settle.
+            Number of ticks to call after initializing the world, allows the level to
+            load and settle.
 
         show_viewport (:obj:`bool`, optional):
             If the viewport should be shown (Linux only) Defaults to True.
@@ -68,9 +74,21 @@ class HolodeckEnvironment:
 
     """
 
-    def __init__(self, agent_definitions=None, binary_path=None, window_size=None,
-                 start_world=True, uuid="", gl_version=4, verbose=False, pre_start_steps=2,
-                 show_viewport=True, ticks_per_sec=30, copy_state=True, scenario=None):
+    def __init__(
+        self,
+        agent_definitions=None,
+        binary_path=None,
+        window_size=None,
+        start_world=True,
+        uuid="",
+        gl_version=4,
+        verbose=False,
+        pre_start_steps=2,
+        show_viewport=True,
+        ticks_per_sec=30,
+        copy_state=True,
+        scenario=None,
+    ):
 
         if agent_definitions is None:
             agent_definitions = []
@@ -99,10 +117,17 @@ class HolodeckEnvironment:
         if start_world:
             world_key = self._scenario["world"]
             if os.name == "posix":
-                self.__linux_start_process__(binary_path, world_key, gl_version, verbose=verbose,
-                                             show_viewport=show_viewport)
+                self.__linux_start_process__(
+                    binary_path,
+                    world_key,
+                    gl_version,
+                    verbose=verbose,
+                    show_viewport=show_viewport,
+                )
             elif os.name == "nt":
-                self.__windows_start_process__(binary_path, world_key, verbose=verbose, show_viewport=show_viewport)
+                self.__windows_start_process__(
+                    binary_path, world_key, verbose=verbose, show_viewport=show_viewport
+                )
             else:
                 raise HolodeckException("Unknown platform: " + os.name)
 
@@ -131,7 +156,7 @@ class HolodeckEnvironment:
 
         self._client.acquire()
 
-        if os.name == "posix" and show_viewport == False:
+        if os.name == "posix" and not show_viewport:
             self.should_render_viewport(False)
 
         # Flag indicates if the user has called .reset() before .tick() and .step()
@@ -146,8 +171,7 @@ class HolodeckEnvironment:
         signal.signal(signal.SIGINT, self.graceful_exit)
 
     def clean_up_resources(self):
-        """ Frees up references to mapped memory files.
-        """
+        """Frees up references to mapped memory files."""
         self._command_center.clean_up_resources()
         if hasattr(self, "_reset_ptr"):
             del self._reset_ptr
@@ -155,9 +179,8 @@ class HolodeckEnvironment:
             self.agents[key].clean_up_resources()
             del self.agents[key]
 
-    def graceful_exit(self, signum, frame):
-        """ Signal handler to gracefully exit the script
-        """
+    def graceful_exit(self, _signum, _frame):
+        """Signal handler to gracefully exit the script"""
         self.__on_exit__()
         sys.exit()
 
@@ -203,42 +226,47 @@ class HolodeckEnvironment:
         if self._scenario is None:
             return
 
-        for agent in self._scenario['agents']:
+        for agent in self._scenario["agents"]:
             sensors = []
-            for sensor in agent['sensors']:
-                if 'sensor_type' not in sensor:
+            for sensor in agent["sensors"]:
+                if "sensor_type" not in sensor:
                     raise HolodeckException(
                         "Sensor for agent {} is missing required key "
-                        "'sensor_type'".format(agent['agent_name']))
+                        "'sensor_type'".format(agent["agent_name"])
+                    )
 
                 # Default values for a sensor
                 sensor_config = {
-                    'location': [0, 0, 0],
-                    'rotation': [0, 0, 0],
-                    'socket': "",
-                    'configuration': None,
-                    'sensor_name': sensor['sensor_type'],
-                    'existing': False
+                    "location": [0, 0, 0],
+                    "rotation": [0, 0, 0],
+                    "socket": "",
+                    "configuration": None,
+                    "sensor_name": sensor["sensor_type"],
+                    "existing": False,
                 }
                 # Overwrite the default values with what is defined in the scenario config
                 sensor_config.update(sensor)
 
-                sensors.append(SensorDefinition(agent['agent_name'],
-                                                agent['agent_type'],
-                                                sensor_config['sensor_name'],
-                                                sensor_config['sensor_type'],
-                                                socket=sensor_config['socket'],
-                                                location=sensor_config['location'],
-                                                rotation=sensor_config['rotation'],
-                                                config=sensor_config['configuration']))
+                sensors.append(
+                    SensorDefinition(
+                        agent["agent_name"],
+                        agent["agent_type"],
+                        sensor_config["sensor_name"],
+                        sensor_config["sensor_type"],
+                        socket=sensor_config["socket"],
+                        location=sensor_config["location"],
+                        rotation=sensor_config["rotation"],
+                        config=sensor_config["configuration"],
+                    )
+                )
             # Default values for an agent
             agent_config = {
-                'location': [0, 0, 0],
-                'rotation': [0, 0, 0],
-                'agent_name': agent['agent_type'],
-                'existing': False,
+                "location": [0, 0, 0],
+                "rotation": [0, 0, 0],
+                "agent_name": agent["agent_type"],
+                "existing": False,
                 "location_randomization": [0, 0, 0],
-                "rotation_randomization": [0, 0, 0]
+                "rotation_randomization": [0, 0, 0],
             }
 
             agent_config.update(agent)
@@ -251,13 +279,13 @@ class HolodeckEnvironment:
             agent_rotation = agent_config["rotation"]
 
             # Randomize the agent start location
-            dx = agent_config["location_randomization"][0]
-            dy = agent_config["location_randomization"][1]
-            dz = agent_config["location_randomization"][2]
+            d_x = agent_config["location_randomization"][0]
+            d_y = agent_config["location_randomization"][1]
+            d_z = agent_config["location_randomization"][2]
 
-            agent_location[0] += random.uniform(-dx, dx)
-            agent_location[1] += random.uniform(-dy, dy)
-            agent_location[2] += random.uniform(-dz, dz)
+            agent_location[0] += random.uniform(-d_x, d_x)
+            agent_location[1] += random.uniform(-d_y, d_y)
+            agent_location[2] += random.uniform(-d_z, d_z)
 
             # Randomize the agent rotation
             d_pitch = agent_config["rotation_randomization"][0]
@@ -268,15 +296,18 @@ class HolodeckEnvironment:
             agent_rotation[1] += random.uniform(-d_roll, d_roll)
             agent_rotation[2] += random.uniform(-d_yaw, d_yaw)
 
-            agent_def = AgentDefinition(agent_config['agent_name'], agent_config['agent_type'],
-                                        starting_loc=agent_location,
-                                        starting_rot=agent_rotation,
-                                        sensors=sensors,
-                                        existing=agent_config["existing"],
-                                        is_main_agent=is_main_agent)
+            agent_def = AgentDefinition(
+                agent_config["agent_name"],
+                agent_config["agent_type"],
+                starting_loc=agent_location,
+                starting_rot=agent_rotation,
+                sensors=sensors,
+                existing=agent_config["existing"],
+                is_main_agent=is_main_agent,
+            )
 
             self.add_agent(agent_def, is_main_agent)
-            self.agents[agent['agent_name']].set_control_scheme(agent['control_scheme'])
+            self.agents[agent["agent_name"]].set_control_scheme(agent["control_scheme"])
             self._spawned_agent_defs.append(agent_def)
 
         if "weather" in self._scenario:
@@ -290,7 +321,7 @@ class HolodeckEnvironment:
             if "day_cycle_length" in weather:
                 day_cycle_length = weather["day_cycle_length"]
                 self.weather.start_day_cycle(day_cycle_length)
-        
+
         if "props" in self._scenario:
             props = self._scenario["props"]
             for prop in props:
@@ -301,7 +332,7 @@ class HolodeckEnvironment:
                     "scale": 1,
                     "sim_physics": False,
                     "material": "",
-                    "tag": ""
+                    "tag": "",
                 }
                 to_spawn.update(prop)
                 self.spawn_prop(
@@ -311,7 +342,7 @@ class HolodeckEnvironment:
                     to_spawn["scale"],
                     to_spawn["sim_physics"],
                     to_spawn["material"],
-                    to_spawn["tag"]
+                    to_spawn["tag"],
                 )
 
     def reset(self):
@@ -334,8 +365,11 @@ class HolodeckEnvironment:
         self.tick()
         # Clear command queue
         if self._command_center.queue_size > 0:
-            print("Warning: Reset called before all commands could be sent. Discarding",
-                  self._command_center.queue_size, "commands.")
+            print(
+                "Warning: Reset called before all commands could be sent. Discarding",
+                self._command_center.queue_size,
+                "commands.",
+            )
         self._command_center.clear()
 
         # Load agents
@@ -365,7 +399,7 @@ class HolodeckEnvironment:
 
         Args:
             action (:obj:`np.ndarray`): An action for the main agent to carry out on the next tick.
-            ticks (:obj:`int`): Number of times to step the environment wiht this action.
+            ticks (:obj:`int`): Number of times to step the environment with this action.
                 If ticks > 1, this function returns the last state generated.
 
         Returns:
@@ -378,6 +412,8 @@ class HolodeckEnvironment:
         """
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .step()")
+
+        last_state = None
 
         for _ in range(ticks):
             if self._agent is not None:
@@ -407,7 +443,8 @@ class HolodeckEnvironment:
 
     def get_joint_constraints(self, agent_name, joint_name):
         """Returns the corresponding swing1, swing2 and twist limit values for the
-                specified agent and joint. Will return None if the joint does not exist for the agent.
+                specified agent and joint. Will return None if the joint does not
+                exist for the agent.
 
         Returns:
             (:obj )
@@ -417,7 +454,7 @@ class HolodeckEnvironment:
     def tick(self, num_ticks=1):
         """Ticks the environment once. Normally used for multi-agent environments.
         Args:
-            num_ticks (:obj:`int`): Number of ticks to perform. Defaults to 1. 
+            num_ticks (:obj:`int`): Number of ticks to perform. Defaults to 1.
         Returns:
             :obj:`dict`: A dictionary from agent name to its full state. The full state is another
                 dictionary from :obj:`holodeck.sensors.Sensors` enum to np.ndarray, containing the
@@ -428,6 +465,8 @@ class HolodeckEnvironment:
         """
         if not self._initial_reset:
             raise HolodeckException("You must call .reset() before .tick()")
+
+        state = None
 
         for _ in range(num_ticks):
             self._command_center.handle_buffer()
@@ -464,24 +503,30 @@ class HolodeckEnvironment:
                 rotation=agent_def.starting_rot,
                 name=agent_def.name,
                 agent_type=agent_def.type.agent_type,
-                is_main_agent=agent_def.is_main_agent
+                is_main_agent=agent_def.is_main_agent,
             )
 
             self._client.command_center.enqueue_command(command_to_send)
         self.agents[agent_def.name].add_sensors(agent_def.sensors)
         if is_main_agent:
             self._agent = self.agents[agent_def.name]
-    
 
     def get_main_agent(self):
         """Returns the main agent in the environment"""
         return self._agent
 
+    def spawn_prop(
+        self,
+        prop_type,
+        location=None,
+        rotation=None,
+        scale=1,
+        sim_physics=False,
+        material="",
+        tag="",
+    ):
+        """Spawns a basic prop object in the world like a box or sphere.
 
-    def spawn_prop(self, prop_type, location=None, rotation=None, scale=1, 
-                    sim_physics=False, material="", tag=""):
-        """Spawns a basic prop object in the world like a box or sphere. 
-        
         Prop will not persist after environment reset.
 
         Args:
@@ -521,19 +566,35 @@ class HolodeckEnvironment:
         material = material.lower()
 
         available_props = ["box", "sphere", "cylinder", "cone"]
-        available_materials = ["white", "gold", "cobblestone", "brick",
-                               "wood", "grass", "steel", "black"]
+        available_materials = [
+            "white",
+            "gold",
+            "cobblestone",
+            "brick",
+            "wood",
+            "grass",
+            "steel",
+            "black",
+        ]
 
         if prop_type not in available_props:
-            raise HolodeckException("{} not an available prop. Available prop types: {}".format(
-                prop_type, available_props))
+            raise HolodeckException(
+                "{} not an available prop. Available prop types: {}".format(
+                    prop_type, available_props
+                )
+            )
         if material not in available_materials and material != "":
-            raise HolodeckException("{} not an available material. Available material types: {}".format(
-                material, available_materials))
+            raise HolodeckException(
+                "{} not an available material. Available material types: {}".format(
+                    material, available_materials
+                )
+            )
 
-        self.send_world_command("SpawnProp", num_params=[location, rotation, scale, sim_physics],
-                                string_params=[prop_type, material, tag])
-
+        self.send_world_command(
+            "SpawnProp",
+            num_params=[location, rotation, scale, sim_physics],
+            string_params=[prop_type, material, tag],
+        )
 
     def move_viewport(self, location, rotation):
         """Teleport the camera to the given location
@@ -543,8 +604,8 @@ class HolodeckEnvironment:
         Args:
             location (:obj:`list` of :obj:`float`): The ``[x, y, z]`` location to give the camera
                 (see :ref:`coordinate-system`)
-            rotation (:obj:`list` of :obj:`float`): The ``[roll, pitch, yaw]`` rotation to give the camera
-                (see :ref:`rotations`)
+            rotation (:obj:`list` of :obj:`float`): The ``[roll, pitch, yaw]`` rotation to give
+                the camera (see :ref:`rotations`)
 
         """
         # test_viewport_capture_after_teleport
@@ -560,7 +621,7 @@ class HolodeckEnvironment:
 
     def set_render_quality(self, render_quality):
         """Adjusts the rendering quality of Holodeck.
-        
+
         Args:
             render_quality (:obj:`int`): An integer between 0 = Low Quality and 3 = Epic quality.
         """
@@ -582,10 +643,10 @@ class HolodeckEnvironment:
     def send_world_command(self, name, num_params=None, string_params=None):
         """Send a world command.
 
-        A world command sends an abitrary command that may only exist in a specific world or
+        A world command sends an arbitrary command that may only exist in a specific world or
         package. It is given a name and any amount of string and number parameters that allow it to
         alter the state of the world.
-        
+
         If a command is sent that does not exist in the world, the environment will exit.
 
         Args:
@@ -599,63 +660,85 @@ class HolodeckEnvironment:
         command_to_send = CustomCommand(name, num_params, string_params)
         self._enqueue_command(command_to_send)
 
-    def __linux_start_process__(self, binary_path, task_key, gl_version, verbose,
-                                show_viewport=True):
+    def __linux_start_process__(
+        self, binary_path, task_key, gl_version, verbose, show_viewport=True
+    ):
         import posix_ipc
-        out_stream = sys.stdout if verbose else open(os.devnull, 'w')
-        loading_semaphore = \
-            posix_ipc.Semaphore('/HOLODECK_LOADING_SEM' + self._uuid, os.O_CREAT | os.O_EXCL,
-                                initial_value=0)
-        arguments = [binary_path, task_key, '-HolodeckOn',
-                     '-LOG=HolodeckLog.txt', '-ForceRes', '-ResX=' + str(self._window_size[1]),
-                     '-ResY=' + str(self._window_size[0]), '--HolodeckUUID=' + self._uuid,
-                     '-TicksPerSec=' + str(self._ticks_per_sec)]
+
+        out_stream = sys.stdout if verbose else open(os.devnull, "w")
+        loading_semaphore = posix_ipc.Semaphore(
+            "/HOLODECK_LOADING_SEM" + self._uuid,
+            os.O_CREAT | os.O_EXCL,
+            initial_value=0,
+        )
+        arguments = [
+            binary_path,
+            task_key,
+            "-HolodeckOn",
+            "-LOG=HolodeckLog.txt",
+            "-ForceRes",
+            "-ResX=" + str(self._window_size[1]),
+            "-ResY=" + str(self._window_size[0]),
+            "--HolodeckUUID=" + self._uuid,
+            "-TicksPerSec=" + str(self._ticks_per_sec),
+        ]
 
         if not show_viewport:
-            arguments.append('-RenderOffScreen')
+            arguments.append("-RenderOffScreen")
 
-        self._world_process = \
-            subprocess.Popen(arguments,
-                             stdout=out_stream,
-                             stderr=out_stream,
-                             env=environment)
+        self._world_process = subprocess.Popen(
+            arguments, stdout=out_stream, stderr=out_stream, env=environment
+        )
 
         atexit.register(self.__on_exit__)
 
         try:
             loading_semaphore.acquire(10)
         except posix_ipc.BusyError:
-            raise HolodeckException("Timed out waiting for binary to load. Ensure that holodeck is "
-                                    "not being run with root privileges.")
+            raise HolodeckException(
+                "Timed out waiting for binary to load. Ensure that holodeck is "
+                "not being run with root privileges."
+            )
         loading_semaphore.unlink()
         loading_semaphore.close()
 
-
-    def __windows_start_process__(self, binary_path, task_key, verbose, show_viewport=True):
+    def __windows_start_process__(
+        self, binary_path, task_key, verbose, show_viewport=True
+    ):
         import win32event
-        out_stream = sys.stdout if verbose else open(os.devnull, 'w')
-        loading_semaphore = win32event.CreateSemaphore(None, 0, 1,
-                                                       'Global\\HOLODECK_LOADING_SEM' + self._uuid)
-        arguments = [binary_path, task_key, '-HolodeckOn', '-LOG=HolodeckLog.txt',
-                     '-ForceRes', '-ResX=' + str(self._window_size[1]), '-ResY=' +
-                     str(self._window_size[0]), '-TicksPerSec=' + str(self._ticks_per_sec),
-                     '--HolodeckUUID=' + self._uuid]
+
+        out_stream = sys.stdout if verbose else open(os.devnull, "w")
+        loading_semaphore = win32event.CreateSemaphore(
+            None, 0, 1, "Global\\HOLODECK_LOADING_SEM" + self._uuid
+        )
+        arguments = [
+            binary_path,
+            task_key,
+            "-HolodeckOn",
+            "-LOG=HolodeckLog.txt",
+            "-ForceRes",
+            "-ResX=" + str(self._window_size[1]),
+            "-ResY=" + str(self._window_size[0]),
+            "-TicksPerSec=" + str(self._ticks_per_sec),
+            "--HolodeckUUID=" + self._uuid,
+        ]
 
         if not show_viewport:
-            arguments.append('-RenderOffScreen')
+            arguments.append("-RenderOffScreen")
 
-        self._world_process = \
-            subprocess.Popen(arguments,
-                             stdout=out_stream, stderr=out_stream)
-
+        self._world_process = subprocess.Popen(
+            arguments, stdout=out_stream, stderr=out_stream
+        )
 
         atexit.register(self.__on_exit__)
-        response = win32event.WaitForSingleObject(loading_semaphore, 100000)  # 100 second timeout
+        response = win32event.WaitForSingleObject(
+            loading_semaphore, 100000
+        )  # 100 second timeout
         if response == win32event.WAIT_TIMEOUT:
             raise HolodeckException("Timed out waiting for binary to load")
 
     def __on_exit__(self):
-        if hasattr(self, '_exited'):
+        if hasattr(self, "_exited"):
             return
 
         self.clean_up_resources()
@@ -663,7 +746,7 @@ class HolodeckEnvironment:
         if hasattr(self, "_client"):
             self._client.unlink()
 
-        if hasattr(self, '_world_process'):
+        if hasattr(self, "_world_process"):
             self._world_process.kill()
             self._world_process.wait(5)
 
@@ -680,13 +763,20 @@ class HolodeckEnvironment:
     def _get_single_state(self):
 
         if self._agent is not None:
-            return self._create_copy(self._state_dict[self._agent.name]) if self._copy_state \
+            return (
+                self._create_copy(self._state_dict[self._agent.name])
+                if self._copy_state
                 else self._state_dict[self._agent.name]
+            )
 
         return self._get_full_state()
 
     def _get_full_state(self):
-        return self._create_copy(self._state_dict) if self._copy_state else self._state_dict
+        return (
+            self._create_copy(self._state_dict)
+            if self._copy_state
+            else self._state_dict
+        )
 
     def _get_reward_terminal(self):
         reward = None

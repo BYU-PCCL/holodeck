@@ -1,8 +1,8 @@
 import copy
 import uuid
-import cv2
 import os
 import time
+import cv2
 
 from tests.utils.equality import mean_square_err
 
@@ -16,15 +16,11 @@ base_cfg = {
         {
             "agent_name": "sphere0",
             "agent_type": "SphereAgent",
-            "sensors": [
-                {
-                    "sensor_type": "ViewportCapture"
-                }
-            ],
+            "sensors": [{"sensor_type": "ViewportCapture"}],
             "control_scheme": 0,
-            "location": [.95, -1.75, .5]
+            "location": [0.95, -1.75, 0.5],
         }
-    ]
+    ],
 }
 
 
@@ -43,44 +39,54 @@ def test_viewport_capture(resolution, request):
 
     cfg["agents"][0]["sensors"][0]["configuration"] = {
         "CaptureWidth": resolution,
-        "CaptureHeight": resolution
+        "CaptureHeight": resolution,
     }
 
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
-    with holodeck.environments.HolodeckEnvironment(scenario=cfg,
-                                                   binary_path=binary_path,
-                                                   show_viewport=False,
-                                                   uuid=str(uuid.uuid4())) as env:
+    with holodeck.environments.HolodeckEnvironment(
+        scenario=cfg,
+        binary_path=binary_path,
+        show_viewport=False,
+        uuid=str(uuid.uuid4()),
+    ) as env:
         env.should_render_viewport(True)
 
         env.tick(5)
 
-        pixels = env.tick()['ViewportCapture'][:, :, 0:3]
+        pixels = env.tick()["ViewportCapture"][:, :, 0:3]
 
         assert pixels.shape == (resolution, resolution, 3)
-        baseline = cv2.imread(os.path.join(request.fspath.dirname, "expected", "{}_viewport.png".format(resolution)))
+        baseline = cv2.imread(
+            os.path.join(
+                request.fspath.dirname, "expected", "{}_viewport.png".format(resolution)
+            )
+        )
         err = mean_square_err(pixels, baseline)
 
-        assert err < 1000, "The expected screenshot did not match the actual screenshot!"
+        assert (
+            err < 1000
+        ), "The expected screenshot did not match the actual screenshot!"
 
 
 def test_viewport_capture_after_teleport(env_1024, request):
     """Validates that the ViewportCapture is updated after teleporting the camera
-    to a different location. 
+    to a different location.
 
     Incidentally tests HolodeckEnvironment.teleport_camera as well
     """
 
     # Other tests muck with this. Set it to true just in case
     env_1024.should_render_viewport(True)
-    env_1024.move_viewport([.9, -1.75, .5], [0, 0, 0])
+    env_1024.move_viewport([0.9, -1.75, 0.5], [0, 0, 0])
 
     for _ in range(5):
         env_1024.tick()
-    
-    pixels = env_1024.tick()['ViewportCapture'][:, :, 0:3]
 
-    baseline = cv2.imread(os.path.join(request.fspath.dirname, "expected", "teleport_viewport_test.png"))
+    pixels = env_1024.tick()["ViewportCapture"][:, :, 0:3]
+
+    baseline = cv2.imread(
+        os.path.join(request.fspath.dirname, "expected", "teleport_viewport_test.png")
+    )
     err = mean_square_err(pixels, baseline)
 
     assert err < 1000, "The captured viewport differed from the expected screenshot!"
@@ -92,7 +98,8 @@ def validate_rendering_viewport_disabled(env_1024, between_tests_callback):
 
     Args:
         env_1024: environment to use
-        between_tests_callback: callback to call before teleporting the camera and taking a 2nd screenshot
+        between_tests_callback: callback to call before teleporting the camera and taking a 2nd
+        screenshot
 
     """
     start = time.perf_counter()
@@ -101,7 +108,7 @@ def validate_rendering_viewport_disabled(env_1024, between_tests_callback):
         env_1024.tick()
     elapsed_with_viewport = time.perf_counter() - start
 
-    initial_screenshot = env_1024.tick()['ViewportCapture'][:, :, 0:3]
+    initial_screenshot = env_1024.tick()["ViewportCapture"][:, :, 0:3]
 
     between_tests_callback(env_1024)
 
@@ -112,7 +119,7 @@ def validate_rendering_viewport_disabled(env_1024, between_tests_callback):
         env_1024.tick()
     elapsed_without_viewport = time.perf_counter() - start
 
-    final_screenshot = env_1024.tick()['ViewportCapture'][:, :, 0:3]
+    final_screenshot = env_1024.tick()["ViewportCapture"][:, :, 0:3]
 
     err = mean_square_err(initial_screenshot, final_screenshot)
 
@@ -143,8 +150,9 @@ def test_viewport_capture_stops_after_disabling_rendering(env_1024):
 
 
 def test_disabling_viewport_persists_after_reset(env_1024):
-    """Make sure that after disabling the viewport and calling .reset(), that rendering is still disabled
-    """
+    """Make sure that after disabling the viewport and calling .reset(), that rendering is
+    still disabled"""
+
     def callback(env_1024):
         pass
 
@@ -156,4 +164,3 @@ def test_disabling_viewport_persists_after_reset(env_1024):
     env_1024.reset()
 
     validate_rendering_viewport_disabled(env_1024, callback)
-
