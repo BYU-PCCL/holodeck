@@ -211,7 +211,15 @@ class SpawnAgentCommand(Command):
 
     """
 
-    def __init__(self, location, rotation, name, agent_type, max_height=sys.maxsize, is_main_agent=False):
+    def __init__(
+        self,
+        location,
+        rotation,
+        name,
+        agent_type,
+        max_height=sys.maxsize,
+        is_main_agent=False,
+    ):
         super(SpawnAgentCommand, self).__init__()
         self._command_type = "SpawnAgent"
         self.set_location(location)
