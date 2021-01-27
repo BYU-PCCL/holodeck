@@ -1,5 +1,5 @@
-import holodeck
 import uuid
+import holodeck
 
 from tests.utils.equality import almost_equal
 
@@ -15,39 +15,45 @@ sphere_config = {
             "sensors": [
                 {
                     "sensor_type": "RangeFinderSensor",
-                    "configuration": {
-                        "LaserMaxDistance": 1,
-                        "LaserCount": 12
-                    }
+                    "configuration": {"LaserMaxDistance": 1, "LaserCount": 12},
                 }
             ],
             "control_scheme": 0,
-            "location": [.95, -1.75, .5]
+            "location": [0.95, -1.75, 0.5],
         }
-    ]
+    ],
 }
 
 
 def test_range_finder_sensor_max():
-    """Make sure the range sensor set max distance correctly.
-    """
+    """Make sure the range sensor set max distance correctly."""
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
-    with holodeck.environments.HolodeckEnvironment(scenario=sphere_config,
-                                                   binary_path=binary_path,
-                                                   show_viewport=False,
-                                                   uuid=str(uuid.uuid4())) as env:
+    with holodeck.environments.HolodeckEnvironment(
+        scenario=sphere_config,
+        binary_path=binary_path,
+        show_viewport=False,
+        uuid=str(uuid.uuid4()),
+    ) as env:
 
         state = env.tick(10)
 
         actual = state["RangeFinderSensor"]
 
-        expected_count = sphere_config["agents"][0]["sensors"][0]["configuration"]["LaserCount"]
-        assert len(actual) == expected_count, "Sensed range size did not match the expected size!"
+        expected_count = sphere_config["agents"][0]["sensors"][0]["configuration"][
+            "LaserCount"
+        ]
+        assert (
+            len(actual) == expected_count
+        ), "Sensed range size did not match the expected size!"
 
-        expected_dist = sphere_config["agents"][0]["sensors"][0]["configuration"]["LaserMaxDistance"]
+        expected_dist = sphere_config["agents"][0]["sensors"][0]["configuration"][
+            "LaserMaxDistance"
+        ]
         assert all(x > 0 for x in actual), "Sensed range includes 0!"
-        assert all(x <= expected_dist for x in actual), "Sensed range includes value greater than 1!"
+        assert all(
+            x <= expected_dist for x in actual
+        ), "Sensed range includes value greater than 1!"
 
 
 uav_config = {
@@ -61,29 +67,27 @@ uav_config = {
             "sensors": [
                 {
                     "sensor_type": "RangeFinderSensor",
-                    "configuration": {
-                        "LaserAngle": -90,
-                        "LaserMaxDistance": 15
-                    }
+                    "configuration": {"LaserAngle": -90, "LaserMaxDistance": 15},
                 }
             ],
             "control_scheme": 0,
-            "location": [0, 0, 10]
+            "location": [0, 0, 10],
         }
-    ]
+    ],
 }
 
 
 def test_range_finder_sensor_falling():
-    """Makes sure that the range sensor updates as the UAV falls, and after it comes to a rest.
-    """
+    """Makes sure that the range sensor updates as the UAV falls, and after it comes to a rest."""
 
     binary_path = holodeck.packagemanager.get_binary_path_for_package("DefaultWorlds")
 
-    with holodeck.environments.HolodeckEnvironment(scenario=uav_config,
-                                                   binary_path=binary_path,
-                                                   show_viewport=False,
-                                                   uuid=str(uuid.uuid4())) as env:
+    with holodeck.environments.HolodeckEnvironment(
+        scenario=uav_config,
+        binary_path=binary_path,
+        show_viewport=False,
+        uuid=str(uuid.uuid4()),
+    ) as env:
 
         last_range = env.tick()["RangeFinderSensor"][0]
 
@@ -100,4 +104,3 @@ def test_range_finder_sensor_falling():
         new_range = env.tick()["RangeFinderSensor"][0]
 
         assert almost_equal(last_range, new_range), "The UAV did not seem to settle!"
-

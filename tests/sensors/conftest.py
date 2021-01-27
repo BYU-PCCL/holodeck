@@ -1,12 +1,10 @@
-import pytest
-
 import uuid
+import pytest
 import holodeck
 
 
 def pytest_generate_tests(metafunc):
-    """Iterate over every scenario
-    """
+    """Iterate over every scenario"""
     if "resolution" in metafunc.fixturenames:
         metafunc.parametrize("resolution", [256, 512, 1024, 2048])
     elif "1024_env" in metafunc.fixturenames:
@@ -49,8 +47,7 @@ def env_cleanup():
 
 @pytest.fixture
 def env_1024(request):
-    """Shares the 1024x1024 configuration for use in two tests
-    """
+    """Shares the 1024x1024 configuration for use in two tests"""
     cfg = {
         "name": "test_viewport_capture",
         "world": "TestWorld",
@@ -119,8 +116,7 @@ def agent_abuse_world(request):
 
 @pytest.fixture
 def rotation_env(request):
-    """Shares the RotationSensor configuration
-    """
+    """Shares the RotationSensor configuration"""
     cfg = {
         "name": "test_rotation_sensor",
         "world": "TestWorld",
@@ -161,7 +157,11 @@ abuse_config = {
         {
             "agent_name": "uav0",
             "agent_type": "UavAgent",
-            "sensors": [{"sensor_type": "AbuseSensor",}],
+            "sensors": [
+                {
+                    "sensor_type": "AbuseSensor",
+                }
+            ],
             "control_scheme": 0,
             "location": [1.5, 0, 9],
             "rotation": [0, 0, 0],
@@ -169,7 +169,11 @@ abuse_config = {
         {
             "agent_name": "android0",
             "agent_type": "AndroidAgent",
-            "sensors": [{"sensor_type": "AbuseSensor",}],
+            "sensors": [
+                {
+                    "sensor_type": "AbuseSensor",
+                }
+            ],
             "control_scheme": 0,
             "location": [0, 0, 10],
             "rotation": [0, 0, 0],
@@ -177,7 +181,11 @@ abuse_config = {
         {
             "agent_name": "turtle0",
             "agent_type": "TurtleAgent",
-            "sensors": [{"sensor_type": "AbuseSensor",}],
+            "sensors": [
+                {
+                    "sensor_type": "AbuseSensor",
+                }
+            ],
             "control_scheme": 0,
             "location": [2, 1.5, 8],
             "rotation": [0, 0, 0],

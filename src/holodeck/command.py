@@ -8,6 +8,7 @@ worry about these.
 import numpy as np
 from holodeck.exceptions import HolodeckException
 
+
 class CommandsGroup:
     """Represents a list of commands
 
@@ -32,12 +33,10 @@ class CommandsGroup:
 
         """
         commands = ",".join(map(lambda x: x.to_json(), self._commands))
-        return "{\"commands\": [" + commands + "]}"
+        return '{"commands": [' + commands + "]}"
 
     def clear(self):
-        """Clear the list of commands.
-
-        """
+        """Clear the list of commands."""
         self._commands.clear()
 
     @property
@@ -87,7 +86,7 @@ class Command:
             for x in number:
                 self.add_number_parameters(x)
             return
-        self._parameters.append("{ \"value\": " + str(number) + " }")
+        self._parameters.append('{ "value": ' + str(number) + " }")
 
     def add_string_parameters(self, string):
         """Add given string parameters to the internal list.
@@ -101,7 +100,7 @@ class Command:
             for x in string:
                 self.add_string_parameters(x)
             return
-        self._parameters.append("{ \"value\": \"" + string + "\" }")
+        self._parameters.append('{ "value": "' + string + '" }')
 
     def to_json(self):
         """Converts to json.
@@ -110,8 +109,13 @@ class Command:
             :obj:`str`: This object as a json string.
 
         """
-        to_return = "{ \"type\": \"" + self._command_type +\
-            "\", \"params\": [" + ",".join(self._parameters) + "]}"
+        to_return = (
+            '{ "type": "'
+            + self._command_type
+            + '", "params": ['
+            + ",".join(self._parameters)
+            + "]}"
+        )
         return to_return
 
 
@@ -122,6 +126,7 @@ class CommandCenter:
         client (:class:`~holodeck.holodeckclient.HolodeckClient`): Client to send commands to
 
     """
+
     def __init__(self, client):
         self._client = client
 
@@ -129,7 +134,9 @@ class CommandCenter:
         self._command_bool_ptr = self._client.malloc("command_bool", [1], np.bool)
         # This is the size of the command buffer that Holodeck expects/will read.
         self.max_buffer = 1048576
-        self._command_buffer_ptr = self._client.malloc("command_buffer", [self.max_buffer], np.byte)
+        self._command_buffer_ptr = self._client.malloc(
+            "command_buffer", [self.max_buffer], np.byte
+        )
         self._commands = CommandsGroup()
         self._should_write_to_command_buffer = False
 
@@ -140,9 +147,7 @@ class CommandCenter:
             del self._command_buffer_ptr
 
     def clear(self):
-        """Clears pending commands
-
-        """
+        """Clears pending commands"""
         self._commands.clear()
 
     def handle_buffer(self):
@@ -177,7 +182,9 @@ class CommandCenter:
 
         """
         np.copyto(self._command_bool_ptr, True)
-        to_write += '0'  # The gason JSON parser in holodeck expects a 0 at the end of the file.
+        to_write += (
+            "0"  # The gason JSON parser in holodeck expects a 0 at the end of the file.
+        )
         input_bytes = str.encode(to_write)
         if len(input_bytes) > self.max_buffer:
             raise HolodeckException("Error: Command length exceeds buffer size")
@@ -196,7 +203,8 @@ class SpawnAgentCommand(Command):
     """Spawn an agent in the world.
 
     Args:
-        location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
+        location (:obj:`list` of :obj:`float`): ``[x, y, z]``
+            location to spawn agent (see :ref:`coordinate-system`)
         name (:obj:`str`): The name of the agent.
         agent_type (:obj:`str` or type): The type of agent to spawn (UAVAgent, NavAgent, ...)
 
@@ -215,7 +223,8 @@ class SpawnAgentCommand(Command):
         """Set where agent will be spawned.
 
         Args:
-            location (:obj:`list` of :obj:`float`): ``[x, y, z]`` location to spawn agent (see :ref:`coordinate-system`)
+            location (:obj:`list` of :obj:`float`): ``[x, y, z]``
+                location to spawn agent (see :ref:`coordinate-system`)
 
         """
         if len(location) != 3:
@@ -274,6 +283,7 @@ class DebugDrawCommand(Command):
         thickness (:obj:`float`): thickness of the line/object
 
     """
+
     def __init__(self, draw_type, start, end, color, thickness):
         super(DebugDrawCommand, self).__init__()
         self._command_type = "DebugDraw"
@@ -291,10 +301,11 @@ class TeleportCameraCommand(Command):
     Args:
         location (:obj:`list` of :obj:`float`): The ``[x, y, z]`` location to give the camera
             (see :ref:`coordinate-system`)
-        rotation (:obj:`list` of :obj:`float`): The ``[roll, pitch, yaw]`` rotation to give the camera
-            (see :ref:`rotations`)
+        rotation (:obj:`list` of :obj:`float`): The ``[roll, pitch, yaw]`` rotation to give
+            the camera (see :ref:`rotations`)
 
     """
+
     def __init__(self, location, rotation):
         Command.__init__(self)
         self._command_type = "TeleportCamera"
@@ -305,8 +316,8 @@ class TeleportCameraCommand(Command):
 class AddSensorCommand(Command):
     """Add a sensor to an agent
 
-        Args:
-            sensor_definition (~holodeck.sensors.SensorDefinition): Sensor to add
+    Args:
+        sensor_definition (~holodeck.sensors.SensorDefinition): Sensor to add
     """
 
     def __init__(self, sensor_definition):
@@ -335,11 +346,13 @@ class RemoveSensorCommand(Command):
         sensor (:obj:`str`): Name of the sensor to remove
 
     """
+
     def __init__(self, agent, sensor):
         Command.__init__(self)
         self._command_type = "RemoveSensor"
         self.add_string_parameters(agent)
         self.add_string_parameters(sensor)
+
 
 class RotateSensorCommand(Command):
     """Rotate a sensor on the agent
@@ -350,6 +363,7 @@ class RotateSensorCommand(Command):
         rotation (:obj:`list` of :obj:`float`): ``[roll, pitch, yaw]`` rotation for sensor.
 
     """
+
     def __init__(self, agent, sensor, rotation):
         Command.__init__(self)
         self._command_type = "RotateSensor"
@@ -359,13 +373,14 @@ class RotateSensorCommand(Command):
 
 
 class RenderViewportCommand(Command):
-    """Enable or disable the viewport. Note that this does not prevent the viewport from being shown,
-    it just prevents it from being updated. 
+    """Enable or disable the viewport. Note that this does not prevent the viewport
+    from being shown, it just prevents it from being updated.
 
     Args:
         render_viewport (:obj:`bool`): If viewport should be rendered
 
     """
+
     def __init__(self, render_viewport):
         Command.__init__(self)
         self.set_command_type("RenderViewport")
@@ -381,6 +396,7 @@ class RGBCameraRateCommand(Command):
         ticks_per_capture (:obj:`int`): number of ticks between captures
 
     """
+
     def __init__(self, agent_name, sensor_name, ticks_per_capture):
         Command.__init__(self)
         self._command_type = "RGBCameraRate"
@@ -396,6 +412,7 @@ class RenderQualityCommand(Command):
         render_quality (int): 0 = low, 1 = medium, 3 = high, 3 = epic
 
     """
+
     def __init__(self, render_quality):
         Command.__init__(self)
         self.set_command_type("AdjustRenderQuality")
@@ -411,6 +428,7 @@ class CustomCommand(Command):
         string_params (obj:`list` of :obj:`int`): List of arbitrary string parameters
 
     """
+
     def __init__(self, name, num_params=None, string_params=None):
         if num_params is None:
             num_params = []

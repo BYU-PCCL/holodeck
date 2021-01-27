@@ -40,4 +40,3 @@ def navigate(env, callback):
 
     for _ in range(30):
         callback(env.step([0, 0]))
-

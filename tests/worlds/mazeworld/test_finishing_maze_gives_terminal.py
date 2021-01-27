@@ -1,5 +1,5 @@
 """
-Make sure that when completing MazeWorld, if the agent navigates to the end, the 
+Make sure that when completing MazeWorld, if the agent navigates to the end, the
 state is marked as terminal at some point.
 
 """
@@ -12,4 +12,3 @@ def test_finishing_maze_gives_terminal(complete_mazeworld_states):
             return
 
     assert False, "No terminal state found"
-

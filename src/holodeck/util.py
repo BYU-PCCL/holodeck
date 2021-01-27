@@ -2,12 +2,11 @@
 import math
 import os
 import holodeck
-from multiprocessing import Process, Event
 
 from holodeck.command import DebugDrawCommand
 
 try:
-    unicode        # Python 2
+    unicode  # Python 2
 except NameError:
     unicode = str  # Python 3
 
@@ -20,6 +19,7 @@ def get_holodeck_version():
     """
     return holodeck.__version__
 
+
 def _get_holodeck_folder():
     if "HOLODECKPATH" in os.environ and os.environ["HOLODECKPATH"] != "":
         return os.environ["HOLODECKPATH"]
@@ -31,6 +31,7 @@ def _get_holodeck_folder():
         return os.path.expanduser("~\\AppData\\Local\\holodeck")
 
     raise NotImplementedError("holodeck is only supported for Linux and Windows")
+
 
 def get_holodeck_path():
     """Gets the path of the holodeck environment
@@ -53,14 +54,15 @@ def convert_unicode(value):
 
     """
     if isinstance(value, dict):
-        return {convert_unicode(key): convert_unicode(value)
-                for key, value in value.iteritems()}
+        return {
+            convert_unicode(key): convert_unicode(value) for key, value in value.items()
+        }
 
     if isinstance(value, list):
         return [convert_unicode(item) for item in value]
 
     if isinstance(value, unicode):
-        return value.encode('utf-8')
+        return value.encode("utf-8")
 
     return value
 

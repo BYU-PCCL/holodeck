@@ -5,29 +5,80 @@ import math
 
 test_data = [
     # agent_name, control_scheme, exp_min, exp_max
-    {"type": "UavAgent", "name": "UavAgent", "control_scheme": 0, "min": [-5.087, -6.5080, -0.8, -59.844],
-     "max": [5.087, 6.5080, 0.8, 59.844]},
-    {"type": "AndroidAgent", "name": "AndroidAgent0", "control_scheme": 0, "min": [-20 for _ in range(94)],
-     "max": [20 for _ in range(94)]},
-    {"type": "AndroidAgent", "name": "AndroidAgent1", "control_scheme": 1, "min": [-1 for _ in range(94)],
-     "max": [1 for _ in range(94)]},
-    {"type": "SphereAgent", "name": "SphereAgent0", "control_scheme": 0, "min": 0, "max": 4},
-    {"type": "SphereAgent", "name": "SphereAgent1", "control_scheme": 1, "min": [-20, -20], "max": [20, 20]},
-    {"type": "TurtleAgent", "name": "TurtleAgent", "control_scheme": 0, "min": [-160.0, -35.0], "max": [160.0, 35.0]},
-    {"type": "HandAgent", "name": "HandAgent0", "control_scheme": 0, "min": [-20 for _ in range(23)],
-     "max": [20 for _ in range(23)]},
-    {"type": "HandAgent", "name": "HandAgent1", "control_scheme": 1, "min": [-1 for _ in range(23)],
-     "max": [1 for _ in range(23)]},
+    {
+        "type": "UavAgent",
+        "name": "UavAgent",
+        "control_scheme": 0,
+        "min": [-5.087, -6.5080, -0.8, -59.844],
+        "max": [5.087, 6.5080, 0.8, 59.844],
+    },
+    {
+        "type": "AndroidAgent",
+        "name": "AndroidAgent0",
+        "control_scheme": 0,
+        "min": [-20 for _ in range(94)],
+        "max": [20 for _ in range(94)],
+    },
+    {
+        "type": "AndroidAgent",
+        "name": "AndroidAgent1",
+        "control_scheme": 1,
+        "min": [-1 for _ in range(94)],
+        "max": [1 for _ in range(94)],
+    },
+    {
+        "type": "SphereAgent",
+        "name": "SphereAgent0",
+        "control_scheme": 0,
+        "min": 0,
+        "max": 4,
+    },
+    {
+        "type": "SphereAgent",
+        "name": "SphereAgent1",
+        "control_scheme": 1,
+        "min": [-20, -20],
+        "max": [20, 20],
+    },
+    {
+        "type": "TurtleAgent",
+        "name": "TurtleAgent",
+        "control_scheme": 0,
+        "min": [-160.0, -35.0],
+        "max": [160.0, 35.0],
+    },
+    {
+        "type": "HandAgent",
+        "name": "HandAgent0",
+        "control_scheme": 0,
+        "min": [-20 for _ in range(23)],
+        "max": [20 for _ in range(23)],
+    },
+    {
+        "type": "HandAgent",
+        "name": "HandAgent1",
+        "control_scheme": 1,
+        "min": [-1 for _ in range(23)],
+        "max": [1 for _ in range(23)],
+    },
 ]
 
-agents = [{"agent_name": x["name"], "agent_type": x["type"], "sensors": [],
-           "control_scheme": x["control_scheme"], "location": [0, 0, 5]} for x in test_data]
+agents = [
+    {
+        "agent_name": x["name"],
+        "agent_type": x["type"],
+        "sensors": [],
+        "control_scheme": x["control_scheme"],
+        "location": [0, 0, 5],
+    }
+    for x in test_data
+]
 
 config = {
     "name": "test_collision_sensor",
     "world": "TestWorld",
     "main_agent": "UavAgent",
-    "agents": agents
+    "agents": agents,
 }
 
 
@@ -49,10 +100,12 @@ def check_constraints(x, y):
 def test_min_max_action_space_constraints():
     binary_path = pm.get_binary_path_for_package("DefaultWorlds")
 
-    with HolodeckEnvironment(scenario=config,
-                             binary_path=binary_path,
-                             show_viewport=False,
-                             uuid=str(uuid.uuid4())) as env:
+    with HolodeckEnvironment(
+        scenario=config,
+        binary_path=binary_path,
+        show_viewport=False,
+        uuid=str(uuid.uuid4()),
+    ) as env:
 
         for x in test_data:
             agent = x["name"]
@@ -67,4 +120,3 @@ def test_min_max_action_space_constraints():
             exp_max = x["max"]
 
             check_constraints(max_result, exp_max)
-

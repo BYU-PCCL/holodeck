@@ -60,9 +60,7 @@ def compare_rgb_sensor_data_with_baseline(
     return mean_square_err(pixels, baseline)
 
 
-def compare_rgb_sensor_data(
-    sensor_data_1, sensor_data_2, show_images=False
-) -> float:
+def compare_rgb_sensor_data(sensor_data_1, sensor_data_2, show_images=False) -> float:
     """
     Compare data from RGB sensors
     return mean squared error
