@@ -687,7 +687,7 @@ class HolodeckEnvironment:
             arguments.append("-RenderOffScreen")
 
         self._world_process = subprocess.Popen(
-            arguments, stdout=out_stream, stderr=out_stream, env=environment
+            arguments, stdout=out_stream, stderr=out_stream
         )
 
         atexit.register(self.__on_exit__)
