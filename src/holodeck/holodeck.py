@@ -1,4 +1,4 @@
-"""Module complaining high level interface for loading environments."""
+"""Module conpylaining high level interface for loading environments."""
 import uuid
 
 from holodeck.environments import HolodeckEnvironment
@@ -36,8 +36,8 @@ def make(
     """Creates a Holodeck environment
 
     Args:
-        scenario_name (:obj:`str`):
-            The name of the scenario to load as an environment. Must match the name of a scenario in an
+        world_name (:obj:`str`):
+            The name of the world to load as an environment. Must match the name of a world in an
             installed package.
 
         scenario_cfg (:obj:`dict`): Dictionary containing scenario configuration, instead of loading
@@ -45,7 +45,7 @@ def make(
             configuration files
 
         gl_version (:obj:`int`, optional):
-            The OpenGL version to use (Linux only). Defaults to GLVersion.OPENGL4.
+            The OpenGL version to use (Linux only). Defaults to GL_VERSION.OPENGL4.
 
         window_res ((:obj:`int`, :obj:`int`), optional):
             The (height, width) to load the engine window at. Overrides the (optional) resolution
@@ -70,6 +70,7 @@ def make(
     """
 
     param_dict = dict()
+    binary_path = None
 
     if scenario_name != "":
         scenario = get_scenario(scenario_name)
