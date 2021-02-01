@@ -160,3 +160,24 @@ def draw_point(env, loc, color=None, thickness=10.0):
     color = [255, 0, 0] if color is None else color
     command_to_send = DebugDrawCommand(3, loc, [0, 0, 0], color, thickness)
     env._enqueue_command(command_to_send)
+
+
+def _windows_check_process_alive(pid):
+    import win32process
+    import win32con
+
+    if win32process.GetExitCodeProcess(pid) == win32con.STILL_ACTIVE:
+        return True
+
+    return False
+
+
+def _linux_check_process_alive(pid):
+    return os.path.exists("/proc/{}".format(pid))
+
+
+def check_process_alive(pid):
+    if os.name == "posix":
+        return _linux_check_process_alive(pid)
+    if os.name == "nt":
+        return _windows_check_process_alive(pid)

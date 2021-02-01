@@ -152,7 +152,7 @@ class HolodeckEnvironment:
         else:
             self._default_state_fn = self._get_full_state
 
-        self._client.acquire()
+        self._acquire_catch_crash()
 
         if os.name == "posix" and not show_viewport:
             self.should_render_viewport(False)
@@ -419,7 +419,7 @@ class HolodeckEnvironment:
 
             self._command_center.handle_buffer()
             self._client.release()
-            self._client.acquire()
+            self._acquire_catch_crash()
 
             reward, terminal = self._get_reward_terminal()
             last_state = self._default_state_fn(), reward, terminal, None
@@ -470,10 +470,21 @@ class HolodeckEnvironment:
             self._command_center.handle_buffer()
 
             self._client.release()
-            self._client.acquire()
+            self._acquire_catch_crash()
             state = self._default_state_fn()
 
         return state
+
+    def _acquire_catch_crash(self):
+        pid = self._world_process.pid if hasattr(self, "_world_process") else None
+        try:
+            self._client.acquire()
+        except TimeoutError:
+            raise HolodeckException(
+                "Timed out waiting for engine process to release semaphore. Is it frozen?"
+                if pid and check_process_alive(pid)
+                else "Engine process exited while attempting to acquire semaphore"
+            )
 
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
