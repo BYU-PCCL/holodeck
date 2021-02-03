@@ -168,7 +168,8 @@ def logs_path():
 
     Returns:
         :obj:`str`: The file path of where the logs are located
-    """   
+    """
+
     paths = []
     for package in holodeck.packagemanager.installed_packages():
         paths.append(
