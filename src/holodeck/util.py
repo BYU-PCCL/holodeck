@@ -6,6 +6,7 @@ from multiprocessing import Process, Event
 
 from holodeck.command import DebugDrawCommand
 
+
 try:
     unicode        # Python 2
 except NameError:
@@ -161,15 +162,16 @@ def draw_point(env, loc, color=None, thickness=10.0):
 
 
 def logs_path():
+    from holodeck.packagemanager import _iter_packages
     """Gets path for logs.
 
     Returns:
         :obj:`str`: The file path of where the logs are located
-    """
+    """   
 
     if os.name == "nt":
-        print(os.path.join(get_holodeck_path(), r'\worlds\DefaultWorlds\WindowsNoEditor\Holodeck\Saved\Logs'))
-        return os.path.join(get_holodeck_path(), r'\worlds\DefaultWorlds\WindowsNoEditor\Holodeck\Saved\Logs')
+        for config, path in _iter_packages():
+            return os.path.join(path, r'WindowsNoEditor\Holodeck\Saved\Logs')
     if os.name == "posix":
-        print(os.path.join(get_holodeck_path(), r'/worlds/DefaultWorlds/LinuxNoEditor/Holodeck/Saved/Logs/'))
-        return os.path.join(get_holodeck_path(), r'/worlds/DefaultWorlds/LinuxNoEditor/Holodeck/Saved/Logs/')
+        for config, path in _iter_packages():
+            return os.path.join(path, r'LinuxNoEditor/Holodeck/Saved/Logs/')
