@@ -1,43 +1,55 @@
-"""Module containing high level interface for loading environments."""
+"""Module complaining high level interface for loading environments."""
 import uuid
 
 from holodeck.environments import HolodeckEnvironment
-from holodeck.packagemanager import get_scenario,\
-    get_binary_path_for_scenario,\
-    get_package_config_for_scenario,\
-    get_binary_path_for_package
+from holodeck.packagemanager import (
+    get_scenario,
+    get_binary_path_for_scenario,
+    get_package_config_for_scenario,
+    get_binary_path_for_package,
+)
 from holodeck.exceptions import HolodeckException
 
 
-class GL_VERSION:
+class GLVersion:
     """OpenGL Version enum.
 
     Attributes:
         OPENGL3 (:obj:`int`): The value for OpenGL3.
         OPENGL4 (:obj:`int`): The value for OpenGL4.
     """
+
     OPENGL4 = 4
     OPENGL3 = 3
 
 
-def make(scenario_name="", scenario_cfg=None, gl_version=GL_VERSION.OPENGL4, window_res=None, verbose=False,
-         show_viewport=True, ticks_per_sec=30, copy_state=True):
+def make(
+    scenario_name="",
+    scenario_cfg=None,
+    gl_version=GLVersion.OPENGL4,
+    window_res=None,
+    verbose=False,
+    show_viewport=True,
+    ticks_per_sec=30,
+    copy_state=True,
+):
     """Creates a Holodeck environment
 
     Args:
-        world_name (:obj:`str`):
-            The name of the world to load as an environment. Must match the name of a world in an
+        scenario_name (:obj:`str`):
+            The name of the scenario to load as an environment. Must match the name of a scenario in an
             installed package.
 
-        scenario_cfg (:obj:`dict`): Dictionary containing scenario configuration, instead of loading a scenario
-            from the installed packages. Dictionary should match the format of the JSON configuration files
+        scenario_cfg (:obj:`dict`): Dictionary containing scenario configuration, instead of loading
+            a scenario from the installed packages. Dictionary should match the format of the JSON
+            configuration files
 
         gl_version (:obj:`int`, optional):
-            The OpenGL version to use (Linux only). Defaults to GL_VERSION.OPENGL4.
+            The OpenGL version to use (Linux only). Defaults to GLVersion.OPENGL4.
 
         window_res ((:obj:`int`, :obj:`int`), optional):
-            The (height, width) to load the engine window at. Overrides the (optional) resolution in the
-            scenario config file
+            The (height, width) to load the engine window at. Overrides the (optional) resolution
+            in the scenario config file
 
         verbose (:obj:`bool`, optional):
             Whether to run in verbose mode. Defaults to False.
@@ -58,7 +70,6 @@ def make(scenario_name="", scenario_cfg=None, gl_version=GL_VERSION.OPENGL4, win
     """
 
     param_dict = dict()
-    binary_path = None
 
     if scenario_name != "":
         scenario = get_scenario(scenario_name)
@@ -71,7 +82,11 @@ def make(scenario_name="", scenario_cfg=None, gl_version=GL_VERSION.OPENGL4, win
 
     # Get pre-start steps
     package_config = get_package_config_for_scenario(scenario)
-    world = [world for world in package_config["worlds"] if world["name"] == scenario["world"]][0]
+    world = [
+        world
+        for world in package_config["worlds"]
+        if world["name"] == scenario["world"]
+    ][0]
     param_dict["pre_start_steps"] = world["pre_start_steps"]
 
     param_dict["scenario"] = scenario

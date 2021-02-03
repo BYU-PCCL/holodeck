@@ -8,6 +8,7 @@ class WeatherController:
     Args:
         send_world_command (function): Callback for sending commands to a world
     """
+
     def __init__(self, send_world_command):
         self._send_command = send_world_command
         self.cur_weather = "sunny"
@@ -103,7 +104,7 @@ class WeatherController:
 
         """
         weather_type = weather_type.lower()
-        if not weather_type in ["rain", "cloudy", "sunny"]:
+        if weather_type not in ["rain", "cloudy", "sunny"]:
             raise HolodeckException("Invalid weather type " + weather_type)
 
         self.cur_weather = weather_type

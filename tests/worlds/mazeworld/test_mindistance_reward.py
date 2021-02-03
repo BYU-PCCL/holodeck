@@ -8,7 +8,8 @@ EXPECTED_REWARD = LENGTH / REWARD_INTERVAL
 
 
 def test_reward_is_given(complete_mazeworld_states):
-    """Make sure the total reward received for completing the maze is about what is expected (tests Interval)
+    """Make sure the total reward received for completing the maze is about what is expected
+    (tests Interval)
 
     Args:
         complete_mazeworld_states:list of every state from finishing mazeworld
@@ -32,4 +33,3 @@ def test_reward_valid_value(complete_mazeworld_states):
     for _, reward, _, _ in complete_mazeworld_states:
         assert reward == 0.0 or reward == 1.0, \
             "Expected a 1 or a 0, instead got a {}".format(reward)
-
