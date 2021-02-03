@@ -4,23 +4,24 @@ import uuid
 import holodeck
 import numpy as np
 import pytest
+import pprint
 from tests.utils.equality import almost_equal
 
 turtle_config = {
     "name": "test_imu_sensor",
     "world": "TestWorld",
-    "main_agent": "turtle0",
+    "main_agent": "uav0",
     "agents": [
         {
-            "agent_name": "turtle0",
-            "agent_type": "TurtleAgent",
+            "agent_name": "uav0",
+            "agent_type": "UavAgent",
             "sensors": [
                 {
                     "sensor_type": "IMUSensor",
                 },
             ],
             "control_scheme": 0,
-            "location": [0, 0, 0.1],
+            "location": [0, 0, 0.5],
         }
     ],
 }
@@ -41,9 +42,10 @@ def imu_sensor_env():
 
         SHARED_IMU_SENSOR_ENV = holodeck.environments.HolodeckEnvironment(
             scenario=turtle_config,
-            binary_path=binary_path,
+            #binary_path=binary_path,
             show_viewport=False,
-            uuid=str(uuid.uuid4()),
+            start_world=False,
+            #uuid=str(uuid.uuid4()),
         )
     
     with SHARED_IMU_SENSOR_ENV:
@@ -55,24 +57,26 @@ def test_imu_sensor_at_rest(imu_sensor_env):
 
     imu_sensor_env.reset()
 
-
+    imu_sensor_env.tick()
     at_rest_sensor_reading = np.array([[0, 0, 9.8], [0, 0, 0]])
 
     new_state = imu_sensor_env.tick()
     sensed_imu_data = new_state["IMUSensor"]
-    print(sensed_imu_data)
 
     assert almost_equal(at_rest_sensor_reading, sensed_imu_data), "The sensor did not read the agent at rest correctly!py"
 
 
 def test_imu_sensor_after_applied_force(imu_sensor_env):
+    """Validates that the sensor reads new data when a forces is applied."""
     imu_sensor_env.reset()
 
-    imu_sensor_env.tick(10)
+    imu_sensor_env.tick()
     orig_sensor_reading = imu_sensor_env.tick()["IMUSensor"]
 
-    imu_sensor_env.step([10, 0])
+    imu_sensor_env.step([0, 0, 15, 100])
+
+    imu_sensor_env.tick(25)
+
     new_sensor_reading = imu_sensor_env.tick()["IMUSensor"]
     
     assert not almost_equal(orig_sensor_reading, new_sensor_reading)
-
