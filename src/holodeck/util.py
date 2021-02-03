@@ -164,16 +164,23 @@ def draw_point(env, loc, color=None, thickness=10.0):
 
 
 def logs_path():
-    from holodeck.packagemanager import _iter_packages
     """Gets path for logs.
 
     Returns:
         :obj:`str`: The file path of where the logs are located
     """   
+    paths = []
+    for package in holodeck.packagemanager.installed_packages():
+        paths.append(
+            os.path.join(
+                get_holodeck_path(),
+                'worlds',
+                package,
+                '{}NoEditor'.format(get_os_key()),
+                "Holodeck",
+                "Saved",
+                "Logs",
+            )
+        )
 
-    if os.name == "nt":
-        for config, path in _iter_packages():
-            return os.path.join(path, r'WindowsNoEditor\Holodeck\Saved\Logs')
-    if os.name == "posix":
-        for config, path in _iter_packages():
-            return os.path.join(path, r'LinuxNoEditor/Holodeck/Saved/Logs/')
+    return paths
