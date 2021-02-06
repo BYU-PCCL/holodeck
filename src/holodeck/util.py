@@ -174,9 +174,9 @@ def logs_path():
         paths.append(
             os.path.join(
                 get_holodeck_path(),
-                'worlds',
+                "worlds",
                 package,
-                '{}NoEditor'.format(get_os_key()),
+                "{}NoEditor".format(get_os_key()),
                 "Holodeck",
                 "Saved",
                 "Logs",
