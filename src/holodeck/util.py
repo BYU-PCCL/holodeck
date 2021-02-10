@@ -163,7 +163,7 @@ def draw_point(env, loc, color=None, thickness=10.0):
     env._enqueue_command(command_to_send)
 
 
-def logs_path():
+def log_paths():
     """Gets path for logs.
 
     Returns:

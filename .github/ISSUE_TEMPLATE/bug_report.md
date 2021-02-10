@@ -19,7 +19,7 @@ import holodeck
 A clear and concise description of what you expected to happen.
 
 **Logs**
-Please include the client side output and the Engine debug log. (in the path of `holodeck.util.logs_path()`)
+Please include the client side output and the Engine debug log. (in the path of `holodeck.util.log_paths()`)
 
 **Version Information:**
  - Platform / Version [e.g. Ubuntu 18.04 or Windows 10 1903]
