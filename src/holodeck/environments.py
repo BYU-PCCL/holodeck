@@ -72,6 +72,9 @@ class HolodeckEnvironment:
         scenario (:obj:`dict`):
             The scenario that is to be loaded. See :ref:`scenario-files` for the schema.
 
+        max_ticks (:obj: `int`, optional):
+            The number of ticks to be run before returning to the terminal and cancels the tick function
+
     """
 
     def __init__(
@@ -88,6 +91,7 @@ class HolodeckEnvironment:
         ticks_per_sec=30,
         copy_state=True,
         scenario=None,
+        max_ticks=sys.maxsize,
     ):
 
         if agent_definitions is None:
