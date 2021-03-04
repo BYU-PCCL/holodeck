@@ -116,6 +116,8 @@ class HolodeckEnvironment:
         self._scenario = scenario
         self._initial_agent_defs = agent_definitions
         self._spawned_agent_defs = []
+        self._total_ticks = 0
+        self._max_ticks = max_ticks
 
         # Start world based on OS
         if start_world:
@@ -395,7 +397,7 @@ class HolodeckEnvironment:
 
         return self._default_state_fn()
 
-    def step(self, action, ticks=1):
+    def step(self, action, ticks=1):  # max_ticks?
         """Supplies an action to the main agent and tells the environment to tick once.
         Primary mode of interaction for single agent environments.
 
@@ -476,6 +478,10 @@ class HolodeckEnvironment:
             self._client.release()
             self._client.acquire()
             state = self._default_state_fn()
+            self._total_ticks += 1
+            if self._total_ticks == self._max_ticks:
+                raise HolodeckException("The designated tick limit has been reached")
+                # self.__exit__ ??
 
         return state
 
@@ -678,7 +684,7 @@ class HolodeckEnvironment:
         environment = dict(os.environ.copy())
         if not show_viewport and "DISPLAY" in environment:
             del environment["DISPLAY"]
-        self._world_process = subprocess.Popen(
+        self._world_process = subprocess.Popen(  # max_ticks?
             [
                 binary_path,
                 task_key,
