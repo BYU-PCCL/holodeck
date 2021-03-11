@@ -481,7 +481,7 @@ class HolodeckEnvironment:
             self._total_ticks += 1
             if self._total_ticks == self._max_ticks:
                 raise HolodeckException("The designated tick limit has been reached")
-                # self.__exit__ ??
+                # self.__exit__ ?? quit()??
 
         return state
 
