@@ -485,7 +485,6 @@ class HolodeckEnvironment:
                         self._total_ticks
                     )
                 )
-                # self.__exit__ ?? quit()??
 
         return state
 
