@@ -364,9 +364,11 @@ class HolodeckEnvironment:
         self._reset_ptr[0] = True
         for agent in self.agents.values():
             agent.clear_action()
+        self._total_ticks -= 3
         self.tick()  # Must tick once to send reset before sending spawning commands
         self.tick()  # Bad fix to potential race condition. See issue BYU-PCCL/holodeck#224
         self.tick()
+        self._total_ticks = 0
         # Clear command queue
         if self._command_center.queue_size > 0:
             print(
