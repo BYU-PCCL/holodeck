@@ -509,6 +509,32 @@ class HolodeckEnvironment:
         if is_main_agent:
             self._agent = self.agents[agent_def.name]
 
+    def add_sensor(self, agent_name, agent_type, sensor_name, sensor_type, socket="", location=[0, 0, 0], rotation=[0, 0, 0], config=None):
+        """Add a sensor to an agent in the world.
+
+        Args: agent_name (str): The name of the agent to add the sensor to.
+              agent_type (str): The type of the parent agent.
+              sensor_name (str): The name of the sensor you want to add.
+              sensor_type (str): The type of sensor to be added.
+              socket (str, optional): The name of the socket to attach the sensor to.
+              location (Tuple of float, optional): [x, y, a] coordinates to place sensor relative
+                to agent (or socket)
+              rotation (Type of float, optional): [roll, pitch, yaw] to rotate sensor relative 
+                to agent.
+              config (dict): Configuration dictionary for the sensor, to pass to engine. 
+        """
+
+        if agent_name in self.agents:
+            #agent exists, continue to add sensor
+            #TODO create a sensor def
+            #TODO use the function in agents.py to add the sensor to the agent with the sensor def just made.
+        else:
+            raise HolodeckException("Error: Agent does not exist in world.")
+
+
+
+        sensor_def = 
+
     def get_main_agent(self):
         """Returns the main agent in the environment"""
         return self._agent
