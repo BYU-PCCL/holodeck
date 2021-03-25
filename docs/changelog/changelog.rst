@@ -56,8 +56,8 @@ New Features
 - Added :class:`~holodeck.sensors.RangeFinderSensor` which calculates the
   distance from the sensor to the first collision in the environment. The 
   sensor can send out multiple rays in a circle if desired.
-- Added a 'max tick' function that will stop the instance after a designated
-  number of ticks has happened.
+- Added a 'max tick' function that will exit out of the environment after
+  a designated number of ticks has occurred.
   (`#325 <https://github.com/BYU-PCCL/holodeck/issues/325>`_)
 
 Changes
