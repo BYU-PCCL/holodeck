@@ -27,6 +27,7 @@ from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import AgentDefinition, SensorDefinition, AgentFactory
 from holodeck.weather import WeatherController
+from holodeck.sensor import ViewportCapture
 
 
 class HolodeckEnvironment:
@@ -682,6 +683,9 @@ class HolodeckEnvironment:
         command_to_send = CustomCommand(name, num_params, string_params)
         self._enqueue_command(command_to_send)
 
+    def start_capture(self):
+        
+
     def __linux_start_process__(
         self, binary_path, task_key, gl_version, verbose, show_viewport=True
     ):
@@ -819,3 +823,4 @@ class HolodeckEnvironment:
                     copy[k] = np.copy(v)
             return copy
         return None  # Not implemented for other types
+
