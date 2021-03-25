@@ -11,6 +11,28 @@ Changelog
     merged it at the end in parentheses
   - see https://github.com/BYU-PCCL/holodeck/wiki/Holodeck-Release-Notes-Template
 
+Holodeck 0.3.2
+--------------
+*03/25/2021*
+
+More bug fixes, improvements, and even a few new features.
+
+Highlights
+~~~~~~~~~~
+
+New Features
+~~~~~~~~~~~~
+- Added a 'max tick' function that will exit out of the environment after
+  a designated number of ticks has occurred.
+  (`#325 <https://github.com/BYU-PCCL/holodeck/issues/325>`_)
+
+Changes
+~~~~~~~
+
+Bug Fixes
+~~~~~~~~~
+- Fixed Command.add_number_parameters silently failing if given numpy array (`#427 <https://github.com/BYU-PCCL/holodeck/issues/427>`_)
+
 Holodeck 0.3.1
 --------------
 *04/02/2020*
