@@ -488,6 +488,9 @@ class HolodeckEnvironment:
         return state
 
     def check_max_tick(self):
+        """Increments tick counter '_total_ticks' and throws a
+        HolodeckException if the _max_ticks limit has been met.
+        """
         self._total_ticks += 1
         if self._total_ticks == self._max_ticks:
             raise HolodeckException(
