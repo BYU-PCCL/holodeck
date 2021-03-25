@@ -1,8 +1,8 @@
 import holodeck
-from holodeck.exceptions import HolodeckException
 import pytest
-import sys
 import uuid
+
+from holodeck.exceptions import HolodeckException
 
 max_tick_config = {
     "name": "test",
@@ -72,7 +72,9 @@ def test_max_ticks(set_max_tick_env):
 def test_max_ticks_reset(set_max_tick_env):
     """Validates that the reset function does not hit the max_tick threshold
     and resets the environment correctly."""
+
     set_max_tick_env.reset()
+
     try:
         command = [0, 0, 0, 2000]
         set_max_tick_env.act("agent0", command)
@@ -93,6 +95,7 @@ def test_max_ticks_tick(set_max_tick_env):
     """Validates that tick() will hit the max_tick threshold"""
 
     set_max_tick_env.reset()
+
     try:
         command = [0, 0, 0, 2000]
         set_max_tick_env.act("agent0", command)
@@ -106,7 +109,9 @@ def test_max_ticks_tick(set_max_tick_env):
 
 def test_max_ticks_step(set_max_tick_env):
     """Validates that step() will hit the max_tick threshold"""
+
     set_max_tick_env.reset()
+
     try:
         command = [0, 0, 0, 2000]
         set_max_tick_env.act("agent0", command)
