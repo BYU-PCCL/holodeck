@@ -25,7 +25,7 @@ max_tick_config = {
     ],
 }
 
-shared_max_tick_env = None
+SHARED_MAX_TICK_ENV = None
 
 
 @pytest.fixture(scope="module")
@@ -34,15 +34,15 @@ def set_max_tick_env():
     instances of the same test
     """
 
-    global shared_max_tick_env
+    global SHARED_MAX_TICK_ENV
 
-    if shared_max_tick_env is None:
+    if SHARED_MAX_TICK_ENV is None:
 
         binary_path = holodeck.packagemanager.get_binary_path_for_package(
             "DefaultWorlds"
         )
 
-        shared_max_tick_env = holodeck.environments.HolodeckEnvironment(
+        SHARED_MAX_TICK_ENV = holodeck.environments.HolodeckEnvironment(
             scenario=max_tick_config,
             binary_path=binary_path,
             show_viewport=False,
@@ -50,56 +50,83 @@ def set_max_tick_env():
             max_ticks=10,
         )
 
-    with shared_max_tick_env:
-        yield shared_max_tick_env
+    with SHARED_MAX_TICK_ENV:
+        yield SHARED_MAX_TICK_ENV
 
 
-def test_max_ticks(shared_max_tick_env):
+def test_max_ticks(max_tick_env):
+    """Validates that the instance stops and throws a HolodeckException when
+    the max number of ticks is reached."""
+
     try:
+        command = [0, 0, 0, 2000]
+        max_tick_env.act("agent0", command)
+        for _ in range(10):
+            max_tick_env.tick(1)
+
+        assert False, "No HolodeckException was thrown!"
+    except HolodeckException:
+        assert True
+
+
+def test_max_ticks_reset(max_tick_env):
+    """Validates that the reset function does not hit the max_tick threshold
+    and resets the environment correctly."""
+    max_tick_env.reset()
+    try:
+        command = [0, 0, 0, 2000]
+        max_tick_env.act("agent0", command)
         for _ in range(9):
-            command = [0, 0, 0, 2000]
-            shared_max_tick_env.act("agent0", command)
-            shared_max_tick_env.tick(1)
+            max_tick_env.tick(1)
 
-        shared_max_tick_env.reset()
+        max_tick_env.reset()
+
+        for _ in range(9):
+            max_tick_env.tick(1)
+
         assert True
     except HolodeckException:
-        assert False
+        assert False, "A HolodeckException was thrown when using reset()!"
 
 
-def test_max_ticks_tick(shared_max_tick_env):
-    shared_max_tick_env.reset()
+def test_max_ticks_tick(max_tick_env):
+    """Validates that tick() will hit the max_tick threshold"""
+
+    max_tick_env.reset()
     try:
+        command = [0, 0, 0, 2000]
+        max_tick_env.act("agent0", command)
         for _ in range(10):
-            command = [0, 0, 0, 2000]
-            shared_max_tick_env.act("agent0", command)
-            shared_max_tick_env.tick(1)
-        assert False
+            max_tick_env.tick(1)
+
+        assert False, "No HolodeckException was thrown when using tick()!"
     except HolodeckException:
         assert True
 
 
-def test_max_ticks_step(shared_max_tick_env):
-    shared_max_tick_env.reset()
+def test_max_ticks_step(max_tick_env):
+    """Validates that step() will hit the max_tick threshold"""
+    max_tick_env.reset()
     try:
+        command = [0, 0, 0, 2000]
+        max_tick_env.act("agent0", command)
         for _ in range(10):
-            command = [0, 0, 0, 2000]
-            shared_max_tick_env.act("agent0", command)
-            shared_max_tick_env.step(1)
-        assert False
+            max_tick_env.step(1)
+        assert False, "No HolodeckException was thrown when using step()!"
     except HolodeckException:
         assert True
 
 
-def test_no_max_ticks(shared_max_tick_env):
+def test_no_max_ticks(max_tick_env):
+    """Validates that not setting max_tick will not throw a HolodeckException"""
 
-    shared_max_tick_env.reset()
-    shared_max_tick_env.max_ticks = sys.maxsize
+    max_tick_env.reset()
+    max_tick_env.max_ticks = sys.maxsize
     try:
+        command = [0, 0, 0, 2000]
+        max_tick_env.act("agent0", command)
         for _ in range(10):
-            command = [0, 0, 0, 2000]
-            shared_max_tick_env.act("agent0", command)
-            shared_max_tick_env.tick(1)
-        assert False
-    except HolodeckException:
+            max_tick_env.tick(1)
         assert True
+    except HolodeckException:
+        assert False, "A HolodeckException was thrown with no max_tick set!"
