@@ -22,7 +22,7 @@ Highlights
 
 New Features
 ~~~~~~~~~~~~
-- Added a 'max tick' function that will exit out of the environment after
+- Added a 'max tick' functionality that will exit out of the environment after
   a designated number of ticks has occurred.
   (`#325 <https://github.com/BYU-PCCL/holodeck/issues/325>`_)
 
