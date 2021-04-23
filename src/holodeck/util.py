@@ -5,6 +5,7 @@ import holodeck
 
 from holodeck.command import DebugDrawCommand
 
+
 try:
     unicode  # Python 2
 except NameError:
@@ -181,3 +182,26 @@ def check_process_alive(pid):
         return _linux_check_process_alive(pid)
     if os.name == "nt":
         return _windows_check_process_alive(pid)
+
+
+def log_paths():
+    """Gets path for logs.
+
+    Returns:
+        :obj:`str`: The file path of where the logs are located
+    """
+    paths = []
+    for package in holodeck.packagemanager.installed_packages():
+        paths.append(
+            os.path.join(
+                get_holodeck_path(),
+                "worlds",
+                package,
+                "{}NoEditor".format(get_os_key()),
+                "Holodeck",
+                "Saved",
+                "Logs",
+            )
+        )
+
+    return paths
