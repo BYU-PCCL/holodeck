@@ -26,7 +26,7 @@ from holodeck.command import (
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import AgentDefinition, SensorDefinition, AgentFactory
-from holodeck.util import check_process_alive
+from holodeck.util import check_process_alive, log_paths
 from holodeck.weather import WeatherController
 
 
@@ -505,6 +505,8 @@ class HolodeckEnvironment:
         try:
             self._client.acquire()
         except TimeoutError:
+            print("Engine error", file=sys.stderr)
+            print("Check logs:\n{}\n".format("\n".join(log_paths())), file=sys.stderr)
             raise HolodeckException(
                 "Timed out waiting for engine process to release semaphore. Is it frozen?"
                 if pid and check_process_alive(pid)
