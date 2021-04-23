@@ -26,6 +26,7 @@ from holodeck.command import (
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import AgentDefinition, SensorDefinition, AgentFactory
+from holodeck.util import check_process_alive
 from holodeck.weather import WeatherController
 
 
@@ -498,7 +499,7 @@ class HolodeckEnvironment:
                     self._total_ticks
                 )
             )
-    
+
     def _acquire_catch_crash(self):
         pid = self._world_process.pid if hasattr(self, "_world_process") else None
         try:
@@ -508,6 +509,7 @@ class HolodeckEnvironment:
                 "Timed out waiting for engine process to release semaphore. Is it frozen?"
                 if pid and check_process_alive(pid)
                 else "Engine process exited while attempting to acquire semaphore"
+            )
 
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
