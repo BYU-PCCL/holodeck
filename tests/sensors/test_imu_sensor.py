@@ -3,6 +3,7 @@
 import holodeck
 import numpy as np
 import pytest
+import uuid
 from tests.utils.equality import almost_equal
 
 turtle_config = {
@@ -41,10 +42,9 @@ def imu_sensor_env():
 
         SHARED_IMU_SENSOR_ENV = holodeck.environments.HolodeckEnvironment(
             scenario=turtle_config,
-            # binary_path=binary_path,
+            binary_path=binary_path,
             show_viewport=False,
-            start_world=False,
-            # uuid=str(uuid.uuid4()),
+            uuid=str(uuid.uuid4())
         )
 
     with SHARED_IMU_SENSOR_ENV:
