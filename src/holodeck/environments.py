@@ -515,7 +515,7 @@ class HolodeckEnvironment:
             print("***", file=sys.stderr)
             # https://stackoverflow.com/a/792163
             raise HolodeckException(
-                "Timed out waiting for engine process to release semaphore. Is it frozen?"
+                "Timed out waiting for engine process to release semaphore. Process is still running, is it frozen?"
                 if pid and check_process_alive(pid)
                 else "Engine process exited while attempting to acquire semaphore"
             ) from error
