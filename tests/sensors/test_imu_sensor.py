@@ -58,7 +58,7 @@ def test_imu_sensor_at_rest(imu_sensor_env):
     imu_sensor_env.tick()
     at_rest_sensor_reading = np.array([[0, 0, 9.8], [0, 0, 0]])
 
-    new_state = imu_sensor_env.tick(20)
+    new_state = imu_sensor_env.tick(40)
     sensed_imu_data = new_state["IMUSensor"]
     assert almost_equal(
         at_rest_sensor_reading, sensed_imu_data, 0.5, 0.5
