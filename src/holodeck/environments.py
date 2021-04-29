@@ -509,8 +509,10 @@ class HolodeckEnvironment:
         try:
             self._client.acquire()
         except TimeoutError as error:
+            print("***")
             print("Engine error", file=sys.stderr)
-            print("Check logs:\n{}\n".format("\n".join(log_paths())), file=sys.stderr)
+            print("Check logs:\n{}\n".format("\n- ".join(log_paths())), file=sys.stderr)
+            print("***")
             # https://stackoverflow.com/a/792163
             raise HolodeckException(
                 "Timed out waiting for engine process to release semaphore. Is it frozen?"
