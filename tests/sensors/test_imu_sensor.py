@@ -44,7 +44,7 @@ def imu_sensor_env():
             scenario=turtle_config,
             binary_path=binary_path,
             show_viewport=False,
-            uuid=str(uuid.uuid4())
+            uuid=str(uuid.uuid4()),
         )
 
     with SHARED_IMU_SENSOR_ENV:
