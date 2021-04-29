@@ -11,6 +11,28 @@ Changelog
     merged it at the end in parentheses
   - see https://github.com/BYU-PCCL/holodeck/wiki/Holodeck-Release-Notes-Template
 
+Holodeck 0.3.2
+--------------
+*03/25/2021*
+
+More bug fixes, improvements, and even a few new features.
+
+Highlights
+~~~~~~~~~~
+
+New Features
+~~~~~~~~~~~~
+- Added a 'max tick' functionality that will exit out of the environment after
+  a designated number of ticks has occurred.
+  (`#325 <https://github.com/BYU-PCCL/holodeck/issues/325>`_)
+
+Changes
+~~~~~~~
+
+Bug Fixes
+~~~~~~~~~
+- Fixed Command.add_number_parameters silently failing if given numpy array (`#427 <https://github.com/BYU-PCCL/holodeck/issues/427>`_)
+
 Holodeck 0.3.1
 --------------
 *04/02/2020*
@@ -56,6 +78,9 @@ New Features
 - Added :class:`~holodeck.sensors.RangeFinderSensor` which calculates the
   distance from the sensor to the first collision in the environment. The 
   sensor can send out multiple rays in a circle if desired.
+- Added a 'max tick' function that will exit out of the environment after
+  a designated number of ticks has occurred.
+  (`#325 <https://github.com/BYU-PCCL/holodeck/issues/325>`_)
 
 Changes
 ~~~~~~~

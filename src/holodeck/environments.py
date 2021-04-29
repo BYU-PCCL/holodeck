@@ -72,6 +72,9 @@ class HolodeckEnvironment:
         scenario (:obj:`dict`):
             The scenario that is to be loaded. See :ref:`scenario-files` for the schema.
 
+        max_ticks (:obj: `int`, optional):
+            The number of ticks to be run before returning to the terminal and cancels the tick function
+
     """
 
     def __init__(
@@ -88,6 +91,7 @@ class HolodeckEnvironment:
         ticks_per_sec=30,
         copy_state=True,
         scenario=None,
+        max_ticks=sys.maxsize,
     ):
 
         if agent_definitions is None:
@@ -112,6 +116,8 @@ class HolodeckEnvironment:
         self._scenario = scenario
         self._initial_agent_defs = agent_definitions
         self._spawned_agent_defs = []
+        self._total_ticks = 0
+        self._max_ticks = max_ticks
 
         # Start world based on OS
         if start_world:
@@ -264,6 +270,7 @@ class HolodeckEnvironment:
                 "location": [0, 0, 0],
                 "rotation": [0, 0, 0],
                 "agent_name": agent["agent_type"],
+                "max_height": sys.maxsize,
                 "existing": False,
                 "location_randomization": [0, 0, 0],
                 "rotation_randomization": [0, 0, 0],
@@ -274,6 +281,8 @@ class HolodeckEnvironment:
 
             if "main_agent" in self._scenario:
                 is_main_agent = self._scenario["main_agent"] == agent["agent_name"]
+
+            max_height = agent_config["max_height"]
 
             agent_location = agent_config["location"]
             agent_rotation = agent_config["rotation"]
@@ -303,6 +312,7 @@ class HolodeckEnvironment:
                 starting_rot=agent_rotation,
                 sensors=sensors,
                 existing=agent_config["existing"],
+                max_height=max_height,
                 is_main_agent=is_main_agent,
             )
 
@@ -360,9 +370,13 @@ class HolodeckEnvironment:
         self._reset_ptr[0] = True
         for agent in self.agents.values():
             agent.clear_action()
+        self._total_ticks -= 4  # This is so these 3 ticks don't hit the max_ticks threshold so the program successfully resets
         self.tick()  # Must tick once to send reset before sending spawning commands
         self.tick()  # Bad fix to potential race condition. See issue BYU-PCCL/holodeck#224
         self.tick()
+        self._total_ticks = (
+            -1 - self._pre_start_steps
+        )  # Not sure why -1, but makes sure to only count user ticks
         # Clear command queue
         if self._command_center.queue_size > 0:
             print(
@@ -425,6 +439,7 @@ class HolodeckEnvironment:
 
             reward, terminal = self._get_reward_terminal()
             last_state = self._default_state_fn(), reward, terminal, None
+            self.check_max_tick()
 
         return last_state
 
@@ -474,8 +489,21 @@ class HolodeckEnvironment:
             self._client.release()
             self._client.acquire()
             state = self._default_state_fn()
+            self.check_max_tick()
 
         return state
+
+    def check_max_tick(self):
+        """Increments tick counter '_total_ticks' and throws a
+        HolodeckException if the _max_ticks limit has been met.
+        """
+        self._total_ticks += 1
+        if self._total_ticks == self._max_ticks:
+            raise HolodeckException(
+                "The designated tick limit has been reached: {} tick(s)".format(
+                    self._total_ticks
+                )
+            )
 
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
@@ -503,6 +531,7 @@ class HolodeckEnvironment:
                 rotation=agent_def.starting_rot,
                 name=agent_def.name,
                 agent_type=agent_def.type.agent_type,
+                max_height=agent_def.max_height,
                 is_main_agent=agent_def.is_main_agent,
             )
 
