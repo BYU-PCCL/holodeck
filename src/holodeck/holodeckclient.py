@@ -90,9 +90,9 @@ class HolodeckClient:
         def posix_acquire_semaphore(sem):
             try:
                 sem.acquire(self.timeout)
-            except posix_ipc.BusyError:
+            except posix_ipc.BusyError as error:
                 # Raise a TimeoutError for consistency with Windows implementation
-                raise TimeoutError("Timed out or error waiting for engine!")
+                raise TimeoutError("Timed out or error waiting for engine!") from error
 
         def posix_release_semaphore(sem):
             sem.release()

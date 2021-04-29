@@ -508,14 +508,15 @@ class HolodeckEnvironment:
         pid = self._world_process.pid if hasattr(self, "_world_process") else None
         try:
             self._client.acquire()
-        except TimeoutError:
+        except TimeoutError as error:
             print("Engine error", file=sys.stderr)
             print("Check logs:\n{}\n".format("\n".join(log_paths())), file=sys.stderr)
+            # https://stackoverflow.com/a/792163
             raise HolodeckException(
                 "Timed out waiting for engine process to release semaphore. Is it frozen?"
                 if pid and check_process_alive(pid)
                 else "Engine process exited while attempting to acquire semaphore"
-            )
+            ) from error
 
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)
