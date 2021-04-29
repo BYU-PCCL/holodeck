@@ -269,6 +269,7 @@ class HolodeckEnvironment:
                 "location": [0, 0, 0],
                 "rotation": [0, 0, 0],
                 "agent_name": agent["agent_type"],
+                "max_height": sys.maxsize,
                 "existing": False,
                 "location_randomization": [0, 0, 0],
                 "rotation_randomization": [0, 0, 0],
@@ -279,6 +280,8 @@ class HolodeckEnvironment:
 
             if "main_agent" in self._scenario:
                 is_main_agent = self._scenario["main_agent"] == agent["agent_name"]
+
+            max_height = agent_config["max_height"]
 
             agent_location = agent_config["location"]
             agent_rotation = agent_config["rotation"]
@@ -308,6 +311,7 @@ class HolodeckEnvironment:
                 starting_rot=agent_rotation,
                 sensors=sensors,
                 existing=agent_config["existing"],
+                max_height=max_height,
                 is_main_agent=is_main_agent,
             )
 
@@ -539,6 +543,7 @@ class HolodeckEnvironment:
                 rotation=agent_def.starting_rot,
                 name=agent_def.name,
                 agent_type=agent_def.type.agent_type,
+                max_height=agent_def.max_height,
                 is_main_agent=agent_def.is_main_agent,
             )
 
