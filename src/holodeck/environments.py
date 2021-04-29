@@ -511,7 +511,7 @@ class HolodeckEnvironment:
         except TimeoutError as error:
             print("***", file=sys.stderr)
             print("Engine error", file=sys.stderr)
-            print("Check logs:\n{}\n".format("\n- ".join(log_paths())), file=sys.stderr)
+            print("Check logs:\n{}".format("\n".join(log_paths())), file=sys.stderr)
             print("***", file=sys.stderr)
             # https://stackoverflow.com/a/792163
             raise HolodeckException(
