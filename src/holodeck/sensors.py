@@ -43,7 +43,7 @@ class HolodeckSensor:
         self.config = {} if config is None else config
 
     def clean_up_resources(self):
-        """Cleans up the resources by deleting the sensor data buffer it exists. """
+        """Cleans up the resources by deleting the sensor data buffer it exists."""
         if hasattr(self, "_sensor_data_buffer"):
             del self._sensor_data_buffer
 
