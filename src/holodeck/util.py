@@ -164,10 +164,18 @@ def draw_point(env, loc, color=None, thickness=10.0):
 
 
 def _windows_check_process_alive(pid):
+    import win32api
     import win32process
     import win32con
 
-    if win32process.GetExitCodeProcess(pid) == win32con.STILL_ACTIVE:
+    if (
+        win32process.GetExitCodeProcess(
+            win32api.OpenProcess(
+                win32con.PROCESS_QUERY_LIMITED_INFORMATION, win32con.FALSE, pid
+            )
+        )
+        == win32con.STILL_ACTIVE
+    ):
         return True
 
     return False
