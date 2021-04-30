@@ -48,7 +48,7 @@ def test_orientation_sensor_after_teleport():
 
         accurate_or = np.zeros((3, 3))
         accurate_or[0, 2] = 1
-        accurate_or[1, 1] = -1
+        accurate_or[1, 1] = 1
         accurate_or[2, 0] = -1
 
         assert almost_equal(

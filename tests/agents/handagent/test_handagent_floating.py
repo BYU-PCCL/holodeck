@@ -13,6 +13,8 @@ def validate_movement(env, amount_to_move, expected_movement):
     # X Axis
     action[23] = amount_to_move
     env.step(action)
+    action[23] = 0
+    env.step(action)
     new_location = env.tick()["LocationSensor"]
     d_x = abs(new_location[0] - last_location[0])
 
@@ -20,10 +22,10 @@ def validate_movement(env, amount_to_move, expected_movement):
 
     last_location = new_location
 
-    action[23] = 0
-
     # Y axis
     action[24] = amount_to_move
+    env.step(action)
+    action[24] = 0
     env.step(action)
     new_location = env.tick()["LocationSensor"]
     d_y = abs(new_location[1] - last_location[1])
@@ -32,10 +34,10 @@ def validate_movement(env, amount_to_move, expected_movement):
 
     last_location = new_location
 
-    action[24] = 0
-
     # Z Axis
     action[25] = amount_to_move
+    env.step(action)
+    action[25] = 0
     env.step(action)
     new_location = env.tick()["LocationSensor"]
     d_z = abs(new_location[2] - last_location[2])

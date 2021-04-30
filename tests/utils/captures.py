@@ -1,7 +1,7 @@
 import os
 from typing import List, Tuple, Optional
 
-import cv2
+from cv2 import cv2
 
 from tests.utils.equality import mean_square_err
 

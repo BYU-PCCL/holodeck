@@ -132,7 +132,9 @@ class HolodeckEnvironment:
                     show_viewport=show_viewport,
                 )
             elif os.name == "nt":
-                self.__windows_start_process__(binary_path, world_key, verbose=verbose)
+                self.__windows_start_process__(
+                    binary_path, world_key, verbose=verbose, show_viewport=show_viewport
+                )
             else:
                 raise HolodeckException("Unknown platform: " + os.name)
 
@@ -715,27 +717,23 @@ class HolodeckEnvironment:
             os.O_CREAT | os.O_EXCL,
             initial_value=0,
         )
-        # Copy the environment variables and remove the DISPLAY variable to hide viewport
-        # https://answers.unrealengine.com/questions/815764/in-the-release-notes-it-says-the-engine-can-now-cr.html?sort=oldest
-        environment = dict(os.environ.copy())
-        if not show_viewport and "DISPLAY" in environment:
-            del environment["DISPLAY"]
+        arguments = [
+            binary_path,
+            task_key,
+            "-HolodeckOn",
+            "-LOG=HolodeckLog.txt",
+            "-ForceRes",
+            "-ResX=" + str(self._window_size[1]),
+            "-ResY=" + str(self._window_size[0]),
+            "--HolodeckUUID=" + self._uuid,
+            "-TicksPerSec=" + str(self._ticks_per_sec),
+        ]
+
+        if not show_viewport:
+            arguments.append("-RenderOffScreen")
+
         self._world_process = subprocess.Popen(
-            [
-                binary_path,
-                task_key,
-                "-HolodeckOn",
-                "-opengl" + str(gl_version),
-                "-LOG=HolodeckLog.txt",
-                "-ForceRes",
-                "-ResX=" + str(self._window_size[1]),
-                "-ResY=" + str(self._window_size[0]),
-                "--HolodeckUUID=" + self._uuid,
-                "-TicksPerSec=" + str(self._ticks_per_sec),
-            ],
-            stdout=out_stream,
-            stderr=out_stream,
-            env=environment,
+            arguments, stdout=out_stream, stderr=out_stream
         )
 
         atexit.register(self.__on_exit__)
@@ -750,27 +748,32 @@ class HolodeckEnvironment:
         loading_semaphore.unlink()
         loading_semaphore.close()
 
-    def __windows_start_process__(self, binary_path, task_key, verbose):
+    def __windows_start_process__(
+        self, binary_path, task_key, verbose, show_viewport=True
+    ):
         import win32event
 
         out_stream = sys.stdout if verbose else open(os.devnull, "w")
         loading_semaphore = win32event.CreateSemaphore(
             None, 0, 1, "Global\\HOLODECK_LOADING_SEM" + self._uuid
         )
+        arguments = [
+            binary_path,
+            task_key,
+            "-HolodeckOn",
+            "-LOG=HolodeckLog.txt",
+            "-ForceRes",
+            "-ResX=" + str(self._window_size[1]),
+            "-ResY=" + str(self._window_size[0]),
+            "-TicksPerSec=" + str(self._ticks_per_sec),
+            "--HolodeckUUID=" + self._uuid,
+        ]
+
+        if not show_viewport:
+            arguments.append("-RenderOffScreen")
+
         self._world_process = subprocess.Popen(
-            [
-                binary_path,
-                task_key,
-                "-HolodeckOn",
-                "-LOG=HolodeckLog.txt",
-                "-ForceRes",
-                "-ResX=" + str(self._window_size[1]),
-                "-ResY=" + str(self._window_size[0]),
-                "-TicksPerSec=" + str(self._ticks_per_sec),
-                "--HolodeckUUID=" + self._uuid,
-            ],
-            stdout=out_stream,
-            stderr=out_stream,
+            arguments, stdout=out_stream, stderr=out_stream
         )
 
         atexit.register(self.__on_exit__)
