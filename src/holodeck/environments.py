@@ -26,6 +26,7 @@ from holodeck.command import (
 from holodeck.exceptions import HolodeckException
 from holodeck.holodeckclient import HolodeckClient
 from holodeck.agents import AgentDefinition, SensorDefinition, AgentFactory
+from holodeck.util import check_process_alive, log_paths
 from holodeck.weather import WeatherController
 
 
@@ -158,7 +159,7 @@ class HolodeckEnvironment:
         else:
             self._default_state_fn = self._get_full_state
 
-        self._client.acquire()
+        self._acquire_catch_crash()
 
         if os.name == "posix" and not show_viewport:
             self.should_render_viewport(False)
@@ -433,7 +434,7 @@ class HolodeckEnvironment:
 
             self._command_center.handle_buffer()
             self._client.release()
-            self._client.acquire()
+            self._acquire_catch_crash()
 
             reward, terminal = self._get_reward_terminal()
             last_state = self._default_state_fn(), reward, terminal, None
@@ -485,7 +486,7 @@ class HolodeckEnvironment:
             self._command_center.handle_buffer()
 
             self._client.release()
-            self._client.acquire()
+            self._acquire_catch_crash()
             state = self._default_state_fn()
             self.check_max_tick()
 
@@ -502,6 +503,22 @@ class HolodeckEnvironment:
                     self._total_ticks
                 )
             )
+
+    def _acquire_catch_crash(self):
+        pid = self._world_process.pid if hasattr(self, "_world_process") else None
+        try:
+            self._client.acquire()
+        except TimeoutError as error:
+            print("***", file=sys.stderr)
+            print("Engine error", file=sys.stderr)
+            print("Check logs:\n{}".format("\n".join(log_paths())), file=sys.stderr)
+            print("***", file=sys.stderr)
+            # https://stackoverflow.com/a/792163
+            raise HolodeckException(
+                "Timed out waiting for engine process to release semaphore. Process is still running, is it frozen?"
+                if pid and check_process_alive(pid)
+                else "Engine process exited while attempting to acquire semaphore"
+            ) from error
 
     def _enqueue_command(self, command_to_send):
         self._command_center.enqueue_command(command_to_send)

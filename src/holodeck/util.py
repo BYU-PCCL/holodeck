@@ -163,6 +163,35 @@ def draw_point(env, loc, color=None, thickness=10.0):
     env._enqueue_command(command_to_send)
 
 
+def _windows_check_process_alive(pid):
+    import win32api
+    import win32process
+    import win32con
+
+    if (
+        win32process.GetExitCodeProcess(
+            win32api.OpenProcess(
+                win32con.PROCESS_QUERY_LIMITED_INFORMATION, win32con.FALSE, pid
+            )
+        )
+        == win32con.STILL_ACTIVE
+    ):
+        return True
+
+    return False
+
+
+def _linux_check_process_alive(pid):
+    return os.path.exists("/proc/{}".format(pid))
+
+
+def check_process_alive(pid):
+    if os.name == "posix":
+        return _linux_check_process_alive(pid)
+    if os.name == "nt":
+        return _windows_check_process_alive(pid)
+
+
 def log_paths():
     """Gets path for logs.
 
