@@ -1,6 +1,6 @@
 # Based on https://github.com/psf/black/actions/runs/17913292/workflow
 
-name: Black Lint
+name: Black Style
 on:
   push:
     paths: 
